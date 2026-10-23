@@ -36,7 +36,7 @@ namespace EchoSphere.Runtime
         {
             string lang = ru ? "ru" : "en";
             var catalog=NativeRunCatalog.Instance;
-            var artifacts=Visual_artifactSystem.Scope;
+            
             var sections=new List<NativePauseSynergiesState.Section>();var cards=new List<NativePauseSynergiesState.Card>();
             foreach(var link in catalog.SphereAbilityLinks){
                 bool sphereOk=NativeSphereLevel(scene,link.Sphere)>=7,abilityOk=scene["player"]["abilities"][link.Ability].Number>=7;
@@ -52,12 +52,12 @@ namespace EchoSphere.Runtime
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "sphere", Heading = ru ? "Сфера + ветка + способность" : "Sphere + branch + ability", Cards = cards });
             cards = new List<NativePauseSynergiesState.Card>();
-            foreach (var row in Visual_engineStats.Scope["getBuildDiagnostics"].Call(scene).Items)
+            foreach (var row in NativeBuildDiagnostics(scene,ru))
             {
-                string id = row["id"].Text;
+                string id = row.Id;
                 string name = id == "offense" ? (ru ? "Атака" : "Offense") : id == "control" ? (ru ? "Контроль" : "Control") : id == "survival" ? (ru ? "Выживание" : "Survival") : id == "network" ? (ru ? "Сеть" : "Network") : id == "resonance" ? (ru ? "Резонанс" : "Resonance") : (ru ? "Синергия" : "Synergy");
                 var tags = new List<NativePauseSynergiesState.Tag>();
-                foreach (var signal in row[lang].Items) tags.Add(new NativePauseSynergiesState.Tag { Id = signal.Text, Text = signal.Text });
+                foreach (var signal in row.Signals) tags.Add(new NativePauseSynergiesState.Tag { Id = signal, Text = signal });
                 cards.Add(new NativePauseSynergiesState.Card { Id = id, Name = name, Diagnostic = true, Tone = "base", Tags = tags });
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "diagnostics", Heading = ru ? "Диагностика билда" : "Build Diagnostics", Cards = cards });
@@ -68,10 +68,9 @@ namespace EchoSphere.Runtime
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "sets", Heading = ru ? "Наборы артефактов" : "Artifact Sets", Cards = cards });
             cards = new List<NativePauseSynergiesState.Card>();
-            foreach (var protocol in artifacts["getArtifactProtocolStates"].Call(scene).Items)
-            {
-                bool active = protocol["active"].Truth, discovered = protocol["discovered"].Truth;
-                cards.Add(new NativePauseSynergiesState.Card { Id = protocol["id"].Text, Name = discovered ? protocol["name"][lang].Text : "???", Description = discovered ? protocol["desc"][lang].Text : (ru ? "Неизвестный протокол." : "Unknown protocol."), Status = active ? (ru ? "АКТИВЕН" : "ACTIVE") : discovered ? (ru ? "ОТКРЫТ" : "DISCOVERED") : "???", Tone = active ? "ice" : "base" });
+            foreach(var state in NativeProtocols(scene)){
+                var protocol=state.Definition;bool active=state.Active,discovered=state.Discovered;
+                cards.Add(new NativePauseSynergiesState.Card {Id=protocol.Id,Name=discovered?(ru?protocol.NameRussian:protocol.NameEnglish):"???",Description=discovered?(ru?protocol.DescriptionRussian:protocol.DescriptionEnglish):(ru?"Неизвестный протокол.":"Unknown protocol."),Status=active?(ru?"АКТИВЕН":"ACTIVE"):discovered?(ru?"ОТКРЫТ":"DISCOVERED"):"???",Tone=active?"ice":"base"});
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "protocols", Heading = ru ? "Протоколы" : "Protocols", Cards = cards });
             cards = new List<NativePauseSynergiesState.Card>();

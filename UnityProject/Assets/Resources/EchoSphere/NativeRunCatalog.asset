@@ -1347,36 +1347,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
       DescriptionEn: +15% radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
       DescriptionEn: +15% radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
       DescriptionEn: +15% radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
       DescriptionEn: +15% radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
       DescriptionEn: +15% radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
       DescriptionEn: +15% radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
       DescriptionEn: +15% radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
       DescriptionEn: +15% radius
     Branches: []
@@ -1390,36 +1390,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: +15% damage
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: +15% damage
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: +15% damage
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: +15% damage
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: +15% damage
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: +15% damage
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: +15% damage
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: +15% damage
     Branches: []
@@ -1433,36 +1433,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
       DescriptionEn: -7% delay
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
       DescriptionEn: -7% delay
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
       DescriptionEn: -7% delay
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
       DescriptionEn: -7% delay
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
       DescriptionEn: -7% delay
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
       DescriptionEn: -7% delay
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
       DescriptionEn: -7% delay
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
       DescriptionEn: -7% delay
     Branches: []
@@ -1476,36 +1476,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
       DescriptionEn: +1 max spheres
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
       DescriptionEn: +1 max spheres
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
       DescriptionEn: +1 max spheres
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
       DescriptionEn: +1 max spheres
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
       DescriptionEn: +1 max spheres
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
       DescriptionEn: +1 max spheres
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
       DescriptionEn: +1 max spheres
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
       DescriptionEn: +1 max spheres
     Branches: []
@@ -1569,50 +1569,50 @@ MonoBehaviour:
         \u0444\u043E\u0440\u043C"
       DescriptionEn: The next choice opens one of three final forms
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u0447\u0435\u0440\u0435\u0437 \u0441\u0444\u0435\u0440\u044B, \u041A\u0414
         32\u0441"
       DescriptionEn: Pulse travels through spheres, CD 32s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u0447\u0435\u0440\u0435\u0437 \u0441\u0444\u0435\u0440\u044B, \u041A\u0414
         30\u0441"
       DescriptionEn: Pulse travels through spheres, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u0447\u0435\u0440\u0435\u0437 \u0441\u0444\u0435\u0440\u044B, \u041A\u0414
         28\u0441"
       DescriptionEn: Pulse travels through spheres, CD 28s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u0447\u0435\u0440\u0435\u0437 \u0441\u0444\u0435\u0440\u044B, \u041A\u0414
         26\u0441"
       DescriptionEn: Pulse travels through spheres, CD 26s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u0447\u0435\u0440\u0435\u0437 \u0441\u0444\u0435\u0440\u044B, \u041A\u0414
         24\u0441"
       DescriptionEn: Pulse travels through spheres, CD 24s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u0447\u0435\u0440\u0435\u0437 \u0441\u0444\u0435\u0440\u044B, \u041A\u0414
         22\u0441"
       DescriptionEn: Pulse travels through spheres, CD 22s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u0447\u0435\u0440\u0435\u0437 \u0441\u0444\u0435\u0440\u044B, \u041A\u0414
         20\u0441"
       DescriptionEn: Pulse travels through spheres, CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u0447\u0435\u0440\u0435\u0437 \u0441\u0444\u0435\u0440\u044B, \u041A\u0414
         18\u0441"
@@ -1628,7 +1628,7 @@ MonoBehaviour:
       DescriptionEn: After passing through a Standard Sphere, it releases an additional
         pulse.
       Id: blast_resonance
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441 \u2022 \u0426\u0432\u0435\u0442\u0435\u043D\u0438\u0435"
@@ -1673,7 +1673,7 @@ MonoBehaviour:
         \u0441\u0444\u0435\u0440\u044B."
       DescriptionEn: The pulse travels sequentially through the nearest linked Spheres.
       Id: blast_network
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0421\u0435\u0442\u044C \u2022 \u042D\u0441\u0442\u0430\u0444\u0435\u0442\u0430"
@@ -1717,7 +1717,7 @@ MonoBehaviour:
       DescriptionEn: The network center gets an empowered pulse and extra damage
         to nearby enemies.
       Id: blast_core
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u042F\u0434\u0440\u043E \u2022 \u0414\u0435\u0442\u043E\u043D\u0430\u0446\u0438\u044F"
@@ -1842,50 +1842,50 @@ MonoBehaviour:
         \u0444\u043E\u0440\u043C"
       DescriptionEn: The next choice opens one of three final forms
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
         \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440,
         \u041A\u0414 20\u0441"
       DescriptionEn: Spheres create a defensive network, CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
         \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440,
         \u041A\u0414 20\u0441"
       DescriptionEn: Spheres create a defensive network, CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
         \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440,
         \u041A\u0414 20\u0441"
       DescriptionEn: Spheres create a defensive network, CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
         \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440,
         \u041A\u0414 20\u0441"
       DescriptionEn: Spheres create a defensive network, CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
         \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440,
         \u041A\u0414 20\u0441"
       DescriptionEn: Spheres create a defensive network, CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
         \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440,
         \u041A\u0414 20\u0441"
       DescriptionEn: Spheres create a defensive network, CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
         \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440,
         \u041A\u0414 20\u0441"
       DescriptionEn: Spheres create a defensive network, CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
         \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440,
         \u041A\u0414 20\u0441"
@@ -1899,7 +1899,7 @@ MonoBehaviour:
         \u0449\u0438\u0442\u0443 \u0441\u0435\u0442\u0438."
       DescriptionEn: Every two nearby Spheres add one charge to the network shield.
       Id: shield_echo_guard
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0411\u0430\u0440\u044C\u0435\u0440 \u2022 \u0420\u0435\u0437\u0435\u0440\u0432"
@@ -1944,7 +1944,7 @@ MonoBehaviour:
         \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0443\u044E \u0441\u0444\u0435\u0440\u0443."
       DescriptionEn: A blocked hit is partially reflected through the nearest Sphere.
       Id: shield_reflector
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u041E\u0442\u0440\u0430\u0436\u0430\u0442\u0435\u043B\u044C \u2022
@@ -1989,7 +1989,7 @@ MonoBehaviour:
         \u043A\u043E\u043D\u0442\u0443\u0440."
       DescriptionEn: Spheres around the player form a unified defensive circuit.
       Id: shield_bastion
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0411\u0430\u0441\u0442\u0438\u043E\u043D \u2022 \u0421\u0442\u0435\u043D\u0430"
@@ -2115,43 +2115,43 @@ MonoBehaviour:
         \u0444\u043E\u0440\u043C"
       DescriptionEn: The next choice opens one of three final forms
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u043A \u0441\u0444\u0435\u0440\u0435,
         \u041A\u0414 17\u0441"
       DescriptionEn: Jump to a sphere, CD 17s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u043A \u0441\u0444\u0435\u0440\u0435,
         \u041A\u0414 15\u0441"
       DescriptionEn: Jump to a sphere, CD 15s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u043A \u0441\u0444\u0435\u0440\u0435,
         \u041A\u0414 13\u0441"
       DescriptionEn: Jump to a sphere, CD 13s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u043A \u0441\u0444\u0435\u0440\u0435,
         \u041A\u0414 11\u0441"
       DescriptionEn: Jump to a sphere, CD 11s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u043A \u0441\u0444\u0435\u0440\u0435,
         \u041A\u0414 11\u0441"
       DescriptionEn: Jump to a sphere, CD 11s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u043A \u0441\u0444\u0435\u0440\u0435,
         \u041A\u0414 11\u0441"
       DescriptionEn: Jump to a sphere, CD 11s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u043A \u0441\u0444\u0435\u0440\u0435,
         \u041A\u0414 11\u0441"
       DescriptionEn: Jump to a sphere, CD 11s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u043A \u0441\u0444\u0435\u0440\u0435,
         \u041A\u0414 11\u0441"
       DescriptionEn: Jump to a sphere, CD 11s
@@ -2163,7 +2163,7 @@ MonoBehaviour:
         \u043A\u0430\u043A \u0442\u043E\u0447\u043A\u0443 \u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F."
       DescriptionEn: The jump uses the nearest Sphere as the destination.
       Id: teleport_echo_jump
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u041F\u0440\u044B\u0436\u043E\u043A \u2022 \u0414\u0430\u043B\u044C\u043D\u044F\u044F
@@ -2205,7 +2205,7 @@ MonoBehaviour:
         \u0430\u0442\u0430\u043A\u0443."
       DescriptionEn: Jumping to a Sphere empowers the next attack.
       Id: teleport_beacon
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u041C\u0430\u044F\u043A \u2022 \u041C\u0435\u0442\u043A\u0430"
@@ -2246,7 +2246,7 @@ MonoBehaviour:
         \u043A\u0440\u0430\u0442\u043A\u043E\u0435 \u043E\u043A\u043D\u043E \u043D\u0435\u0443\u044F\u0437\u0432\u0438\u043C\u043E\u0441\u0442\u0438."
       DescriptionEn: After the jump, the player gains a brief invulnerability window.
       Id: teleport_phase
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0424\u0430\u0437\u0430 \u2022 \u0421\u043A\u0432\u043E\u0437\u044C
@@ -2314,36 +2314,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
       DescriptionEn: +10% speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
       DescriptionEn: +10% speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
       DescriptionEn: +10% speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
       DescriptionEn: +10% speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
       DescriptionEn: +10% speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
       DescriptionEn: +10% speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
       DescriptionEn: +10% speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
       DescriptionEn: +10% speed
     Branches: []
@@ -2357,36 +2357,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-5% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
       DescriptionEn: -5% enemy speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
       DescriptionEn: -10% enemy speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-15% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
       DescriptionEn: -15% enemy speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
       DescriptionEn: -20% enemy speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-25% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
       DescriptionEn: -25% enemy speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-30% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
       DescriptionEn: -30% enemy speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-35% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
       DescriptionEn: -35% enemy speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-40% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
       DescriptionEn: -40% enemy speed
     Branches: []
@@ -2400,36 +2400,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20 \u043C\u0430\u043A\u0441. HP"
       DescriptionEn: +20 max HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20 \u043C\u0430\u043A\u0441. HP"
       DescriptionEn: +20 max HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20 \u043C\u0430\u043A\u0441. HP"
       DescriptionEn: +20 max HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20 \u043C\u0430\u043A\u0441. HP"
       DescriptionEn: +20 max HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20 \u043C\u0430\u043A\u0441. HP"
       DescriptionEn: +20 max HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20 \u043C\u0430\u043A\u0441. HP"
       DescriptionEn: +20 max HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20 \u043C\u0430\u043A\u0441. HP"
       DescriptionEn: +20 max HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20 \u043C\u0430\u043A\u0441. HP"
       DescriptionEn: +20 max HP
     Branches: []
@@ -2498,43 +2498,43 @@ MonoBehaviour:
         \u0444\u043E\u0440\u043C"
       DescriptionEn: The next choice opens one of three final forms
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0441\u0435\u0442\u044C \u043D\u0430 4\u0441, \u041A\u0414 25\u0441"
       DescriptionEn: Overheats the network for 4s, CD 25s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0441\u0435\u0442\u044C \u043D\u0430 5\u0441, \u041A\u0414 25\u0441"
       DescriptionEn: Overheats the network for 5s, CD 25s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0441\u0435\u0442\u044C \u043D\u0430 6\u0441, \u041A\u0414 25\u0441"
       DescriptionEn: Overheats the network for 6s, CD 25s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0441\u0435\u0442\u044C \u043D\u0430 7\u0441, \u041A\u0414 25\u0441"
       DescriptionEn: Overheats the network for 7s, CD 25s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0441\u0435\u0442\u044C \u043D\u0430 8\u0441, \u041A\u0414 25\u0441"
       DescriptionEn: Overheats the network for 8s, CD 25s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0441\u0435\u0442\u044C \u043D\u0430 8\u0441, \u041A\u0414 25\u0441"
       DescriptionEn: Overheats the network for 8s, CD 25s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0441\u0435\u0442\u044C \u043D\u0430 8\u0441, \u041A\u0414 25\u0441"
       DescriptionEn: Overheats the network for 8s, CD 25s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0441\u0435\u0442\u044C \u043D\u0430 8\u0441, \u041A\u0414 25\u0441"
       DescriptionEn: Overheats the network for 8s, CD 25s
@@ -2547,7 +2547,7 @@ MonoBehaviour:
         \u0438 \u0443\u0440\u043E\u043D\u0430."
       DescriptionEn: Fire-aligned Spheres gain additional attack speed and damage.
       Id: firetrail_overdrive
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0435\u0432 \u2022 \u0412\u0441\u043F\u044B\u0448\u043A\u0430"
@@ -2591,7 +2591,7 @@ MonoBehaviour:
       DescriptionEn: Overheat instantly ignites enemies that already have another
         status.
       Id: firetrail_ignition
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0412\u043E\u0441\u043F\u043B\u0430\u043C\u0435\u043D\u0438\u0442\u0435\u043B\u044C
@@ -2632,7 +2632,7 @@ MonoBehaviour:
         \u0438\u043C\u043F\u0443\u043B\u044C\u0441."
       DescriptionEn: Overheat instantly empowers an Aura Sphere and its next pulse.
       Id: firetrail_sanctum
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0421\u0432\u044F\u0442\u0438\u043B\u0438\u0449\u0435 \u2022 \u041F\u043E\u0434\u0436\u0438\u0433"
@@ -2747,43 +2747,43 @@ MonoBehaviour:
         \u0444\u043E\u0440\u043C"
       DescriptionEn: The next choice opens one of three final forms
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "0 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0443\u0437\u043B\u043E\u0432,
         10\u0441, \u041A\u0414 30\u0441"
       DescriptionEn: 0 temporary nodes, 10s, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "1 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0443\u0437\u043B\u043E\u0432,
         10\u0441, \u041A\u0414 30\u0441"
       DescriptionEn: 1 temporary nodes, 10s, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "1 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0443\u0437\u043B\u043E\u0432,
         10\u0441, \u041A\u0414 30\u0441"
       DescriptionEn: 1 temporary nodes, 10s, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "2 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0443\u0437\u043B\u043E\u0432,
         10\u0441, \u041A\u0414 30\u0441"
       DescriptionEn: 2 temporary nodes, 10s, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "2 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0443\u0437\u043B\u043E\u0432,
         10\u0441, \u041A\u0414 30\u0441"
       DescriptionEn: 2 temporary nodes, 10s, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "3 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0443\u0437\u043B\u043E\u0432,
         10\u0441, \u041A\u0414 30\u0441"
       DescriptionEn: 3 temporary nodes, 10s, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "3 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0443\u0437\u043B\u043E\u0432,
         10\u0441, \u041A\u0414 30\u0441"
       DescriptionEn: 3 temporary nodes, 10s, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "4 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0443\u0437\u043B\u043E\u0432,
         10\u0441, \u041A\u0414 30\u0441"
       DescriptionEn: 4 temporary nodes, 10s, CD 30s
@@ -2797,7 +2797,7 @@ MonoBehaviour:
       DescriptionEn: A temporary additional Sphere connects to the nearest network
         node.
       Id: minion_echo_drone
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0414\u0440\u043E\u043D \u2022 \u041E\u0441\u043A\u043E\u043B\u043A\u0438"
@@ -2838,7 +2838,7 @@ MonoBehaviour:
         \u043A \u0434\u0440\u0443\u0433\u043E\u0439."
       DescriptionEn: The drone regularly transfers a pulse from one Sphere to another.
       Id: minion_relay_drone
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0420\u0435\u043B\u0435 \u2022 \u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430"
@@ -2879,7 +2879,7 @@ MonoBehaviour:
       DescriptionEn: The drone stays near the nearest Sphere and accelerates its
         next cycle.
       Id: minion_guardian
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0421\u0442\u0440\u0430\u0436 \u2022 \u0429\u0438\u0442"
@@ -2940,36 +2940,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "0% \u0443\u0440\u043E\u043D\u0430 -> HP"
       DescriptionEn: 0% damage -> HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "3% \u0443\u0440\u043E\u043D\u0430 -> HP"
       DescriptionEn: 3% damage -> HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "6% \u0443\u0440\u043E\u043D\u0430 -> HP"
       DescriptionEn: 6% damage -> HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "9% \u0443\u0440\u043E\u043D\u0430 -> HP"
       DescriptionEn: 9% damage -> HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "12% \u0443\u0440\u043E\u043D\u0430 -> HP"
       DescriptionEn: 12% damage -> HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "15% \u0443\u0440\u043E\u043D\u0430 -> HP"
       DescriptionEn: 15% damage -> HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "18% \u0443\u0440\u043E\u043D\u0430 -> HP"
       DescriptionEn: 18% damage -> HP
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "21% \u0443\u0440\u043E\u043D\u0430 -> HP"
       DescriptionEn: 21% damage -> HP
     Branches: []
@@ -3036,57 +3036,57 @@ MonoBehaviour:
         \u0444\u043E\u0440\u043C"
       DescriptionEn: The next choice opens one of three final forms
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u043F\u043E \u0441\u0435\u0442\u0438 \u0441\u0444\u0435\u0440 \u043A \u0446\u0435\u043B\u0438,
         \u041A\u0414 20\u0441"
       DescriptionEn: Lightning travels through the Sphere Network to its target,
         CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u043F\u043E \u0441\u0435\u0442\u0438 \u0441\u0444\u0435\u0440 \u043A \u0446\u0435\u043B\u0438,
         \u041A\u0414 20\u0441"
       DescriptionEn: Lightning travels through the Sphere Network to its target,
         CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u043F\u043E \u0441\u0435\u0442\u0438 \u0441\u0444\u0435\u0440 \u043A \u0446\u0435\u043B\u0438,
         \u041A\u0414 20\u0441"
       DescriptionEn: Lightning travels through the Sphere Network to its target,
         CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u043F\u043E \u0441\u0435\u0442\u0438 \u0441\u0444\u0435\u0440 \u043A \u0446\u0435\u043B\u0438,
         \u041A\u0414 20\u0441"
       DescriptionEn: Lightning travels through the Sphere Network to its target,
         CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u043F\u043E \u0441\u0435\u0442\u0438 \u0441\u0444\u0435\u0440 \u043A \u0446\u0435\u043B\u0438,
         \u041A\u0414 20\u0441"
       DescriptionEn: Lightning travels through the Sphere Network to its target,
         CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u043F\u043E \u0441\u0435\u0442\u0438 \u0441\u0444\u0435\u0440 \u043A \u0446\u0435\u043B\u0438,
         \u041A\u0414 20\u0441"
       DescriptionEn: Lightning travels through the Sphere Network to its target,
         CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u043F\u043E \u0441\u0435\u0442\u0438 \u0441\u0444\u0435\u0440 \u043A \u0446\u0435\u043B\u0438,
         \u041A\u0414 20\u0441"
       DescriptionEn: Lightning travels through the Sphere Network to its target,
         CD 20s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
         \u043F\u043E \u0441\u0435\u0442\u0438 \u0441\u0444\u0435\u0440 \u043A \u0446\u0435\u043B\u0438,
         \u041A\u0414 20\u0441"
@@ -3102,7 +3102,7 @@ MonoBehaviour:
       DescriptionEn: The discharge travels through every Chain Sphere before striking
         the target.
       Id: lightning_echo_storm
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0428\u0442\u043E\u0440\u043C \u2022 \u041F\u0440\u043E\u0433\u043E\u043D"
@@ -3142,7 +3142,7 @@ MonoBehaviour:
         \u0441\u0444\u0435\u0440\u0430\u043C\u0438."
       DescriptionEn: The discharge jumps between linked Spheres.
       Id: lightning_relay
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0420\u0435\u043B\u0435 \u2022 \u041F\u0435\u0440\u0435\u0441\u043A\u043E\u043A"
@@ -3184,7 +3184,7 @@ MonoBehaviour:
         \u0443\u0440\u043E\u043D."
       DescriptionEn: The last discharge in the sequence deals additional damage.
       Id: lightning_overload
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0437\u043A\u0430 \u2022
@@ -3251,36 +3251,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "5% \u0448\u0430\u043D\u0441"
       DescriptionEn: 5% chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "10% \u0448\u0430\u043D\u0441"
       DescriptionEn: 10% chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "15% \u0448\u0430\u043D\u0441"
       DescriptionEn: 15% chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "20% \u0448\u0430\u043D\u0441"
       DescriptionEn: 20% chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "25% \u0448\u0430\u043D\u0441"
       DescriptionEn: 25% chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "30% \u0448\u0430\u043D\u0441"
       DescriptionEn: 30% chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "35% \u0448\u0430\u043D\u0441"
       DescriptionEn: 35% chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "40% \u0448\u0430\u043D\u0441"
       DescriptionEn: 40% chance
     Branches: []
@@ -3294,36 +3294,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "5% \u0448\u0430\u043D\u0441 x2"
       DescriptionEn: 5% chance x2
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "10% \u0448\u0430\u043D\u0441 x2"
       DescriptionEn: 10% chance x2
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "15% \u0448\u0430\u043D\u0441 x2"
       DescriptionEn: 15% chance x2
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "20% \u0448\u0430\u043D\u0441 x2"
       DescriptionEn: 20% chance x2
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "25% \u0448\u0430\u043D\u0441 x2"
       DescriptionEn: 25% chance x2
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "30% \u0448\u0430\u043D\u0441 x2"
       DescriptionEn: 30% chance x2
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "35% \u0448\u0430\u043D\u0441 x2"
       DescriptionEn: 35% chance x2
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "40% \u0448\u0430\u043D\u0441 x2"
       DescriptionEn: 40% chance x2
     Branches: []
@@ -3387,43 +3387,43 @@ MonoBehaviour:
         \u0444\u043E\u0440\u043C"
       DescriptionEn: The next choice opens one of three final forms
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
         \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 2\u0441, \u041A\u0414 40\u0441"
       DescriptionEn: Network freezes enemies for 2s, CD 40s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
         \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 3\u0441, \u041A\u0414 40\u0441"
       DescriptionEn: Network freezes enemies for 3s, CD 40s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
         \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 4\u0441, \u041A\u0414 40\u0441"
       DescriptionEn: Network freezes enemies for 4s, CD 40s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
         \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 5\u0441, \u041A\u0414 40\u0441"
       DescriptionEn: Network freezes enemies for 5s, CD 40s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
         \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 5\u0441, \u041A\u0414 40\u0441"
       DescriptionEn: Network freezes enemies for 5s, CD 40s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
         \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 5\u0441, \u041A\u0414 40\u0441"
       DescriptionEn: Network freezes enemies for 5s, CD 40s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
         \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 5\u0441, \u041A\u0414 40\u0441"
       DescriptionEn: Network freezes enemies for 5s, CD 40s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
         \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 5\u0441, \u041A\u0414 40\u0441"
       DescriptionEn: Network freezes enemies for 5s, CD 40s
@@ -3439,7 +3439,7 @@ MonoBehaviour:
         \u043D\u0430 18%."
       DescriptionEn: Spheres continue attacking during the time stop.
       Id: timestop_echo_phase
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0424\u0430\u0437\u0430 \u2022 \u0417\u0430\u043B\u043F"
@@ -3483,7 +3483,7 @@ MonoBehaviour:
         \u0441\u0435\u0442\u044C."
       DescriptionEn: The stop zone expands through the network.
       Id: timestop_closed_time
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0417\u0430\u043C\u043A\u043D\u0443\u0442\u043E\u0435 \u0432\u0440\u0435\u043C\u044F
@@ -3525,7 +3525,7 @@ MonoBehaviour:
         \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0439 \u0441\u0444\u0435\u0440\u044B."
       DescriptionEn: The stop anchors enemies around the nearest Sphere.
       Id: timestop_time_anchor
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u042F\u043A\u043E\u0440\u044C \u2022 \u0424\u0438\u043A\u0441\u0430\u0446\u0438\u044F"
@@ -3591,36 +3591,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
       DescriptionEn: +20% pickup radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
       DescriptionEn: +20% pickup radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
       DescriptionEn: +20% pickup radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
       DescriptionEn: +20% pickup radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
       DescriptionEn: +20% pickup radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
       DescriptionEn: +20% pickup radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
       DescriptionEn: +20% pickup radius
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
       DescriptionEn: +20% pickup radius
     Branches: []
@@ -3634,36 +3634,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 110 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
       DescriptionEn: +1 dmg per 110 kills
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 100 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
       DescriptionEn: +1 dmg per 100 kills
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 90 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
       DescriptionEn: +1 dmg per 90 kills
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 80 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
       DescriptionEn: +1 dmg per 80 kills
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 70 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
       DescriptionEn: +1 dmg per 70 kills
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 60 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
       DescriptionEn: +1 dmg per 60 kills
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 50 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
       DescriptionEn: +1 dmg per 50 kills
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 50 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
       DescriptionEn: +1 dmg per 50 kills
     Branches: []
@@ -3736,43 +3736,43 @@ MonoBehaviour:
         \u0444\u043E\u0440\u043C"
       DescriptionEn: The next choice opens one of three final forms
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% HP, \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0432\u0441\u044E \u0441\u0435\u0442\u044C, \u041A\u0414 30\u0441"
       DescriptionEn: -20% HP, overloads the network, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% HP, \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0432\u0441\u044E \u0441\u0435\u0442\u044C, \u041A\u0414 30\u0441"
       DescriptionEn: -20% HP, overloads the network, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% HP, \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0432\u0441\u044E \u0441\u0435\u0442\u044C, \u041A\u0414 30\u0441"
       DescriptionEn: -20% HP, overloads the network, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% HP, \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0432\u0441\u044E \u0441\u0435\u0442\u044C, \u041A\u0414 30\u0441"
       DescriptionEn: -20% HP, overloads the network, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% HP, \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0432\u0441\u044E \u0441\u0435\u0442\u044C, \u041A\u0414 30\u0441"
       DescriptionEn: -20% HP, overloads the network, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% HP, \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0432\u0441\u044E \u0441\u0435\u0442\u044C, \u041A\u0414 30\u0441"
       DescriptionEn: -20% HP, overloads the network, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% HP, \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0432\u0441\u044E \u0441\u0435\u0442\u044C, \u041A\u0414 30\u0441"
       DescriptionEn: -20% HP, overloads the network, CD 30s
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% HP, \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
         \u0432\u0441\u044E \u0441\u0435\u0442\u044C, \u041A\u0414 30\u0441"
       DescriptionEn: -20% HP, overloads the network, CD 30s
@@ -3785,7 +3785,7 @@ MonoBehaviour:
       DescriptionEn: Part of the overload is transferred to the nearest Standard
         Sphere.
       Id: darkritual_blood_link
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u041A\u0440\u043E\u0432\u044C \u2022 \u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430"
@@ -3825,7 +3825,7 @@ MonoBehaviour:
         \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0439 \u0441\u0444\u0435\u0440\u044B."
       DescriptionEn: Lost HP creates an additional pulse around the nearest Sphere.
       Id: darkritual_sacrifice
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u0416\u0435\u0440\u0442\u0432\u0430 \u2022 \u0418\u043C\u043F\u0443\u043B\u044C\u0441"
@@ -3865,7 +3865,7 @@ MonoBehaviour:
         \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0437\u043A\u0430 \u0441\u0435\u0442\u0438."
       DescriptionEn: The lower the HP, the longer the network overload lasts.
       Id: darkritual_void_pact
-      Element: 
+      Element:
       HasFinalPool: 1
       Finals:
       - NameRu: "\u041F\u0443\u0441\u0442\u043E\u0442\u0430 \u2022 \u041D\u0438\u0437\u0448\u0438\u0439
@@ -3933,43 +3933,43 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-0% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
         \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: -0% damage taken
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-4% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
         \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: -4% damage taken
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-8% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
         \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: -8% damage taken
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-12% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
         \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: -12% damage taken
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-16% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
         \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: -16% damage taken
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
         \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: -20% damage taken
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-24% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
         \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: -24% damage taken
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-28% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
         \u0443\u0440\u043E\u043D\u0430"
       DescriptionEn: -28% damage taken
@@ -3984,36 +3984,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+0 HP/\u0441"
       DescriptionEn: +0 HP/sec
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+0.6 HP/\u0441"
       DescriptionEn: +0.6 HP/sec
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1.2 HP/\u0441"
       DescriptionEn: +1.2 HP/sec
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+1.7999999999999998 HP/\u0441"
       DescriptionEn: +1.7999999999999998 HP/sec
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+2.4 HP/\u0441"
       DescriptionEn: +2.4 HP/sec
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+3 HP/\u0441"
       DescriptionEn: +3 HP/sec
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+3.5999999999999996 HP/\u0441"
       DescriptionEn: +3.5999999999999996 HP/sec
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+4.2 HP/\u0441"
       DescriptionEn: +4.2 HP/sec
     Branches: []
@@ -4027,43 +4027,43 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+0% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E
         \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
       DescriptionEn: +0% Resonance gain
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+8% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E
         \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
       DescriptionEn: +8% Resonance gain
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+16% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E
         \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
       DescriptionEn: +16% Resonance gain
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+24% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E
         \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
       DescriptionEn: +24% Resonance gain
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+32% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E
         \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
       DescriptionEn: +32% Resonance gain
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+40% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E
         \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
       DescriptionEn: +40% Resonance gain
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+48% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E
         \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
       DescriptionEn: +48% Resonance gain
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+56% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E
         \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
       DescriptionEn: +56% Resonance gain
@@ -4078,36 +4078,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-0% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
       DescriptionEn: -0% cooldowns
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-4% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
       DescriptionEn: -4% cooldowns
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-8% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
       DescriptionEn: -8% cooldowns
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-12% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
       DescriptionEn: -12% cooldowns
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-16% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
       DescriptionEn: -16% cooldowns
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-20% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
       DescriptionEn: -20% cooldowns
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-24% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
       DescriptionEn: -24% cooldowns
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-28% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
       DescriptionEn: -28% cooldowns
     Branches: []
@@ -4121,43 +4121,43 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+0% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
         \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
       DescriptionEn: +0% critical multiplier
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+8% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
         \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
       DescriptionEn: +8% critical multiplier
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+16% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
         \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
       DescriptionEn: +16% critical multiplier
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+24% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
         \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
       DescriptionEn: +24% critical multiplier
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+32% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
         \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
       DescriptionEn: +32% critical multiplier
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+40% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
         \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
       DescriptionEn: +40% critical multiplier
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+48% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
         \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
       DescriptionEn: +48% critical multiplier
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+56% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
         \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
       DescriptionEn: +56% critical multiplier
@@ -4172,43 +4172,43 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+0% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
         \u0441\u0444\u0435\u0440"
       DescriptionEn: +0% Sphere range
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+5% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
         \u0441\u0444\u0435\u0440"
       DescriptionEn: +5% Sphere range
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
         \u0441\u0444\u0435\u0440"
       DescriptionEn: +10% Sphere range
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
         \u0441\u0444\u0435\u0440"
       DescriptionEn: +15% Sphere range
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
         \u0441\u0444\u0435\u0440"
       DescriptionEn: +20% Sphere range
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+25% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
         \u0441\u0444\u0435\u0440"
       DescriptionEn: +25% Sphere range
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+30% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
         \u0441\u0444\u0435\u0440"
       DescriptionEn: +30% Sphere range
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+35% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
         \u0441\u0444\u0435\u0440"
       DescriptionEn: +35% Sphere range
@@ -4223,36 +4223,36 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+0% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
       DescriptionEn: +0% projectile speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+8% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
       DescriptionEn: +8% projectile speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+16% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
       DescriptionEn: +16% projectile speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+24% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
       DescriptionEn: +24% projectile speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+32% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
       DescriptionEn: +32% projectile speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+40% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
       DescriptionEn: +40% projectile speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+48% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
       DescriptionEn: +48% projectile speed
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+56% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
       DescriptionEn: +56% projectile speed
     Branches: []
@@ -4266,43 +4266,43 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+0% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
         Dash"
       DescriptionEn: +0% speed after Dash
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+5% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
         Dash"
       DescriptionEn: +5% speed after Dash
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
         Dash"
       DescriptionEn: +10% speed after Dash
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+15% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
         Dash"
       DescriptionEn: +15% speed after Dash
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+20% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
         Dash"
       DescriptionEn: +20% speed after Dash
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+25% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
         Dash"
       DescriptionEn: +25% speed after Dash
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+30% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
         Dash"
       DescriptionEn: +30% speed after Dash
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+35% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
         Dash"
       DescriptionEn: +35% speed after Dash
@@ -4317,43 +4317,43 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+0% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
         \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
       DescriptionEn: +0% rare drop chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+2% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
         \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
       DescriptionEn: +2% rare drop chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+4% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
         \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
       DescriptionEn: +4% rare drop chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+6% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
         \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
       DescriptionEn: +6% rare drop chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+8% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
         \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
       DescriptionEn: +8% rare drop chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+10% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
         \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
       DescriptionEn: +10% rare drop chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+12% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
         \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
       DescriptionEn: +12% rare drop chance
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "+14% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
         \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
       DescriptionEn: +14% rare drop chance
@@ -4368,43 +4368,43 @@ MonoBehaviour:
     HasProgression: 0
     Levels: []
     BaseLevels:
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-0% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
         \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
       DescriptionEn: -0% network-disable duration
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-12% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
         \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
       DescriptionEn: -12% network-disable duration
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-24% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
         \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
       DescriptionEn: -24% network-disable duration
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-36% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
         \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
       DescriptionEn: -36% network-disable duration
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-48% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
         \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
       DescriptionEn: -48% network-disable duration
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-60% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
         \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
       DescriptionEn: -60% network-disable duration
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-72% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
         \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
       DescriptionEn: -72% network-disable duration
-    - NameRu: 
-      NameEn: 
+    - NameRu:
+      NameEn:
       DescriptionRu: "-84% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
         \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
       DescriptionEn: -84% network-disable duration
@@ -5792,28 +5792,28 @@ MonoBehaviour:
   Rarities:
   - NameRu: "\u041E\u0431\u044B\u0447\u043D\u044B\u0439"
     NameEn: Common
-    DescriptionRu: 
-    DescriptionEn: 
+    DescriptionRu:
+    DescriptionEn:
     Id: common
   - NameRu: "\u0420\u0435\u0434\u043A\u0438\u0439"
     NameEn: Rare
-    DescriptionRu: 
-    DescriptionEn: 
+    DescriptionRu:
+    DescriptionEn:
     Id: rare
   - NameRu: "\u042D\u043F\u0438\u0447\u0435\u0441\u043A\u0438\u0439"
     NameEn: Epic
-    DescriptionRu: 
-    DescriptionEn: 
+    DescriptionRu:
+    DescriptionEn:
     Id: epic
   - NameRu: "\u041E\u0441\u043E\u0431\u044B\u0439"
     NameEn: Special
-    DescriptionRu: 
-    DescriptionEn: 
+    DescriptionRu:
+    DescriptionEn:
     Id: special
   - NameRu: "\u041B\u0435\u0433\u0435\u043D\u0434\u0430\u0440\u043D\u044B\u0439"
     NameEn: Legendary
-    DescriptionRu: 
-    DescriptionEn: 
+    DescriptionRu:
+    DescriptionEn:
     Id: legendary
   SphereAbilityLinks:
   - NameRu: "\u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u043D\u043E\u0435 \u044F\u0434\u0440\u043E"

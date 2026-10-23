@@ -31,8 +31,8 @@ namespace EchoSphere.Runtime
         }
         private void DrawNativeSphereModifiers(V[] args)
         {
-            var sphere=args[1];var player=args[2];if(!player["sphereMods"].Truth)return;var authored=Visual_sphereProgression.Scope["getAuthoredSphereModifierLevels"].Call(player,sphere["type"]);bool projectile=NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).Projectile;
-            string[] kinds={"multishot","pierce","ricochet","fire","freeze","poison"};var levels=new double[6];for(int i=0;i<6;i++){if(i<3&&!projectile)continue;double mod=player["sphereMods"][kinds[i]].Number;mod=double.IsNaN(mod)||double.IsInfinity(mod)?0:System.Math.Max(0,mod);var a=authored[kinds[i]];levels[i]=System.Math.Max(mod,a.Undefined||a.Null?0:a.Number);}
+            var sphere=args[1];var player=args[2];if(!player["sphereMods"].Truth)return;string branch=player["sphereBranches"][sphere["type"]].Text;string finalId=null;foreach(var marker in player["evolutions"].Items){if(!marker.Text.StartsWith("sphere:"+sphere["type"].Text+":7:",System.StringComparison.Ordinal))continue;var parts=marker.Text.Split(':');double index=VisualJs.Number(parts[parts.Length-1]).Number;if(index==0||index==1||index==2)finalId=branch+"_final_"+(index+1);break;}bool projectile=NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).Projectile;
+            string[] kinds={"multishot","pierce","ricochet","fire","freeze","poison"};var levels=new double[6];for(int i=0;i<6;i++){if(i<3&&!projectile)continue;double mod=player["sphereMods"][kinds[i]].Number;mod=double.IsNaN(mod)||double.IsInfinity(mod)?0:System.Math.Max(0,mod);var kind=(EchoSphere.Core.SphereAuthoredModifier)i;levels[i]=System.Math.Max(mod,EchoSphere.Core.SphereAuthoredModifierRules.GetLevel(branch,finalId,kind));}
             var scale=VisualJs.Arg(args,4);_nativeWorldSphereFamilies.DrawModifiers(_worldSurface,sphere["pos"]["x"].Number,sphere["pos"]["y"].Number,args[3].Number,scale.Undefined?1:scale.Number,sphere["networkDisabledTimer"].Number>0||!sphere["alive"].Truth,levels);
         }
         private void DrawNativeSphereFamily(string family,V[] args)

@@ -1129,3 +1129,18 @@ after stop current Editor Console 0 errors/0 warnings. No FPS/GC/device claim.
 Remaining: translated build diagnostics/protocol-state reads, numerical stat reads,
 mobile collision/network preview adapters and V snapshot/world dispatch boundaries.
 Full native migration and Android acceptance remain open. No APK built.
+
+### Native build read models follow-up (2026-10-23)
+
+All EchoSphereNative runtime files now avoid translated gameData,
+sphereProgression and artifactSystem scopes. Build diagnostics and protocol states
+use native typed read models with existing Core protocol definitions. World
+modifier overlays reuse existing Core SphereAuthoredModifierRules rather than a
+second implementation. Numerical sphere/combat stats and network analysis remain
+separate translated read boundaries; mobile collision/ghost preview and snapshot
+world dispatch migration are still open.
+
+Validation: 64 pause-synergy scenarios / 41440 comparisons PASS; all 2880 authored
+modifier entries matched original; compile 0 errors/warnings and 272 Node tests
+PASS. Previous catalog commit 2698e73f69eda61ac003426c8d7daebaa9ad27a2 CI #809 SUCCESS.
+These checks do not establish Android acceptance or measured performance.

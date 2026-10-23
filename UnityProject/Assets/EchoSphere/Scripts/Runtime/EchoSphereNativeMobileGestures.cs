@@ -55,9 +55,9 @@ namespace EchoSphere.Runtime
         private static double NativeMobileDistance(V pos,double x,double y)=>NativeMobileDistance(pos["x"].Number-x,pos["y"].Number-y);
         private bool NativeMobileCanPlace(double x,double y)=>Visual_spaceCollision.Scope["canPlaceSphere"].Call(NativeMobileScene,x,y).Truth;
         private bool NativeMobileCanMove(V sphere,double x,double y)=>Visual_spaceCollision.Scope["canRepositionSphere"].Call(NativeMobileScene,sphere,x,y).Truth;
-        private int NativeMobileMaximum=>(int)Visual_engineSpheres.Scope["getMaxSpheres"].Call(NativeMobileScene).Number;
+        private int NativeMobileMaximum=>(int)NativeMaximumSphereCount(NativeMobileScene);
         private V NativeMobileNetwork()=>Visual_network.Scope["analyzeSphereNetwork"].Call(NativeMobileScene["spheres"]);
-        private static V NativeMobileFormation(V network)=>Visual_networkPreview.Scope["getGhostSnapFormation"].Call(network);
+        private static V NativeMobileFormation(V network)=>network["dominantFormation"].Truth?network["dominantFormation"]:VisualJs.Null;
         private void NativeMobileCaptureMemory(V network)
         {
             var formation=NativeMobileFormation(network);if(!formation.Truth)return;_nativeMobileMemory=formation["nodes"].Items.Select(i=>{var p=NativeMobileScene["spheres"][i]["pos"];return new Vector2((float)p["x"].Number,(float)p["y"].Number);}).ToArray();_nativeMobileMemoryClosed=formation["type"].Text!="line";_nativeMobileMemoryAt=Time.unscaledTimeAsDouble;
