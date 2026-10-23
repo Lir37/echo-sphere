@@ -946,3 +946,51 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 typed run controls, mobile read/haptics and independent backdrop registry are active.
 Next migrate standalone UI root/anchors/prefix ownership and V models. Preserve
 original gameplay/quality; no APK; full positive-input/visual/device acceptance remains.
+
+
+## 2026-10-23: Typed run UI anchors and isolated legacy layout adapter
+
+NativeRunUiAnchors defines seventeen reusable host slots: HUD pair; pause shell,
+header, footer, body and detail; result, upgrade, artifact rewards, tutorial;
+mobile gesture root, dock, joystick, placement, ghost and memory. Slots carry actual
+VisualElement/Content hosts and captured legacy children; no DOM/CSS nodes are
+exposed. Presenters receive live version, invalidation, INativeUiBackdrops and a
+query-independent tutorial target provider. A standalone native root can bind this
+contract, but it is not yet the active provider.
+
+CaptureLegacyRunUiAnchors currently populates the contract in one DFS pass before
+native preparation. It preserves original first-match vs last-match behavior,
+including selected-but-not-native nodes, pause/mobile ancestor scoping and the
+original globally searched dock. It uses existing SourceUiFrame.Content instances;
+no new position, wrapper, scrolling, ordering or visual design is chosen. Live
+FrameVersion access preserves the former per-presenter reads. Visibility-hidden
+versus display-none behavior is retained for each replaced legacy child collection.
+
+HUD, pause shell/chrome/four bodies, result, upgrade, rewards/set detail, tutorial,
+mobile gestures/dock/feedback/network preparations no longer perform their own
+VisualCssNode traversal or cast SourceUiFrame hosts. Legacy VisualDom pruning,
+placeholder construction and selector predicates were moved without behavior changes
+to EchoSphereLegacyRunUiProjection. Tutorial DOM rectangle lookup is isolated behind
+ReadLegacyTutorialTarget rather than reinterpreted as different world bounds.
+The anchor context is excluded from run persistence.
+
+Verification: actual Editor C# compile zero errors/warnings; metadata/preflight/
+provenance checks pass. In Play Mode the real initialized runtime rendered the
+normal UI and pause tabs 0..3 through LateUpdate. Every frame reported valid HUD
+and mobile hosts; pause frames reported shell/header/footer plus seven native
+backdrop bindings. Menu/userPaused/paused/tab flags were restored in finally within
+one main-thread invocation; no active run or save replacement. Play stopped and
+current Console counters were zero errors/warnings. This verifies host resolution/
+construction, not all layout pixels, positive control actions or Android/device parity.
+CI is verified on containing HEAD separately. No APK or source/user-file edits.
+
+Remaining: the legacy document still supplies root/CSS geometry, prefix roots and
+V read models; mobile canvas refs and snapshot writes remain. Full modernization
+is PARTIAL. Next implement a standalone native run root against NativeRunUiAnchors
+and migrate its model providers, preserving exact authored geometry/effects.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. All run presenters use
+typed NativeRunUiAnchors; legacy capture/pruning is isolated. Normal/pause 0..3 Editor
+host smoke checks pass. Next replace the active legacy root/provider and V models.
+Preserve gameplay/quality; no APK; full input/visual/device acceptance remains.

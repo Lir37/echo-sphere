@@ -13,23 +13,16 @@ namespace EchoSphere.Runtime
         private int _nativeUpgradeBoundVersion=-1;
         private bool NativeUpgradeRequested=>!_mainMenu&&!_gameOver&&_sourceRenderState["pendingUpgrade"].Truth;
         private void DisposeNativeUpgrade(){_nativeUpgradeView?.Dispose();_nativeUpgradeView=null;_nativeUpgradeBoundVersion=-1;}
-        private void PrepareNativeUpgrade(VisualCssNode root)
+        private void PrepareNativeUpgrade(NativeRunUiAnchors anchors)
         {
             if(!NativeUpgradeRequested){DisposeNativeUpgrade();return;}
-            VisualCssNode overlay=null;
-            void Find(VisualCssNode node){if(overlay==null&&node.HasClass("bg-black/70")&&node.HasClass("absolute")&&node.HasClass("inset-0")&&node.HasClass("z-50"))overlay=node;foreach(var child in node.Children)Find(child);}
-            Find(root);if(!(overlay?.Native is SourceUiFrame frame)){DisposeNativeUpgrade();return;}
-            if(_nativeUpgradeView==null||_nativeUpgradeView.Root.parent!=frame.Content){DisposeNativeUpgrade();_nativeUpgradeView=new NativeUpgradeView(frame.Content,_sourceUi,PickNativeUpgrade,LockNativeUpgrade,RerollNativeUpgrades);}
-            if(_nativeUpgradeBoundVersion!=_sourceUi.FrameVersion){_nativeUpgradeView.Bind(ReadNativeUpgradeState());_nativeUpgradeBoundVersion=_sourceUi.FrameVersion;}
+            var slot=anchors.Upgrade;var host=slot.Content;if(host==null){DisposeNativeUpgrade();return;}
+            if(_nativeUpgradeView==null||_nativeUpgradeView.Root.parent!=host){DisposeNativeUpgrade();_nativeUpgradeView=new NativeUpgradeView(host,anchors.Backdrops,PickNativeUpgrade,LockNativeUpgrade,RerollNativeUpgrades);}
+            if(_nativeUpgradeBoundVersion!=anchors.Version){_nativeUpgradeView.Bind(ReadNativeUpgradeState());_nativeUpgradeBoundVersion=anchors.Version;}
             bool ready=_nativeUpgradeView.Ready;_nativeUpgradeView.Prepare(SourceDevicePixelRatio,Screen.width/SourceDevicePixelRatio);
-            if(_nativeUpgradeView.Ready){foreach(var child in overlay.Children)if(child.Native is VisualElement e)e.style.visibility=Visibility.Hidden;if(!ready)_sourceUi.Dirty=true;}
+            if(_nativeUpgradeView.Ready){slot.HideLegacy();if(!ready)anchors.Invalidate?.Invoke();}
         }
-        private V ProjectNativeUpgrade(V tree)
-        {
-            if(!NativeUpgradeRequested||_nativeUpgradeView==null||!_nativeUpgradeView.Ready)return tree;bool found=false;
-            void Visit(V value){if(found)return;if(value.Raw is VisualDom.Node node){var classes=(node.Properties["className"].Text??"").Split(' ');bool Has(string c)=>Array.IndexOf(classes,c)>=0;if(Has("bg-black/70")&&Has("absolute")&&Has("inset-0")&&Has("z-50")){node.Children.Clear();found=true;return;}foreach(var child in node.Children)Visit(child);}else if(value.Raw is List<V>)foreach(var child in value.Items)Visit(child);}
-            Visit(tree);return tree;
-        }
+
         private void PickNativeUpgrade(int index){if(NativeUpgradeRequested){if(_choosingEvolution)ChooseEvolution(index);else ChooseUpgrade(index);ApplySourceUiWrites();}if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void LockNativeUpgrade(int index){if(NativeUpgradeRequested&&!_choosingEvolution){LockLevelUpChoice(index);ApplySourceUiWrites();}if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void RerollNativeUpgrades(){if(NativeUpgradeRequested&&!_choosingEvolution){RerollLevelUpChoices();ApplySourceUiWrites();}if(_sourceUi!=null)_sourceUi.Dirty=true;}

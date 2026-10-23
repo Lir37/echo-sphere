@@ -16,37 +16,27 @@ namespace EchoSphere.Runtime
         private bool NativeArtifactRewardRequested=>!_mainMenu&&!_gameOver&&_sourceRenderState["pendingArtifact"].Truth;
         private void DisposeNativeArtifactRewards(){_nativeRewardSetDetail?.Dispose();_nativeRewardSetDetail=null;_nativeArtifactRewards?.Dispose();_nativeArtifactRewards=null;_nativeArtifactRewardVersion=-1;_nativeRewardSetId=null;}
         private void DisposeNativePauseSetDetail(){_nativePauseSetDetail?.Dispose();_nativePauseSetDetail=null;}
-        private void PrepareNativeArtifactRewards(VisualCssNode root)
+        private void PrepareNativeArtifactRewards(NativeRunUiAnchors anchors)
         {
             if(!NativeArtifactRewardRequested){DisposeNativeArtifactRewards();return;}
-            VisualCssNode overlay=null;
-            void Find(VisualCssNode node){if(overlay==null&&node.HasClass("bg-black/70")&&node.HasClass("backdrop-blur-sm")&&node.HasClass("z-50"))overlay=node;foreach(var child in node.Children)Find(child);}
-            Find(root);if(!(overlay?.Native is SourceUiFrame frame)){DisposeNativeArtifactRewards();return;}
-            if(_nativeArtifactRewards==null||_nativeArtifactRewards.Root.parent!=frame.Content){DisposeNativeArtifactRewards();_nativeArtifactRewards=new NativeArtifactRewardView(frame.Content,_sourceUi,PickNativeArtifact,id=>{_nativeRewardSetId=id;_sourceUi.Dirty=true;});}
-            if(_nativeArtifactRewardVersion!=_sourceUi.FrameVersion){_nativeArtifactRewards.Bind(ReadNativeArtifactRewardState());_nativeArtifactRewardVersion=_sourceUi.FrameVersion;}
+            var slot=anchors.Rewards;var host=slot.Content;if(host==null){DisposeNativeArtifactRewards();return;}
+            if(_nativeArtifactRewards==null||_nativeArtifactRewards.Root.parent!=host){DisposeNativeArtifactRewards();_nativeArtifactRewards=new NativeArtifactRewardView(host,anchors.Backdrops,PickNativeArtifact,id=>{_nativeRewardSetId=id;anchors.Invalidate?.Invoke();});}
+            if(_nativeArtifactRewardVersion!=anchors.Version){_nativeArtifactRewards.Bind(ReadNativeArtifactRewardState());_nativeArtifactRewardVersion=anchors.Version;}
             bool ready=_nativeArtifactRewards.Ready;float scale=SourceDevicePixelRatio;_nativeArtifactRewards.Prepare(scale,Screen.width/scale);
-            if(_nativeArtifactRewards.Ready){foreach(var child in overlay.Children)if(child.Native is VisualElement e)e.style.visibility=Visibility.Hidden;if(!ready)_sourceUi.Dirty=true;}
+            if(_nativeArtifactRewards.Ready){slot.HideLegacy();if(!ready)anchors.Invalidate?.Invoke();}
             if(string.IsNullOrEmpty(_nativeRewardSetId)){_nativeRewardSetDetail?.Dispose();_nativeRewardSetDetail=null;return;}
-            if(_nativeRewardSetDetail==null||_nativeRewardSetDetail.Id!=_nativeRewardSetId){_nativeRewardSetDetail?.Dispose();var state=ReadNativeArtifactSetDetail(_nativeRewardSetId);_nativeRewardSetDetail=state==null?null:new NativeArtifactSetDetailView(_nativeArtifactRewards.Root,state,_sourceUi,()=>{_nativeRewardSetId=null;_sourceUi.Dirty=true;});}
+            if(_nativeRewardSetDetail==null||_nativeRewardSetDetail.Id!=_nativeRewardSetId){_nativeRewardSetDetail?.Dispose();var state=ReadNativeArtifactSetDetail(_nativeRewardSetId);_nativeRewardSetDetail=state==null?null:new NativeArtifactSetDetailView(_nativeArtifactRewards.Root,state,anchors.Backdrops,()=>{_nativeRewardSetId=null;anchors.Invalidate?.Invoke();});}
             _nativeRewardSetDetail?.Prepare(scale,Screen.width/scale,Screen.height/scale);
         }
-        private void PrepareNativePauseSetDetail(VisualCssNode root)
+        private void PrepareNativePauseSetDetail(NativeRunUiAnchors anchors)
         {
             if(!_userPaused||_mainMenu||_gameOver||string.IsNullOrEmpty(_pauseArtifactSetId)){DisposeNativePauseSetDetail();return;}
-            VisualCssNode overlay=null;
-            void Find(VisualCssNode node,bool pause){pause|=node.HasClass("es-pause-overlay");if(pause&&overlay==null&&node.HasClass("z-[70]")&&node.HasClass("bg-black/75"))overlay=node;foreach(var child in node.Children)Find(child,pause);}
-            Find(root,false);if(!(overlay?.Native is SourceUiFrame frame)){DisposeNativePauseSetDetail();return;}
-            if(_nativePauseSetDetail==null||_nativePauseSetDetail.Id!=_pauseArtifactSetId||_nativePauseSetDetail.Root.parent!=frame.Content){DisposeNativePauseSetDetail();var state=ReadNativeArtifactSetDetail(_pauseArtifactSetId);if(state!=null)_nativePauseSetDetail=new NativeArtifactSetDetailView(frame.Content,state,_sourceUi,()=>{_pauseArtifactSetId=null;_sourceUi.Dirty=true;},false);}
+            var slot=anchors.PauseDetail;var host=slot.Content;if(host==null){DisposeNativePauseSetDetail();return;}
+            if(_nativePauseSetDetail==null||_nativePauseSetDetail.Id!=_pauseArtifactSetId||_nativePauseSetDetail.Root.parent!=host){DisposeNativePauseSetDetail();var state=ReadNativeArtifactSetDetail(_pauseArtifactSetId);if(state!=null)_nativePauseSetDetail=new NativeArtifactSetDetailView(host,state,anchors.Backdrops,()=>{_pauseArtifactSetId=null;anchors.Invalidate?.Invoke();},false);}
             if(_nativePauseSetDetail==null)return;bool ready=_nativePauseSetDetail.Ready;float scale=SourceDevicePixelRatio;_nativePauseSetDetail.Prepare(scale,Screen.width/scale,Screen.height/scale);
-            if(_nativePauseSetDetail.Ready){foreach(var child in overlay.Children)if(child.Native is VisualElement e)e.style.visibility=Visibility.Hidden;if(!ready)_sourceUi.Dirty=true;}
+            if(_nativePauseSetDetail.Ready){slot.HideLegacy();if(!ready)anchors.Invalidate?.Invoke();}
         }
-        private V ProjectNativeArtifactRewards(V tree)
-        {
-            bool reward=NativeArtifactRewardRequested&&_nativeArtifactRewards!=null&&_nativeArtifactRewards.Ready,pause=_nativePauseSetDetail!=null&&_nativePauseSetDetail.Ready;
-            if(!reward&&!pause)return tree;
-            void Visit(V value){if(value.Raw is VisualDom.Node node){var tokens=(node.Properties["className"].Text??"").Split(' ');bool Has(string s)=>Array.IndexOf(tokens,s)>=0;if(reward&&Has("bg-black/70")&&Has("backdrop-blur-sm")&&Has("z-50")||pause&&Has("z-[70]")&&Has("bg-black/75")){node.Children.Clear();return;}foreach(var child in node.Children)Visit(child);}else if(value.Raw is List<V>)foreach(var child in value.Items)Visit(child);}
-            Visit(tree);return tree;
-        }
+
         private void PickNativeArtifact(string id)
         {
             if(NativeArtifactRewardRequested){int index=_stellaRewardChoices.FindIndex(choice=>choice.Id==id);if(index>=0){ChooseStellaReward(index);_sourceRenderState["pendingArtifact"]=VisualJs.Null;ApplySourceUiWrites();}}

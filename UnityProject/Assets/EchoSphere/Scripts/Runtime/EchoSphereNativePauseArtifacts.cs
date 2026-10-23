@@ -16,16 +16,16 @@ namespace EchoSphere.Runtime
         public bool UsesNativePauseArtifacts=>NativePauseArtifactsRequested&&_nativePauseArtifactsIsland!=null&&_nativePauseArtifactsIsland.Ready;
         public void SetNativePauseArtifactsPilot(bool enabled){if(_nativePauseArtifactsPilot==enabled)return;_nativePauseArtifactsPilot=enabled;if(!enabled)DisposeNativePauseArtifactsIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void DisposeNativePauseArtifactsIsland(){_nativePauseArtifactsIsland?.Dispose();_nativePauseArtifactsIsland=null;_nativePauseArtifactsBoundVersion=-1;}
-        private void PrepareNativePauseArtifactsIsland(VisualCssNode root)
+        private void PrepareNativePauseArtifactsIsland(NativeRunUiAnchors anchors)
         {
             if(!NativePauseArtifactsRequested){DisposeNativePauseArtifactsIsland();return;}
-            var scroll=NativePauseBody(root,out var body);
+            var scroll=NativePauseBody(anchors,out var body);
             if(scroll==null){DisposeNativePauseArtifactsIsland();return;}
             var parent=scroll.contentContainer;
-            if(_nativePauseArtifactsIsland==null||_nativePauseArtifactsIsland.Root.parent!=parent){DisposeNativePauseArtifactsIsland();_nativePauseArtifactsIsland=new NativePauseArtifactsView(parent,id=>{_pauseArtifactSetId=id;if(_sourceUi!=null)_sourceUi.Dirty=true;});}
-            if(_nativePauseArtifactsBoundVersion!=_sourceUi.FrameVersion){_nativePauseArtifactsIsland.Bind(ReadNativePauseArtifactsState());_nativePauseArtifactsBoundVersion=_sourceUi.FrameVersion;}
+            if(_nativePauseArtifactsIsland==null||_nativePauseArtifactsIsland.Root.parent!=parent){DisposeNativePauseArtifactsIsland();_nativePauseArtifactsIsland=new NativePauseArtifactsView(parent,id=>{_pauseArtifactSetId=id;if(_sourceUi!=null)anchors.Invalidate?.Invoke();});}
+            if(_nativePauseArtifactsBoundVersion!=anchors.Version){_nativePauseArtifactsIsland.Bind(ReadNativePauseArtifactsState());_nativePauseArtifactsBoundVersion=anchors.Version;}
             bool ready=_nativePauseArtifactsIsland.Ready;_nativePauseArtifactsIsland.Prepare(SourceDevicePixelRatio);
-            if(_nativePauseArtifactsIsland.Ready){foreach(var child in body?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>())if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseArtifactsIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
+            if(_nativePauseArtifactsIsland.Ready){body?.HideLegacy(true);_nativePauseArtifactsIsland.UseFlowLayout(true);if(!ready)anchors.Invalidate?.Invoke();}
         }
         public NativePauseArtifactsState ReadNativePauseArtifactsState()
         {

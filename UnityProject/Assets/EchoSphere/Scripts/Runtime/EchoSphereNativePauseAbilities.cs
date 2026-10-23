@@ -16,16 +16,16 @@ namespace EchoSphere.Runtime
         public bool UsesNativePauseAbilities=>NativePauseAbilitiesRequested&&_nativePauseAbilitiesIsland!=null&&_nativePauseAbilitiesIsland.Ready;
         public void SetNativePauseAbilitiesPilot(bool enabled){if(_nativePauseAbilitiesPilot==enabled)return;_nativePauseAbilitiesPilot=enabled;if(!enabled)DisposeNativePauseAbilitiesIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void DisposeNativePauseAbilitiesIsland(){_nativePauseAbilitiesIsland?.Dispose();_nativePauseAbilitiesIsland=null;_nativePauseAbilitiesBoundVersion=-1;}
-        private void PrepareNativePauseAbilitiesIsland(VisualCssNode root)
+        private void PrepareNativePauseAbilitiesIsland(NativeRunUiAnchors anchors)
         {
             if(!NativePauseAbilitiesRequested){DisposeNativePauseAbilitiesIsland();return;}
-            var scroll=NativePauseBody(root,out var body);
+            var scroll=NativePauseBody(anchors,out var body);
             if(scroll==null){DisposeNativePauseAbilitiesIsland();return;}
             var parent=scroll.contentContainer;
             if(_nativePauseAbilitiesIsland==null||_nativePauseAbilitiesIsland.Root.parent!=parent){DisposeNativePauseAbilitiesIsland();_nativePauseAbilitiesIsland=new NativePauseAbilitiesView(parent);}
-            if(_nativePauseAbilitiesBoundVersion!=_sourceUi.FrameVersion){_nativePauseAbilitiesIsland.Bind(ReadNativePauseAbilitiesState());_nativePauseAbilitiesBoundVersion=_sourceUi.FrameVersion;}
+            if(_nativePauseAbilitiesBoundVersion!=anchors.Version){_nativePauseAbilitiesIsland.Bind(ReadNativePauseAbilitiesState());_nativePauseAbilitiesBoundVersion=anchors.Version;}
             bool ready=_nativePauseAbilitiesIsland.Ready;_nativePauseAbilitiesIsland.Prepare(SourceDevicePixelRatio);
-            if(_nativePauseAbilitiesIsland.Ready){foreach(var child in body?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>())if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseAbilitiesIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
+            if(_nativePauseAbilitiesIsland.Ready){body?.HideLegacy(true);_nativePauseAbilitiesIsland.UseFlowLayout(true);if(!ready)anchors.Invalidate?.Invoke();}
         }
         public NativePauseAbilitiesState ReadNativePauseAbilitiesState()
         {

@@ -17,20 +17,19 @@ namespace EchoSphere.Runtime
         private static readonly string[] NativeTutorialTargets={null,"movement","field","network","upgrade",null};
         private bool NativeTutorialRequested=>!_mainMenu&&!_gameOver&&_tutorialStep>=0;
         private void DisposeNativeTutorial(){_nativeTutorial?.Dispose();_nativeTutorial=null;_nativeTutorialTarget=null;_nativeTutorialTargetKey=null;}
-        private void PrepareNativeTutorial(VisualCssNode root)
+        private void PrepareNativeTutorial(NativeRunUiAnchors anchors)
         {
             if(!NativeTutorialRequested){DisposeNativeTutorial();return;}
-            VisualCssNode overlay=null;void Find(VisualCssNode node){if(overlay==null&&node.HasClass("z-[80]")&&node.HasClass("pointer-events-none"))overlay=node;foreach(var child in node.Children)Find(child);}Find(root);
-            if(!(overlay?.Native is SourceUiFrame frame)){DisposeNativeTutorial();return;}
-            if(_nativeTutorial==null||_nativeTutorial.Root.parent!=frame.Content){DisposeNativeTutorial();_nativeTutorial=new NativeTutorialView(frame.Content,_sourceUi,NextNativeTutorial,SkipNativeTutorial);}
+            var slot=anchors.Tutorial;var host=slot.Content;if(host==null){DisposeNativeTutorial();return;}
+            if(_nativeTutorial==null||_nativeTutorial.Root.parent!=host){DisposeNativeTutorial();_nativeTutorial=new NativeTutorialView(host,anchors.Backdrops,NextNativeTutorial,SkipNativeTutorial);}
             _nativeTutorial.Bind(ReadNativeTutorialState());
             string key=_tutorialStep+"/"+IsLeftHanded+"/"+Screen.width+"/"+Screen.height;double now=Time.unscaledTimeAsDouble;
             if(key!=_nativeTutorialTargetKey||now>=_nativeTutorialTargetAt){
                 _nativeTutorialTargetKey=key;_nativeTutorialTargetAt=now+.120;_nativeTutorialTarget=null;string target=NativeTutorialTargets[_tutorialStep];
-                if(target!=null){var node=_sourceUi.Query("[data-tutorial-target=\""+target+"\"]");if(!node.Null&&!node.Undefined){var rect=node["getBoundingClientRect"].Call();_nativeTutorialTarget=new Rect((float)rect["left"].Number,(float)rect["top"].Number,(float)rect["width"].Number,(float)rect["height"].Number);}}
+                if(target!=null)_nativeTutorialTarget=anchors.TutorialTarget?.Invoke(target);
             }
             bool ready=_nativeTutorial.Ready;float scale=SourceDevicePixelRatio;_nativeTutorial.Prepare(Screen.width/scale,Screen.height/scale,scale,_nativeTutorialTarget);
-            if(_nativeTutorial.Ready){foreach(var child in overlay.Children)if(child.Native is VisualElement e)e.style.visibility=Visibility.Hidden;if(!ready)_sourceUi.Dirty=true;}
+            if(_nativeTutorial.Ready){slot.HideLegacy();if(!ready)anchors.Invalidate?.Invoke();}
         }
         private bool CanAdvanceNativeTutorial()
         {
@@ -47,11 +46,6 @@ namespace EchoSphere.Runtime
         }
         private void NextNativeTutorial(){if(!NativeTutorialRequested||!CanAdvanceNativeTutorial()||_tutorialStep==4)return;if(_tutorialStep==5)FinishTutorial(false);else SetTutorialStep(_tutorialStep+1);ApplySourceUiWrites();_sourceUi.Dirty=true;}
         private void SkipNativeTutorial(){if(!NativeTutorialRequested)return;FinishTutorial(true);ApplySourceUiWrites();_sourceUi.Dirty=true;}
-        private V ProjectNativeTutorial(V tree)
-        {
-            if(!NativeTutorialRequested||_nativeTutorial==null||!_nativeTutorial.Ready)return tree;
-            void Visit(V value){if(value.Raw is VisualDom.Node node){var tokens=(node.Properties["className"].Text??"").Split(' ');if(Array.IndexOf(tokens,"z-[80]")>=0&&Array.IndexOf(tokens,"pointer-events-none")>=0){node.Children.Clear();return;}foreach(var child in node.Children)Visit(child);}else if(value.Raw is List<V>)foreach(var child in value.Items)Visit(child);}
-            Visit(tree);return tree;
-        }
+
     }
 }

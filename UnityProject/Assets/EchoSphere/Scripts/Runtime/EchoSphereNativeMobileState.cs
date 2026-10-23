@@ -8,23 +8,7 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private V BuildNativeMobileComponent(V[] args)
-        {
-            _nativeMobilePresent=true;
-            if(!_nativeMobileMounted){_nativeMobileMounted=true;_nativeMobileHandedness=IsLeftHanded;NativeMobileClearKeys();}
-            else if(_nativeMobileHandedness!=IsLeftHanded){ResetNativeMobileGestures(false);_nativeMobileHandedness=IsLeftHanded;}
-            ReadNativeMobileState();var children=new List<V>();
-            V Box(string css,V style,params V[] content)=>VisualDom.Element("div",VisualJs.Obj("className",css,"style",style),content);
-            double scale=Visual_interfaceScale.Scope["loadInterfaceScale"].Call().Number;
-            V FeedbackStyle(double left,double top,int size)=>VisualJs.Obj("left",left,"top",top,"width",size,"height",size,"transform","scale("+VisualJs.NumberText(scale)+")","transformOrigin","center");
-            if(_tutorialStep==1)children.Add(VisualDom.Element("div",VisualJs.Obj("data-tutorial-target","movement","className","absolute pointer-events-none z-30 rounded-full border border-[#63e6ff]/20","style",VisualJs.Obj("width",116,"height",116,"left",IsLeftHanded?"calc(25% - 58px)":"calc(75% - 58px)","bottom",44))));
-            if(_nativeGhostNetworkState!=null)children.Add(Box("absolute inset-0 pointer-events-none z-10 overflow-visible",VisualJs.Obj()));
-            if(_nativeFormationMemoryState!=null)children.Add(Box("absolute inset-0 pointer-events-none z-9 overflow-visible",VisualJs.Obj()));
-            if(_nativePlacementState!=null)children.Add(VisualDom.Element("div",VisualJs.Obj("key",_nativeMobilePlacementAt,"className","absolute pointer-events-none","style",FeedbackStyle(_nativeMobilePlacement.x-26,_nativeMobilePlacement.y-26,52))));
-            if(_nativeJoystickState!=null)children.Add(Box("absolute pointer-events-none",FeedbackStyle(_nativeMobileJoystickX-58,_nativeMobileJoystickY-58,116)));
-            children.Add(Box("absolute bottom-4 "+(IsLeftHanded?"right-3 flex flex-col items-end":"left-3 flex flex-col items-start")+" gap-2 pointer-events-none",VisualJs.Obj("transform","scale("+VisualJs.NumberText(scale)+")","transformOrigin",IsLeftHanded?"right bottom":"left bottom")));
-            return VisualDom.Element("div",VisualJs.Obj("className","es-mobile-controls absolute inset-0 z-20 overflow-hidden select-none","style",VisualJs.Obj("touchAction","none","userSelect","none","WebkitUserSelect","none")),VisualJs.Arr(children.ToArray()));
-        }
+
         private string NativeMobileText(string key)=>Visual_i18n.Scope["translations"][IsRussianUi?"ru":"en"][key].Text;
         private void NativeMobileControl(string id)
         {

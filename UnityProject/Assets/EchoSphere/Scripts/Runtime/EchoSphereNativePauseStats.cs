@@ -20,20 +20,20 @@ namespace EchoSphere.Runtime
             if(!enabled)DisposeNativePauseStatsIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;
         }
         private void DisposeNativePauseStatsIsland(){_nativePauseStatsIsland?.Dispose();_nativePauseStatsIsland=null;_nativePauseStatsBoundVersion=-1;}
-        private void PrepareNativePauseStatsIsland(VisualCssNode root)
+        private void PrepareNativePauseStatsIsland(NativeRunUiAnchors anchors)
         {
             if(!NativePauseStatsRequested){DisposeNativePauseStatsIsland();return;}
-            var scroll=NativePauseBody(root,out var body);
+            var scroll=NativePauseBody(anchors,out var body);
             if(scroll==null){DisposeNativePauseStatsIsland();return;}
             var parent=scroll.contentContainer;
             if(_nativePauseStatsIsland==null||_nativePauseStatsIsland.Root.parent!=parent){DisposeNativePauseStatsIsland();_nativePauseStatsIsland=new NativePauseStatsView(parent);}
-            if(_nativePauseStatsBoundVersion!=_sourceUi.FrameVersion){_nativePauseStatsIsland.Bind(ReadNativePauseStatsState());_nativePauseStatsBoundVersion=_sourceUi.FrameVersion;}
+            if(_nativePauseStatsBoundVersion!=anchors.Version){_nativePauseStatsIsland.Bind(ReadNativePauseStatsState());_nativePauseStatsBoundVersion=anchors.Version;}
             bool ready=_nativePauseStatsIsland.Ready;_nativePauseStatsIsland.Prepare(SourceDevicePixelRatio,Screen.width/SourceDevicePixelRatio);
             if(_nativePauseStatsIsland.Ready){
                 // Warm up absolutely over the old content, without doubling the
                 // scroll range. Native flow takes ownership only when ready.
-                foreach(var child in body?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>())if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;
-                _nativePauseStatsIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;
+                body?.HideLegacy(true);
+                _nativePauseStatsIsland.UseFlowLayout(true);if(!ready)anchors.Invalidate?.Invoke();
             }
         }
         // Projection only, not selected by a production pause view yet. Use the

@@ -15,16 +15,16 @@ namespace EchoSphere.Runtime
         public bool UsesNativePauseSynergies=>NativePauseSynergiesRequested&&_nativePauseSynergiesIsland!=null&&_nativePauseSynergiesIsland.Ready;
         public void SetNativePauseSynergiesPilot(bool enabled){if(_nativePauseSynergiesPilot==enabled)return;_nativePauseSynergiesPilot=enabled;if(!enabled)DisposeNativePauseSynergiesIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void DisposeNativePauseSynergiesIsland(){_nativePauseSynergiesIsland?.Dispose();_nativePauseSynergiesIsland=null;_nativePauseSynergiesBoundVersion=-1;}
-        private void PrepareNativePauseSynergiesIsland(VisualCssNode root)
+        private void PrepareNativePauseSynergiesIsland(NativeRunUiAnchors anchors)
         {
             if(!NativePauseSynergiesRequested){DisposeNativePauseSynergiesIsland();return;}
-            var scroll=NativePauseBody(root,out var body);
+            var scroll=NativePauseBody(anchors,out var body);
             if(scroll==null){DisposeNativePauseSynergiesIsland();return;}
             var parent=scroll.contentContainer;
             if(_nativePauseSynergiesIsland==null||_nativePauseSynergiesIsland.Root.parent!=parent){DisposeNativePauseSynergiesIsland();_nativePauseSynergiesIsland=new NativePauseSynergiesView(parent);}
-            if(_nativePauseSynergiesBoundVersion!=_sourceUi.FrameVersion){_nativePauseSynergiesIsland.Bind(ReadNativePauseSynergiesState());_nativePauseSynergiesBoundVersion=_sourceUi.FrameVersion;}
+            if(_nativePauseSynergiesBoundVersion!=anchors.Version){_nativePauseSynergiesIsland.Bind(ReadNativePauseSynergiesState());_nativePauseSynergiesBoundVersion=anchors.Version;}
             bool ready=_nativePauseSynergiesIsland.Ready;_nativePauseSynergiesIsland.Prepare(SourceDevicePixelRatio);
-            if(_nativePauseSynergiesIsland.Ready){foreach(var child in body?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>())if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseSynergiesIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
+            if(_nativePauseSynergiesIsland.Ready){body?.HideLegacy(true);_nativePauseSynergiesIsland.UseFlowLayout(true);if(!ready)anchors.Invalidate?.Invoke();}
         }
         public NativePauseSynergiesState ReadNativePauseSynergiesState()
         {

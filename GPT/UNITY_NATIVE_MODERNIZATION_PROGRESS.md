@@ -1,5 +1,21 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: All native run-panel preparation now consumes NativeRunUiAnchors rather
+than traversing VisualCssNode trees. Seventeen typed UI Toolkit slots, a live model
+version provider, invalidation, backdrop provider and tutorial target resolver form
+the host contract. One CaptureLegacyRunUiAnchors adapter supplies current hosts with
+the original first/last DFS rules and Content containers. Legacy tree pruning and
+mobile placeholder construction moved unchanged into EchoSphereLegacyRunUiProjection;
+native presenter preparation no longer owns DOM/CSS selection rules. Existing layout,
+parents, order, warmup gates, hidden-vs-collapsed legacy content and version reads
+are retained. Actual Editor compile zero errors/warnings. Real-runtime Play checks
+rendered normal plus pause tabs 0..3, with HUD/mobile anchors present and all pause
+hosts present in pause; seven native backdrop registrations, Console zero errors/
+warnings, temporary flags restored, Play stopped. Not full visual/input/device
+acceptance. CI checked on containing commit. Legacy root/CSS/prefix resolver, V read
+models and remaining gesture canvas bridge still active. Migration remains PARTIAL.
+No APK or gameplay/quality change.
+
 2026-10-23: Seven native UI view/composition classes no longer depend on concrete
 SourceUiDocument for blur registration. INativeUiBackdrops and NativeUiBackdropRegistry
 own registration/prepare/disposal independently; the legacy document supplies the

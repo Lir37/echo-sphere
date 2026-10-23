@@ -125,10 +125,9 @@ namespace EchoSphere.Runtime
         private void NativeMobileUp(PointerUpEvent e){NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
         private void NativeMobileCancel(PointerCancelEvent e){NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
         private void NativeMobileEventCompleted(){ApplySourceUiWrites();if(_sourceUi!=null)_sourceUi.Dirty=true;}
-        private void PrepareNativeMobileGestures(VisualCssNode root)
+        private void PrepareNativeMobileGestures(NativeRunUiAnchors anchors)
         {
-            VisualCssNode mobile=null;void Find(VisualCssNode n){if(n.HasClass("es-mobile-controls"))mobile=n;foreach(var c in n.Children)Find(c);}Find(root);
-            var element=(mobile?.Native as SourceUiFrame)?.Content;if(element==_nativeMobileGestureRoot)return;DetachNativeMobileGestures();_nativeMobileGestureRoot=element;if(element==null)return;
+            var element=anchors.Mobile.Content;if(element==_nativeMobileGestureRoot)return;DetachNativeMobileGestures();_nativeMobileGestureRoot=element;if(element==null)return;
             element.RegisterCallback<PointerDownEvent>(NativeMobileDown);element.RegisterCallback<PointerMoveEvent>(NativeMobileMove);element.RegisterCallback<PointerUpEvent>(NativeMobileUp);element.RegisterCallback<PointerCancelEvent>(NativeMobileCancel);
         }
         private void DetachNativeMobileGestures()

@@ -22,20 +22,11 @@ namespace EchoSphere.Runtime
             _nativePauseChromeComposition?.Dispose(); _nativePauseChromeComposition = null;
             _nativePauseChromeIsland?.Dispose(); _nativePauseChromeIsland = null;
         }
-        private void PrepareNativePauseChromeIsland(VisualCssNode root)
+        private void PrepareNativePauseChromeIsland(NativeRunUiAnchors anchors)
         {
             if (!NativePauseChromeRequested) { DisposeNativePauseChromeIsland(); return; }
-            VisualCssNode header = null, footer = null;
-            void Find(VisualCssNode node, bool pause)
-            {
-                pause |= node.HasClass("es-pause-overlay");
-                if (pause && node.HasClass("px-4") && node.HasClass("pt-4") && node.HasClass("pb-3") && node.HasClass("border-b")) header = node;
-                if (pause && node.HasClass("px-4") && node.HasClass("py-3") && node.HasClass("border-t")) footer = node;
-                foreach (var child in node.Children) Find(child, pause);
-            }
-            Find(root, false);
-            var head = _nativePauseScreen?.Header ?? (header?.Native as SourceUiFrame)?.Content;
-            var foot = _nativePauseScreen?.Footer ?? (footer?.Native as SourceUiFrame)?.Content;
+            var header=anchors.PauseHeader;var footer=anchors.PauseFooter;
+            var head=_nativePauseScreen?.Header??header.Content;var foot=_nativePauseScreen?.Footer??footer.Content;
             if (head == null || foot == null) { DisposeNativePauseChromeIsland(); return; }
             if (_nativePauseChromeIsland == null)
             {
@@ -43,7 +34,7 @@ namespace EchoSphere.Runtime
                 _nativePauseChromeComposition?.Dispose(); _nativePauseChromeComposition = null;
                 _nativePauseChromeIsland = new NativePauseChromeView(head, foot,
                     NativeResumeRun, NativeExitRun, NativeSelectPauseTab);
-                _nativePauseChromeComposition = new NativePauseChromeComposition(_nativePauseChromeIsland, _sourceUi);
+                _nativePauseChromeComposition = new NativePauseChromeComposition(_nativePauseChromeIsland, anchors.Backdrops);
             }
             else _nativePauseChromeIsland.Reparent(head, foot);
             _nativePauseChromeIsland.Bind(ReadNativePauseChromeState());
@@ -51,9 +42,9 @@ namespace EchoSphere.Runtime
             _nativePauseChromeComposition.Prepare();
             if (_nativePauseChromeIsland.Ready)
             {
-                foreach (var child in header?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>()) if (child.Native is VisualElement element) element.style.display = DisplayStyle.None;
-                foreach (var child in footer?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>()) if (child.Native is VisualElement element) element.style.display = DisplayStyle.None;
-                _nativePauseChromeIsland.UseFlowLayout(true); if (!ready) _sourceUi.Dirty = true;
+                header.HideLegacy(true);
+                footer.HideLegacy(true);
+                _nativePauseChromeIsland.UseFlowLayout(true); if (!ready) anchors.Invalidate?.Invoke();
             }
         }
         public NativePauseChromeState ReadNativePauseChromeState()
