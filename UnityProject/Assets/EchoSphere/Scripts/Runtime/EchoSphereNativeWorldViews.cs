@@ -14,8 +14,8 @@ namespace EchoSphere.Runtime
         {DrawNativeRegionWorld(arg1);return default;}
         private V DrawNativeViewFormationMemory(V arg1)
         {DrawNativeFormationMemory(arg1);return default;}
-        private V DrawNativeViewSphereNetwork(V arg1,V arg2)
-        {DrawNativeNetwork(arg1,arg2);return default;}
+        private V DrawNativeViewSphereNetwork(V arg1)
+        {DrawNativeNetwork(arg1);return default;}
         private V DrawNativeViewModernXp(V arg1,V arg2,V arg3,V arg4,V arg5)
         {ColorUtility.TryParseHtmlString(arg4.Text,out var color);_nativeWorldPickups.DrawXp(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,color,(float)arg5.Number);return default;}
         private V DrawNativeViewModernHealth(V arg1,V arg2,V arg3)

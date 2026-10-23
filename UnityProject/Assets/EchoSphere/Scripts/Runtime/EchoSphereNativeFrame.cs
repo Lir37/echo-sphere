@@ -34,7 +34,7 @@ namespace EchoSphere.Runtime
             _nativeWorldFeedback.Rectangle(-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,s["worldWidth"].Number,s["worldHeight"].Number,1.5,NativeWorldBorder);_worldSurface.SetDash(Array.Empty<float>());
             DrawNativeViewCharacterWorldIndicators(s);
             foreach(var ft in s["fireTrails"].Items){double alpha=Math.Max(0,Math.Min(1,ft["life"].Number/ft["maxLife"].Number));_worldSurface.Save();NativeWorldTranslate(ft["pos"]["x"],ft["pos"]["y"]);_nativeWorldFeedback.FireTrail(ft["pos"]["x"].Number,time,alpha,_nativeWorldCreatures);_worldSurface.Restore();}
-            DrawNativeViewFormationMemory(s);DrawNativeViewSphereNetwork(s,VisualBindings.Get("engineRuntime.ts","getNetworkFrame").Call(s));
+            DrawNativeViewFormationMemory(s);DrawNativeViewSphereNetwork(s);
             foreach(var orb in s["xpOrbs"].Items)DrawNativeViewModernXp(orb["pos"]["x"],orb["pos"]["y"],orb["radius"],"#63e6ff",orb["rotation"]);
             foreach(var hp in s["healthPacks"].Items)DrawNativeViewModernHealth(hp["pos"]["x"],hp["pos"]["y"],"#ff5c72");
             foreach(var rune in s["runes"].Items)if(rune["alive"].Truth)DrawNativeViewRune(rune);
@@ -46,7 +46,7 @@ namespace EchoSphere.Runtime
             foreach(var e in s["enemies"].Items)DrawNativeViewModernEnemy(e,player["pos"]);
             foreach(var sphere in s["spheres"].Items)if(sphere["alive"].Truth&&sphere["type"].Text=="orbital"){
                 double tier=sphere["visualTier"].Truth?sphere["visualTier"].Number:0,scale=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+tier*.8))/24;
-                var network=VisualBindings.Get("engineRuntime.ts","getNetworkFrame").Call(s);var index=s["spheres"]["indexOf"].Call(sphere);var profile=Visual_network.Scope["getSphereNetworkProfile"].Call(network,index);
+                var network=s["nativeNetwork"];var index=s["spheres"]["indexOf"].Call(sphere);var profile=Visual_network.Scope["getSphereNetworkProfile"].Call(network,index);
                 double cluster=Visual_network.Scope["getFormationBonusMultiplier"].Call(network,"cluster",index).Number,ring=Visual_network.Scope["getFormationBonusMultiplier"].Call(network,"ring",index).Number;
                 double multiplier=1+(cluster>0?.08*cluster:0)+(ring>0?.12*ring:0)+Math.Min(.20,profile["linkedNeighbours"].Number*.03),radius=Visual_engineSpheres.Scope["getSphereRadius"].Call(s,sphere).Number/Math.Max(1,sphere["radius"].Number)*multiplier;
                 DrawNativeOrbitalSphere(new V[]{ctx,sphere,player,time,scale,s["enemies"],radius},true);

@@ -53,8 +53,9 @@ namespace EchoSphere.Runtime
         }
         private static double NativeMobileDistance(double x,double y)=>Math.Sqrt(x*x+y*y);
         private static double NativeMobileDistance(V pos,double x,double y)=>NativeMobileDistance(pos["x"].Number-x,pos["y"].Number-y);
-        private bool NativeMobileCanPlace(double x,double y)=>Visual_spaceCollision.Scope["canPlaceSphere"].Call(NativeMobileScene,x,y).Truth;
-        private bool NativeMobileCanMove(V sphere,double x,double y)=>Visual_spaceCollision.Scope["canRepositionSphere"].Call(NativeMobileScene,sphere,x,y).Truth;
+        // Preview and commit share the existing native placement gate.
+        private bool NativeMobileCanPlace(double x,double y)=>CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,null);
+        private bool NativeMobileCanMove(V sphere,double x,double y){var agent=NativeSphereForView(sphere);return agent!=null&&CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,agent);}
         private int NativeMobileMaximum=>(int)NativeMaximumSphereCount(NativeMobileScene);
         private V NativeMobileNetwork()=>Visual_network.Scope["analyzeSphereNetwork"].Call(NativeMobileScene["spheres"]);
         private static V NativeMobileFormation(V network)=>network["dominantFormation"].Truth?network["dominantFormation"]:VisualJs.Null;

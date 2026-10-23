@@ -1192,3 +1192,22 @@ refactor, stopped with current Console 0 errors/0 warnings. Ghost network output
 matched source in 105 cases, including disabled and omitted alive flags. 272 Node
 tests PASS. Network projection commit f841c86b6450811388ab65c71aa3bd5a605988b4 CI
 #812 SUCCESS. No measured FPS/GC or Android/full-game acceptance claimed.
+
+### Native cached network and placement gate (2026-10-23)
+
+World network drawing now consumes authoritative Core SphereNetworkState directly,
+without serializing the graph into V and reading it back for that draw. The old
+V-based projection remains Editor-only for equivalence checks. Orbital cached
+network lookup no longer calls VisualBindings.getNetworkFrame.
+
+Mobile place/move validity now calls the existing CanPlaceSphereAt method used by
+native placement commits, using the identical source-to-world conversion already
+used by NativeRunCommands. Gameplay placement rules were not changed. This removes
+the separate translated spaceCollision check from the production runtime.
+
+Validation: 810 typed-Core/previous-projection comparisons PASS; real paused Editor
+with refreshed runtime snapshot: 45 finite placement candidates, 39 accepted / 6
+rejected, all matching the prior source gate. Initial unrefreshed menu-snapshot
+attempt was invalid and is excluded. Compile 0 errors/warnings, 272 Node tests PASS.
+Remaining graph analysis for Ghost Snap/read-only diagnostics, numerical stat
+adapters and broad V entity/player snapshots are still open. No completion claim.
