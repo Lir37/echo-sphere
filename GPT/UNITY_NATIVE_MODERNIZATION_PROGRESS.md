@@ -1,5 +1,15 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Elemental Fire/Freeze/Poison rings, glyph variants, weapon accents and
+special family signatures are native, including Prism Spectrum resolution through
+existing branch metadata. Orbital body and both attacker rings are native too, with
+weak animation memory, original attack/resonance decay, terminals, satellites,
+blade/element trails and nearest-enemy display flash. Counts/angles come from the
+existing orbitalGeometry rules. Original composite/alpha/path quirks are preserved;
+no gameplay correction or new rule was introduced. Editor compilation passes with
+zero errors/warnings. Mutation silhouettes/emitters/projectiles/lightning and source
+renderer/UI/data/compositor bridges remain. No Play/FPS/GC/device parity claim.
+
 2026-10-23: Eight specialized family views (Sniper, Shotgun, Chain, Aura, Prism,
 Gravity, Pulse, Void) now use native C# owners and Unity Vector Graphics meshes.
 Shared family cores, all ten authored orbit modes, glow and disabled arc are native

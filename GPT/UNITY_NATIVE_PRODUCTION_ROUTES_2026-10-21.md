@@ -612,3 +612,37 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 shared core/orbits/glow/disabled arc and six modifier glyphs are native. Continue
 Orbital-specific views, elemental and mutation/projectile/lightning effects, then
 remove source bridges. Preserve behavior/quality; no APK; measurements later.
+
+
+### 2026-10-23 — elemental sphere layers and Orbital body/attackers
+
+Entry HEAD3355bef040870c8d26e21e5f4952b80c44adbd87, CI #792 SUCCESS.
+Native elemental representation retains three elements/all glyph variants, continuous
+front/back ring layers, highlight, six primary/secondary motes, weapon accents and
+chain/aura/gravity/pulse signatures. Original compounded ring/glyph alpha, stroke
+widths, the connected arcs inside poison clouds and chain signature's inherited
+opacity are kept. Existing getSphereElementForBranch and element metadata remain
+authoritative, including Prism Spectrum's original final-form override.
+
+Orbital runtime and attacker entry points now use native C# ownership. Weak identity
+animation memory retains original dt cap, same-time early return, aura-triggered
+attack and resonance decay/freeze. Body retains two orbital traces, original core,
+terminals and indicators. Attackers retain inner/outer satellite ordering, blade or
+octagonal bodies, element overlays/trails and nearest living enemy display impact.
+Original orbitalGeometry supplies counts/angles and source artifact/final-form gates
+are retained; no hit detection, damage, RNG, spawn or progression changes. The source
+trail call is sphere-local after restoring satellite translation; that placement is
+preserved rather than inventing a relocation. Source alpha/blend/multi-contour and
+current-path semantics remain. Pooled meshes are disposed only with their owner.
+
+Actual Editor compilation: zero errors/warnings. Play/device/performance acceptance
+remains deferred; no APK, protected branch or user settings/Recovery changes. CI is
+verified separately on containing commit. Full migration remains PARTIAL: mutation
+silhouette/final expansion/emitters/projectiles/lightning and other combat/network
+layers plus source renderer/UI/data/compositor bridges remain.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. All nine specialized
+family bodies, Orbital attackers, shared family art, modifier and elemental layers
+are native. Continue mutation/projectile/lightning and remaining combat/network
+views, then remove source bridges. Preserve gameplay/quality; no APK; measure later.
