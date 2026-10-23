@@ -1144,3 +1144,20 @@ Validation: 64 pause-synergy scenarios / 41440 comparisons PASS; all 2880 author
 modifier entries matched original; compile 0 errors/warnings and 272 Node tests
 PASS. Previous catalog commit 2698e73f69eda61ac003426c8d7daebaa9ad27a2 CI #809 SUCCESS.
 These checks do not establish Android acceptance or measured performance.
+
+### Evolution card production bridge retired (2026-10-23)
+
+Evolution UI cards now come from NativeRunCatalog and native C# selectors. The
+Editor importer captures exact source elemental/mastery text, preserving source
+card order, three-choice cap, branch/final IDs and indices. Upgrade choice keys
+are native; ability choice names use the typed catalog. Character pause titles
+and roles reuse existing Core CharacterRules. Runtime no longer directly calls
+translated gameData, sphereProgression, artifactSystem, engineProgression or
+characters scopes; provenance guards enforce this retirement.
+
+Validation: 3240 evolution-card/key comparisons PASS, native pause chrome/stats
+projection checks PASS, Editor compile 0 errors/warnings, 272 Node tests PASS.
+Build-read-model commit e098a64dbc640057d970db70b5f50791a2f9cd5d CI #810 SUCCESS.
+Remaining: numerical combat/stat and world entity read adapters; collision/network
+preview helpers; V snapshots and named world dispatch. Native migration remains
+incomplete; no new performance measurement or Android/APK acceptance.

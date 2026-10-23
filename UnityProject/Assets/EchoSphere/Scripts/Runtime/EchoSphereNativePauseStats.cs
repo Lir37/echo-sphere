@@ -50,11 +50,11 @@ namespace EchoSphere.Runtime
             string Round(V value)=>VisualJs.MathObject["round"].Call(value).Text;
             string Ceil(V value)=>VisualJs.MathObject["ceil"].Call(value).Text;
             string Percent(V value)=>Round(value*new V(100))+"%";
-            var character=Visual_characters.Scope["CHARACTER_DEFS"][player["characterId"]];
+            EchoSphere.Core.CharacterRules.TryParseSourceId(player["characterId"].Text,out var characterId);var character=EchoSphere.Core.CharacterRules.Get(characterId);
             var result=new NativePauseStatsState {
                 Russian=ru,Kicker=ru?"Билд забега":"Run Build",
-                Title=T("pauseTitle")+" · "+character["name"][lang].Text,
-                Subtitle=character["role"][lang].Text+" · "+(ru?"уровень":"level")+" "+player["level"].Text+" · "+T("wave")+" "+scene["wave"].Text,
+                Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),
+                Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+player["level"].Text+" · "+T("wave")+" "+scene["wave"].Text,
                 CharacterHeading=ru?"Персонаж":"Character",SpheresHeading=ru?"Сферы":"Spheres",Resume=T("resume"),Return=T("return"),
                 Stats=new[] {
                     new NativePauseStatsState.Stat("HP",Ceil(player["hp"])+" / "+Ceil(player["maxHp"])),

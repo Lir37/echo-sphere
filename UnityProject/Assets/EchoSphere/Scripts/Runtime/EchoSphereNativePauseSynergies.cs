@@ -36,7 +36,7 @@ namespace EchoSphere.Runtime
         {
             string lang = ru ? "ru" : "en";
             var catalog=NativeRunCatalog.Instance;
-            
+
             var sections=new List<NativePauseSynergiesState.Section>();var cards=new List<NativePauseSynergiesState.Card>();
             foreach(var link in catalog.SphereAbilityLinks){
                 bool sphereOk=NativeSphereLevel(scene,link.Sphere)>=7,abilityOk=scene["player"]["abilities"][link.Ability].Number>=7;

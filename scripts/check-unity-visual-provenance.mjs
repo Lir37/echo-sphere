@@ -32,7 +32,7 @@ const runDocument=readFileSync(presentation+'/NativeRunDocument.cs','utf8');
 assert.ok(uiBridge.includes('new NativeUiDataContext()')&&!uiBridge.includes('AddComponent<SourceUiDocument>')&&uiBridge.includes('DrawNativeRunDocument();')&&!uiBridge.includes('SourceUiTree(')&&!uiBridge.includes('_sourceUi.Draw('),'Production UI must not build legacy JSX/DOM trees');
 assert.ok(runOwner.includes('AddComponent<NativeRunDocument>()')&&runOwner.includes('PrepareNativeRunPresenters(anchors)')&&!/VisualDom|VisualCssNode/.test(runDocument),'Native run document must own retained UI hosts');
 for(const item of code.filter(item=>item.file.includes('/Runtime/')))
-  assert.ok(!/Visual_(?:renderer|App|i18n|canvasLocale|orbitalGeometry)\.Scope|SourceCanvasImage|VisualJs\.ImageFactory/.test(item.text),'Retired renderer/localization/image bridge in '+item.file);
+  assert.ok(!/Visual_(?:renderer|App|i18n|canvasLocale|orbitalGeometry|gameData|sphereProgression|artifactSystem|engineProgression|characters)\.Scope|SourceCanvasImage|VisualJs\.ImageFactory/.test(item.text),'Retired renderer/localization/image bridge in '+item.file);
 for(const item of code.filter(item=>/\/Runtime\/EchoSphereNative[^/]*\.cs$/.test(item.file)))
   assert.ok(!/Visual_(?:gameData|sphereProgression|artifactSystem)\.Scope/.test(item.text),'Retired translated run catalog in '+item.file);
 for(const name of ['NativeLocalizationCatalog','NativeWorldArtCatalog','NativeRunCatalog'])assert.ok(readFileSync('UnityProject/Assets/Resources/EchoSphere/'+name+'.asset','utf8').includes('SourceCommit: 737ef2af4a877e0995db5f92331d536d2f29a934'),'Native catalog provenance missing: '+name);

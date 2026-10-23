@@ -54,11 +54,11 @@ namespace EchoSphere.Runtime
         }
         internal static NativePauseChromeState ProjectNativePauseChromeState(V scene, bool ru, int tab)
         {
-            var lang = ru ? "ru" : "en"; var character = Visual_characters.Scope["CHARACTER_DEFS"][scene["player"]["characterId"]];
+            var lang = ru ? "ru" : "en"; EchoSphere.Core.CharacterRules.TryParseSourceId(scene["player"]["characterId"].Text,out var characterId);var character=EchoSphere.Core.CharacterRules.Get(characterId);
             string T(string key) => NativeText(key,lang=="ru");
             return new NativePauseChromeState {
-                Eyebrow = ru ? "Билд забега" : "Run Build", Title = T("pauseTitle") + " · " + character["name"][lang].Text,
-                Subtitle = character["role"][lang].Text + " · " + (ru ? "уровень" : "level") + " " + scene["player"]["level"].Text + " · " + T("wave") + " " + scene["wave"].Text,
+                Eyebrow = ru ? "Билд забега" : "Run Build", Title = T("pauseTitle") + " · " + (ru?character.NameRu:character.NameEn),
+                Subtitle = (ru?character.RoleRu:character.RoleEn) + " · " + (ru ? "уровень" : "level") + " " + scene["player"]["level"].Text + " · " + T("wave") + " " + scene["wave"].Text,
                 Tabs = ru ? new[] { "Показатели", "Способности", "Артефакты", "Синергии" } : new[] { "Stats", "Abilities", "Artifacts", "Synergies" },
                 Resume = T("resume"), Return = T("return"), SelectedTab = tab
             };

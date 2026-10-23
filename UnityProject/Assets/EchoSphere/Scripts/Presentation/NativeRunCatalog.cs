@@ -9,7 +9,7 @@ namespace EchoSphere.Presentation
     {
         [Serializable] public class Text {public string NameRu,NameEn,DescriptionRu,DescriptionEn;public string Name(bool ru)=>ru?NameRu:NameEn;public string Description(bool ru)=>ru?DescriptionRu:DescriptionEn;}
         [Serializable] public class Definition : Text {public string Id;}
-        [Serializable] public sealed class Choice : Definition {public string Element;public bool HasFinalPool;public List<Definition> Finals=new List<Definition>();}
+        [Serializable] public sealed class Choice : Definition {public string Element;public Text BranchCard=new Text();public List<Text> FinalCards=new List<Text>();public bool HasFinalPool;public List<Definition> Finals=new List<Definition>();}
         [Serializable] public sealed class Sphere : Definition {public string Color;public double RangeMultiplier;public bool Projectile;public List<Choice> Branches=new List<Choice>();}
         [Serializable] public sealed class Ability : Definition {public string Category;public bool HasProgression;public List<Text> Levels=new List<Text>(),BaseLevels=new List<Text>();public List<Choice> Branches=new List<Choice>();public List<Definition> FallbackFinals=new List<Definition>();}
         [Serializable] public sealed class Effect {public string Id;public double Value;}

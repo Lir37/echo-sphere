@@ -34,6 +34,11 @@ foreach(var item in artifacts["ARTIFACT_SETS"].Items){
 }
 foreach(var pair in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)progression["SPHERE_ELEMENT_META"].Raw){var row=new EchoSphere.Presentation.NativeRunCatalog.Element {Id=pair.Key,Icon=pair.Value["icon"].Text,Color=pair.Value["color"].Text};Fill(row,pair.Value);catalog.Elements.Add(row);}
 foreach(var item in progression["SPHERE_ABILITY_SYNERGIES"].Items){var row=new EchoSphere.Presentation.NativeRunCatalog.SphereAbilityLink {Id=item["id"].Text,Sphere=item["sphere"].Text,Branch=item["sphereBranch"].Text,Ability=item["ability"].Text,AbilityFinal=item["abilityFinal"].Text};Fill(row,item);catalog.SphereAbilityLinks.Add(row);}
+foreach(var sphere in catalog.Spheres){
+ var scene=EchoSphere.Presentation.VisualJs.Obj("player",EchoSphere.Presentation.VisualJs.Obj("sphereBranches",EchoSphere.Presentation.VisualJs.Obj()));
+ var branchCards=System.Linq.Enumerable.ToList(Scope("engineProgression")["getSphereEvolutionChoices"].Call(scene,sphere.Id,4).Items);
+ for(int i=0;i<sphere.Branches.Count;i++){var branch=sphere.Branches[i];Fill(branch.BranchCard,branchCards[i]);branch.FinalCards.Clear();var selectedBranches=scene["player"]["sphereBranches"];selectedBranches[sphere.Id]=branch.Id;foreach(var card in Scope("engineProgression")["getSphereEvolutionChoices"].Call(scene,sphere.Id,7).Items){var text=new EchoSphere.Presentation.NativeRunCatalog.Text();Fill(text,card);branch.FinalCards.Add(text);}}
+}
 if(catalog.Spheres.Count!=10||catalog.Abilities.Count<20||catalog.Artifacts.Count<40||catalog.Sets.Count!=12)throw new System.InvalidOperationException("Incomplete native run catalog");
 if(created)UnityEditor.AssetDatabase.CreateAsset(catalog,path);else UnityEditor.EditorUtility.SetDirty(catalog);UnityEditor.AssetDatabase.SaveAssets();
 return new {path,spheres=catalog.Spheres.Count,abilities=catalog.Abilities.Count,artifacts=catalog.Artifacts.Count,synergies=catalog.Synergies.Count,sets=catalog.Sets.Count};

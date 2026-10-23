@@ -37,7 +37,7 @@ namespace EchoSphere.Runtime
             foreach(var value in pending.Items){
                 string type=value["type"].Text,abilityStage=value["abilityStage"].Text,sphereStage=value["sphereStage"].Text;
                 bool ordinary=type=="sphere"&&sphereStage=="upgrade"||type=="ability"&&!value["abilityStage"].Truth;routine&=ordinary;
-                string key=Visual_engineProgression.Scope["getUpgradeChoiceKey"].Call(value).Text;
+                string key=NativeUpgradeChoiceKey(value);
                 bool forecast=_sphereCharacterId==EchoSphere.Core.SphereCharacterId.Oracle&&_oracleForecastKeys.Contains(key);
                 string category=type=="modifier"?L("МОДИФИКАТОР","MODIFIER"):abilityStage=="branch"?L("ВЕТКА СПОСОБНОСТИ","ABILITY BRANCH"):abilityStage=="final"?L("ФИНАЛЬНАЯ ФОРМА СПОСОБНОСТИ","FINAL ABILITY FORM"):sphereStage=="branch"?L("ВЕТКА СФЕРЫ","SPHERE BRANCH"):sphereStage=="final"?L("ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ","FINAL SPECIALIZATION"):type=="ability"?L("АКТИВНАЯ СПОСОБНОСТЬ","ACTIVE ABILITY"):L("УЛУЧШЕНИЕ СФЕРЫ","SPHERE UPGRADE");
                 string level=type=="modifier"?L("Разблокирует эффект","Unlocks the effect"):sphereStage=="branch"||abilityStage=="branch"?L("Уровень IV • выбор ветки","Level IV • choose a branch"):sphereStage=="final"||abilityStage=="final"?L("Уровень VII • выбор финальной формы","Level VII • choose final form"):T("level")+" "+value["currentLevel"].Text+" → "+value["newLevel"].Text;

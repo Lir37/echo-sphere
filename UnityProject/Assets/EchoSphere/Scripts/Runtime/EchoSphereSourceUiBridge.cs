@@ -41,14 +41,14 @@ namespace EchoSphere.Runtime
             var choices=new List<V>();
             if(_levelUp){
                 if(_choosingEvolution){
-                    var sourceChoices=Visual_engineProgression.Scope[_pendingEvolutionIsAbility?"getAbilityEvolutionChoices":"getSphereEvolutionChoices"].Call(scene,_pendingEvolutionIsAbility?SourceAbilityId(_pendingEvolutionAbility):_pendingEvolutionSphere.ToString().ToLowerInvariant(),_pendingFinalEvolution?7:4);
+                    var sourceChoices=NativeEvolutionChoices(scene,_pendingEvolutionIsAbility?SourceAbilityId(_pendingEvolutionAbility):_pendingEvolutionSphere.ToString().ToLowerInvariant(),_pendingEvolutionIsAbility,_pendingFinalEvolution?7:4);
                     foreach(var choice in sourceChoices.Items)choices.Add(choice);
                     if(choices.Count!=_evolutionChoices.Count)throw new InvalidOperationException("Source evolution cards and native choices differ");
                 }else foreach(var choice in _levelUpChoices){
                     var text=SourceUpgradeText(choice);if(text==null)throw new InvalidOperationException("Missing source upgrade text: "+GetUpgradeChoiceKey(choice));
                     var value=VisualJs.Obj("type",choice.Kind==RunUpgradeKind.Sphere?"sphere":"ability","currentLevel",choice.CurrentLevel,"newLevel",choice.NextLevel,"name",VisualJs.Obj("ru",text.nameRu,"en",text.nameEn),"desc",VisualJs.Obj("ru",text.descRu,"en",text.descEn));
                     if(choice.Kind==RunUpgradeKind.Sphere){value["sphereType"]=choice.Sphere.ToString().ToLowerInvariant();value["sphereStage"]="upgrade";var branch=GetSphereBranch(choice.Sphere);if(!string.IsNullOrEmpty(branch))value["sphereBranch"]=branch;}
-                    else {value["ability"]=SourceAbilityId(choice.Kind);value["name"]=Visual_gameData.Scope["ABILITIES"][value["ability"]]["name"];}
+                    else {value["ability"]=SourceAbilityId(choice.Kind);value["name"]=NativeLocalizedName(NativeRunCatalog.Instance.GetAbility(value["ability"].Text));}
                     choices.Add(value);
                 }
             }
