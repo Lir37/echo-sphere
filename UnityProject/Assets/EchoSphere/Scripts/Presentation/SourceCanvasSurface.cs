@@ -202,9 +202,9 @@ namespace EchoSphere.Presentation
         internal float NativeTextRasterScaleFor(Matrix4x4 local)
         {var matrix=_state.Matrix;try{_state.Matrix*=local;return TextRasterScale(_state);}finally{_state.Matrix=matrix;}}
         internal float NativeTextRasterScale=>TextRasterScale(_state);
-        internal void DrawNativeTextMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Action prepareGlyphs,Action emitGlyphs,Color? shadow=null,bool inheritShadowOffsets=false,Matrix4x4? localTransform=null,float shadowBlur=0)
+        internal void DrawNativeTextMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Action prepareGlyphs,Action emitGlyphs,Color? shadow=null,bool inheritShadowOffsets=false,Matrix4x4? localTransform=null,float shadowBlur=0,bool inheritBlend=false,bool additive=false,bool inheritShadow=false,float? opacity=null)
         {
-            DrawNativeMesh(mesh,material,properties,localTransform,shadow:shadow,shadowBlur:shadowBlur,inheritShadowOffsets:inheritShadowOffsets);var batch=_batches[_batches.Count-1];batch.NativePrepareGlyphs=prepareGlyphs;batch.NativeEmitGlyphs=emitGlyphs;
+            DrawNativeMesh(mesh,material,properties,localTransform,shadow:shadow,shadowBlur:shadowBlur,inheritShadowOffsets:inheritShadowOffsets,inheritBlend:inheritBlend,additive:additive,inheritShadow:inheritShadow,opacity:opacity);var batch=_batches[_batches.Count-1];batch.NativePrepareGlyphs=prepareGlyphs;batch.NativeEmitGlyphs=emitGlyphs;
         }
         private void CompletePaint(int first)
         {

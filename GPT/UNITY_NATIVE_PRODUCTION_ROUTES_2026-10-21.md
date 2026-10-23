@@ -715,3 +715,36 @@ all branch silhouettes/final modes/emitters/attack accents are native, alongside
 previous sphere/player/enemy views. Continue remaining combat/network/character-world
 effects, then source coordinator/UI/data/compositor removal. Preserve behavior and
 quality; no APK; measurements later.
+
+
+### 2026-10-23 — shield and character world/target indicators
+
+Entry HEADee6b45eb8c78db648f4fd365789730d7a56a2596, CI #795 SUCCESS.
+NativeWorldCharacterIndicators owns active world/target indicator dispatch and all
+Engineer/Architect/Hunter/Alchemist/Berserker views, plus player shield. Existing
+getEngineerNetworkRange/getCharacterFormation and current target identity/timers
+remain authoritative. Source alive selection, first-eight formation list, stable
+ordering, square center from that full list, cluster distance and exact status-pair
+symbol priority are retained. Architect polygons still stroke before fill. Original
+colors, line widths/dashes/offsets, inherited composition/shadows and path continuation
+remain; no new gameplay formation or target rule.
+
+Shield retains original guards, Spherist asset gate, pulse, octagon/rings, recast wave,
+charge motes and text. Native sprites accept additive composition without changing
+old callers. Native world labels now parameterize original family/size/style and
+composition/inherited shadow/alpha while retaining old defaults and shared Font atlas
+stabilization. Hunter/Alchemist stay bold Georgia 10px; shield count stays bold sans
+9px/additive/alpha one. Native label shader now has all three ordered composition
+passes; glyph sampling is unchanged. No substitute font or added decoration.
+
+Actual Editor compile zero errors/warnings. Label shader supported, diagnostics empty,
+three passes confirmed. No Play/device/FPS/GC acceptance, APK, protected branch or user
+settings/Recovery changes. CI is verified separately on containing commit. Overall
+migration remains PARTIAL: network formations/links, inline combat feedback and
+source renderer/UI/data/compositor bridges.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. Mutation layers, shield
+and character indicators are native. Continue network/formation links and remaining
+combat feedback, then source renderer/UI/data/compositor removal. Preserve gameplay/
+quality; no APK; measurements later.

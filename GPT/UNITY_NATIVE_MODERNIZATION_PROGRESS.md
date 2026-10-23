@@ -1,5 +1,15 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Player shield, Engineer links, Architect formations, Hunter target marks,
+Alchemist reaction labels and Berserker range are now native world views. Existing
+formation/range/target data remain authoritative. Original dashes, colors, shadow and
+stroke-before-fill order are retained. Native world text now supports source font
+family/size/style and additive composition (Georgia 10px labels, 9px shield count);
+existing 8px labels keep their defaults. Editor compilation and label shader pass
+checks succeed. Gameplay/quality unchanged; Play/device/FPS/GC still deferred.
+Network formations/links, inline combat feedback and source renderer/UI/data/
+compositor bridges remain incomplete. No APK.
+
 2026-10-23: The complete renderSphereMutationVfx entry point now has a typed native
 C# owner: all original branch silhouettes, three final expansion modes, persistent
 emitters and attack-peak accents. It retains source paint order, caps/joins, inherited
