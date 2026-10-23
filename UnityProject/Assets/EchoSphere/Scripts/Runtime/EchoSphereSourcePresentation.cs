@@ -172,7 +172,6 @@ namespace EchoSphere.Runtime
             bool nativeArchive=TryDrawNativeArchive();
             if(nativeHome||nativeProgression||nativeSettings||nativeRegions||nativeCharacters||nativeArchive)return;
             if(_worldSurface==null) {
-                VisualJs.ImageFactory=()=>new V(new SourceCanvasImage());
                 _worldSurface=new GameObject("Native world compositor").AddComponent<NativeWorldSurface>();_worldSurface.Initialize();
                 // The game Canvas is consumed as a UI texture. Culling the
                 // unused scene presentation avoids scanning every Renderer on

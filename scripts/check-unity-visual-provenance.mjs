@@ -31,4 +31,7 @@ const runOwner=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/Echo
 const runDocument=readFileSync(presentation+'/NativeRunDocument.cs','utf8');
 assert.ok(uiBridge.includes('new NativeUiDataContext()')&&!uiBridge.includes('AddComponent<SourceUiDocument>')&&uiBridge.includes('DrawNativeRunDocument();')&&!uiBridge.includes('SourceUiTree(')&&!uiBridge.includes('_sourceUi.Draw('),'Production UI must not build legacy JSX/DOM trees');
 assert.ok(runOwner.includes('AddComponent<NativeRunDocument>()')&&runOwner.includes('PrepareNativeRunPresenters(anchors)')&&!/VisualDom|VisualCssNode/.test(runDocument),'Native run document must own retained UI hosts');
+for(const item of code.filter(item=>item.file.includes('/Runtime/')))
+  assert.ok(!/Visual_(?:renderer|App|i18n|canvasLocale|orbitalGeometry)\.Scope|SourceCanvasImage|VisualJs\.ImageFactory/.test(item.text),'Retired renderer/localization/image bridge in '+item.file);
+for(const name of ['NativeLocalizationCatalog','NativeWorldArtCatalog'])assert.ok(readFileSync('UnityProject/Assets/Resources/EchoSphere/'+name+'.asset','utf8').includes('SourceCommit: 737ef2af4a877e0995db5f92331d536d2f29a934'),'Native catalog provenance missing: '+name);
 console.log(`Visual reference provenance and native renderer wiring: PASS (${generated.size} translated modules, ${Object.keys(manifest.outputs).length} reference outputs).`);

@@ -58,7 +58,7 @@ namespace EchoSphere.Runtime
         internal static NativeHudView.State ProjectNativeHudState(V scene,bool ru)
         {
             var player=scene["player"];var network=scene["nativeNetwork"];var lang=ru?"ru":"en";
-            string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
+            string T(string key)=>NativeText(key,lang=="ru");
             string N(double value)=>value.ToString(CultureInfo.InvariantCulture);
             float Percent(double value)=>(float)Math.Max(0,Math.Min(100,value));
             NativeHudView.Formation Formation(V item)=>!item.Truth?null:new NativeHudView.Formation {Id=item["type"].Text,Name=NativeFormationName(item["type"].Text,ru),Inactive=item["active"].Raw is bool active&&!active};

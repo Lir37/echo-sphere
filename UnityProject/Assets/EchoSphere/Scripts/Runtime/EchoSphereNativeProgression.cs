@@ -42,7 +42,7 @@ namespace EchoSphere.Runtime
         private NativeProgressionScreen.State ReadNativeProgressionState()
         {
             string lang=IsRussianUi?"ru":"en";
-            string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
+            string T(string key)=>NativeText(key,lang=="ru");
             var state=new NativeProgressionScreen.State {Back=T("back")};
             if(_mainMenuPage==MainMenuPage.Shop){
                 EnsureShopSaveLoaded();state.Page=NativeProgressionScreen.Page.Shop;state.Title=T("shopTitle");state.Gold=GetGold().ToString(CultureInfo.InvariantCulture);

@@ -43,10 +43,10 @@ namespace EchoSphere.Runtime
         }
         private NativeWorldPlayer.State NativePlayerState(V player)
         {
-            var definitions=Visual_characters.Scope["CHARACTER_DEFS"];var raw=player["characterId"];string id=raw.Truth&&definitions[raw].Truth?raw.Text:"spherist";ColorUtility.TryParseHtmlString(definitions[id]["color"].Text,out var color);
-            return new NativeWorldPlayer.State {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number,Radius=Visual_engineState.Scope["PLAYER_RADIUS"].Number,Time=_sourceRenderState["time"].Number,Hp=player["hp"].Number,ContactCooldown=player["contactDamageCooldown"].Number,ShieldTimer=player["shieldTimer"].Number,ShieldCharges=player["shieldCharges"].Number,DashTimer=player["dashTimer"].Number,DeathTimer=player["deathTimer"].Number,Character=id,Color=color};
+            var raw=player["characterId"];string id=raw.Truth&&EchoSphere.Core.CharacterRules.TryParseSourceId(raw.Text,out _)?raw.Text:"spherist";EchoSphere.Core.CharacterRules.TryParseSourceId(id,out var character);ColorUtility.TryParseHtmlString(EchoSphere.Core.CharacterRules.Get(character).ColorHex,out var color);
+            return new NativeWorldPlayer.State {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number,Radius=NativePlayerRadiusPixels,Time=_sourceRenderState["time"].Number,Hp=player["hp"].Number,ContactCooldown=player["contactDamageCooldown"].Number,ShieldTimer=player["shieldTimer"].Number,ShieldCharges=player["shieldCharges"].Number,DashTimer=player["dashTimer"].Number,DeathTimer=player["deathTimer"].Number,Character=id,Color=color};
         }
-        private static SourceCanvasImage ResolveNativePlayerArt(string key)=>Visual_renderer.Scope["getArtImage"].Call(key).Raw as SourceCanvasImage;
+        private static INativeWorldSprite ResolveNativePlayerArt(string key)=>NativeWorldArtLibrary.Resolve(key);
         private static NativeWorldCreatures.BossSignal NativeBossSignal(V e,V target)
         {
             var windows=Visual_bossBalance.Scope["BOSS_TELEGRAPH_WINDOWS"];
@@ -56,7 +56,7 @@ namespace EchoSphere.Runtime
         {
             ColorUtility.TryParseHtmlString(e["color"].Text,out var color);bool boss=e["isBoss"].Truth;string type=e["bossType"].Text;
             string name=type=="charger"?"BREACHER":type=="shooter"?"VOID LANCER":type=="summoner"?"BROOD MIND":"AURA TITAN";
-            if(boss&&_worldSurface.LocalizeCanvasText)name=Visual_canvasLocale.Scope["localizeCanvasText"].Call(name).Text;
+            if(boss&&_worldSurface.LocalizeCanvasText)name=NativeLocalizationCatalog.Instance.CanvasText(name,IsRussianUi);
             var target=e["elitePulseTarget"];var timer=e["elitePulseTelegraphTimer"];
             _nativeWorldCreatures.DrawEnemy(_worldSurface,new NativeWorldCreatures.EnemyView {Identity=e.Raw,X=e["pos"]["x"].Number,Y=e["pos"]["y"].Number,Radius=e["radius"].Number,HasRotation=e["rotation"].Raw is double,Rotation=e["rotation"].Number,HitFlash=e["hitFlash"].Number,Tier=e["tier"].Number,Hp=e["hp"].Number,MaxHp=e["maxHp"].Number,Boss=boss,Elite=e["isElite"].Truth,Fire=e["fireTimer"].Number>0,Poison=e["poisonTimer"].Number>0,Freeze=e["freezeTimer"].Number>0,Variant=boss?type:e["visualVariant"].Truth?e["visualVariant"].Text:"wisp",BossName=name,Color=color,Signal=NativeBossSignal(e,player),LinkTarget=target.Truth,LinkTimer=timer.Truth?timer.Number:0,LinkX=target["pos"]["x"].Number,LinkY=target["pos"]["y"].Number,LinkWindow=Visual_eliteBalance.Scope["LINK_BREAKER_TELEGRAPH_SECONDS"].Number},_sourceRenderState["time"].Number);
         }
@@ -64,7 +64,7 @@ namespace EchoSphere.Runtime
         {
             // Retain the existing availability gate, including first-call false
             // and procedural fallback. Resources are already native Sprite assets.
-            var image=Visual_renderer.Scope["getArtImage"].Call(args[1]);if(!(image.Raw is SourceCanvasImage sprite))return false;
+            var sprite=ResolveNativePlayerArt(args[1].Text);if(sprite==null)return false;
             var rotation=VisualJs.Arg(args,5);var opacity=VisualJs.Arg(args,6);
             return _nativeWorldSprites.Draw(_worldSurface,sprite,args[2].Number,args[3].Number,args[4].Number,rotation.Undefined?0:rotation.Number,opacity.Undefined?1:opacity.Number,part,part&&VisualJs.Arg(args,7).Truth,part&&VisualJs.Arg(args,8).Truth);
         }

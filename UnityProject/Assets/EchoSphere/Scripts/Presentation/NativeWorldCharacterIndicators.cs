@@ -63,7 +63,7 @@ namespace EchoSphere.Presentation
         {Begin(surface);foreach(var r in reactions)Text(r.Symbol,P(r.X,r.Y-r.Radius-6),C(138,90,138),10,"Georgia, serif");}
         internal void DrawBerserker(NativeWorldSurface surface,double x,double y,double hp,double maxHp)
         {Begin(surface);double missing=Math.Max(0,1-hp/Math.Max(1,maxHp)),steps=Math.Min(4,Math.Floor(missing/.2));Paint(Geometry(EllipseContour(P(x,y),110,110),steps>0?2:1,new[]{6f,5f}),Matrix4x4.identity,null,C(196,69,61,steps>0?.22:.10));}
-        internal void DrawShield(NativeWorldSurface surface,Shield s,NativeWorldSprites sprites,Func<string,SourceCanvasImage> resolve)
+        internal void DrawShield(NativeWorldSurface surface,Shield s,NativeWorldSprites sprites,Func<string,INativeWorldSprite> resolve)
         {
             if(s.Charges<=0||s.Timer<=0)return;Begin(surface);double pulse=1+Math.Sin(s.Time*8)*.035,radius=s.PlayerRadius*1.38,recast=Math.Max(0,Math.Min(1,s.Pulse/.85)),wave=1+(1-recast)*.55,alpha=.20+recast*.65;var root=T(s.X,s.Y,pulse);
             if(s.Spherist)sprites.Draw(surface,resolve("player-spherist-shield"),0,0,radius*2.20,0,.78,false,false,false,root,additive:true);

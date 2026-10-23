@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66c13090dbe0bea2bfc069be2edd1cb8, type: 3}
+  m_Name: NativeWorldArtCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::EchoSphere.Presentation.NativeWorldArtCatalog
+  SourceCommit: 737ef2af4a877e0995db5f92331d536d2f29a934
+  Entries:
+  - Key: player
+    Asset: {fileID: 21300000, guid: fde3d2f65d5099dd58e86a941cf84cef, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: player-spherist-shield
+    Asset: {fileID: 21300000, guid: 9a75da4f24b7aa28f8e7a216c61e6a3d, type: 3}
+    SourceWidth: 96
+    SourceHeight: 96
+  - Key: player-spherist
+    Asset: {fileID: 21300000, guid: 374498e555ecd816aca323b2f743e2ac, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: player-spherist-side
+    Asset: {fileID: 21300000, guid: 9b335b82450d4c400875e7394e5ab3f8, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: sphere-standard-upper-crystal
+    Asset: {fileID: 21300000, guid: e33d54c9396161aadf2fdc57e482ba59, type: 3}
+    SourceWidth: 64
+    SourceHeight: 53
+  - Key: sphere-standard-core
+    Asset: {fileID: 21300000, guid: fa4ae4ea90e0cd7a014ed3c99d71c127, type: 3}
+    SourceWidth: 64
+    SourceHeight: 49
+  - Key: sphere-standard-ring
+    Asset: {fileID: 21300000, guid: aba0d05227e4ac03fe336072e5f90a47, type: 3}
+    SourceWidth: 64
+    SourceHeight: 28
+  - Key: sphere-standard-lower-crystal
+    Asset: {fileID: 21300000, guid: 5128b52b61c0ad8c0e78be856826f9f5, type: 3}
+    SourceWidth: 64
+    SourceHeight: 59
+  - Key: sphere-sniper
+    Asset: {fileID: 21300000, guid: aa9cc4270612d61b46263d48df5c1c67, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: sphere-shotgun
+    Asset: {fileID: 21300000, guid: 42a45542e4d00bd0245aa403b66d7eda, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: sphere-chain
+    Asset: {fileID: 21300000, guid: 66e93d579af02638cc85ea9a6a060a58, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: sphere-aura
+    Asset: {fileID: 21300000, guid: f8239def02b3a07dcb8fad33359d0c1f, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: sphere-prism
+    Asset: {fileID: 21300000, guid: 513ff4c904871c729ef72f35df43b39a, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: sphere-gravity
+    Asset: {fileID: 21300000, guid: 3791d8166f88c39acd61e46019c6b7a6, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: sphere-pulse
+    Asset: {fileID: 21300000, guid: 8e422efea9a57b0314b40eee588f0f06, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: sphere-void
+    Asset: {fileID: 21300000, guid: dced79c3f375f06ba403f88afd63866a, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150
+  - Key: boss
+    Asset: {fileID: 21300000, guid: abfe8b12634aa584db3167af51bf64e0, type: 3}
+    SourceWidth: 150
+    SourceHeight: 150

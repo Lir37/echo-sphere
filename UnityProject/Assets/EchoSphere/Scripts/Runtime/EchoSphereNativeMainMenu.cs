@@ -59,7 +59,7 @@ namespace EchoSphere.Runtime
         private NativeMainMenuView.State ReadNativeMainMenuState(double? savedRunTime)
         {
             var ru=IsRussianUi;var lang=ru?"ru":"en";
-            string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
+            string T(string key)=>NativeText(key,lang=="ru");
             var character=CharacterRules.Get(_sphereCharacterId);
             return new NativeMainMenuView.State(ru,_playerName,ru?character.NameRu:character.NameEn,ru?character.RoleRu:character.RoleEn,
                 PlayerPrefs.GetString(DifficultyPreferenceKey,"normal"),T("difficulty"),T("namePlaceholder"),T("shop"),T("leaderboard"),T("achievements"),T("settings"),

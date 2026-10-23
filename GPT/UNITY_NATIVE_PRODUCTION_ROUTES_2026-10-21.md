@@ -1086,3 +1086,27 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD
 instances/DOM/CSS; runtime no longer calls Visual_App. Read the three GPT docs and
 modernization reports. Continue remaining V catalogue/calculation adapters and
 full control/modal/effect acceptance. No gameplay/quality changes or APK.
+
+
+## 2026-10-23: native resource/localization catalogs
+
+2026-10-23: Native world resources and localization no longer initialize or call
+the translated renderer/i18n/canvasLocale/orbitalGeometry modules. Added actual
+Unity ScriptableObject catalogs: 17 existing Sprite references with source natural
+sizes and original first-request fallback, 127 RU/EN translations, 25 ordered world
+phrases and 75 ordered regex replacements. Native sprite submission consumes typed
+INativeWorldSprite dimensions rather than browser image properties. Canonical
+world palette/render log state is authored C#; runtime ImageFactory removed.
+Orbital display counts/angles are direct double C#; character metadata uses existing
+CharacterRules and EngineerRelayRules. No combat/RNG/quality/artwork change.
+Editor comparisons matched 254 translations, 624 canvas-localization cases, 17
+sprite identities/dimensions and 365 orbital angles/counts. Real native pause UI
+rendered after the change: legacy documents=0, stats Ready=true, flags restored;
+Console current errors/warnings=0, Play stopped. Editor compile zero errors/warnings;
+272 Node tests and metadata/preflight/provenance pass. Added retirement guards and
+reusable Editor catalog import/check scripts. CI checked on containing commit.
+Remaining: gameplay presentation catalog/read helpers, mobile/network V adapters,
+world snapshot/dispatch V and comprehensive control/modal/device acceptance.
+This is an implementation checkpoint within the continuing full-transfer cycle,
+not a declaration that P1/P2 or full modernization is DONE. No APK.
+

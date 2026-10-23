@@ -28,7 +28,7 @@ namespace EchoSphere.Runtime
         private void RerollNativeUpgrades(){if(NativeUpgradeRequested&&!_choosingEvolution){RerollLevelUpChoices();ApplySourceUiWrites();}if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private NativeUpgradeView.State ReadNativeUpgradeState()
         {
-            bool ru=IsRussianUi;string lang=ru?"ru":"en";string L(string a,string b)=>ru?a:b;string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
+            bool ru=IsRussianUi;string lang=ru?"ru":"en";string L(string a,string b)=>ru?a:b;string T(string key)=>NativeText(key,lang=="ru");
             var pending=_sourceRenderState["pendingUpgrade"];var first=pending[0];
             string title=first["type"].Text=="modifier"?L("Новый модификатор","New Modifier"):first["abilityStage"].Text=="branch"?L("Эволюция способности I","Ability Evolution I"):first["abilityStage"].Text=="final"?L("Финальная форма способности","Final Ability Form"):first["sphereStage"].Text=="branch"?L("Мутация сферы I","Sphere Mutation I"):first["sphereStage"].Text=="final"?L("Мутация сферы II","Sphere Mutation II"):T("chooseUpgrade");
             var choices=new List<NativeUpgradeView.Choice>();bool routine=true;string locked=_sourceRenderState["levelUpLockChoiceKey"].Truth?_sourceRenderState["levelUpLockChoiceKey"].Text:"";

@@ -5,9 +5,11 @@ namespace EchoSphere.Presentation
 {
     // Exact ART_PATHS images, rasterized by the reference Canvas implementation.
     // This retains SVG filters and Chromium's actual transparent PNG decode result.
-    public sealed class SourceCanvasImage : IVisualHost
+    public sealed class SourceCanvasImage : IVisualHost,INativeWorldSprite
     {
         public Sprite Sprite {get;private set;}
+        public double Width=>_width;
+        public double Height=>_height;
         private string _source;
         private double _width,_height;
         public V Get(string name)

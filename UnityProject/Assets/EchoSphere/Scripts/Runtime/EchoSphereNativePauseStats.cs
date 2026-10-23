@@ -46,7 +46,7 @@ namespace EchoSphere.Runtime
         internal static NativePauseStatsState ProjectNativePauseStatsState(V scene,bool ru)
         {
             var lang=ru?"ru":"en";var player=scene["player"];
-            string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
+            string T(string key)=>NativeText(key,lang=="ru");
             string Round(V value)=>VisualJs.MathObject["round"].Call(value).Text;
             string Ceil(V value)=>VisualJs.MathObject["ceil"].Call(value).Text;
             string Percent(V value)=>Round(value*new V(100))+"%";

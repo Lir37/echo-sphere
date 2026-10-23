@@ -21,7 +21,7 @@ namespace EchoSphere.Runtime
 
         private NativeRunResultView.State ReadNativeRunResultState()
         {
-            string lang=IsRussianUi?"ru":"en";string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
+            string lang=IsRussianUi?"ru":"en";string T(string key)=>NativeText(key,lang=="ru");
             var rows=new List<NativeRunResultView.Row> {
                 new NativeRunResultView.Row(T("survived"),Mathf.FloorToInt(_runTime)+" "+T("seconds")),
                 new NativeRunResultView.Row(T("wave"),_wave.ToString()),new NativeRunResultView.Row(IsRussianUi?"УБИЙСТВА":"KILLS",_kills.ToString()),new NativeRunResultView.Row(T("goldEarned"),_runGoldEarned.ToString())};

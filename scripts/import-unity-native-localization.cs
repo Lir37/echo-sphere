@@ -1,0 +1,15 @@
+if(UnityEditor.EditorApplication.isPlaying)throw new System.InvalidOperationException("Import in Edit Mode");
+const string path="Assets/Resources/EchoSphere/NativeLocalizationCatalog.asset";
+var catalog=UnityEditor.AssetDatabase.LoadAssetAtPath<EchoSphere.Presentation.NativeLocalizationCatalog>(path);
+bool created=catalog==null;if(created)catalog=UnityEngine.ScriptableObject.CreateInstance<EchoSphere.Presentation.NativeLocalizationCatalog>();
+catalog.SourceCommit="737ef2af4a877e0995db5f92331d536d2f29a934";catalog.Translations.Clear();catalog.CanvasPhrases.Clear();catalog.CanvasPatterns.Clear();
+var type=typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly.GetType("EchoSphere.Presentation.Visual_i18n",true);
+var scope=(EchoSphere.Presentation.V)type.GetField("Scope").GetValue(null);var translations=scope["translations"];
+foreach(var row in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)translations["ru"].Raw)catalog.Translations.Add(new EchoSphere.Presentation.NativeLocalizationCatalog.Translation {Key=row.Key,Ru=row.Value.Text,En=translations["en"][row.Key].Text});
+var source=System.IO.File.ReadAllText(System.IO.Path.Combine(UnityEngine.Application.dataPath,"../../src/canvasLocale.ts"));
+string block=System.Text.RegularExpressions.Regex.Match(source,@"const regionPhraseReplacements:[^=]+=[ ]*\[([\s\S]*?)\];").Groups[1].Value;
+foreach(System.Text.RegularExpressions.Match row in System.Text.RegularExpressions.Regex.Matches(block,@"\['([^']*)',[ ]*'([^']*)'\]"))catalog.CanvasPhrases.Add(new EchoSphere.Presentation.NativeLocalizationCatalog.Replacement {Pattern=row.Groups[1].Value,Text=row.Groups[2].Value});
+foreach(System.Text.RegularExpressions.Match row in System.Text.RegularExpressions.Regex.Matches(source,@"\[/([^/]+)/g,[ ]*'([^']*)'\]"))catalog.CanvasPatterns.Add(new EchoSphere.Presentation.NativeLocalizationCatalog.Replacement {Pattern=row.Groups[1].Value,Text=row.Groups[2].Value});
+if(catalog.Translations.Count<100||catalog.CanvasPatterns.Count<30||catalog.CanvasPhrases.Count<20)throw new System.InvalidOperationException("Incomplete native localization import");
+if(created)UnityEditor.AssetDatabase.CreateAsset(catalog,path);else UnityEditor.EditorUtility.SetDirty(catalog);
+UnityEditor.AssetDatabase.SaveAssets();return new {path,translations=catalog.Translations.Count,patterns=catalog.CanvasPatterns.Count,phrases=catalog.CanvasPhrases.Count};

@@ -45,7 +45,7 @@ namespace EchoSphere.Presentation
             var rig=Get(s,(float)radius);var local=(parent??Matrix4x4.identity)*Transform(angle:rotation);var shadow=C(54,223,255);s.DrawNativeMesh(rig.Ring,_solid,Properties(C(48,214,255,.82)),local,shadow:shadow,shadowBlur:3,opacity:(float)opacity,additive:true,inheritShadowOffsets:true);
             s.DrawNativeMesh(rig.Arc,_solid,Properties(C(48,214,255,.82)),local,shadow:shadow,shadowBlur:3,opacity:(float)(opacity*.55),additive:true,inheritShadowOffsets:true);
         }
-        internal bool DrawAssembly(NativeWorldSurface s,double x,double y,double r,double tier,double time,bool target,NativeWorldSprites sprites,Func<string,SourceCanvasImage> resolve)
+        internal bool DrawAssembly(NativeWorldSurface s,double x,double y,double r,double tier,double time,bool target,NativeWorldSprites sprites,Func<string,INativeWorldSprite> resolve)
         {
             double breathe=Math.Sin(time*2.2+x*.013)*.028,energy=.5+.5*Math.Sin(time*4.6+y*.009),targetPulse=target?.5+.5*Math.Sin(time*11):0,attackScale=1+targetPulse*.025;
             var root=Transform(x,y)*Matrix4x4.Scale(new Vector3((float)(attackScale+breathe*.18),(float)(attackScale-breathe*.12),1));

@@ -6,6 +6,7 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
+        private static string NativeText(string key,bool russian)=>NativeLocalizationCatalog.Instance.Translate(key,russian);
         // Preserve JS Number conversion, including absent/empty -> zero before
         // clamping and non-finite -> 1. No DOM/global-storage adapter is needed.
         private static double NativeInterfaceScale

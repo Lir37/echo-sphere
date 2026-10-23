@@ -19,7 +19,7 @@ namespace EchoSphere.Runtime
 
             _nativeSettingsWasActive=true;_camera.cullingMask=0;
             string lang=IsRussianUi?"ru":"en";
-            string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
+            string T(string key)=>NativeText(key,lang=="ru");
             float scale=(float)NativeInterfaceScale;
             _nativeSettingsScreen.Show(SourceDevicePixelRatio*scale,IsRussianUi,SourceAudio2D.IsEnabled,IsLeftHanded,scale,_settingsResetPending,T,
                 value=>{PlayerPrefs.SetString(LanguagePreferenceKey,value);PlayerPrefs.Save();},

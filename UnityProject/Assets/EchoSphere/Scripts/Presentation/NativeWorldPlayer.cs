@@ -43,7 +43,7 @@ namespace EchoSphere.Presentation
         private void Paint(Art art,Matrix4x4 root,Color? fill,Color? stroke,Color? shadow=null,float blur=0,float? opacity=null,bool additive=false,bool preservePath=false)
         {if(fill.HasValue)_surface.DrawNativeMesh(art.Fill,_solid,Properties(fill.Value),root,shadow,blur,opacity:opacity,additive:additive,inheritShadow:!shadow.HasValue,inheritShadowOffsets:shadow.HasValue);if(stroke.HasValue)_surface.DrawNativeMesh(art.Stroke,_solid,Properties(stroke.Value),root,shadow,blur,opacity:opacity,additive:additive,inheritShadow:!shadow.HasValue,inheritShadowOffsets:shadow.HasValue);}
 
-        internal void Draw(NativeWorldSurface surface,State p,NativeWorldSprites sprites,NativeWorldCreatures shadows,Func<string,SourceCanvasImage> resolve)
+        internal void Draw(NativeWorldSurface surface,State p,NativeWorldSprites sprites,NativeWorldCreatures shadows,Func<string,INativeWorldSprite> resolve)
         {
             _surface=surface;double r=p.Radius,t=p.Time,pulse=1+Math.Sin(t*5.5)*.025;var root=T(p.X,p.Y-r*.1+Math.Sin(t*2.4)*.8,sx:pulse,sy:pulse);shadows.DrawGroundShadow(surface,r*.95,r*.25,root);
             if(p.Character=="spherist"){

@@ -9,7 +9,7 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
 
-        private string NativeMobileText(string key)=>Visual_i18n.Scope["translations"][IsRussianUi?"ru":"en"][key].Text;
+        private string NativeMobileText(string key)=>NativeText(key,IsRussianUi);
         private void NativeMobileControl(string id)
         {
             var s=NativeMobileScene;var player=s["player"];

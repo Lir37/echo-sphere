@@ -55,7 +55,7 @@ namespace EchoSphere.Runtime
         internal static NativePauseChromeState ProjectNativePauseChromeState(V scene, bool ru, int tab)
         {
             var lang = ru ? "ru" : "en"; var character = Visual_characters.Scope["CHARACTER_DEFS"][scene["player"]["characterId"]];
-            string T(string key) => Visual_i18n.Scope["translations"][lang][key].Text;
+            string T(string key) => NativeText(key,lang=="ru");
             return new NativePauseChromeState {
                 Eyebrow = ru ? "Билд забега" : "Run Build", Title = T("pauseTitle") + " · " + character["name"][lang].Text,
                 Subtitle = character["role"][lang].Text + " · " + (ru ? "уровень" : "level") + " " + scene["player"]["level"].Text + " · " + T("wave") + " " + scene["wave"].Text,

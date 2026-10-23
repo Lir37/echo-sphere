@@ -9,6 +9,11 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private NativeWorldFeedback _nativeWorldFeedback;
+        private static double _nativeRenderLastLog=-10;
+        private static readonly UnityEngine.Color NativeWorldBackground=new UnityEngine.Color(7/255f,16/255f,29/255f,1);
+        private static readonly UnityEngine.Color NativeWorldDarkBackground=new UnityEngine.Color(4/255f,9/255f,18/255f,1);
+        private static readonly UnityEngine.Color NativeWorldBorder=new UnityEngine.Color(100/255f,180/255f,1,.24f);
+        private static readonly UnityEngine.Color NativeWorldBorderShadow=new UnityEngine.Color(57/255f,216/255f,1,.22f);
         private void NativeWorldTranslate(V x,V y)=>_worldSurface.Translate(x.Number,y.Number);
         private UnityEngine.Color NativeFrameColor(V value)=>NativeMutationColor(value.Text);
         private V NativeFrameView(string name,params V[] args)
@@ -19,17 +24,16 @@ namespace EchoSphere.Runtime
         {
             var s=_sourceRenderState;var ctx=VisualJs.Null;var player=s["player"];double time=s["time"].Number;
             double w=backingWidth,h=backingHeight,started=VisualJs.PerformanceObject["now"].Call().Number;
-            Visual_renderer.Scope["RENDER_TIME"]=time;var theme=Visual_renderer.Scope["CANONICAL_THEME"];
-            _worldSurface.ResetTransform();_nativeWorldFeedback.Background(w,h,NativeMutationColor(theme["bg"].Text),NativeMutationColor(theme["bgDark"].Text));
+            _worldSurface.ResetTransform();_nativeWorldFeedback.Background(w,h,NativeWorldBackground,NativeWorldDarkBackground);
             NativeFrameView("drawVoidAmbient",w,h,time);
             double load=s["enemies"]["length"].Number+s["sphereProjectiles"]["length"].Number*.55+s["particles"]["length"].Number*.28+s["damageNumbers"]["length"].Number*.42+s["lightnings"]["length"].Number*.75;
             int fxStride=load>220?3:load>150?2:1,damageStride=s["damageNumbers"]["length"].Number>36?2:1,lightningStride=s["lightnings"]["length"].Number>18?2:1;
             double shakeX=0,shakeY=0;_worldSurface.Save();
             if(s["screenShake"].Number>0){shakeX=(VisualJs.MathObject["random"].Call().Number-.5)*s["screenShake"].Number*20;shakeY=(VisualJs.MathObject["random"].Call().Number-.5)*s["screenShake"].Number*20;}
             NativeWorldTranslate(w/2-s["camera"]["x"].Number+shakeX,h/2-s["camera"]["y"].Number+shakeY);
-            NativeFrameView("drawVoidField",s["worldWidth"],s["worldHeight"],theme,-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,player["pos"]["x"],player["pos"]["y"]);NativeFrameView("drawRegionLayer",s);
-            _worldSurface.Shadow=NativeFrameColor("rgba("+Visual_renderer.Scope["hexToRgb"].Call(theme["accent"]).Text+",0.22)");_worldSurface.ShadowBlur=0;_worldSurface.SetDash(new[]{10f,8f});
-            _nativeWorldFeedback.Rectangle(-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,s["worldWidth"].Number,s["worldHeight"].Number,1.5,NativeMutationColor(theme["border"].Text));_worldSurface.SetDash(Array.Empty<float>());
+            NativeFrameView("drawVoidField",s["worldWidth"],s["worldHeight"],VisualJs.Null,-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,player["pos"]["x"],player["pos"]["y"]);NativeFrameView("drawRegionLayer",s);
+            _worldSurface.Shadow=NativeWorldBorderShadow;_worldSurface.ShadowBlur=0;_worldSurface.SetDash(new[]{10f,8f});
+            _nativeWorldFeedback.Rectangle(-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,s["worldWidth"].Number,s["worldHeight"].Number,1.5,NativeWorldBorder);_worldSurface.SetDash(Array.Empty<float>());
             NativeFrameView("drawCharacterWorldIndicators",s);
             foreach(var ft in s["fireTrails"].Items){double alpha=Math.Max(0,Math.Min(1,ft["life"].Number/ft["maxLife"].Number));_worldSurface.Save();NativeWorldTranslate(ft["pos"]["x"],ft["pos"]["y"]);_nativeWorldFeedback.FireTrail(ft["pos"]["x"].Number,time,alpha,_nativeWorldCreatures);_worldSurface.Restore();}
             NativeFrameView("drawFormationMemory",s);NativeFrameView("drawSphereNetwork",s,VisualBindings.Get("engineRuntime.ts","getNetworkFrame").Call(s));
@@ -57,8 +61,8 @@ namespace EchoSphere.Runtime
             foreach(var dn in s["damageNumbers"].Items)if(dn["sourceSphereType"].Text=="orbital")DrawNativeDamageNumber(dn);_worldSurface.SetOpacity(1);
             int lightningIndex=0;foreach(var l in s["lightnings"].Items){if(lightningIndex++%lightningStride!=0)continue;double alpha=Math.Max(0,Math.Min(1,l["life"].Number/.3));if(!DrawNativeChainLightning(new V[]{ctx,l,player,alpha,time}).Truth)NativeFrameView("drawEnergyBolt",l["from"],l["to"],alpha);_worldSurface.SetOpacity(1);}
             _worldSurface.Restore();DrawNativeFrameOverlay(s,w,h,shakeX,shakeY);
-            double cost=VisualJs.PerformanceObject["now"].Call().Number-started;Visual_renderer.Scope["RENDER_COST_MS"]=cost;
-            if(cost>10&&time-Visual_renderer.Scope["RENDER_LAST_LOG"].Number>=3){Visual_renderer.Scope["RENDER_LAST_LOG"]=time;VisualJs.ConsoleObject["info"].Call("[ECHO_RENDER_PERF]",VisualJs.Obj("ms",VisualJs.Number(new V(cost)["toFixed"].Call(2)),"enemies",s["enemies"]["length"],"spheres",s["spheres"]["length"],"projectiles",s["sphereProjectiles"]["length"],"particles",s["particles"]["length"],"damageNumbers",s["damageNumbers"]["length"],"lightnings",s["lightnings"]["length"]));}
+            double cost=VisualJs.PerformanceObject["now"].Call().Number-started;
+            if(cost>10&&time-_nativeRenderLastLog>=3){_nativeRenderLastLog=time;VisualJs.ConsoleObject["info"].Call("[ECHO_RENDER_PERF]",VisualJs.Obj("ms",VisualJs.Number(new V(cost)["toFixed"].Call(2)),"enemies",s["enemies"]["length"],"spheres",s["spheres"]["length"],"projectiles",s["sphereProjectiles"]["length"],"particles",s["particles"]["length"],"damageNumbers",s["damageNumbers"]["length"],"lightnings",s["lightnings"]["length"]));}
         }
         private void DrawNativeDamageNumber(V dn)
         {
@@ -72,7 +76,7 @@ namespace EchoSphere.Runtime
             // drawCharacterHud is intentionally empty in the authoritative source.
             var flash=s["flashText"];if(!flash.Truth)return;
             if(flash["kind"].Text=="boundary"){
-                double progress=1-Math.Min(1,flash["life"].Number/1.35),fade=1-progress,radius=Visual_engineState.Scope["PLAYER_RADIUS"].Number;var color=NativeMutationColor(flash["color"].Text);
+                double progress=1-Math.Min(1,flash["life"].Number/1.35),fade=1-progress,radius=NativePlayerRadiusPixels;var color=NativeMutationColor(flash["color"].Text);
                 _worldSurface.Save();NativeWorldTranslate(w/2+s["player"]["pos"]["x"].Number-s["camera"]["x"].Number+shakeX,h/2+s["player"]["pos"]["y"].Number-s["camera"]["y"].Number+shakeY);_worldSurface.Blend="lighter";
                 _worldSurface.SetOpacity(.46*fade);_nativeWorldFeedback.Boundary(radius,progress,color);_worldSurface.SetOpacity(.20*fade);_nativeWorldFeedback.BoundaryOuter(radius,progress,color);_worldSurface.SetOpacity(.50*fade);_nativeWorldFeedback.BoundaryShards(radius,progress,color);_worldSurface.Restore();
             }

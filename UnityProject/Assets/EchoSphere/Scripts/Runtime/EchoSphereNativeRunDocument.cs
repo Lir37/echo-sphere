@@ -20,11 +20,11 @@ namespace EchoSphere.Runtime
                 else if(_nativeMobileHandedness!=IsLeftHanded){ResetNativeMobileGestures(false);_nativeMobileHandedness=IsLeftHanded;}
                 if(update)ReadNativeMobileState();
             }else{if(_nativeMobileMounted)ResetNativeMobileGestures(true);_nativeMobileDockState=null;_nativeJoystickState=_nativePlacementState=null;_nativeGhostNetworkState=_nativeFormationMemoryState=null;}
-            var player=_sourceRenderState["player"];string lang=IsRussianUi?"ru":"en";var translations=Visual_i18n.Scope["translations"][lang];
+            var player=_sourceRenderState["player"];
             _nativeRunDocument.Begin(_worldSurface.UiTexture,SourceDevicePixelRatio,update,active,
                 NativePauseChromeRequested,!string.IsNullOrEmpty(_pauseArtifactSetId),upgrade,reward,NativeTutorialRequested,
-                player["combo"].Number,player["comboTimer"].Number,translations["combo"].Text+" x"+player["combo"].Text,
-                translations["comboMultiplier"].Text.Replace("{mult}",player["comboMult"].Text));
+                player["combo"].Number,player["comboTimer"].Number,NativeText("combo",IsRussianUi)+" x"+player["combo"].Text,
+                NativeText("comboMultiplier",IsRussianUi).Replace("{mult}",player["comboMult"].Text));
             _nativeRunField=_nativeRunDocument.Field;
             var anchors=_nativeRunDocument.Anchors;anchors.TutorialTarget=ReadNativeRunTutorialTarget;
             if(active){
