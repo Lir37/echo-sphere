@@ -99,6 +99,13 @@ namespace EchoSphere.Runtime
             if(_sourceRenderState.Undefined)_sourceRenderState=NativeRunSnapshotDefaults.Create();var scene=_sourceRenderState;var player=scene["player"];
             // Directly corresponding timers and counters keep their source names.
             // Explicit typed projection for live runtime fields; avoid per-frame FieldInfo.GetValue.
+            // Live presentation inputs: these values are already updated by the
+            // native simulation and must not remain at createInitialState defaults.
+            player["level"]=_level;player["mutationStage"]=_mutationStage;player["buffTimer"]=_buffTimer;
+            player["shieldTimer"]=_shieldTimer;player["shieldVisualPulse"]=_shieldVisualPulse;player["deathTimer"]=_deathTimer;
+            player["chaosOrbBuff"]=_chaosOrbBuff==null?VisualJs.Null:new V(_chaosOrbBuff);player["chaosOrbBuffTimer"]=_chaosOrbBuffTimer;
+            player["teleportDamageBuffTimer"]=_teleportDamageBuffTimer;player["fireCatalystTimer"]=_fireCatalystTimer;
+            player["architectFormationType"]=_architectFormationType.ToString().ToLowerInvariant();player["architectFormationChangedAt"]=_architectFormationChangedAt;
             player["xp"]=_xp;player["activeAbilitySlots"]=_activeAbilitySlots;player["kills"]=_kills;
             player["resonanceCharge"]=_resonanceCharge;player["resonanceEventActive"]=_resonanceEventActive;player["resonanceGeometryKey"]=_resonanceGeometryKey;
             player["resonanceEventsTriggered"]=_resonanceEventsTriggered;player["spheristChorusHits"]=_spheristChorusHits;

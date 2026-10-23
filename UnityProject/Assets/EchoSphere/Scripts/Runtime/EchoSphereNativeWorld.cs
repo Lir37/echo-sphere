@@ -44,9 +44,7 @@ namespace EchoSphere.Runtime
         private NativeWorldPlayer.State NativePlayerState()
         {
             string id=EchoSphere.Core.CharacterRules.ToSourceId(_sphereCharacterId);var point=NativeSourcePixels(PlayerPosition);ColorUtility.TryParseHtmlString(EchoSphere.Core.CharacterRules.Get(_sphereCharacterId).ColorHex,out var color);
-            // These two presentation timers were constant zero in the previous
-            // snapshot path. Preserve that behavior; do not invent runtime wiring.
-            return new NativeWorldPlayer.State {X=point.x,Y=point.y,Radius=NativePlayerRadiusPixels,Time=_runTime,Hp=_playerCore.CurrentHp,ContactCooldown=_playerCore.ContactGraceTimer,ShieldTimer=0,ShieldCharges=_playerCore.ShieldCharges,DashTimer=_playerCore.DashTimer,DeathTimer=0,Character=id,Color=color};
+            return new NativeWorldPlayer.State {X=point.x,Y=point.y,Radius=NativePlayerRadiusPixels,Time=_runTime,Hp=_playerCore.CurrentHp,ContactCooldown=_playerCore.ContactGraceTimer,ShieldTimer=_shieldTimer,ShieldCharges=_playerCore.ShieldCharges,DashTimer=_playerCore.DashTimer,DeathTimer=_deathTimer,Character=id,Color=color};
         }
 #if UNITY_EDITOR
         private NativeWorldPlayer.State LegacyPlayerState(V player)

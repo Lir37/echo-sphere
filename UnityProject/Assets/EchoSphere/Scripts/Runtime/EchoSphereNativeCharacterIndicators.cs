@@ -36,8 +36,7 @@ namespace EchoSphere.Runtime
         private void DrawNativePlayerShield()
         {
             var point=NativeSourcePixels(PlayerPosition);double count=_playerCore.ShieldCharges;
-            // Previous display snapshot never updated shieldTimer/shieldVisualPulse.
-            _nativeWorldCharacterIndicators.DrawShield(_worldSurface,new NativeWorldCharacterIndicators.Shield {X=point.x,Y=point.y,PlayerRadius=NativePlayerRadiusPixels,Charges=count,Timer=0,Pulse=0,Time=_runTime,Spherist=_sphereCharacterId==SphereCharacterId.Spherist,Label=NativeCharacterCanvasText(VisualJs.NumberText(count))},_nativeWorldSprites,ResolveNativePlayerArt);
+            _nativeWorldCharacterIndicators.DrawShield(_worldSurface,new NativeWorldCharacterIndicators.Shield {X=point.x,Y=point.y,PlayerRadius=NativePlayerRadiusPixels,Charges=count,Timer=System.Math.Max(0,(double)_shieldTimer),Pulse=_shieldVisualPulse,Time=_runTime,Spherist=_sphereCharacterId==SphereCharacterId.Spherist,Label=NativeCharacterCanvasText(VisualJs.NumberText(count))},_nativeWorldSprites,ResolveNativePlayerArt);
         }
     }
 }

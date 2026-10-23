@@ -999,3 +999,21 @@ more native frame constructions in paused Play Mode, legacy documents 0; current
 Unity Console errors/warnings 0 (historical Pipeline entries are retained). Inspected
 Android assembly: 12 retired CSS/layout/SVG-host types absent. 272 Node tests and
 preflight/provenance/meta PASS. No FPS/GC or full visual acceptance claim.
+
+### Confirmed stale player display bindings corrected (2026-10-24)
+
+Source-authoritative follow-up supersedes the earlier bounded decision to preserve
+zero display timers. Inspection confirms original engineLoop/engineAbilities update
+level, shieldTimer/shieldVisualPulse/deathTimer, mutation/buff/Chaos Orb/teleport/fire
+catalyst values, and native runtime already updates their exact counterparts.
+The presentation snapshot omitted them and silently retained initial defaults.
+Architect formation type/change time was omitted as well. Added 12 explicit live
+bindings. HUD and pause level, displayed sphere statistics and existing shield/death
+artwork now consume current native state. Typed player/shield views read actual
+shield/death timers, preserving original renderer.ts behavior rather than the
+broken stale adapter. No simulation, formulas, RNG or new effects were added.
+
+Real paused Editor: 50 checks for 12 live inputs, typed player fields and HUD level
+PASS with all temporary native field values restored. Editor compile 0 errors /
+warnings. Previous 1e26a1924c64762e69e49fd96e9f6385209db626 CI #821 SUCCESS.
+Still no complete device/visual/performance acceptance claim.

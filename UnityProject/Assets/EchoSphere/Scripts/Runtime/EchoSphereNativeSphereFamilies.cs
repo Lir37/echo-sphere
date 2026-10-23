@@ -37,7 +37,7 @@ namespace EchoSphere.Runtime
         }
         private void DrawNativeSphereFamily(string family,V sphere,V player,double time,double scale)
         {
-            
+
             var state=new NativeWorldSphereFamilies.State {Family=family,X=sphere["pos"]["x"].Number,Y=sphere["pos"]["y"].Number,Rotation=sphere["rotation"].Truth?sphere["rotation"].Number:0,Time=time,Scale=scale,Disabled=sphere["networkDisabledTimer"].Number>0||!sphere["alive"].Truth,Resonance=player["resonanceEventActive"].Truth};
             if(family=="prism"&&player["sphereBranches"]["prism"].Text=="prism_spectrum"){
                 double final=double.NaN;foreach(var evolution in player["evolutions"].Items){if(!evolution.Text.StartsWith("sphere:prism:7:",System.StringComparison.Ordinal))continue;var parts=evolution.Text.Split(':');final=VisualJs.Number(parts[parts.Length-1]).Number;break;}
