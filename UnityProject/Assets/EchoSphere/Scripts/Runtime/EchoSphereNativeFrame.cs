@@ -41,7 +41,7 @@ namespace EchoSphere.Runtime
             DrawNativeChestLayer(false);
             DrawNativeChestLayer(true);
             foreach(var sphere in s["spheres"].Items)DrawNativeSphereFrame(s,sphere,time);
-            foreach(var p in s["sphereProjectiles"].Items)DrawNativeSphereProjectile(new V[]{ctx,p,player,time});
+            DrawNativeProjectileLayer();
             DrawNativeDroneLayer();
             foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive)DrawNativeEnemyWorld(enemy);
             int orbitalIndex=-1;foreach(var sphere in s["spheres"].Items){orbitalIndex++;if(!sphere["alive"].Truth||sphere["type"].Text!="orbital")continue;

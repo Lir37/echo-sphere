@@ -3,7 +3,7 @@ const string path="Assets/Resources/EchoSphere/NativeRunCatalog.asset";
 var catalog=UnityEditor.AssetDatabase.LoadAssetAtPath<EchoSphere.Presentation.NativeRunCatalog>(path);bool created=catalog==null;
 if(created)catalog=UnityEngine.ScriptableObject.CreateInstance<EchoSphere.Presentation.NativeRunCatalog>();
 catalog.SourceCommit="737ef2af4a877e0995db5f92331d536d2f29a934";
-catalog.Runes.Clear();catalog.Spheres.Clear();catalog.Abilities.Clear();catalog.Artifacts.Clear();catalog.Synergies.Clear();catalog.Sets.Clear();catalog.Elements.Clear();catalog.Rarities.Clear();catalog.SphereAbilityLinks.Clear();
+catalog.Characters.Clear();catalog.Runes.Clear();catalog.Spheres.Clear();catalog.Abilities.Clear();catalog.Artifacts.Clear();catalog.Synergies.Clear();catalog.Sets.Clear();catalog.Elements.Clear();catalog.Rarities.Clear();catalog.SphereAbilityLinks.Clear();
 EchoSphere.Presentation.V Scope(string name)=>(EchoSphere.Presentation.V)typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly.GetType("EchoSphere.Presentation.Visual_"+name,true).GetField("Scope").GetValue(null);
 var data=Scope("gameData");var progression=Scope("sphereProgression");var artifacts=Scope("artifactSystem");
 void Fill(EchoSphere.Presentation.NativeRunCatalog.Text row,EchoSphere.Presentation.V source){row.NameRu=source["name"]["ru"].Text;row.NameEn=source["name"]["en"].Text;row.DescriptionRu=source["desc"]["ru"].Text;row.DescriptionEn=source["desc"]["en"].Text;}
@@ -40,6 +40,8 @@ foreach(var sphere in catalog.Spheres){
  for(int i=0;i<sphere.Branches.Count;i++){var branch=sphere.Branches[i];Fill(branch.BranchCard,branchCards[i]);branch.FinalCards.Clear();var selectedBranches=scene["player"]["sphereBranches"];selectedBranches[sphere.Id]=branch.Id;foreach(var card in Scope("engineProgression")["getSphereEvolutionChoices"].Call(scene,sphere.Id,7).Items){var text=new EchoSphere.Presentation.NativeRunCatalog.Text();Fill(text,card);branch.FinalCards.Add(text);}}
 }
 foreach(var pair in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)Scope("runes")["RUNE_DEFS"].Raw){var item=pair.Value;catalog.Runes.Add(new EchoSphere.Presentation.NativeRunCatalog.Element {Id=pair.Key,NameRu=item["name"]["ru"].Text,NameEn=item["name"]["en"].Text,DescriptionRu=item["description"]["ru"].Text,DescriptionEn=item["description"]["en"].Text,Color=item["color"].Text});}
+foreach(var pair in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)Scope("characters")["CHARACTER_DEFS"].Raw){var mods=pair.Value["baseModifiers"];catalog.Characters.Add(new EchoSphere.Presentation.NativeRunCatalog.Character {Id=pair.Key,MoveSpeed=mods["moveSpeed"].Number,SphereDamage=mods["sphereDamage"].Number,SphereRadius=mods["sphereRadius"].Number,SphereAttackSpeed=mods["sphereAttackSpeed"].Number});}
+if(catalog.Characters.Count!=10)throw new System.Exception("Incomplete native character stats");
 if(catalog.Runes.Count!=9)throw new System.Exception("Incomplete native rune catalog");
 if(catalog.Spheres.Count!=10||catalog.Abilities.Count<20||catalog.Artifacts.Count<40||catalog.Sets.Count!=12)throw new System.InvalidOperationException("Incomplete native run catalog");
 if(created)UnityEditor.AssetDatabase.CreateAsset(catalog,path);else UnityEditor.EditorUtility.SetDirty(catalog);UnityEditor.AssetDatabase.SaveAssets();

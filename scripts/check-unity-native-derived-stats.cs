@@ -1,0 +1,9 @@
+var type=typeof(EchoSphere.Runtime.EchoSphereRuntime);var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static;EchoSphere.Presentation.V Scope(string name)=>(EchoSphere.Presentation.V)type.Assembly.GetType("EchoSphere.Presentation.Visual_"+name,true).GetField("Scope").GetValue(null);var catalog=EchoSphere.Presentation.NativeRunCatalog.Instance;int checks=0;
+foreach(var character in catalog.Characters)for(int level=0;level<=7;level++)for(int variant=0;variant<4;variant++){
+ var abilities=EchoSphere.Presentation.VisualJs.Obj();foreach(string id in new[]{"movespeed","momentum","crit","dodge","vampire"})abilities[id]=level;
+ var artifacts=variant==0?new EchoSphere.Presentation.V[0]:catalog.Artifacts.Where((row,index)=>variant==1||index%3==0).Select(row=>new EchoSphere.Presentation.V(row.Id)).ToArray();
+ var player=EchoSphere.Presentation.VisualJs.Obj("characterId",character.Id,"characterMasteryLevel",level+1,"abilities",abilities,"artifacts",EchoSphere.Presentation.VisualJs.Arr(artifacts),"swiftBootsTimer",variant%2,"mutationStage",variant>=2?3:0,"hunterTrophyTimer",variant%2,"buffTimer",variant%2,"dashTimer",variant%2);
+ var scene=EchoSphere.Presentation.VisualJs.Obj("player",player,"shopUpgrades",EchoSphere.Presentation.VisualJs.Obj("speed",level,"crit",level));
+ foreach(var row in new[]{new[]{"NativePlannerMoveSpeed","engineStats","getMoveSpeed"},new[]{"NativePlannerCritChance","engineCombat","getCritChance"},new[]{"NativePlannerDodgeChance","engineCombat","getDodgeChance"},new[]{"NativePlannerVampire","engineCombat","getVampirePercent"}}){double actual=(double)type.GetMethod(row[0],flags).Invoke(null,new object[]{scene});double expected=Scope(row[1])[row[2]].Call(scene).Number;if(!actual.Equals(expected))throw new Exception(row[0]+"/"+character.Id+"/"+level+"/"+variant+" actual="+actual+" expected="+expected);checks++;}
+}
+return new {checks};

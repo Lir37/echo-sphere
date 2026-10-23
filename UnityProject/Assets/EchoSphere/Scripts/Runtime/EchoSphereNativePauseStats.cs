@@ -58,10 +58,10 @@ namespace EchoSphere.Runtime
                 CharacterHeading=ru?"Персонаж":"Character",SpheresHeading=ru?"Сферы":"Spheres",Resume=T("resume"),Return=T("return"),
                 Stats=new[] {
                     new NativePauseStatsState.Stat("HP",Ceil(player["hp"])+" / "+Ceil(player["maxHp"])),
-                    new NativePauseStatsState.Stat(ru?"Скорость":"Speed",Round(Visual_engineStats.Scope["getMoveSpeed"].Call(scene))),
-                    new NativePauseStatsState.Stat(ru?"Крит":"Crit",Percent(Visual_engineCombat.Scope["getCritChance"].Call(scene))),
-                    new NativePauseStatsState.Stat(ru?"Уклонение":"Dodge",Percent(Visual_engineCombat.Scope["getDodgeChance"].Call(scene))),
-                    new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(Visual_engineCombat.Scope["getVampirePercent"].Call(scene))),
+                    new NativePauseStatsState.Stat(ru?"Скорость":"Speed",Round(new V(NativePlannerMoveSpeed(scene)))),
+                    new NativePauseStatsState.Stat(ru?"Крит":"Crit",Percent(new V(NativePlannerCritChance(scene)))),
+                    new NativePauseStatsState.Stat(ru?"Уклонение":"Dodge",Percent(new V(NativePlannerDodgeChance(scene)))),
+                    new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(new V(NativePlannerVampire(scene)))),
                     new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",scene["spheres"]["length"].Text+" / "+VisualJs.NumberText(NativeMaximumSphereCount(scene))),
                     new NativePauseStatsState.Stat(ru?"Убийства":"Kills",player["kills"].Text),
                     new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(new V(NativeXpPlannerMultiplier(scene))))

@@ -864,3 +864,23 @@ assertions), existing direct TS/C# parity PASS (47339 comparisons), local tempor
 (all UI-consumed ordered fields; unused float strengths/distances not bitwise
 identical). Existing 64 pause synergy scenarios / 41440 comparisons and 1215 typed
 network/orbital checks PASS. No Android/full-run/FPS/GC acceptance claimed.
+
+### Native derived stats and projectile component views (2026-10-23)
+
+Pause speed/crit/dodge/vampire reads are native C# using typed artifact effects and
+10 character modifier records in NativeRunCatalog. Runtime no longer directly
+calls translated engineStats or engineCombat. The original evaluation order and
+numeric constants are unchanged; these are read-only presentation calculations.
+
+Sphere projectiles now project their native view directly from ProjectileAgent,
+its native evolution owner and existing native branch/final catalogs. The V-based
+projector remains Editor-only for comparison. Removed the unused mutation-primitive
+string dispatcher and unused sprite V adapter after confirming no call sites.
+
+Validation: 1280 exact derived-stat comparisons and existing 18 pause-stat model
+cases PASS; 297 projectile-view comparisons PASS (native null / legacy undefined
+both keep the same default unbranched projectile appearance). Compile 0 errors /
+warnings, 272 Node tests and preflight/metadata PASS. Network unification commit
+b90ebdd5a08290eaa822178e27311c339a4d1f66 CI #816 SUCCESS (.NET 8 checks included).
+Remaining: sphere radius/damage/delay/DPS read adapters, player/sphere/overlay V
+models and remaining production compatibility bindings. No full completion claim.

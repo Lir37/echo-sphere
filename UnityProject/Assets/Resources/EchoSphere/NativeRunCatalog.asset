@@ -7381,6 +7381,57 @@ MonoBehaviour:
     Id: poison
     Icon: "\u2620\uFE0F"
     Color: '#72f08e'
+  Characters:
+  - Id: spherist
+    MoveSpeed: 0
+    SphereDamage: 0.05
+    SphereRadius: 0.05
+    SphereAttackSpeed: 0
+  - Id: hunter
+    MoveSpeed: 0
+    SphereDamage: 0.08
+    SphereRadius: 0.1
+    SphereAttackSpeed: -0.05
+  - Id: engineer
+    MoveSpeed: -0.05
+    SphereDamage: 0
+    SphereRadius: 0.05
+    SphereAttackSpeed: 0
+  - Id: berserker
+    MoveSpeed: 0.08
+    SphereDamage: 0.08
+    SphereRadius: -0.05
+    SphereAttackSpeed: 0
+  - Id: alchemist
+    MoveSpeed: 0
+    SphereDamage: -0.05
+    SphereRadius: 0
+    SphereAttackSpeed: 0
+  - Id: architect
+    MoveSpeed: -0.05
+    SphereDamage: 0
+    SphereRadius: 0.05
+    SphereAttackSpeed: 0
+  - Id: conductor
+    MoveSpeed: 0
+    SphereDamage: 0
+    SphereRadius: 0
+    SphereAttackSpeed: 0.03
+  - Id: oracle
+    MoveSpeed: 0
+    SphereDamage: 0
+    SphereRadius: 0.04
+    SphereAttackSpeed: 0
+  - Id: voidwalker
+    MoveSpeed: 0
+    SphereDamage: 0.04
+    SphereRadius: 0
+    SphereAttackSpeed: 0
+  - Id: fractal
+    MoveSpeed: 0
+    SphereDamage: 0.03
+    SphereRadius: 0
+    SphereAttackSpeed: 0
   Runes:
   - NameRu: "\u0420\u0443\u043D\u0430 \u0440\u0430\u0437\u0433\u043E\u043D\u0430"
     NameEn: Overdrive Rune

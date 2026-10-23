@@ -78,14 +78,6 @@ namespace EchoSphere.Runtime
             return new NativeWorldCreatures.EnemyView {Identity=e.Raw,X=e["pos"]["x"].Number,Y=e["pos"]["y"].Number,Radius=e["radius"].Number,HasRotation=e["rotation"].Raw is double,Rotation=e["rotation"].Number,HitFlash=e["hitFlash"].Number,Tier=e["tier"].Number,Hp=e["hp"].Number,MaxHp=e["maxHp"].Number,Boss=boss,Elite=e["isElite"].Truth,Fire=e["fireTimer"].Number>0,Poison=e["poisonTimer"].Number>0,Freeze=e["freezeTimer"].Number>0,Variant=boss?type:e["visualVariant"].Truth?e["visualVariant"].Text:"wisp",BossName=name,Color=color,Signal=NativeBossSignal(e,player),LinkTarget=target.Truth,LinkTimer=timer.Truth?timer.Number:0,LinkX=target["pos"]["x"].Number,LinkY=target["pos"]["y"].Number,LinkWindow=Visual_eliteBalance.Scope["LINK_BREAKER_TELEGRAPH_SECONDS"].Number};
         }
 #endif
-        private V DrawNativeSprite(V[] args,bool part)
-        {
-            // Retain the existing availability gate, including first-call false
-            // and procedural fallback. Resources are already native Sprite assets.
-            var sprite=ResolveNativePlayerArt(args[1].Text);if(sprite==null)return false;
-            var rotation=VisualJs.Arg(args,5);var opacity=VisualJs.Arg(args,6);
-            return _nativeWorldSprites.Draw(_worldSurface,sprite,args[2].Number,args[3].Number,args[4].Number,rotation.Undefined?0:rotation.Number,opacity.Undefined?1:opacity.Number,part,part&&VisualJs.Arg(args,7).Truth,part&&VisualJs.Arg(args,8).Truth);
-        }
         private void DisposeNativeWorld(){_nativeWorldFeedback?.Dispose();_nativeWorldFeedback=null;_nativeWorldNetwork?.Dispose();_nativeWorldNetwork=null;_nativeWorldField?.Dispose();_nativeWorldField=null;_nativeWorldAmbient?.Dispose();_nativeWorldAmbient=null;_nativeWorldRegion?.Dispose();_nativeWorldRegion=null;_nativeWorldPickups?.Dispose();_nativeWorldPickups=null;_nativeWorldMinions?.Dispose();_nativeWorldMinions=null;_nativeWorldEnergyBolts?.Dispose();_nativeWorldEnergyBolts=null;_nativeWorldSprites?.Dispose();_nativeWorldSprites=null;_nativeWorldProjectiles?.Dispose();_nativeWorldProjectiles=null;_nativeWorldCreatures?.Dispose();_nativeWorldCreatures=null;_nativeWorldStandardSphere?.Dispose();_nativeWorldStandardSphere=null;_nativeWorldPickableViews?.Dispose();_nativeWorldPickableViews=null;_nativeWorldPlayer?.Dispose();_nativeWorldPlayer=null;_nativeWorldSphereFamilies?.Dispose();_nativeWorldSphereFamilies=null;_nativeWorldCharacterIndicators?.Dispose();_nativeWorldCharacterIndicators=null;}
     }
 }
