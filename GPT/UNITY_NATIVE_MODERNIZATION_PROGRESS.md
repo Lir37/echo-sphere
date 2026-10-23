@@ -1,5 +1,15 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Sphere projectile tails/energy cores and all original family/branch
+projectile variants now have a native owner. Specialized Chain Lightning (web/storm/
+leech and original branch fallback) is native and retains the original false return
+for the existing fallback bolt. Mutation fin/shard/arc/tether/eye/glow/pulse-ring
+primitives also submit native meshes/materials. Original mutation silhouette/final
+expansion/emitter/transient branch coordination and its inline paints remain partial.
+Editor compile passes; mutation glow shader is supported, diagnostics empty, all
+three composition passes present. No Play/device/FPS/GC claim. Source coordinator/
+UI/data/compositor and other combat/network effects remain. No APK or gameplay change.
+
 2026-10-23: Elemental Fire/Freeze/Poison rings, glyph variants, weapon accents and
 special family signatures are native, including Prism Spectrum resolution through
 existing branch metadata. Orbital body and both attacker rings are native too, with

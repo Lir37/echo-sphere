@@ -1,0 +1,35 @@
+using EchoSphere.Presentation;
+using UnityEngine;
+
+namespace EchoSphere.Runtime
+{
+    public sealed partial class EchoSphereRuntime
+    {
+        private static double NativeMutationFinal(V player,string family)
+        {
+            foreach(var evolution in player["evolutions"].Items){if(!evolution.Text.StartsWith("sphere:"+family+":7:",System.StringComparison.Ordinal))continue;var parts=evolution.Text.Split(':');double n=VisualJs.Number(parts[parts.Length-1]).Number;return double.IsNaN(n)||double.IsInfinity(n)?-1:n;}return -1;
+        }
+        private void DrawNativeSphereProjectile(V[] args)
+        {
+            var projectile=args[1];var player=args[2];var type=projectile["sourceSphere"]["type"];ColorUtility.TryParseHtmlString(projectile["color"].Text,out var color);_nativeWorldSphereFamilies.DrawProjectile(_sourceCanvas,new NativeWorldSphereFamilies.ProjectileView {X=projectile["pos"]["x"].Number,Y=projectile["pos"]["y"].Number,Vx=projectile["vel"]["x"].Number,Vy=projectile["vel"]["y"].Number,Radius=projectile["radius"].Number,Color=color,Family=type.Truth?type.Text:null,Branch=type.Truth?player["sphereBranches"][type].Text:null,Final=type.Truth?NativeMutationFinal(player,type.Text):-1});
+        }
+        private V DrawNativeChainLightning(V[] args)
+        {
+            var bolt=args[1];var player=args[2];var sphere=bolt["sourceSphere"];var branch=player["sphereBranches"]["chain"];if(!sphere.Truth||sphere["type"].Text!="chain"||!branch.Truth)return false;ColorUtility.TryParseHtmlString(Visual_gameData.Scope["SPHERE_TYPES"]["chain"]["color"].Text,out var color);return _nativeWorldSphereFamilies.DrawChainLightning(_sourceCanvas,bolt["from"]["x"].Number,bolt["from"]["y"].Number,bolt["to"]["x"].Number,bolt["to"]["y"].Number,color,branch.Text,NativeMutationFinal(player,"chain"),args[3].Number,args[4].Number);
+        }
+        private static double MutationArg(V[] args,int index,double fallback){var v=VisualJs.Arg(args,index);return v.Undefined?fallback:v.Number;}
+        private void DrawNativeMutationPrimitive(string name,V[] a)
+        {
+            Color color;
+            switch(name){
+                case "fin":ColorUtility.TryParseHtmlString(a[5].Text,out color);_nativeWorldSphereFamilies.MutationFin(_sourceCanvas,a[1].Number,a[2].Number,a[3].Number,a[4].Number,color,a[6].Number,MutationArg(a,7,.75));break;
+                case "shard":ColorUtility.TryParseHtmlString(a[4].Text,out color);_nativeWorldSphereFamilies.MutationShard(_sourceCanvas,a[1].Number,a[2].Number,a[3].Number,color,a[5].Number,MutationArg(a,6,.8));break;
+                case "arc":ColorUtility.TryParseHtmlString(a[2].Text,out color);_nativeWorldSphereFamilies.MutationArc(_sourceCanvas,a[1].Number,color,a[3].Number,a[4].Number,a[5].Number,MutationArg(a,6,.65));break;
+                case "tether":ColorUtility.TryParseHtmlString(a[6].Text,out color);_nativeWorldSphereFamilies.MutationTether(_sourceCanvas,a[1].Number,a[2].Number,a[3].Number,a[4].Number,a[5].Number,color,a[7].Number,MutationArg(a,8,.65),MutationArg(a,9,0));break;
+                case "eye":ColorUtility.TryParseHtmlString(a[4].Text,out color);_nativeWorldSphereFamilies.MutationEye(_sourceCanvas,a[1].Number,a[2].Number,a[3].Number,color,MutationArg(a,5,0));break;
+                case "glow":ColorUtility.TryParseHtmlString(a[2].Text,out color);_nativeWorldSphereFamilies.MutationGlow(_sourceCanvas,a[1].Number,color,MutationArg(a,3,.07));break;
+                case "pulseRing":ColorUtility.TryParseHtmlString(a[2].Text,out color);double r=a[1].Number,q=(a[3].Number*.62)%1;_nativeWorldSphereFamilies.MutationArc(_sourceCanvas,r*(.72+q*1.02),color,System.Math.Max(.7,r*.028),0,System.Math.PI*2,.44*(1-q)*MutationArg(a,4,1));break;
+            }
+        }
+    }
+}

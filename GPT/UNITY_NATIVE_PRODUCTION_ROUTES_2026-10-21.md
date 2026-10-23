@@ -646,3 +646,43 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 family bodies, Orbital attackers, shared family art, modifier and elemental layers
 are native. Continue mutation/projectile/lightning and remaining combat/network
 views, then remove source bridges. Preserve gameplay/quality; no APK; measure later.
+
+
+### 2026-10-23 — sphere projectiles, specialized chain lightning and mutation primitives
+
+Entry HEADa5e6e7244bee70ad5ab256912ddf1829e4c6f0a2, CI #793 SUCCESS.
+Native sphere projectile presentation retains velocity orientation, the original
+tail contour/length/alpha, additive energy disc, Standard/Sniper/Shotgun/Prism/Void
+branch-specific cores, fins/shards and final-form variations. Shotgun's source core
+inherits tail stroke color/width; that behavior is preserved, not replaced by an
+assumed default. Existing first matching evolution suffix determines visual final
+index. Collision/targeting/damage/RNG/projectile simulation are unchanged.
+
+Specialized Chain Lightning retains original source/branch guards and false return
+for the existing native fallback bolt, two zigzag passes, per-branch piece count,
+width/alpha/caps and web/storm/leech terminal accents. Existing source render stride
+and lifetime decisions stay authoritative. No lightning gameplay change.
+
+Shared mutation fin/shard/arc/tether/eye/glow/pulseRing helpers now submit retained or
+pooled Unity meshes and native materials. Fins and tethers retessellate pooled meshes
+for changing geometry; no unbounded time-varying geometry-key cache was added.
+Mutation glow shader retains original four radial stops and the current runtime's
+F3 alpha rounding, inherited opacity, shadows and over/add/screen pass indexing.
+Scoped interception restores originals in finally; resources disposed with owner.
+
+Actual Editor compilation zero errors/warnings; scriptCompilationFailed=false.
+NativeWorldMutationGlow supported, empty shader diagnostics, three passes confirmed.
+No Play/device/FPS/GC claim; no APK, protected branch or user settings/Recovery edits.
+CI is checked separately on containing commit. Full migration remains PARTIAL:
+mutation silhouette/final-expansion/emitter/transient branch coordinator and inline
+paints, other combat/network/character-world effects and source renderer/UI/data/
+compositor bridges remain. Native primitives do not mean that entire mutation layer
+is complete.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT documents and modernization reports. All nine specialized
+family views, Orbital attackers, modifiers/elements, sphere projectiles, specialized
+chain lightning and shared mutation primitives are native. Continue mutation branch
+silhouette/final-expansion/emitter/emit inline views and remaining combat/network
+layers, then remove source coordinator/UI/data/compositor bridges. Preserve gameplay/
+quality; no APK; measurements after implementation.

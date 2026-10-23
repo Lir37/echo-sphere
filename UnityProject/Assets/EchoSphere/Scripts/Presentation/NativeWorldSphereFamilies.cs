@@ -80,6 +80,6 @@ namespace EchoSphere.Presentation
             Finish();
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){foreach(var art in _art.Values)art.Dispose();foreach(var art in _dynamic)art.Dispose();_art.Clear();_dynamic.Clear();_glowSpaces.Clear();Destroy(_solid);Destroy(_glow);}
+        public void Dispose(){foreach(var art in _art.Values)art.Dispose();foreach(var art in _dynamic)art.Dispose();_art.Clear();_dynamic.Clear();_glowSpaces.Clear();Destroy(_solid);Destroy(_glow);Destroy(_mutationGlow);}
     }
 }
