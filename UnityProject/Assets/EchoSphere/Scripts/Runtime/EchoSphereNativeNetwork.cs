@@ -8,6 +8,13 @@ namespace EchoSphere.Runtime
     {
         private NativeWorldNetwork _nativeWorldNetwork;
         private static NativeWorldNetwork.Node NativeNetworkPoint(V position)=>new NativeWorldNetwork.Node {X=position["x"].Number,Y=position["y"].Number};
+        internal static SphereNetworkState NativeAnalyzeSphereNetwork(V spheres)
+        {
+            // Logical source axes keep preview perimeter ordering; lengths use
+            // the same calibrated units as the authoritative native analyzer.
+            var nodes=spheres.Items.Select(sphere=>new SphereNetworkNode(new Vec2((float)sphere["pos"]["x"].Number*SpherePlacementRules.SourcePixelsToWorld,(float)sphere["pos"]["y"].Number*SpherePlacementRules.SourcePixelsToWorld),!(sphere["alive"].Raw is bool alive&&!alive))).ToList();
+            return SphereNetworkRules.Analyze(nodes,SphereNetworkRules.DefaultLinkDistance);
+        }
         internal static double NativeOrbitalNetworkMultiplier(SphereNetworkState state,int index)
         {
             double cluster=SphereNetworkRules.GetFormationBonusMultiplier(state,SphereNetworkFormation.Cluster,index),ring=SphereNetworkRules.GetFormationBonusMultiplier(state,SphereNetworkFormation.Ring,index);int neighbours=state==null?0:state.Links.Count(link=>link.A==index||link.B==index);

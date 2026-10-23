@@ -259,7 +259,7 @@ namespace EchoSphere.Core
                 distances.Add(distance);
             }
             var mean = Mean(distances);
-            if (mean < 0.55f) return null;
+            if (mean < 55f * SpherePlacementRules.SourcePixelsToWorld) return null;
             var variance = 0f;
             for (var i = 0; i < distances.Count; i++) variance += Math.Abs(distances[i] - mean);
             variance /= distances.Count * mean;
@@ -295,7 +295,6 @@ namespace EchoSphere.Core
             for (var i = 0; i < triangles.Count; i++)
                 for (var j = 0; j < triangles[i].Count; j++)
                     if (!used.Contains(triangles[i][j])) used.Add(triangles[i][j]);
-            used.Sort();
             return new SphereNetworkShape(SphereNetworkFormation.Lattice, strength, used);
         }
 
@@ -318,7 +317,6 @@ namespace EchoSphere.Core
                     if (!used.Contains(shapes[i].NodeIndexes[j])) used.Add(shapes[i].NodeIndexes[j]);
             }
             if (!IsConnected(used, links)) return null;
-            used.Sort();
             return new SphereNetworkShape(SphereNetworkFormation.Fractal, Math.Min(1f, strength / shapes.Count), used);
         }
 
@@ -338,7 +336,7 @@ namespace EchoSphere.Core
                     var delta = nodes[indexes[i]].Position - center;
                     maxError = Math.Max(maxError, Math.Abs(delta.X * dirY - delta.Y * dirX));
                 }
-                best = Math.Max(best, 1f - Math.Min(1f, maxError / 0.72f));
+                best = Math.Max(best, 1f - Math.Min(1f, maxError / (72f * SpherePlacementRules.SourcePixelsToWorld)));
             }
             return best;
         }
@@ -351,7 +349,7 @@ namespace EchoSphere.Core
             var ca = Vec2.Distance(nodes[indexes[2]].Position, nodes[indexes[0]].Position);
             if (ab > linkDistance || bc > linkDistance || ca > linkDistance) return 0f;
             var mean = (ab + bc + ca) / 3f;
-            if (mean < 0.65f || mean > linkDistance) return 0f;
+            if (mean < 65f * SpherePlacementRules.SourcePixelsToWorld || mean > linkDistance) return 0f;
             var variance = (Math.Abs(ab - mean) + Math.Abs(bc - mean) + Math.Abs(ca - mean)) / (3f * mean);
             return 1f - Math.Min(1f, variance * 2.2f);
         }
@@ -365,13 +363,13 @@ namespace EchoSphere.Core
             var diagonals0 = Vec2.Distance(nodes[ordered[0]].Position, nodes[ordered[2]].Position);
             var diagonals1 = Vec2.Distance(nodes[ordered[1]].Position, nodes[ordered[3]].Position);
             var sideMean = Mean(sides);
-            if (sideMean < 0.60f || sideMean > linkDistance) return 0f;
+            if (sideMean < 60f * SpherePlacementRules.SourcePixelsToWorld || sideMean > linkDistance) return 0f;
             for (var i = 0; i < sides.Count; i++) if (sides[i] > linkDistance) return 0f;
             var sideVariance = 0f;
             for (var i = 0; i < sides.Count; i++) sideVariance += Math.Abs(sides[i] - sideMean);
             sideVariance /= 4f * sideMean;
             var diagonalMean = (diagonals0 + diagonals1) / 2f;
-            var diagonalVariance = Math.Abs(diagonals0 - diagonals1) / Math.Max(1f, diagonalMean);
+            var diagonalVariance = Math.Abs(diagonals0 - diagonals1) / Math.Max(SpherePlacementRules.SourcePixelsToWorld, diagonalMean);
             var sqrt2 = (float)Math.Sqrt(2f);
             var rightAngleError = Math.Abs(diagonalMean / sideMean - sqrt2) / sqrt2;
             return Math.Max(0f, 1f - Math.Min(1f, sideVariance * 2f + diagonalVariance + rightAngleError));
@@ -389,7 +387,7 @@ namespace EchoSphere.Core
                     if (distance <= linkDistance) linkedPairs++;
                 }
             var average = sum / Math.Max(1, pairs);
-            var compactness = 1f - Math.Min(1f, Math.Max(0f, average - 0.90f) / 0.90f);
+            var compactness = 1f - Math.Min(1f, Math.Max(0f, average - 90f * SpherePlacementRules.SourcePixelsToWorld) / (90f * SpherePlacementRules.SourcePixelsToWorld));
             var connectivity = linkedPairs / (float)Math.Max(1, pairs);
             return compactness * 0.65f + connectivity * 0.35f;
         }
@@ -459,6 +457,8 @@ namespace EchoSphere.Core
 
         private static void RankCandidates(List<SphereNetworkShape> candidates, SphereNetworkFormation previousDominant)
         {
+            // Original rankGeometryCandidates requires six nodes for Fractal.
+            candidates.RemoveAll(shape => shape.Type == SphereNetworkFormation.Fractal && shape.NodeIndexes.Count < 6);
             for (var i = 0; i < candidates.Count; i++)
                 candidates[i].DominanceScore = candidates[i].Strength * 100f + Specificity(candidates[i].Type) +
                     Math.Min(6f, Math.Max(0, candidates[i].NodeIndexes.Count - 3) * 1.5f);

@@ -1232,3 +1232,22 @@ Existing Core graph classification does not fully match original source; attempt
 analyzer replacement was reverted. Native gameplay network/formulas were not
 changed. Broad sphere/projectile/player/overlay V snapshots and numerical adapters
 remain open; this is not a full migration completion statement.
+
+### Unified native graph analysis after source parity correction (2026-10-23)
+
+Resolved the recorded network gap: source pixel distance thresholds now use the
+actual Unity camera conversion, Fractal requires six nodes in ranking, and native
+node union order follows original insertion order. These are corrections to the
+Unity port, so formation selection can differ from its incorrect prior baseline;
+original TypeScript formulas and source data are unchanged.
+
+Ghost Snap and read-only build diagnostics now reuse Core SphereNetworkRules;
+Runtime has no direct Visual_network.Scope calls. Native graph snapshots use one
+shared serializer. Source numerical stat adapters and broad V snapshots remain.
+
+Validation: 10 original TS network regression fixtures; CoreChecks PASS (1382
+assertions), existing direct TS/C# parity PASS (47339 comparisons), local temporary
+.NET 10 harness; .NET 8 result is left to CI. 105 Ghost Snap UI-geometry cases PASS
+(all UI-consumed ordered fields; unused float strengths/distances not bitwise
+identical). Existing 64 pause synergy scenarios / 41440 comparisons and 1215 typed
+network/orbital checks PASS. No Android/full-run/FPS/GC acceptance claimed.

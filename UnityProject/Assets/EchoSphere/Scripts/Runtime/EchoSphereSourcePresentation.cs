@@ -85,10 +85,11 @@ namespace EchoSphere.Runtime
             return view;
         }
         private static V RenderShape(SphereNetworkShape shape)=>shape==null?VisualJs.Null:VisualJs.Obj("type",shape.Type.ToString().ToLowerInvariant(),"strength",shape.Strength,"dominanceScore",shape.DominanceScore,"nodes",VisualJs.Arr(shape.NodeIndexes.ConvertAll(x=>new V((double)x)).ToArray()),"active",shape.Active);
-        private V RenderNetwork()
+        private V RenderNetwork()=>RenderNativeNetworkSnapshot(_networkState);
+        private static V RenderNativeNetworkSnapshot(SphereNetworkState network)
         {
-            var network=_networkState??SphereNetworkRules.Analyze(new List<SphereNetworkNode>());
-            var result=VisualJs.Obj("linkDistance",network.LinkDistance/SpherePlacementRules.SourcePixelsToWorld,"nodes",RenderValue(network.Nodes),"formationCandidates",VisualJs.Arr(network.FormationCandidates.ConvertAll(RenderShape).ToArray()),"dominantFormation",RenderShape(network.DominantFormation),"secondaryFormation",RenderShape(network.SecondaryFormation),"formationEfficiency",network.FormationEfficiency);
+            network=network??SphereNetworkRules.Analyze(new List<SphereNetworkNode>());
+            var result=VisualJs.Obj("linkDistance",network.LinkDistance/SpherePlacementRules.SourcePixelsToWorld,"nodes",VisualJs.Arr(network.Nodes.ConvertAll(index=>new V(index)).ToArray()),"formationCandidates",VisualJs.Arr(network.FormationCandidates.ConvertAll(RenderShape).ToArray()),"dominantFormation",RenderShape(network.DominantFormation),"secondaryFormation",RenderShape(network.SecondaryFormation),"formationEfficiency",network.FormationEfficiency);
             result["links"]=VisualJs.Arr(network.Links.ConvertAll(x=>VisualJs.Obj("a",x.A,"b",x.B,"distance",x.Distance/SpherePlacementRules.SourcePixelsToWorld)).ToArray());
             foreach(SphereNetworkFormation type in Enum.GetValues(typeof(SphereNetworkFormation)))if(type!=SphereNetworkFormation.None)result[type.ToString().ToLowerInvariant()]=RenderShape(network.GetFormation(type));
             return result;

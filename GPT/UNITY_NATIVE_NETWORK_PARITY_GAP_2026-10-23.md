@@ -1,6 +1,7 @@
 # Native network parity gap — 2026-10-23
 
-Status: OPEN. No Core gameplay formulas changed in this investigation.
+Status: RESOLVED for the demonstrated classification/unit-conversion defects;
+source regression fixtures added. See resolution below.
 
 A direct substitution of the translated network analyzer with existing
 SphereNetworkRules.Analyze was tried locally and reverted before commit because
@@ -31,3 +32,27 @@ source formulas, not invent new balance. Existing native gameplay network stayed
 unchanged during this cycle. World drawing and orbital bonuses can safely read
 its cached Core state because that is exactly what their previous V snapshot
 represented; that separate projection parity passed.
+
+
+## Resolution
+
+Distance constants now use their exact original pixel values multiplied by the
+existing SourcePixelsToWorld calibration, including the one-pixel diagonal floor.
+Fractal candidate ranking now preserves the source six-node prerequisite. Lattice
+and Fractal node sets preserve source insertion order. This corrects the earlier
+Unity port and can change classification compared with that incorrect Unity
+baseline; original TypeScript rules/formulas were not changed.
+
+Ten original TypeScript fixtures are exported by export-unity-network-parity.mjs
+and checked by CoreChecks in CI: links, dominant/secondary types, eligible candidate
+sets, node membership and strength tolerance. Source strength tolerance is 3e-5
+for native float computation; this is not bitwise floating-point equivalence.
+
+All 105 Ghost Snap cases now match every field consumed by its UI: candidate index,
+ordered links, dominant type and ordered node indices. Unused serialized strength/
+distance fields differ at native float precision in 99 cases. The test explicitly
+reports that narrower contract and does not claim full JSON identity.
+
+Native UI diagnostics and Ghost Snap now use existing Core SphereNetworkRules;
+production Runtime no longer directly calls Visual_network.Scope. The shared
+snapshot serializer remains a transition boundary, not a second network analyzer.

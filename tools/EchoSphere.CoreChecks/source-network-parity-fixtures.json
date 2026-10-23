@@ -1,0 +1,699 @@
+{
+  "source": "src/network.ts@737ef2af4a877e0995db5f92331d536d2f29a934",
+  "fixtures": [
+    {
+      "name": "line",
+      "nodes": [
+        {
+          "worldX": -1.75,
+          "worldY": 0
+        },
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 1.75,
+          "worldY": 0
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "dominant": "line",
+      "secondary": "none",
+      "candidates": [
+        {
+          "type": "line",
+          "strength": 1,
+          "nodes": [
+            0,
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "name": "square100",
+      "nodes": [
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 1.75,
+          "worldY": 0
+        },
+        {
+          "worldX": 1.75,
+          "worldY": 1.75
+        },
+        {
+          "worldX": 0,
+          "worldY": 1.75
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "dominant": "square",
+      "secondary": "ring",
+      "candidates": [
+        {
+          "type": "square",
+          "strength": 1,
+          "nodes": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "type": "ring",
+          "strength": 1,
+          "nodes": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "type": "cluster",
+          "strength": 0.8280597014466078,
+          "nodes": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "square50",
+      "nodes": [
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.875,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.875,
+          "worldY": 0.875
+        },
+        {
+          "worldX": 0,
+          "worldY": 0.875
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "dominant": "cluster",
+      "secondary": "none",
+      "candidates": [
+        {
+          "type": "cluster",
+          "strength": 1,
+          "nodes": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "triangle60",
+      "nodes": [
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 1.0499999523162842,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.5249999761581421,
+          "worldY": 0.9093266725540161
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "dominant": "none",
+      "secondary": "none",
+      "candidates": []
+    },
+    {
+      "name": "triangle70",
+      "nodes": [
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 1.225000023841858,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.612500011920929,
+          "worldY": 1.0608811378479004
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "dominant": "triangle",
+      "secondary": "none",
+      "candidates": [
+        {
+          "type": "triangle",
+          "strength": 0.9999999983163299,
+          "nodes": [
+            0,
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "name": "five_node_regression",
+      "nodes": [
+        {
+          "worldX": 2.450000047683716,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.9558716416358948,
+          "worldY": 2.2558391094207764
+        },
+        {
+          "worldX": -1.7041301727294922,
+          "worldY": 1.7602386474609375
+        },
+        {
+          "worldX": -2.2856101989746094,
+          "worldY": -0.8823187351226807
+        },
+        {
+          "worldX": 0.7524999976158142,
+          "worldY": -0.49000000953674316
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 4
+        }
+      ],
+      "dominant": "line",
+      "secondary": "triangle",
+      "candidates": [
+        {
+          "type": "line",
+          "strength": 0.8621986840797375,
+          "nodes": [
+            0,
+            3,
+            4
+          ]
+        },
+        {
+          "type": "triangle",
+          "strength": 0.8415391275367918,
+          "nodes": [
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "type": "ring",
+          "strength": 0.7458383179627857,
+          "nodes": [
+            3,
+            4,
+            0,
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lattice4",
+      "nodes": [
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 1.75,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.875,
+          "worldY": 1.5155444145202637
+        },
+        {
+          "worldX": 2.625,
+          "worldY": 1.5155444145202637
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "dominant": "ring",
+      "secondary": "triangle",
+      "candidates": [
+        {
+          "type": "ring",
+          "strength": 0.9999999791646639,
+          "nodes": [
+            0,
+            1,
+            3,
+            2
+          ]
+        },
+        {
+          "type": "triangle",
+          "strength": 0.9999999796276714,
+          "nodes": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "type": "cluster",
+          "strength": 0.8396605633626238,
+          "nodes": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "type": "lattice",
+          "strength": 0.7100000000000001,
+          "nodes": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "composite6",
+      "nodes": [
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 1.75,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.875,
+          "worldY": 1.5155444145202637
+        },
+        {
+          "worldX": 2.625,
+          "worldY": 1.5155444145202637
+        },
+        {
+          "worldX": 3.5,
+          "worldY": 0
+        },
+        {
+          "worldX": 4.375,
+          "worldY": 1.5155444145202637
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 5
+        },
+        {
+          "a": 4,
+          "b": 5
+        }
+      ],
+      "dominant": "ring",
+      "secondary": "fractal",
+      "candidates": [
+        {
+          "type": "ring",
+          "strength": 0.9999999814797013,
+          "nodes": [
+            0,
+            1,
+            4,
+            5,
+            3,
+            2
+          ]
+        },
+        {
+          "type": "fractal",
+          "strength": 0.9566666537024576,
+          "nodes": [
+            0,
+            1,
+            4,
+            5,
+            3,
+            2
+          ]
+        },
+        {
+          "type": "triangle",
+          "strength": 0.9999999796276714,
+          "nodes": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "type": "line",
+          "strength": 1,
+          "nodes": [
+            0,
+            1,
+            4
+          ]
+        },
+        {
+          "type": "lattice",
+          "strength": 0.8700000000000001,
+          "nodes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sparse_line",
+      "nodes": [
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 4.375,
+          "worldY": 0
+        },
+        {
+          "worldX": 8.75,
+          "worldY": 0
+        },
+        {
+          "worldX": 13.125,
+          "worldY": 0
+        },
+        {
+          "worldX": 17.5,
+          "worldY": 0
+        },
+        {
+          "worldX": 21.875,
+          "worldY": 0
+        }
+      ],
+      "links": [],
+      "dominant": "line",
+      "secondary": "none",
+      "candidates": [
+        {
+          "type": "line",
+          "strength": 1,
+          "nodes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dense40",
+      "nodes": [
+        {
+          "worldX": 0,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.699999988079071,
+          "worldY": 0
+        },
+        {
+          "worldX": 0.699999988079071,
+          "worldY": 0.699999988079071
+        },
+        {
+          "worldX": 0,
+          "worldY": 0.699999988079071
+        }
+      ],
+      "links": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "dominant": "cluster",
+      "secondary": "none",
+      "candidates": [
+        {
+          "type": "cluster",
+          "strength": 1,
+          "nodes": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    }
+  ]
+}

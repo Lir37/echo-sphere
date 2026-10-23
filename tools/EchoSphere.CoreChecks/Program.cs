@@ -38,6 +38,7 @@ internal static class Program
             Check(CheckPrismEvolutionCombatRules);
             Check(CheckPulseVoidEvolutionCombatRules);
             Check(CheckSphereNetworkRules);
+            Check(CheckSphereNetworkSourceFixtures);
             Check(CheckSpherePlacementRules);
             Check(CheckCharacterRules);
             Check(CheckHunterCombatRules);
@@ -1695,6 +1696,31 @@ internal static class Program
         Near(SphereAuthoredModifierRules.GetAfterimageChance(2), 0.32f, 0.0001f, "Afterimage II chance");
     }
 
+    private static void CheckSphereNetworkSourceFixtures()
+    {
+        using var document = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "source-network-parity-fixtures.json")));
+        foreach (var fixture in document.RootElement.GetProperty("fixtures").EnumerateArray())
+        {
+            var name = fixture.GetProperty("name").GetString();
+            var nodes = fixture.GetProperty("nodes").EnumerateArray().Select(node => new SphereNetworkNode(new Vec2(node.GetProperty("worldX").GetSingle(), node.GetProperty("worldY").GetSingle()))).ToList();
+            var actual = SphereNetworkRules.Analyze(nodes);
+            var links = fixture.GetProperty("links").EnumerateArray().ToList();
+            Equal(actual.Links.Count, links.Count, name + " source link count");
+            for (var i = 0; i < links.Count; i++) { Equal(actual.Links[i].A, links[i].GetProperty("a").GetInt32(), name + " link A"); Equal(actual.Links[i].B, links[i].GetProperty("b").GetInt32(), name + " link B"); }
+            Equal(actual.DominantFormation?.Type.ToString().ToLowerInvariant() ?? "none", fixture.GetProperty("dominant").GetString(), name + " source dominant");
+            Equal(actual.SecondaryFormation?.Type.ToString().ToLowerInvariant() ?? "none", fixture.GetProperty("secondary").GetString(), name + " source secondary");
+            var candidates = fixture.GetProperty("candidates").EnumerateArray().ToList();
+            Equal(actual.FormationCandidates.Count, candidates.Count, name + " source candidate count");
+            foreach (var candidate in candidates)
+            {
+                var kind = candidate.GetProperty("type").GetString();
+                var shape = actual.FormationCandidates.Single(row => row.Type.ToString().ToLowerInvariant() == kind);
+                Near(shape.Strength, candidate.GetProperty("strength").GetSingle(), .00003f, name + "/" + kind + " source strength");
+                Equal(string.Join(",", shape.NodeIndexes.OrderBy(index => index)), string.Join(",", candidate.GetProperty("nodes").EnumerateArray().Select(index => index.GetInt32()).OrderBy(index => index)), name + "/" + kind + " source node set");
+            }
+        }
+    }
+
     private static void CheckSphereNetworkRules()
     {
         var lineNodes = new[]
@@ -1712,9 +1738,9 @@ internal static class Program
         var squareNodes = new[]
         {
             new SphereNetworkNode(new Vec2(0f, 0f)),
-            new SphereNetworkNode(new Vec2(1f, 0f)),
-            new SphereNetworkNode(new Vec2(1f, 1f)),
-            new SphereNetworkNode(new Vec2(0f, 1f))
+            new SphereNetworkNode(new Vec2(1.75f, 0f)),
+            new SphereNetworkNode(new Vec2(1.75f, 1.75f)),
+            new SphereNetworkNode(new Vec2(0f, 1.75f))
         };
         var square = SphereNetworkRules.Analyze(squareNodes);
         True(square.GetFormation(SphereNetworkFormation.Square) != null, "four balanced nodes form a Square");
@@ -1722,13 +1748,20 @@ internal static class Program
         var latticeNodes = new[]
         {
             new SphereNetworkNode(new Vec2(0f, 0f)),
-            new SphereNetworkNode(new Vec2(1f, 0f)),
-            new SphereNetworkNode(new Vec2(0.5f, 0.8660254f)),
-            new SphereNetworkNode(new Vec2(1.5f, 0.8660254f))
+            new SphereNetworkNode(new Vec2(1.75f, 0f)),
+            new SphereNetworkNode(new Vec2(0.875f, 1.51554445f)),
+            new SphereNetworkNode(new Vec2(2.625f, 1.51554445f))
         };
         var lattice = SphereNetworkRules.Analyze(latticeNodes);
         True(lattice.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Lattice), "two equilateral triangles sharing an edge form a Lattice");
-        True(lattice.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Fractal), "overlapping Lattice and Triangle form a Fractal");
+        True(!lattice.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Fractal), "source excludes Fractal with fewer than six nodes");
+        var sixNodes = new[]
+        {
+            new SphereNetworkNode(new Vec2(0f, 0f)), new SphereNetworkNode(new Vec2(1.75f, 0f)),
+            new SphereNetworkNode(new Vec2(.875f, 1.51554445f)), new SphereNetworkNode(new Vec2(2.625f, 1.51554445f)),
+            new SphereNetworkNode(new Vec2(3.5f, 0f)), new SphereNetworkNode(new Vec2(4.375f, 1.51554445f))
+        };
+        True(SphereNetworkRules.Analyze(sixNodes).FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Fractal), "source six-node composite can form Fractal");
         True(square.DominantFormation != null, "geometry dominance selected");
         True(SphereNetworkRules.TrySetDominantFormation(square, SphereNetworkFormation.Square), "manual dominant geometry selection succeeds");
         True(square.DominantFormation.Type == SphereNetworkFormation.Square, "manual dominant geometry is applied");

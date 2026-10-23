@@ -23,8 +23,8 @@ namespace EchoSphere.Runtime
    var survival=new List<string>();string[] ids={"vitality","shield","dodge","vampire","movespeed"},russian={"Живучесть","Барьер","Уклонение","Вампиризм","Мобильность"},english={"Vitality","Barrier","Dodge","Vampirism","Mobility"};for(int i=0;i<ids.Length;i++)if(abilities[ids[i]].Number>0)survival.Add(ru?russian[i]:english[i]);Add("survival",survival);
    string geometry=player["resonanceGeometryKey"].Truth?player["resonanceGeometryKey"].Text:"none";string geometrySignal=(ru?"Геометрия: ":"Geometry: ")+geometry;
    int typeCount=scene["spheres"].Items.Where(sphere=>sphere["alive"].Truth).Select(sphere=>sphere["type"].Text).Distinct(StringComparer.Ordinal).Count();
-   var network=Visual_network.Scope["analyzeSphereNetwork"].Call(scene["spheres"]);
-   Add("network",new List<string>{(ru?"Типов сфер: ":"Sphere types: ")+typeCount,(ru?"Связей: ":"Links: ")+network["links"]["length"].Text,geometrySignal});
+   var network=NativeAnalyzeSphereNetwork(scene["spheres"]);
+   Add("network",new List<string>{(ru?"Типов сфер: ":"Sphere types: ")+typeCount,(ru?"Связей: ":"Links: ")+network.Links.Count.ToString(System.Globalization.CultureInfo.InvariantCulture),geometrySignal});
    Add("resonance",new List<string>{(ru?"Резонанс: ":"Resonance: ")+VisualJs.NumberText(Math.Floor(player["resonanceCharge"].Number))+"/100",geometrySignal});
    var completed=NativeCompletedSets(scene);var synergy=catalog.Sets.Where(set=>completed.Contains(set.Id)).Select(set=>set.Name(ru)).ToList();synergy.AddRange(NativeProtocols(scene).Where(row=>row.Active).Select(row=>ru?row.Definition.NameRussian:row.Definition.NameEnglish));
    int count=catalog.SphereAbilityLinks.Count(link=>NativeSphereLevel(scene,link.Sphere)>=7&&player["sphereBranches"][link.Sphere].Text==link.Branch&&abilities[link.Ability].Number>=7&&NativeAbilityChoice(scene,link.Ability,7)?.Id==link.AbilityFinal);

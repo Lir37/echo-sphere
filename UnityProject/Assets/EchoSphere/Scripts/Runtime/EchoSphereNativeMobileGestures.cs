@@ -57,7 +57,7 @@ namespace EchoSphere.Runtime
         private bool NativeMobileCanPlace(double x,double y)=>CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,null);
         private bool NativeMobileCanMove(V sphere,double x,double y){var agent=NativeSphereForView(sphere);return agent!=null&&CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,agent);}
         private int NativeMobileMaximum=>(int)NativeMaximumSphereCount(NativeMobileScene);
-        private V NativeMobileNetwork()=>Visual_network.Scope["analyzeSphereNetwork"].Call(NativeMobileScene["spheres"]);
+        private V NativeMobileNetwork()=>RenderNativeNetworkSnapshot(NativeAnalyzeSphereNetwork(NativeMobileScene["spheres"]));
         private static V NativeMobileFormation(V network)=>network["dominantFormation"].Truth?network["dominantFormation"]:VisualJs.Null;
         private void NativeMobileCaptureMemory(V network)
         {
@@ -85,7 +85,7 @@ namespace EchoSphere.Runtime
             var nodes=new List<V>();int index=0;
             foreach(var sphere in spheres.Items){var position=sphere["pos"];var alive=sphere["alive"];var disabled=sphere["networkDisabledTimer"];nodes.Add(VisualJs.Obj("pos",VisualJs.Obj("x",index==candidateIndex?new V(x):position["x"],"y",index==candidateIndex?new V(y):position["y"]),"alive",alive.Truth?new V((disabled.Truth?disabled.Number:0)<=0):alive,"networkDisabledTimer",0));index++;}
             if(candidateIndex==count)nodes.Add(VisualJs.Obj("pos",VisualJs.Obj("x",x,"y",y),"alive",true,"networkDisabledTimer",0));
-            return Visual_network.Scope["analyzeSphereNetwork"].Call(VisualJs.Arr(nodes.ToArray()),220);
+            return RenderNativeNetworkSnapshot(NativeAnalyzeSphereNetwork(VisualJs.Arr(nodes.ToArray())));
         }
         private NativeMobileGhost NativeMobilePreview(V sphere,double x,double y)
         {
