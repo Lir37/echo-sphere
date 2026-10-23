@@ -774,3 +774,16 @@ Build-read-model commit e098a64dbc640057d970db70b5f50791a2f9cd5d CI #810 SUCCESS
 Remaining: numerical combat/stat and world entity read adapters; collision/network
 preview helpers; V snapshots and named world dispatch. Native migration remains
 incomplete; no new performance measurement or Android/APK acceptance.
+
+### Native network rendering projection (2026-10-23)
+
+World network drawing now builds NativeWorldNetwork.Network directly. Sphere-only
+links/formations are filtered in native C#; external drone links keep source index
+order and positions. The runtime no longer calls translated networkRuntime or
+networkRender scopes, and guards enforce that. Existing network analysis and
+mobile ghost/collision helpers remain open; this is not full V snapshot retirement.
+
+Validation: 1440 network projection comparisons PASS, Editor compile 0 errors /
+0 warnings, 272 Node tests and project/provenance/metadata checks PASS.
+Evolution-card commit a4e92fadbfb61fff7dd17bf466166b91b91a2389 CI #811 SUCCESS.
+No gameplay, graph quality, RNG or APK changes; FPS/GC not measured in this block.

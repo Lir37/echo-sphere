@@ -7,15 +7,20 @@ namespace EchoSphere.Runtime
     {
         private NativeWorldNetwork _nativeWorldNetwork;
         private static NativeWorldNetwork.Node NativeNetworkPoint(V position)=>new NativeWorldNetwork.Node {X=position["x"].Number,Y=position["y"].Number};
-        private static NativeWorldNetwork.Formation NativeNetworkFormation(V source)
-            =>source.Truth?new NativeWorldNetwork.Formation {Nodes=source["nodes"].Items.Select(i=>(int)i.Number).ToArray(),Active=!(source["active"].Raw is bool active)||active}:null;
-        private static NativeWorldNetwork.Link[] NativeNetworkLinks(V source)=>source.Items.Select(l=>new NativeWorldNetwork.Link {A=(int)l["a"].Number,B=(int)l["b"].Number}).ToArray();
         private void DrawNativeNetwork(V scene,V source)
         {
-            var runtime=Visual_networkRuntime.Scope["buildRuntimeNetworkNodes"].Call(scene["spheres"],scene["minions"],scene["player"]["abilities"]["minion"].Number>=3);
-            var visual=Visual_networkRender.Scope["getSphereVisualNetwork"].Call(source,scene["spheres"]["length"]);var network=visual["network"];
+            var projected=ProjectNativeNetwork(scene,source);_nativeWorldNetwork.Draw(_worldSurface,projected.Network,projected.RuntimeNodes,projected.ExternalLinks,scene["time"].Number);
+        }
+        internal static (NativeWorldNetwork.Network Network,NativeWorldNetwork.Node?[] RuntimeNodes,NativeWorldNetwork.Link[] ExternalLinks) ProjectNativeNetwork(V scene,V source)
+        {
+            int sphereCount=(int)scene["spheres"]["length"].Number;
+            bool SphereIndex(V index)=>index.Number>=0&&index.Number<sphereCount;
+            bool SphereLink(V link)=>SphereIndex(link["a"])&&SphereIndex(link["b"]);
+            NativeWorldNetwork.Formation Formation(string key){var shape=source[key];if(!shape.Truth)return null;var indexes=shape["nodes"].Items.Where(SphereIndex).Select(index=>(int)index.Number).ToArray();return indexes.Length>=2?new NativeWorldNetwork.Formation {Nodes=indexes,Active=!(shape["active"].Raw is bool active)||active}:null;}
+            NativeWorldNetwork.Link Link(V link)=>new NativeWorldNetwork.Link {A=(int)link["a"].Number,B=(int)link["b"].Number};
             var nodes=scene["spheres"].Items.Select(s=>new NativeWorldNetwork.Node {X=s["pos"]["x"].Number,Y=s["pos"]["y"].Number,Charge=s["formationHitCount"].Number,Pulse=s["resonancePulseTimer"].Number}).ToArray();
-            _nativeWorldNetwork.Draw(_worldSurface,new NativeWorldNetwork.Network {NodeCount=(int)network["nodes"]["length"].Number,Spheres=nodes,Links=NativeNetworkLinks(network["links"]),Line=NativeNetworkFormation(network["line"]),Triangle=NativeNetworkFormation(network["triangle"]),Square=NativeNetworkFormation(network["square"]),Cluster=NativeNetworkFormation(network["cluster"]),Ring=NativeNetworkFormation(network["ring"]),Lattice=NativeNetworkFormation(network["lattice"]),Fractal=NativeNetworkFormation(network["fractal"])},runtime.Items.Select(n=>n["pos"].Truth?(NativeWorldNetwork.Node?)NativeNetworkPoint(n["pos"]):null).ToArray(),NativeNetworkLinks(visual["externalLinks"]),scene["time"].Number);
+            var positions=scene["spheres"].Items.Select(s=>s["pos"]).ToList();if(scene["player"]["abilities"]["minion"].Number>=3)positions.AddRange(scene["minions"].Items.Select(minion=>minion["pos"]));
+            return (new NativeWorldNetwork.Network {NodeCount=source["nodes"].Items.Count(SphereIndex),Spheres=nodes,Links=source["links"].Items.Where(SphereLink).Select(Link).ToArray(),Line=Formation("line"),Triangle=Formation("triangle"),Square=Formation("square"),Cluster=Formation("cluster"),Ring=Formation("ring"),Lattice=Formation("lattice"),Fractal=Formation("fractal")},positions.Select(position=>position.Truth?(NativeWorldNetwork.Node?)NativeNetworkPoint(position):null).ToArray(),source["links"].Items.Where(link=>!SphereLink(link)).Select(Link).ToArray());
         }
         private void DrawNativeFormationMemory(V scene)
         {
