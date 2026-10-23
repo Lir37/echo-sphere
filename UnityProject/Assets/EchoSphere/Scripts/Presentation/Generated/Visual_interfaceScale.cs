@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/interfaceScale.ts; sha256 b2993563fc50dcf4658203826b13a864385ac9b3aac8889d9f7aa406c4c8368a.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -31,3 +32,4 @@ return (new V("") + VisualJs.MathObject[new V("round")].Call((v_value_3 * new V(
 }
 }
 }
+#endif

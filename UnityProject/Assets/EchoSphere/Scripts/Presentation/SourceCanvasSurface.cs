@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -495,3 +496,4 @@ namespace EchoSphere.Presentation
         private void OnDestroy(){if(_commands!=null)_commands.Release();if(_target!=null){_target.Release();Destroy(_target);}if(_uiTarget!=null){_uiTarget.Release();Destroy(_uiTarget);}if(_displayMesh!=null)Destroy(_displayMesh);if(_displayMaterial!=null)Destroy(_displayMaterial);if(_blurMaterial!=null)Destroy(_blurMaterial);if(_mesh!=null)Destroy(_mesh);if(_material!=null)Destroy(_material);if(_paintTexture!=null)Destroy(_paintTexture);}
     }
 }
+#endif

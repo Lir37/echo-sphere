@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/spheres/orbitalGeometry.ts; sha256 19a7e978d861afeed8c7d27f3275842b5d595bdfd3e3988b7e4fff17cfe1fcaf.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -35,3 +36,4 @@ return ((v_rotation_7 * v_direction_12) + (v_index_9 * ((Scope[new V("TAU")] / v
 }
 }
 }
+#endif

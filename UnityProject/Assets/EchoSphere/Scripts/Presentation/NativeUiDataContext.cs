@@ -7,6 +7,7 @@ namespace EchoSphere.Presentation
     internal sealed class NativeUiDataContext
     {
         internal bool Dirty=true;
+        #if UNITY_EDITOR
         internal Func<string,V> ReadStorage;
         internal Action<string,V> WriteStorage;
         internal Action<string> RemoveStorage;
@@ -26,5 +27,6 @@ namespace EchoSphere.Presentation
                 case "location":return VisualJs.Obj("reload",VisualJs.Fn(args=>{Reload?.Invoke();return default;}));
                 default:throw new InvalidOperationException("Native data context has no UI environment API: "+name);}
         }
+        #endif
     }
 }

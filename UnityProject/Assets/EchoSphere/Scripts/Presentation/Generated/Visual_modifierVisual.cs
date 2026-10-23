@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/spheres/modifierVisual.ts; sha256 2e9e5cc4dce10a8d2c68c4c4b53c42ea58760f6b713da212d62e0a189eba7c9c.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -182,3 +183,4 @@ return default;
 }
 }
 }
+#endif

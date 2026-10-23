@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/region.ts; sha256 7798bf19d72af9ee4a8df78db99e52eb381ec17b600b219e43abaee25e6c37e3.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -40,3 +41,4 @@ return VisualJs.Obj(new V("id"), new V(5d), new V("name"), VisualJs.Obj(new V("r
 }
 }
 }
+#endif

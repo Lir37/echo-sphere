@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/TutorialOverlay.tsx; sha256 fcbaf8e953003e58fee957fec589c713b2f983b764ea68f9df42be7651af2ac4.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -58,3 +59,4 @@ return (VisualDom.Element("div",VisualJs.Merge(VisualJs.Obj(new V("className"),n
 }
 }
 }
+#endif

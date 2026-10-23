@@ -681,7 +681,7 @@ assert.ok(existsSync(join(root, combatArcPath)), 'source-mapped chain lightning 
 const combatArc = readFileSync(join(root, combatArcPath), 'utf8');
 assert.ok(combatArc.includes('src/spheres/mutationVisual.ts') && combatArc.includes('renderChainLightningVfx') && combatArc.includes('src/renderer.ts'), 'combat arcs must keep the Canvas source mapping');
 const sourcePresentation=readFileSync(join(root,'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs'),'utf8');
-assert.ok(sourcePresentation.includes('AddSourceLightningVisual')&&sourcePresentation.includes('Add("lightnings",VisualJs.Obj'), 'chain-lightning events must enter the authored Canvas renderer');
+assert.ok(sourcePresentation.includes('AddSourceLightningVisual')&&readFileSync(join(root,'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeFrame.cs'),'utf8').includes('foreach(var lightning in _sourceLightningVisuals)'), 'chain-lightning events must enter the native component frame');
 for (const branch of ['chain_web','chain_storm','chain_leech','prism_split','prism_mirror']) assert.ok(combatArc.includes('"' + branch + '"'), 'source-mapped arc branch missing: ' + branch);
 assert.ok(combatArc.includes('MarkDynamic') && combatArc.includes('new List<Vector2>') && combatArc.includes('new List<Vector3>'), 'combat arc mesh and geometry buffers must be reused');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(combatArc), 'combat arc presentation must not consume gameplay RNG');

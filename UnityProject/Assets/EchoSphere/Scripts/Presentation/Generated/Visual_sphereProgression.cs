@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/sphereProgression.ts; sha256 20bc16678de11155362bf04c90520a7849db402b8e3d1b6558cc51a00d3a8b86.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -244,3 +245,4 @@ return v_levels_76;
 }
 }
 }
+#endif

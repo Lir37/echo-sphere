@@ -41,7 +41,7 @@ namespace EchoSphere.Runtime
    var types=new HashSet<string>(spheres.Select(s=>s["type"].Text),StringComparer.Ordinal);var player=scene["player"];
    string geometry=player["resonanceGeometryKey"].Truth?player["resonanceGeometryKey"].Text:"none";bool geometryActive=geometry=="ring"||geometry=="lattice"||geometry=="fractal";
    bool priority=scene["enemies"].Items.Any(enemy=>enemy["hp"].Number>0&&(enemy["isElite"].Truth||enemy["isBoss"].Truth));
-   bool status=types.Contains("prism")&&VisualJs.ObjectObject["values"].Call(player["sphereMods"].Truth?player["sphereMods"]:VisualJs.Obj()).Items.Any(level=>VisualJs.Number(level).Number>0);
+   bool status=types.Contains("prism")&&player["sphereMods"].Raw is Dictionary<string,V> sphereMods&&sphereMods.Values.Any(level=>VisualJs.Number(level).Number>0);
    double Distance(V a,V b){double dx=a["pos"]["x"].Number-b["pos"]["x"].Number,dy=a["pos"]["y"].Number-b["pos"]["y"].Number;return Math.Sqrt(dx*dx+dy*dy);}
    bool triangle=false;for(int i=0;i<spheres.Count&&!triangle;i++)for(int j=i+1;j<spheres.Count&&!triangle;j++)for(int k=j+1;k<spheres.Count;k++)if(!ReferenceEquals(spheres[i].Raw,spheres[j].Raw)&&!ReferenceEquals(spheres[i].Raw,spheres[k].Raw)&&!ReferenceEquals(spheres[j].Raw,spheres[k].Raw)&&Distance(spheres[i],spheres[j])<=300&&Distance(spheres[i],spheres[k])<=300&&Distance(spheres[j],spheres[k])<=300){triangle=true;break;}
    var rows=new List<NativeProtocolState>();foreach(var definition in ArtifactProtocolRules.Protocols){bool condition=false;

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/networkPreview.ts; sha256 5e0286db542c85de38635a79d7491bd620bd78092208fdcb65941933e1c21074.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -38,3 +39,4 @@ return VisualJs.Obj(new V("candidate"), VisualJs.Merge(v_candidate_2), new V("ca
 }
 }
 }
+#endif

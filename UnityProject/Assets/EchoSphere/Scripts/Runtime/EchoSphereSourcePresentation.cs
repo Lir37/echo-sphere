@@ -96,7 +96,7 @@ namespace EchoSphere.Runtime
         }
         private void UpdateSourceRenderState()
         {
-            if(_sourceRenderState.Undefined)_sourceRenderState=VisualInitialState.Create();var scene=_sourceRenderState;var player=scene["player"];
+            if(_sourceRenderState.Undefined)_sourceRenderState=NativeRunSnapshotDefaults.Create();var scene=_sourceRenderState;var player=scene["player"];
             // Directly corresponding timers and counters keep their source names.
             // Explicit typed projection for live runtime fields; avoid per-frame FieldInfo.GetValue.
             player["xp"]=_xp;player["activeAbilitySlots"]=_activeAbilitySlots;player["kills"]=_kills;
@@ -138,19 +138,17 @@ namespace EchoSphere.Runtime
             scene["formationMemory"]=_formationMemoryTimer>0f&&_formationMemoryPoints!=null?VisualJs.Obj("type",_formationMemoryType.ToString().ToLowerInvariant(),"nodes",RenderValue(_formationMemoryPoints),"expiresAt",_runTime+_formationMemoryTimer):VisualJs.Null;
             scene["flashText"]=_messageTimer>0f?VisualJs.Obj("text",_message,"color",_sourceFlashColor,"kind",_sourceFlashKind,"life",_messageTimer):VisualJs.Null;
             var upgrades=VisualJs.Obj();foreach(var key in new[]{"hp","dmg","speed","xp","radius","spheres","crit"})upgrades[key]=GetShopUpgradeLevel(key);scene["shopUpgrades"]=upgrades;
-            foreach(var key in new[]{"spheres","enemies","damageNumbers","lightnings"})scene[key]=VisualJs.Arr();
-            void Add(string key,V value)=>scene[key]["push"].Call(value);
+            foreach(var key in new[]{"spheres","enemies"})scene[key]=VisualJs.Arr();
+            void Add(string key,V value)=>((List<V>)scene[key].Raw).Add(value);
             foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy)Add("spheres",RenderEntity(sphere));
             foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive)Add("enemies",RenderEntity(enemy));
             scene["bossArrow"]=VisualJs.Null;
             if(_ownedArtifacts.Contains("foresight_eye"))foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){var delta=(Vector2)enemy.transform.position-PlayerPosition;if(delta.sqrMagnitude>0f)scene["bossArrow"]=SourcePoint(delta.normalized*SpherePlacementRules.SourcePixelsToWorld);break;}
             // Transient entity layers read Unity components directly. Do not
             // build duplicate V dictionaries for those native consumers.
-            foreach(var number in _damageNumbers)Add("damageNumbers",VisualJs.Obj("pos",SourcePoint(number.position),"value",number.value,"crit",number.critical,"element",number.element,"life",number.life,"maxLife",number.maxLife,"sourceSphereType",number.sourceSphereType==null?VisualJs.Null:new V(number.sourceSphereType)));
-            foreach(var lightning in _sourceLightningVisuals)Add("lightnings",VisualJs.Obj("from",SourcePoint(lightning.from),"to",SourcePoint(lightning.to),"life",lightning.life,"sourceSphere",lightning.sphereType==null?VisualJs.Null:VisualJs.Obj("type",lightning.sphereType)));
             var pois=new List<V>();if(_regionFieldVisuals!=null)foreach(var poi in _regionFieldVisuals.CapturePoiState().pois)pois.Add(VisualJs.Obj("id",poi.id,"type",poi.type,"pos",SourcePoint(poi.position),"alive",true));
             var region=scene["region"];region["id"]=RegionSourceId(_selectedRegion);region["mode"]=_regionEndlessMode?"endless":"stabilization";region["pocketId"]=_regionHudPocketId;region["pois"]=VisualJs.Arr(pois.ToArray());
-            var phase=Visual_region.Scope["getRegionPhase"].Call(_runTime);region["phaseId"]=phase["id"];region["phaseName"]=phase["name"];
+            int phase=NativeRegionPhaseIndex(_runTime);region["phaseId"]=phase;region["phaseName"]=NativeLocalizedName(NativeRunCatalog.Instance.RegionPhases[phase]);
             region["cleared"]=_regionStabilized;region["endlessUnlocked"]=IsRegionEndlessUnlocked(_selectedRegion);region["challengeId"]=_regionChallengeId;region["challengeContractsCompleted"]=_regionChallengeContractsCompleted;region["masteryChallengesCompleted"]=_regionMasteryChallengesCompleted;region["masteryGeometryTypes"]=RenderValue(_regionMasteryGeometryTypes);region["masteryDominantSeconds"]=_regionMasteryDominantSeconds;region["loreDiscovered"]=RenderValue(_regionLoreDiscovered);region["damageTaken"]=_regionDamageTaken;region["lastHp"]=_regionLastHp;region["regionGoldReward"]=_regionGoldReward;region["regionXpReward"]=_regionXpReward;
             if(_regionSchedule!=null){region["majorBossesSpawned"]=_regionEndlessMode?_endlessBossesSpawned:_regionSchedule.MajorBossesSpawned;region["nextBossAt"]=_regionEndlessMode?_endlessNextBossAt:_regionSchedule.NextBossAt;region["finalBossSpawned"]=_regionSchedule.FinalBossSpawned;region["finalBossDefeated"]=_regionSchedule.FinalBossDefeated;}
             scene["nativeNetwork"]=RenderNetwork();
@@ -159,7 +157,9 @@ namespace EchoSphere.Runtime
         private void LateUpdate()
         {
             if(_playerCore==null||_camera==null)return;
+            #if UNITY_EDITOR
             VisualBindings.Locale=IsRussianUi?"ru":"en";
+            #endif
             if(_mainMenu)_nativeRunDocument?.Hide();
             bool nativeHome=TryDrawNativeMainMenu();
             bool nativeProgression=TryDrawNativeProgression();

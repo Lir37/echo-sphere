@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/spaceCollision.ts; sha256 dd3b9ab788a6210a95af074d45cdb35d8394b6771a7ed9e5db23cf8131aaed6e.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -104,3 +105,4 @@ return new V(false);
 }
 }
 }
+#endif

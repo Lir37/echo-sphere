@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/spheres/chainVisual.ts; sha256 d9958a454ad932d84d432f58770aef490b1714b481f29411af091e068eedd716.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -64,3 +65,4 @@ return default;
 }
 }
 }
+#endif

@@ -22,7 +22,7 @@ namespace EchoSphere.Runtime
             if(name=="drawCharacterTargetIndicators"){string id=NativeCharacterWorldId(scene);if(id=="hunter")DrawNativeCharacterIndicator("drawHunterTarget",scene);else if(id=="alchemist")DrawNativeCharacterIndicator("drawAlchemistReactions",scene);return;}
             if(name=="drawEngineerLinks")_nativeWorldCharacterIndicators.DrawEngineer(_worldSurface,NativeAliveSpherePoints(scene),EchoSphere.Core.EngineerRelayRules.GetNetworkRangePixels((int)scene["player"]["characterMasteryLevel"].Number));
             else if(name=="drawArchitectFormation"){
-                var formation=VisualBindings.Get("characterRuntime.ts","getCharacterFormation").Call(scene);_nativeWorldCharacterIndicators.DrawFormation(_worldSurface,formation["type"].Text,NativeAliveSpherePoints(scene),new NativeWorldCharacterIndicators.Point {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number});
+                _nativeWorldCharacterIndicators.DrawFormation(_worldSurface,NativeCharacterFormationKind(scene),NativeAliveSpherePoints(scene),new NativeWorldCharacterIndicators.Point {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number});
             }else if(name=="drawHunterTarget"){
                 var target=player["hunterMarkTarget"];if(!target.Truth||!(target["hp"].Number>0)||!(player["hunterMarkTimer"].Number>0))return;bool hunt=player["hunterHuntTarget"].Equals(target)&&player["hunterHuntTimer"].Number>0;_nativeWorldCharacterIndicators.DrawHunter(_worldSurface,target["pos"]["x"].Number,target["pos"]["y"].Number,target["radius"].Number,hunt,NativeCharacterCanvasText(hunt?"HUNT":"MARK"));
             }else if(name=="drawAlchemistReactions"){

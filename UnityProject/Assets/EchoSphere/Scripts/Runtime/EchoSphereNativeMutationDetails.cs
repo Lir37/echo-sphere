@@ -31,9 +31,6 @@ namespace EchoSphere.Runtime
             var type=projectile["sourceSphere"]["type"];ColorUtility.TryParseHtmlString(projectile["color"].Text,out var color);return new NativeWorldSphereFamilies.ProjectileView {X=projectile["pos"]["x"].Number,Y=projectile["pos"]["y"].Number,Vx=projectile["vel"]["x"].Number,Vy=projectile["vel"]["y"].Number,Radius=projectile["radius"].Number,Color=color,Family=type.Truth?type.Text:null,Branch=type.Truth?player["sphereBranches"][type].Text:null,Final=type.Truth?NativeMutationFinal(player,type.Text):-1};
         }
 #endif
-        private V DrawNativeChainLightning(V[] args)
-        {
-            var bolt=args[1];var player=args[2];var sphere=bolt["sourceSphere"];var branch=player["sphereBranches"]["chain"];if(!sphere.Truth||sphere["type"].Text!="chain"||!branch.Truth)return false;ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetSphere("chain").Color,out var color);return _nativeWorldSphereFamilies.DrawChainLightning(_worldSurface,bolt["from"]["x"].Number,bolt["from"]["y"].Number,bolt["to"]["x"].Number,bolt["to"]["y"].Number,color,branch.Text,NativeMutationFinal(player,"chain"),args[3].Number,args[4].Number);
-        }
+
     }
 }

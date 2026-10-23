@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <DefineConstants>$(DefineConstants);UNITY_EDITOR</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <None Include="source-visual-fixtures.json" CopyToOutputDirectory="PreserveNewest" />

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/persistence.ts; sha256 3c0774dd38bb536b94f5a47b0e59b8d66a8ebbb1c244b7c9edeb39c8f81d7cd1.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -15,3 +16,4 @@ return (new V(v_level_0 >= new V(10d)).Truth ? VisualJs.Null : Scope[new V("CHAR
 }
 }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/renderer.ts; sha256 291bf47ec7e2408e4aa0acac7e70a9bcdaedc95936c59adc9f8ca95d711ec29d.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -2833,3 +2834,4 @@ return default;
 }
 }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/runes.ts; sha256 20799fa29440f0aa4df2d90a5e56e9c88fe0cb5fe4d38df2cf6077b0aef31502.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -11,3 +12,4 @@ Scope[new V("RUNE_DEFS")] = VisualJs.Obj(new V("overdrive"), VisualJs.Obj(new V(
 
 }
 }
+#endif

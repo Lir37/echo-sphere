@@ -18,12 +18,14 @@ namespace EchoSphere.Runtime
         {
             if(_sourceUi==null){
                 _sourceUi=new NativeUiDataContext();
+                #if UNITY_EDITOR
                 var environment=_sourceUi;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;
                 environment.WriteStorage=(key,value)=>{PlayerPrefs.SetString(key,value.Text);PlayerPrefs.Save();};
                 environment.RemoveStorage=key=>{PlayerPrefs.DeleteKey(key);PlayerPrefs.Save();};
                 environment.Reload=()=>SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 VisualUiBindings.Resolve=SourceUiBinding;
+                #endif
             }
             if(_sourceUiWasPaused!=_userPaused){_sourceUiWasPaused=_userPaused;_sourceUi.Dirty=true;}
             UpdateSourceUiState();
@@ -58,6 +60,7 @@ namespace EchoSphere.Runtime
             scene["levelUpRerollsRemaining"]=_levelUpRerollsRemaining;scene["levelUpLocksRemaining"]=_levelUpLocksRemaining;
             scene["levelUpLockChoiceKey"]=_levelUpLockChoiceKey==null?VisualJs.Null:new V(_levelUpLockChoiceKey);scene["oracleForecastKeys"]=RenderValue(_oracleForecastKeys);
         }
+        #if UNITY_EDITOR
         private V SourceUiBinding(string module,string name)
         {
             if(module=="global")return _sourceUi.Get(name);
@@ -99,6 +102,7 @@ namespace EchoSphere.Runtime
                 UpdateSourceRenderState();UpdateSourceUiState();return default;
             });
         }
+        #endif
         private Vector2 SourceUiMovement()
         {if(_sourceRenderState.Undefined)return Vector2.zero;var keys=_sourceRenderState["keys"];return new Vector2((keys["d"].Truth||keys["arrowright"].Truth?1f:0f)-(keys["a"].Truth||keys["arrowleft"].Truth?1f:0f),(keys["w"].Truth||keys["arrowup"].Truth?1f:0f)-(keys["s"].Truth||keys["arrowdown"].Truth?1f:0f));}
         private void ApplySourceUiWrites()

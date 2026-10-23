@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/formationFollow.ts; sha256 d4d0fdbf1db1a5d2a89ddc68f4f2fe1f9edf538bbce8c85fe016590c89756e40.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -15,3 +16,4 @@ return Scope[new V("FOLLOW_MOVEMENT_ABILITIES")][new V("has")].Call(v_ability_0)
 }
 }
 }
+#endif

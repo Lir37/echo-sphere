@@ -30,6 +30,7 @@ namespace EchoSphere.Presentation
         internal IEnumerable<string> Classes {get{HasClass("");return _classes;}}
         public string Attribute(string name) {var value=Properties[name=="class"?"className":name];if(value.Undefined)return null;if(value.Raw is bool flag&&!flag&&new[]{"disabled","checked","hidden","multiple","readonly","required","selected","autofocus"}.Contains(name))return null;return value.Text;}
         public int ElementIndex=>Parent==null?0:Parent.Children.Where(child=>child.Tag!="#text"&&child.Pseudo==null).ToList().IndexOf(this);
+        #if UNITY_EDITOR
         public static VisualCssNode Build(V tree)
         {
             var root=new VisualCssNode {Tag="html"};var body=new VisualCssNode {Tag="body",Parent=root};root.Children.Add(body);
@@ -48,6 +49,7 @@ namespace EchoSphere.Presentation
             }
             if(value.Text.Length>0)parent.Children.Add(new VisualCssNode {Tag="#text",Text=value.Text,Parent=parent});
         }
+        #endif
     }
     public sealed class VisualCss
     {

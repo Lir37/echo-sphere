@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/characterRuntime.ts; sha256 369ee8da88dda85bdfd10f517b53427ee238997230e457bb682bee96ff648e2c.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -162,3 +163,4 @@ return VisualJs.Concat(v_visited_53);
 }
 }
 }
+#endif

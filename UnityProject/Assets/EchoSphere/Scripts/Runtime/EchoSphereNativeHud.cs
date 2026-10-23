@@ -77,9 +77,9 @@ namespace EchoSphere.Runtime
                 PlayerX=player["pos"]["x"].Number,PlayerY=player["pos"]["y"].Number,Enemies=enemies,Pois=pois,Boss=scene["bossActive"].Truth,BossLabel=T("bossWave").ToUpperInvariant()
             };
             if(region.Truth){
-                var config=Visual_region.Scope["getRegionConfig"].Call(region["id"]);var pockets=config["pockets"];var pocket=pockets[0];foreach(var item in pockets.Items)if(item["id"].Text==region["pocketId"].Text){pocket=item;break;}
+                var config=NativeRunCatalog.Instance.GetRegion(region["id"].Text);var pocket=config.Pockets[0];foreach(var item in config.Pockets)if(item.Id==region["pocketId"].Text){pocket=item;break;}
                 var mode=region["mode"].Text=="stabilization"?(ru?"СТАБИЛИЗАЦИЯ":"STABILIZATION"):(ru?"БЕСКОНЕЧНЫЙ":"ENDLESS");
-                state.Region=config["name"][lang].Text;state.Phase=region["phaseName"][lang].Text;state.Pocket=pocket["name"][lang].Text+" · "+mode;
+                state.Region=config.Name(ru);state.Phase=region["phaseName"][lang].Text;state.Pocket=pocket.Name(ru)+" · "+mode;
             }
             return state;
         }

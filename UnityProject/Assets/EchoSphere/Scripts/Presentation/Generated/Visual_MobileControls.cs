@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/MobileControls.tsx; sha256 0e11e0339075151f0e5f1e37254fcff045b2842b218c0da7cbf0262c1f9b8bad.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -486,3 +487,4 @@ return (new V(v_st_279[new V("player")][new V("dashCooldown")] > new V(0d)).Trut
 }
 }
 }
+#endif

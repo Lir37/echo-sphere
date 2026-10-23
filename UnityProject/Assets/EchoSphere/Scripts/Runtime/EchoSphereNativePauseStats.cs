@@ -47,8 +47,8 @@ namespace EchoSphere.Runtime
         {
             var lang=ru?"ru":"en";var player=scene["player"];
             string T(string key)=>NativeText(key,lang=="ru");
-            string Round(V value)=>VisualJs.MathObject["round"].Call(value).Text;
-            string Ceil(V value)=>VisualJs.MathObject["ceil"].Call(value).Text;
+            string Round(V value)=>VisualJs.NumberText(Math.Floor(value.Number+.5d));
+            string Ceil(V value)=>VisualJs.NumberText(Math.Ceiling(value.Number));
             string Percent(V value)=>Round(value*new V(100))+"%";
             EchoSphere.Core.CharacterRules.TryParseSourceId(player["characterId"].Text,out var characterId);var character=EchoSphere.Core.CharacterRules.Get(characterId);
             var result=new NativePauseStatsState {
@@ -95,9 +95,9 @@ namespace EchoSphere.Runtime
                 };
                 if(live.Truth)card.Metrics=new[] {
                     new NativePauseStatsState.Stat(ru?"урон":"damage",Round(new V(NativePlannerSphereDamage(scene,live)))+(live["type"].Text=="aura"?"/имп.":"")),
-                    new NativePauseStatsState.Stat(ru?"интервал":"delay",new V(NativePlannerSphereDelay(scene,live))["toFixed"].Call(new V(2)).Text+"с"),
+                    new NativePauseStatsState.Stat(ru?"интервал":"delay",NativePlannerSphereDelay(scene,live).ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+"с"),
                     new NativePauseStatsState.Stat(ru?"дальность":"range",Round(new V(NativePlannerSphereRadius(scene,live)))),
-                    new NativePauseStatsState.Stat("DPS",new V(NativePlannerSphereDps(scene,live))["toFixed"].Call(new V(1)).Text)
+                    new NativePauseStatsState.Stat("DPS",NativePlannerSphereDps(scene,live).ToString("F1",System.Globalization.CultureInfo.InvariantCulture))
                 };
                 cards.Add(card);
             }

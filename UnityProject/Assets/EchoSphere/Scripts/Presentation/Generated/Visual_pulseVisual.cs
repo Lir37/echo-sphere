@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/spheres/pulseVisual.ts; sha256 8eec4eeb885b50f2912e49c4a502bed3005978569ca8751a9f10aaba855c5337.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -59,3 +60,4 @@ return default;
 }
 }
 }
+#endif

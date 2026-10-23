@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/engineProgression.ts; sha256 d330c4ba740b03ba036a184f743661d39720dbb5ed01dd90d1b4279ddf374f05.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -50,3 +51,4 @@ return VisualJs.Arr(new V("ability"), VisualJs.Coalesce(v_choice_21[new V("abili
 }
 }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 
@@ -69,3 +70,4 @@ namespace EchoSphere.Presentation
         public static V Icon(string name)=>VisualJs.Fn(args=>VisualSourceIcons.Create(name,args[0]));
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/artifactSystem.ts; sha256 d28d45c1adea81bd6d3376aad0fcad70bfb21be2a4c3dd8a933b8707008be96c.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -235,3 +236,4 @@ return v_multiplier_117;
 }
 }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/renderScale.ts; sha256 485ba817b4abe2101a849d138cf2b170725ac0b7b582dee2848fbe5b42d49a2d.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -32,3 +33,4 @@ return VisualJs.Obj(new V("x"), (((v_clientX_5 - v_rect_7[new V("left")]) - (v_r
 }
 }
 }
+#endif

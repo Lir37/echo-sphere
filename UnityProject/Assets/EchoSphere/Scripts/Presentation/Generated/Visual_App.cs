@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/App.tsx; sha256 287cd5f80a6add34d33148a62c63293366d963c012c13a0db9d5490e4f6be100.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -568,3 +569,4 @@ return (VisualDom.Element("div",VisualJs.Merge(VisualJs.Obj(new V("data-interfac
 }
 }
 }
+#endif

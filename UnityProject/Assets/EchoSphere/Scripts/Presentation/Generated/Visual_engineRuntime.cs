@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/engineRuntime.ts; sha256 baeaf14c2cc4905833d0e7423c17b03f50c03125935d731543eae6ec08b9463d.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -29,3 +30,4 @@ return (VisualJs.NumberObject[new V("isFinite")].Call(v_value_12).Truth ? v_valu
 }
 }
 }
+#endif

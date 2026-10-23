@@ -9,7 +9,7 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private NativeWorldFeedback _nativeWorldFeedback;
-        private static double _nativeRenderLastLog=-10;
+        private static readonly Unity.Profiling.ProfilerMarker NativeWorldFrameMarker=new Unity.Profiling.ProfilerMarker("EchoSphere.World.BuildFrame");
         private static readonly UnityEngine.Color NativeWorldBackground=new UnityEngine.Color(7/255f,16/255f,29/255f,1);
         private static readonly UnityEngine.Color NativeWorldDarkBackground=new UnityEngine.Color(4/255f,9/255f,18/255f,1);
         private static readonly UnityEngine.Color NativeWorldBorder=new UnityEngine.Color(100/255f,180/255f,1,.24f);
@@ -20,15 +20,16 @@ namespace EchoSphere.Runtime
         // game helpers remain authoritative while their V data adapter is retired separately.
         private void RenderNativeFrameContents(float backingWidth,float backingHeight)
         {
+            using var frameSample=NativeWorldFrameMarker.Auto();
             PrepareNativeEntityFrame();
             var s=_sourceRenderState;var ctx=VisualJs.Null;var player=s["player"];double time=s["time"].Number;
-            double w=backingWidth,h=backingHeight,started=VisualJs.PerformanceObject["now"].Call().Number;
+            double w=backingWidth,h=backingHeight;
             _worldSurface.ResetTransform();_nativeWorldFeedback.Background(w,h,NativeWorldBackground,NativeWorldDarkBackground);
             DrawNativeViewVoidAmbient(w,h,time);
-            double load=s["enemies"]["length"].Number+_nativeProjectileCount*.55+_nativeParticleCount*.28+s["damageNumbers"]["length"].Number*.42+s["lightnings"]["length"].Number*.75;
-            int fxStride=load>220?3:load>150?2:1,damageStride=s["damageNumbers"]["length"].Number>36?2:1,lightningStride=s["lightnings"]["length"].Number>18?2:1;
+            double load=s["enemies"]["length"].Number+_nativeProjectileCount*.55+_nativeParticleCount*.28+_damageNumbers.Count*.42+_sourceLightningVisuals.Count*.75;
+            int fxStride=load>220?3:load>150?2:1,damageStride=_damageNumbers.Count>36?2:1,lightningStride=_sourceLightningVisuals.Count>18?2:1;
             double shakeX=0,shakeY=0;_worldSurface.Save();
-            if(s["screenShake"].Number>0){shakeX=(VisualJs.MathObject["random"].Call().Number-.5)*s["screenShake"].Number*20;shakeY=(VisualJs.MathObject["random"].Call().Number-.5)*s["screenShake"].Number*20;}
+            if(s["screenShake"].Number>0){shakeX=(VisualJs.NextCosmeticValue()-.5)*s["screenShake"].Number*20;shakeY=(VisualJs.NextCosmeticValue()-.5)*s["screenShake"].Number*20;}
             NativeWorldTranslate(w/2-s["camera"]["x"].Number+shakeX,h/2-s["camera"]["y"].Number+shakeY);
             DrawNativeViewVoidField(s["worldWidth"],s["worldHeight"],VisualJs.Null,-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,player["pos"]["x"],player["pos"]["y"]);DrawNativeViewRegionLayer(s);
             _worldSurface.Shadow=NativeWorldBorderShadow;_worldSurface.ShadowBlur=0;_worldSurface.SetDash(new[]{10f,8f});
@@ -54,18 +55,16 @@ namespace EchoSphere.Runtime
             DrawNativeEnemyProjectileLayer();
             DrawNativeParticleLayer(fxStride);
             _worldSurface.SetOpacity(1);int damageIndex=0;
-            foreach(var dn in s["damageNumbers"].Items){int i=damageIndex++;if(i%damageStride==0&&dn["sourceSphereType"].Text!="orbital")DrawNativeDamageNumber(dn);}
-            foreach(var dn in s["damageNumbers"].Items)if(dn["sourceSphereType"].Text=="orbital")DrawNativeDamageNumber(dn);_worldSurface.SetOpacity(1);
-            int lightningIndex=0;foreach(var l in s["lightnings"].Items){if(lightningIndex++%lightningStride!=0)continue;double alpha=Math.Max(0,Math.Min(1,l["life"].Number/.3));if(!DrawNativeChainLightning(new V[]{ctx,l,player,alpha,time}).Truth)DrawNativeViewEnergyBolt(l["from"],l["to"],alpha);_worldSurface.SetOpacity(1);}
+            foreach(var dn in _damageNumbers){int i=damageIndex++;if(i%damageStride==0&&dn.sourceSphereType!="orbital")DrawNativeDamageNumber(dn);}
+            foreach(var dn in _damageNumbers)if(dn.sourceSphereType=="orbital")DrawNativeDamageNumber(dn);_worldSurface.SetOpacity(1);
+            int lightningIndex=0;foreach(var lightning in _sourceLightningVisuals){if(lightningIndex++%lightningStride!=0)continue;double alpha=Math.Max(0,Math.Min(1,(double)lightning.life/.3));var from=NativeSourcePixels(lightning.from);var to=NativeSourcePixels(lightning.to);string branch=GetSphereBranch(EchoSphere.Core.SphereId.Chain);bool chain=lightning.sphereType=="chain"&&!string.IsNullOrEmpty(branch)&&_nativeWorldSphereFamilies.DrawChainLightning(_worldSurface,from.x,from.y,to.x,to.y,NativeMutationColor(NativeRunCatalog.Instance.GetSphere("chain").Color),branch,NativeSphereFinalIndex(EchoSphere.Core.SphereId.Chain),alpha,time);if(!chain)_nativeWorldEnergyBolts.Draw(_worldSurface,from.x,from.y,to.x,to.y,alpha,time);_worldSurface.SetOpacity(1);}
             _worldSurface.Restore();DrawNativeFrameOverlay(s,w,h,shakeX,shakeY);
-            double cost=VisualJs.PerformanceObject["now"].Call().Number-started;
-            if(cost>10&&time-_nativeRenderLastLog>=3){_nativeRenderLastLog=time;VisualJs.ConsoleObject["info"].Call("[ECHO_RENDER_PERF]",VisualJs.Obj("ms",VisualJs.Number(new V(cost)["toFixed"].Call(2)),"enemies",s["enemies"]["length"],"spheres",s["spheres"]["length"],"projectiles",_nativeProjectileCount,"particles",_nativeParticleCount,"damageNumbers",s["damageNumbers"]["length"],"lightnings",s["lightnings"]["length"]));}
         }
-        private void DrawNativeDamageNumber(V dn)
+        private void DrawNativeDamageNumber(SourceDamageNumber number)
         {
-            bool crit=dn["crit"].Truth;string element=dn["element"].Text,color=crit?"#ffd166":element=="fire"?"#ff5a36":element=="freeze"?"#69d6ff":element=="poison"?"#72f08e":"#e8f6ff";
-            _worldSurface.SetOpacity(Math.Min(1,dn["life"].Number/dn["maxLife"].Number*1.5));_worldSurface.Shadow=NativeFrameColor(crit?"#b8860b":color);_worldSurface.ShadowBlur=0;
-            _nativeWorldFeedback.Text(NativeCharacterCanvasText(dn["value"].Text),dn["pos"]["x"].Number,dn["pos"]["y"].Number,NativeMutationColor(color),crit?20:14);
+            bool crit=number.critical;string element=number.element,color=crit?"#ffd166":element=="fire"?"#ff5a36":element=="freeze"?"#69d6ff":element=="poison"?"#72f08e":"#e8f6ff";var point=NativeSourcePixels(number.position);
+            _worldSurface.SetOpacity(Math.Min(1,(double)number.life/number.maxLife*1.5));_worldSurface.Shadow=NativeFrameColor(crit?"#b8860b":color);_worldSurface.ShadowBlur=0;
+            _nativeWorldFeedback.Text(NativeCharacterCanvasText(VisualJs.NumberText(number.value)),point.x,point.y,NativeMutationColor(color),crit?20:14);
         }
         private void DrawNativeFrameOverlay(V s,double w,double h,double shakeX,double shakeY)
         {

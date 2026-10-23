@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 
 namespace EchoSphere.Presentation
@@ -27,3 +28,4 @@ namespace EchoSphere.Presentation
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/engineStats.ts; sha256 ea07863b529fa8531ff5b5f56f529200d8edf3b2473ceff1d3c0f7c8bbd09800.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -79,3 +80,4 @@ return v_protocol_32[new V("name")][new V("en")]; })), ((v_charSynergies_11[new 
 }
 }
 }
+#endif

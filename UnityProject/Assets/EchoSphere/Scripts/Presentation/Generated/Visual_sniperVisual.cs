@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/spheres/sniperVisual.ts; sha256 0f9d191bdeac6be5a3403bbece3d3f6e904ad78a8dd69257dec8e6436533f86a.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -88,3 +89,4 @@ return default;
 }
 }
 }
+#endif

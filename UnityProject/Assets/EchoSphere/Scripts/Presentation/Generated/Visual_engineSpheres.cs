@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/engineSpheres.ts; sha256 1af6fed80e20293361c8e0195053bf58846385c4079064b84a38382f22d05fbc.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -131,3 +132,4 @@ return VisualJs.MathObject[new V("max")].Call(new V(0.08d), (v_baseInterval_44 *
 }
 }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 
@@ -48,3 +49,4 @@ namespace EchoSphere.Presentation
         public void Set(string name,V value)=>throw new InvalidOperationException("Unknown gradient property "+name);
     }
 }
+#endif

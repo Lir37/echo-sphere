@@ -7411,6 +7411,182 @@ MonoBehaviour:
     Id: poison
     Icon: "\u2620\uFE0F"
     Color: '#72f08e'
+  Regions:
+  - NameRu: "\u0420\u0415\u0417\u041E\u041D\u0410\u041D\u0421\u041D\u042B\u0419 \u0411\u0410\u0421\u0421\u0415\u0419\u041D"
+    NameEn: RESONANCE BASIN
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+    Id: resonance_basin
+    Pockets:
+    - NameRu: "\u041E\u0421\u0415\u0412\u041E\u0419 \u0423\u0417\u0415\u041B"
+      NameEn: AXIS NODE
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: axis
+      X: 0
+      Y: 0
+      Radius: 340
+      Accent: '#39d8ff'
+    - NameRu: "\u0421\u0422\u0415\u041A\u041B\u042F\u041D\u041D\u042B\u0419 \u041F\u041E\u0422\u041E\u041A"
+      NameEn: GLASS FLOW
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: glass
+      X: 520
+      Y: -260
+      Radius: 330
+      Accent: '#7cf7d4'
+    - NameRu: "\u0420\u0410\u0417\u041B\u041E\u041C"
+      NameEn: FRACTURE
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: fracture
+      X: 500
+      Y: 430
+      Radius: 330
+      Accent: '#ff6b6b'
+    - NameRu: "\u041F\u0423\u0421\u0422\u041E\u0419 \u041A\u041E\u041D\u0422\u0423\u0420"
+      NameEn: HOLLOW CONTOUR
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: hollow
+      X: -480
+      Y: 430
+      Radius: 330
+      Accent: '#9b7cff'
+    - NameRu: "\u0417\u041E\u041D\u0410 \u0414\u0410\u0412\u041B\u0415\u041D\u0418\u042F"
+      NameEn: PRESSURE FIELD
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: pressure
+      X: -520
+      Y: -300
+      Radius: 330
+      Accent: '#ffb84d'
+  - NameRu: "\u0421\u041F\u0415\u041A\u0422\u0420\u0410\u041B\u042C\u041D\u042B\u0419
+      \u0420\u0410\u0417\u041B\u041E\u041C"
+    NameEn: SPECTRAL RIFT
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+    Id: spectral_rift
+    Pockets:
+    - NameRu: "\u041F\u0420\u0418\u0417\u041C\u0410\u0422\u0418\u0427\u0415\u0421\u041A\u0418\u0419
+        \u0421\u0414\u0412\u0418\u0413"
+      NameEn: PRISM SHIFT
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: prism
+      X: 0
+      Y: 0
+      Radius: 330
+      Accent: '#7fe8ff'
+    - NameRu: "\u0417\u0415\u0420\u041A\u0410\u041B\u042C\u041D\u0410\u042F \u041C\u0415\u041B\u042C"
+      NameEn: MIRROR SHOAL
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: shoal
+      X: 520
+      Y: -270
+      Radius: 320
+      Accent: '#d48cff'
+    - NameRu: "\u0422\u041B\u0415\u042E\u0429\u0418\u0419 \u0418\u0417\u041B\u041E\u041C"
+      NameEn: EMBER FAULT
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: ember
+      X: 470
+      Y: 450
+      Radius: 330
+      Accent: '#ff9d63'
+    - NameRu: "\u0422\u0418\u0425\u0410\u042F \u0420\u0415\u0428\u0401\u0422\u041A\u0410"
+      NameEn: SILENT LATTICE
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: silent
+      X: -500
+      Y: 430
+      Radius: 320
+      Accent: '#65f0cf'
+    - NameRu: "\u041D\u0423\u041B\u0415\u0412\u041E\u0419 \u0421\u0410\u0414"
+      NameEn: NULL GARDEN
+      DescriptionRu: undefined
+      DescriptionEn: undefined
+      Id: null
+      X: -520
+      Y: -290
+      Radius: 330
+      Accent: '#a78cff'
+  WorldPockets:
+  - NameRu: "\u041E\u0421\u0415\u0412\u041E\u0419 \u0423\u0417\u0415\u041B"
+    NameEn: AXIS NODE
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+    Id: axis
+    X: 0
+    Y: 0
+    Radius: 340
+    Accent: '#39d8ff'
+  - NameRu: "\u0421\u0422\u0415\u041A\u041B\u042F\u041D\u041D\u042B\u0419 \u041F\u041E\u0422\u041E\u041A"
+    NameEn: GLASS FLOW
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+    Id: glass
+    X: 520
+    Y: -260
+    Radius: 330
+    Accent: '#7cf7d4'
+  - NameRu: "\u0420\u0410\u0417\u041B\u041E\u041C"
+    NameEn: FRACTURE
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+    Id: fracture
+    X: 500
+    Y: 430
+    Radius: 330
+    Accent: '#ff6b6b'
+  - NameRu: "\u041F\u0423\u0421\u0422\u041E\u0419 \u041A\u041E\u041D\u0422\u0423\u0420"
+    NameEn: HOLLOW CONTOUR
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+    Id: hollow
+    X: -480
+    Y: 430
+    Radius: 330
+    Accent: '#9b7cff'
+  - NameRu: "\u0417\u041E\u041D\u0410 \u0414\u0410\u0412\u041B\u0415\u041D\u0418\u042F"
+    NameEn: PRESSURE FIELD
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+    Id: pressure
+    X: -520
+    Y: -300
+    Radius: 330
+    Accent: '#ffb84d'
+  RegionPhases:
+  - NameRu: "\u041E\u0420\u0418\u0415\u041D\u0422\u0410\u0426\u0418\u042F"
+    NameEn: ORIENTATION
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+  - NameRu: "\u041F\u0415\u0420\u0412\u042B\u0419 \u0420\u0415\u0417\u041E\u041D\u0410\u041D\u0421"
+    NameEn: FIRST RESONANCE
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+  - NameRu: "\u0421\u041F\u0415\u0426\u0418\u0410\u041B\u0418\u0417\u0410\u0426\u0418\u042F"
+    NameEn: SPECIALIZATION
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+  - NameRu: "\u042D\u0421\u041A\u0410\u041B\u0410\u0426\u0418\u042F"
+    NameEn: ESCALATION
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+  - NameRu: "\u0421\u0425\u041E\u0414\u0418\u041C\u041E\u0421\u0422\u042C"
+    NameEn: CONVERGENCE
+    DescriptionRu: undefined
+    DescriptionEn: undefined
+  - NameRu: "\u0421\u0422\u0410\u0411\u0418\u041B\u0418\u0417\u0410\u0426\u0418\u042F"
+    NameEn: STABILIZATION
+    DescriptionRu: undefined
+    DescriptionEn: undefined
   Characters:
   - Id: spherist
     MoveSpeed: 0

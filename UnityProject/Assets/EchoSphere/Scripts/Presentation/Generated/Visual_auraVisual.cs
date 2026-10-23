@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 // Generated from src/spheres/auraVisual.ts; sha256 397363af140f3e82fff9c26b20517d12ad013c919fca687cf80e3b5779c90b51.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;
@@ -66,3 +67,4 @@ return default;
 }
 }
 }
+#endif

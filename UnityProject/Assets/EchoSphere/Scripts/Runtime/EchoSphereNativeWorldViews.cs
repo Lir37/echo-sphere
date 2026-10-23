@@ -18,12 +18,10 @@ namespace EchoSphere.Runtime
         {DrawNativeNetwork(arg1);return default;}
         private V DrawNativeViewPlayer(V arg1)
         {_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(arg1),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);return default;}
-        private V DrawNativeViewEnergyBolt(V arg1,V arg2,V arg3)
-        {_nativeWorldEnergyBolts.Draw(_worldSurface,arg1["x"].Number,arg1["y"].Number,arg2["x"].Number,arg2["y"].Number,arg3.Number,_sourceRenderState["time"].Number);return default;}
         private V DrawNativeViewGroundShadow(V arg1,V arg2,V arg3)
         {_nativeWorldCreatures.DrawGroundShadow(_worldSurface,arg1.Number,arg2.Number);return default;}
         private V DrawNativeViewNetworkDisabledIndicator(V arg1,V arg2)
-        {var timer=arg1["networkDisabledTimer"];_nativeWorldCreatures.DrawDisabledNetwork(_worldSurface,timer.Truth?timer.Number:0,Visual_eliteBalance.Scope["LINK_BREAKER_DISABLED_SECONDS"].Number,arg2.Number);return default;}
+        {var timer=arg1["networkDisabledTimer"];_nativeWorldCreatures.DrawDisabledNetwork(_worldSurface,timer.Truth?timer.Number:0,2,arg2.Number);return default;}
         private V DrawNativeViewStandardAttackVfx(V arg1,V arg2,V arg3)
         {var sphere=arg1;_nativeWorldStandardSphere.DrawAttack(_worldSurface,sphere["pos"]["x"].Number,sphere["pos"]["y"].Number,sphere["rotation"].Truth?sphere["rotation"].Number:0,arg2.Number,sphere["attackTimer"].Number);return default;}
         private V DrawNativeViewCharacterWorldIndicators(V scene)

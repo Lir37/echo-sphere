@@ -912,3 +912,43 @@ Real paused Editor: 35 transient-retirement/count/order/projectile-field checks 
 0 errors/0 warnings. No saved game or input mutation. No FPS/GC/device claim.
 Remaining: player/sphere/overlay V models and remaining compatibility bindings;
 production modernization is not marked complete.
+
+### Production reference-engine retirement and native regions (2026-10-23)
+
+All 52 translated Visual_* modules, generated legacy initial state, React/DOM/hooks,
+SourceUiDocument/layout/range/environment and SourceCanvasSurface are Editor-only.
+The original Canvas command sink/trace and browser date host are also Editor-only.
+NativeRunSnapshotDefaults preserves initial display values without a production
+reference-module dependency. Native menu/run controllers remain the active path.
+The reference .NET harness explicitly defines UNITY_EDITOR; its source expressions
+and frozen reference outputs are unchanged. Exporters preserve the same guards.
+
+Region names, pocket geometry/colors, original Basin world-pocket alias and six
+phase names now live in the native ScriptableObject catalog. Native phase reads
+preserve the exact source boundary comparisons. Architect formation and network
+indicator reads no longer consult compatibility bindings. Production Runtime has
+no translated Scope invocations and no dynamic .Call invocations (guard enforced).
+Cosmetic shake uses the same existing cosmetic Random stream directly; gameplay
+RNG is untouched. Pause formatting calls the equivalent C# math/format functions.
+A native ProfilerMarker replaces the old timing/no-op console dispatch.
+
+Damage numbers and lightning effects now read their existing native state lists
+without per-frame V dictionaries/arrays. Original draw order, Orbital damage pass,
+stride thresholds, alpha math and chain fallback remain unchanged.
+
+Validation: region catalog 154 exact comparisons; HUD 420 comparisons / 26 cases;
+pause stats 1760 comparisons / 18 cases PASS. Full reference .NET 10 harness PASS
+(2663 drawing scenarios, 76 UI trees and existing CSS/animation/paint contracts).
+272 Node tests PASS; preflight/provenance/meta PASS. Editor compile 0 errors/warnings.
+Real paused Play Mode: 12 native frame constructions, 0 legacy UI documents; this
+is a frame-construction smoke check, not 12 visually accepted rendered frames.
+Unity Android C# compilation PASS (20 assemblies), no APK/player package build.
+Inspected Android Assembly-CSharp: all 10 retired renderer/DOM/Canvas/date types
+absent. Initial Windows C# compilation also produced its assembly; its first CLI
+response timed out, so final Android compilation is the authoritative check.
+Previous aec23928fb9ca7f5193957f8ac7b160c09e50f58 CI #818 SUCCESS.
+
+Remaining: typed player/sphere/region/character overlay read models and retirement
+of remaining plain V display data. Some stateless authored CSS/geometry math remains
+shared by native graphics. Full visual/control/device acceptance remains open;
+no FPS/GC measurement or full migration completion is claimed.

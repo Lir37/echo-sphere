@@ -76,6 +76,7 @@ namespace EchoSphere.Presentation
         public static readonly V Null=new V(NullToken);
         private static readonly System.Diagnostics.Stopwatch Clock=System.Diagnostics.Stopwatch.StartNew();
         private static readonly Random CosmeticRandom=new Random();
+        internal static double NextCosmeticValue()=>CosmeticRandom.NextDouble();
         public static readonly V PerformanceObject=Obj("now",Fn(a=>Clock.Elapsed.TotalMilliseconds));
         public static readonly V ConsoleObject=Obj("info",Fn(a=>default));
         private static readonly Dictionary<string,SourceRegex> Regexes=new Dictionary<string,SourceRegex>();

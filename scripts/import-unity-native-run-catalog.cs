@@ -3,7 +3,7 @@ const string path="Assets/Resources/EchoSphere/NativeRunCatalog.asset";
 var catalog=UnityEditor.AssetDatabase.LoadAssetAtPath<EchoSphere.Presentation.NativeRunCatalog>(path);bool created=catalog==null;
 if(created)catalog=UnityEngine.ScriptableObject.CreateInstance<EchoSphere.Presentation.NativeRunCatalog>();
 catalog.SourceCommit="737ef2af4a877e0995db5f92331d536d2f29a934";
-catalog.Characters.Clear();catalog.Runes.Clear();catalog.Spheres.Clear();catalog.Abilities.Clear();catalog.Artifacts.Clear();catalog.Synergies.Clear();catalog.Sets.Clear();catalog.Elements.Clear();catalog.Rarities.Clear();catalog.SphereAbilityLinks.Clear();
+catalog.Regions.Clear();catalog.WorldPockets.Clear();catalog.RegionPhases.Clear();catalog.Characters.Clear();catalog.Runes.Clear();catalog.Spheres.Clear();catalog.Abilities.Clear();catalog.Artifacts.Clear();catalog.Synergies.Clear();catalog.Sets.Clear();catalog.Elements.Clear();catalog.Rarities.Clear();catalog.SphereAbilityLinks.Clear();
 EchoSphere.Presentation.V Scope(string name)=>(EchoSphere.Presentation.V)typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly.GetType("EchoSphere.Presentation.Visual_"+name,true).GetField("Scope").GetValue(null);
 var data=Scope("gameData");var progression=Scope("sphereProgression");var artifacts=Scope("artifactSystem");
 void Fill(EchoSphere.Presentation.NativeRunCatalog.Text row,EchoSphere.Presentation.V source){row.NameRu=source["name"]["ru"].Text;row.NameEn=source["name"]["en"].Text;row.DescriptionRu=source["desc"]["ru"].Text;row.DescriptionEn=source["desc"]["en"].Text;}
@@ -41,6 +41,11 @@ foreach(var sphere in catalog.Spheres){
 }
 foreach(var pair in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)Scope("runes")["RUNE_DEFS"].Raw){var item=pair.Value;catalog.Runes.Add(new EchoSphere.Presentation.NativeRunCatalog.Element {Id=pair.Key,NameRu=item["name"]["ru"].Text,NameEn=item["name"]["en"].Text,DescriptionRu=item["description"]["ru"].Text,DescriptionEn=item["description"]["en"].Text,Color=item["color"].Text});}
 foreach(var pair in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)Scope("characters")["CHARACTER_DEFS"].Raw){var mods=pair.Value["baseModifiers"];catalog.Characters.Add(new EchoSphere.Presentation.NativeRunCatalog.Character {Id=pair.Key,MoveSpeed=mods["moveSpeed"].Number,SphereDamage=mods["sphereDamage"].Number,SphereRadius=mods["sphereRadius"].Number,SphereAttackSpeed=mods["sphereAttackSpeed"].Number});}
+EchoSphere.Presentation.NativeRunCatalog.Pocket Pocket(EchoSphere.Presentation.V source){var row=new EchoSphere.Presentation.NativeRunCatalog.Pocket {Id=source["id"].Text,X=source["center"]["x"].Number,Y=source["center"]["y"].Number,Radius=source["radius"].Number,Accent=source["accent"].Text};Fill(row,source);return row;}
+foreach(var source in Scope("region")["REGION_CONFIGS"].Items){var row=new EchoSphere.Presentation.NativeRunCatalog.Region {Id=source["id"].Text};Fill(row,source);foreach(var pocket in source["pockets"].Items)row.Pockets.Add(Pocket(pocket));catalog.Regions.Add(row);}
+foreach(var source in Scope("region")["REGION_POCKETS"].Items)catalog.WorldPockets.Add(Pocket(source));
+foreach(double time in new[]{0d,300,600,900,1500,1620}){var source=Scope("region")["getRegionPhase"].Call(time);var row=new EchoSphere.Presentation.NativeRunCatalog.Text();Fill(row,source);catalog.RegionPhases.Add(row);}
+if(catalog.Regions.Count!=2||catalog.RegionPhases.Count!=6||catalog.WorldPockets.Count==0)throw new System.Exception("Incomplete native region metadata");
 if(catalog.Characters.Count!=10)throw new System.Exception("Incomplete native character stats");
 if(catalog.Runes.Count!=9)throw new System.Exception("Incomplete native rune catalog");
 if(catalog.Spheres.Count!=10||catalog.Abilities.Count<20||catalog.Artifacts.Count<40||catalog.Sets.Count!=12)throw new System.InvalidOperationException("Incomplete native run catalog");

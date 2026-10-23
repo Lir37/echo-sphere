@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -467,3 +468,4 @@ namespace EchoSphere.Presentation
         private void OnDestroy(){VisualDom.Reset();VisualDom.Changed=null;Environment?.Dispose();_nativeBackdrops?.Dispose();foreach(var entry in _entries.Values)Dispose(entry);_entries.Clear();if(_svgMaterial!=null)Destroy(_svgMaterial);if(_panel!=null)Destroy(_panel);}
     }
 }
+#endif
