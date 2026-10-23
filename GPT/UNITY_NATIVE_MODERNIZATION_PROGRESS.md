@@ -1,5 +1,22 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Active world frame orchestration is now authored C# rather than
+Visual_renderer.render. Sphere layer ordering for all ten catalogue types is native
+as well. Per-frame capture/replacement/restoration of translated drawing functions
+has been removed; native views are dispatched directly. All formerly inline world
+feedback is native: fire trails, particles, both damage-number streams, boss arrow,
+boundary waves/shards, wrapped localized flash banner, world border and radial frame
+background shader. Original render-load strides, Orbital damage priority, shake RNG
+calls, display formulas, inherited shadows/baselines and paint order are retained.
+Actual Editor compile zero errors/warnings; new background shader supported, empty
+diagnostics, three composition passes. A single actual-state frame was rendered in
+Play Mode via LateUpdate with the menu guard temporarily bypassed and restored in
+finally; no simulation run or saved-run replacement. Current Console 0 errors/
+warnings. This is a smoke check, NOT all-effect/visual/device/performance acceptance.
+CI checked separately on containing commit. Remaining migration: V/reflection data
+snapshot, source UI document/model hooks, Canvas state/ordered compositor and
+noncatalogue fallback. P1/P2 remain PARTIAL. No APK or gameplay/quality changes.
+
 2026-10-23: Sphere network rendering is now a typed native Unity mesh owner:
 25-point wavy links and three moving packets, external Echo Drone links, all seven
 formation views, triangle charge/pulse ticks and fading formation memory. Existing

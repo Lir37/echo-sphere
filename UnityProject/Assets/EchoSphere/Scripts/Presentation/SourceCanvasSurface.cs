@@ -182,6 +182,8 @@ namespace EchoSphere.Presentation
         }
         internal Matrix4x4 NativePaintMatrix=>_state.Matrix;
         internal float NativeDashOffset=>_state.DashOffset;
+        internal float[] NativeStrokeDash=>_state.Dash;
+        internal string NativeTextBaseline=>_state.Baseline;
         internal float NativeOpacity=>_state.Alpha;
         internal void ContinueNativeCircle(Vector2 center,float radius,Matrix4x4 local)
         {var matrix=_state.Matrix;try{_state.Matrix*=local;_path.Clear();_contour=null;Ellipse(center.x,center.y,radius,radius,0,0,Mathf.PI*2,false);}finally{_state.Matrix=matrix;}}

@@ -19,8 +19,10 @@ for(const {file,text}of code)for(const match of text.matchAll(/\b(Visual_[A-Za-z
 const runtime=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs','utf8');
 assert.ok(!/\bvoid\s+OnGUI\s*\(/.test(runtime),'Legacy migration GUI must not overlay the authored source UI');
 const bridge=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs','utf8');
+const nativeFrame=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeFrame.cs','utf8');
+const nativeViews=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeWorldViews.cs','utf8');
 const world=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeWorld.cs','utf8');
-assert.ok(bridge.includes('RenderNativeWorldFrame(width,height);')&&world.includes('Visual_renderer.Scope["render"].Call')&&world.includes('_nativeWorldField.Draw')&&world.includes('_nativeWorldAmbient.Draw')&&bridge.includes('DrawSourceDocument();'),'Native world layers, remaining source renderer and UI must share the active ordered frame path');
+assert.ok(bridge.includes('RenderNativeWorldFrame(width,height);')&&world.includes('RenderNativeFrameContents(width,height);')&&!world.includes('Visual_renderer.Scope["render"].Call')&&nativeFrame.includes('DrawNativeWorldView(name,values)')&&nativeViews.includes('_nativeWorldField.Draw')&&nativeViews.includes('_nativeWorldAmbient.Draw')&&bridge.includes('DrawSourceDocument();'),'Native frame coordinator, native world layers and remaining UI must share the active ordered frame path');
 assert.ok(bridge.includes('renderer.enabled=false'),'Legacy native visual approximations must stay disabled');
 assert.ok(bridge.includes('_camera.cullingMask=0')&&!bridge.includes('FindObjectsByType<Renderer>'),'The source UI texture must replace scene rendering without a full-scene Renderer scan every frame');
 assert.ok(!code.filter(item=>item.file.includes('/Presentation/')).some(item=>/WebView|Jint|ClearScript|UnityEditor/.test(item.text)),'Source presentation must run as native runtime C#');

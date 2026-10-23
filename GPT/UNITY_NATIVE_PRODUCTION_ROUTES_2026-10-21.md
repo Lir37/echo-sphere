@@ -773,3 +773,47 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 character indicators and complete network views are native. Continue inline combat
 feedback and source renderer/UI/data/compositor removal. Preserve gameplay/quality;
 no APK, measurements later.
+
+
+## 2026-10-23: Native frame coordinator and all inline combat feedback
+
+RenderNativeFrameContents replaces the active translated renderer.ts render entry.
+DrawNativeSphereFrame retains all ten catalogue branch orders, including mutation
+before/after family distinctions, Standard asset fallback and Orbital attackers over
+enemies. NativeWorldViews dispatches directly to existing native owners. The former
+per-frame translated-scope capture/override/finally restoration mechanism is removed.
+No source TypeScript, gameplay graph/helper, RNG implementation or formula changed.
+
+NativeWorldFeedback supplies Unity Vector Graphics meshes and native font meshes for
+fire trails, particles, damage numbers, boss arrow, boundary waves/shards and wrapped
+flash banners. World boundary and banner rectangles preserve current paths. Native
+frame background uses a dedicated three-pass radial-gradient shader with original
+stops and center. Native labels additionally retain the inherited alphabetic/top/
+middle/bottom baseline; existing label defaults are unchanged. Banner measurement
+keeps the original logical font size, unlocalized wrapping and final-line localization.
+
+The existing render-load strides and thresholds are retained exactly, with separate
+unthrottled Orbital numbers after general damage. Camera shake retains exactly the
+two original VisualJs.MathObject random calls under the original guard. No new RNG,
+quality reduction, gameplay change or new display rule. Existing telemetry fields
+and timing log gate remain, without claiming measured performance improvement.
+
+Verification: real Editor compile zero errors/warnings. New background shader is
+supported, diagnostics empty, three passes. Existing provenance/metadata/preflight
+checks pass. In actual Editor Play Mode, the real initialized runtime successfully
+rendered one LateUpdate frame with _mainMenu temporarily false and restored in a
+finally block. Simulation was not advanced as an active run, and BeginSelectedRegionRun
+was not called. Play Mode was stopped. Current Editor Console counters are zero;
+Pipeline retained historical compile errors are not new runtime errors. This is a
+narrow execution smoke check, not visual/all-effect/gameplay/device acceptance.
+CI must be verified on containing commit. No APK or protected-branch/user-file edits.
+
+Still PARTIAL: source V/reflection render snapshot and helper data access, source UI
+document/model hooks and ordered Canvas state/compositor. The original defensive
+noncatalogue drawSphereVfx fallback remains; catalogue types use native routes.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. World frame coordinator,
+all ten sphere layer orders and inline feedback are native; per-frame Scope patching
+is removed. Next migrate V/reflection data and source UI/compositor bridges. Preserve
+original gameplay/quality; no APK. Full visual/device/performance acceptance remains.
