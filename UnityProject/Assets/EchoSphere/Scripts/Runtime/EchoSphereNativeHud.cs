@@ -66,9 +66,7 @@ namespace EchoSphere.Runtime
         // HUD, overlays, controls, effects and navigation pass their acceptance.
         public NativeHudView CreateNativeHudCandidate(VisualElement parent)
         {
-            return new NativeHudView(parent,()=>{
-                var swapped=Visual_App.Scope["swapNetworkFormationSlots"].Call(_sourceRenderState).Truth;if(swapped)ApplySourceUiWrites();return swapped;
-            },ReadNativeHudTooltip);
+            return new NativeHudView(parent,NativeSwapFormationSlots,ReadNativeHudTooltip);
         }
         public NativeHudView.State ReadNativeHudState()
         {

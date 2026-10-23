@@ -863,3 +863,41 @@ coordination, feedback and dedicated mesh compositor are native; active world
 Canvas and reflection projection are removed. Next replace V model adapters and
 source UI root/presenter/hooks/slot layout. Preserve gameplay and visual quality;
 no APK. Full visual/device/performance acceptance remains.
+
+
+## 2026-10-23: Direct typed run input commands
+
+EchoSphereNativeRunCommands is now the common native game-action entry point for
+follow eligibility/toggle, dash/hotkeys, sphere selection/placement/reposition,
+movement lock, formation-slot swap and pause chrome actions. Existing gameplay
+methods and formulas are unchanged. Legacy SourceUiBinding retains compatibility
+routing into these same commands; production native mobile controls bypass that
+resolver entirely. NativeMobileAction and its params-array concatenation are removed.
+
+Native pause chrome binds Action/Action<int> delegates directly; its three V callback
+fields, generated binder prop and generic dispatch method are removed. Resume still
+unpauses, synchronizes the old model, saves the run and clears artifact detail in
+original order. Exit still clears the snapshot and reloads to region selection.
+HUD swapping reads the same last-projected formation types as the original HUD,
+then updates existing native preferences/RefreshNetworkState, avoiding selection of
+a different newer simulation network between projection and input.
+
+Follow query and reposition retain the exact original runtime node inclusion,
+coordinate conversion, placement validation, clamp and refresh boundaries. Ordinary
+commands refresh render/UI projections once; successful reposition retains its
+render-only refresh. Existing keyboard/dash key quantization, tutorial/modal guards,
+haptic and audio order remain. Native flash/keyboard state still uses the model
+adapter pending that whole-system migration; no claims of removing it here.
+
+Verification: Editor compilation zero errors/warnings (including direct compilation
+failure flag read). Play Mode initialized the real runtime; native follow eligibility
+and empty formation-slot swap returned false without error, menu stayed active.
+Current Console zero errors/warnings; Play stopped. This narrow gate check is not a
+full positive-control/input/visual/device acceptance. CI checked on containing HEAD.
+Protected source, user ProjectSettings/Recovery and APK unchanged.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. Native world compositor
+is active; pause/HUD/mobile run actions now use typed C# commands. Continue V read
+models and standalone UI root/anchors/backdrop ownership; do not call migration done.
+Keep gameplay/quality and no APK; full input/visual/device acceptance remains.

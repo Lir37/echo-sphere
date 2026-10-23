@@ -1,5 +1,20 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Native run controls now call typed C# commands directly. Pause chrome
+resume/exit/tab actions no longer retain generated V callbacks or a binder. Mobile
+follow/dash/type/hotkey/place/reposition actions no longer route through SourceUiBinding
+or allocate a generated action closure per call. HUD slot swapping applies the
+existing native network preferences directly, using the same projected formation
+selection as before. The remaining source UI action adapter calls the same typed
+commands. Original gameplay methods, guards, sound/save/refresh order, coordinates,
+follow checks and keyboard direction quantization are preserved. Model reads and
+legacy flash/keyboard/query bridges remain; this does not remove the UI root.
+Actual Editor compile zero errors/warnings; initialized Play runtime query/empty-slot
+guards exercised, current Console zero errors/warnings, Play stopped. This is not
+positive-control/all-input/device acceptance. CI checked on containing commit.
+Full modernization remains PARTIAL: V model/read helpers, UI DOM/hooks/layout anchors
+and shared UI backdrop/prefix ownership remain. No APK or gameplay/quality changes.
+
 2026-10-23 CI follow-up: run #799 found no C# errors but rejected three CS0649
 warnings for the native compositor zero shadow/dash offsets. These fixed defaults
 are now explicitly initialized readonly fields; values/paint behavior are unchanged.

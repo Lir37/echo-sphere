@@ -81,7 +81,6 @@ namespace EchoSphere.Runtime
             // it. Post-build pruning alone still paid for every discarded card.
             props["nativePauseContent"]=UsesNativePauseStats||UsesNativePauseAbilities||UsesNativePauseArtifacts||NativePauseSynergiesRequested;
             props["nativePauseChrome"]=UsesNativePauseChrome;
-            props["bindNativePauseChrome"]=Action(args=>{_nativePauseChromeResume=args[0];_nativePauseChromeExit=args[1];_nativePauseChromeSelect=args[2];});
             props["selectedArtifactSetId"]=_pauseArtifactSetId==null?VisualJs.Null:new V(_pauseArtifactSetId);props["setSelectedArtifactSetId"]=Action(args=>_pauseArtifactSetId=args[0].Null?null:args[0].Text);
             props["gameOverData"]=_gameOver?VisualJs.Obj("time",Math.Floor(_runTime),"wave",_wave,"kills",_kills,"gold",_runGoldEarned,"rank",_sourceResultRank,"isNewRecord",_sourceResultNewRecord,"regionClear",_regionStabilized,"challengeProgress",GetCompletedRegionChallenges(EchoRegionId.ResonanceBasin).Length,"endlessUnlocked",IsRegionEndlessUnlocked(EchoRegionId.ResonanceBasin),"masteryChallengesCompleted",_regionMasteryChallengesCompleted):VisualJs.Null;
             var mobile=Visual_MobileControls.Scope["MobileControls"];
@@ -159,13 +158,13 @@ namespace EchoSphere.Runtime
                     case "lockUpgradeChoice":return LockLevelUpChoice((int)args[1]["nativeIndex"].Number);
                     case "rerollUpgradeChoices":return RerollLevelUpChoices();
                     case "applyArtifact":var reward=_stellaRewardChoices.FindIndex(choice=>choice.Id==args[1].Text);if(reward>=0)ChooseStellaReward(reward);break;
-                    case "activateByKey":foreach(var binding in _activeAbilityHotkeys)if(binding.Value.ToString().Replace("Alpha","").ToLowerInvariant()==args[1].Text)ActivateActiveAbility(binding.Key);break;
-                    case "activateDash":if(_playerCore.TryDash(SourceUiMovement()))SourceAudio2D.Play("dash");break;
-                    case "setSphereType":if(Enum.TryParse<SphereId>(args[1].Text,true,out var sphereType)){_selectedSphereType=sphereType;SourceAudio2D.Play("place");}break;
-                    case "placeSphere":TryPlaceOrRemoveSphereAt(new Vector2((float)args[1].Number,-(float)args[2].Number)*SpherePlacementRules.SourcePixelsToWorld);break;
-                    case "repositionSphere":var sphere=_spheres.Find(agent=>agent!=null&&RenderEntity(agent)==args[1]);if(sphere==null)return false;var position=new Vector2((float)args[2].Number,-(float)args[3].Number)*SpherePlacementRules.SourcePixelsToWorld;if(!CanPlaceSphereAt(position,sphere))return false;var clamped=SpherePlacementRules.ClampReposition(new Vec2(position.x,position.y));sphere.transform.position=new Vector3(clamped.X,clamped.Y,sphere.transform.position.z);sphere.SetFollowMode(_follow,(Vector2)_player.position);RefreshNetworkState();UpdateSourceRenderState();return true;
-                    case "canActivateFormationFollow":return FormationFollowRules.CanActivate(new Vec2(_player.position.x,_player.position.y),_spheres.Where(agent=>agent!=null).Select(agent=>new FormationNode(new Vec2(agent.transform.position.x,agent.transform.position.y),true)).ToList());
-                    case "setFormationFollow":var followed=SetFormationFollowMode(args[1].Truth);UpdateSourceRenderState();UpdateSourceUiState();return followed;
+                    case "activateByKey":NativeActivateHotkey(args[1].Text);return default;
+                    case "activateDash":NativeActivateDash();return default;
+                    case "setSphereType":NativeSelectSphere(args[1].Text);return default;
+                    case "placeSphere":NativePlaceOrRemoveSphere(args[1].Number,args[2].Number);return default;
+                    case "repositionSphere":return NativeRepositionSphere(NativeSphereForView(args[1]),args[2].Number,args[3].Number);
+                    case "canActivateFormationFollow":return NativeCanActivateFollow();
+                    case "setFormationFollow":return NativeSetFormationFollow(args[1].Truth);
                     default:throw new InvalidOperationException("Unbound source UI action "+module+"/"+name);
                 }
                 UpdateSourceRenderState();UpdateSourceUiState();return default;

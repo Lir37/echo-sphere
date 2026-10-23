@@ -30,19 +30,19 @@ namespace EchoSphere.Runtime
         {
             var s=NativeMobileScene;var player=s["player"];
             if(id=="pause"){NativeMobileHaptic(6);if(_tutorialStep>=0||s["pendingUpgrade"].Truth||s["pendingArtifact"].Truth)return;bool next=!s["paused"].Truth;s["paused"]=next;SetUserPaused(next);}
-            else if(id=="lock"){player["sphereMovementLocked"]=!player["sphereMovementLocked"].Truth;NativeMobileHaptic(6);}
+            else if(id=="lock"){NativeSetSphereMovementLocked(!player["sphereMovementLocked"].Truth);NativeMobileHaptic(6);}
             else if(id=="follow"){
                 if(s["gameOver"].Truth)return;
-                if(player["formationFollowActive"].Truth){NativeMobileAction("setFormationFollow",false);NativeMobileFlash("FOLLOW отключён","FOLLOW OFF",.7,"#7f9bb8");NativeMobileHaptic(6);}
-                else if(!SourceUiBinding("engine.ts","canActivateFormationFollow").Call(s).Truth||!SourceUiBinding("engine.ts","setFormationFollow").Call(s,true).Truth){NativeMobileFlash("Подойдите к центру формации","Move closer to Formation Centroid",1,"#ffb84d");NativeMobileHaptic(22);}
+                if(player["formationFollowActive"].Truth){NativeSetFormationFollow(false);NativeMobileFlash("FOLLOW отключён","FOLLOW OFF",.7,"#7f9bb8");NativeMobileHaptic(6);}
+                else if(!NativeCanActivateFollow()||!NativeSetFormationFollow(true)){NativeMobileFlash("Подойдите к центру формации","Move closer to Formation Centroid",1,"#ffb84d");NativeMobileHaptic(22);}
                 else {NativeMobileFlash("FORMATION FOLLOW","FORMATION FOLLOW",.8,"#63e6ff");NativeMobileHaptic(12);}
             }
             else if(id=="dash"){
-                if(s["gameOver"].Truth||s["paused"].Truth||player["formationFollowActive"].Truth)return;NativeMobileClearKeys();var keys=s["keys"];if(_nativeMobileLastY<-.2)keys["w"]=true;if(_nativeMobileLastY>.2)keys["s"]=true;if(_nativeMobileLastX<-.2)keys["a"]=true;if(_nativeMobileLastX>.2)keys["d"]=true;NativeMobileHaptic(16);NativeMobileAction("activateDash");NativeMobileClearKeys();
+                if(s["gameOver"].Truth||s["paused"].Truth||player["formationFollowActive"].Truth)return;NativeMobileClearKeys();var keys=s["keys"];if(_nativeMobileLastY<-.2)keys["w"]=true;if(_nativeMobileLastY>.2)keys["s"]=true;if(_nativeMobileLastX<-.2)keys["a"]=true;if(_nativeMobileLastX>.2)keys["d"]=true;NativeMobileHaptic(16);NativeActivateDash();NativeMobileClearKeys();
             }
-            else if(id.StartsWith("sphere:",StringComparison.Ordinal)){NativeMobileHaptic(6);NativeMobileAction("setSphereType",id.Substring(7));}
+            else if(id.StartsWith("sphere:",StringComparison.Ordinal)){NativeMobileHaptic(6);NativeSelectSphere(id.Substring(7));}
             else if(id.StartsWith("ability:",StringComparison.Ordinal)){
-                if(s["gameOver"].Truth||s["paused"].Truth||s["pendingUpgrade"].Truth||s["pendingArtifact"].Truth)return;NativeMobileHaptic(12);NativeMobileAction("activateByKey",id.Substring(8).Split('-')[0]);
+                if(s["gameOver"].Truth||s["paused"].Truth||s["pendingUpgrade"].Truth||s["pendingArtifact"].Truth)return;NativeMobileHaptic(12);NativeActivateHotkey(id.Substring(8).Split('-')[0]);
             }
             NativeMobileEventCompleted();
         }
@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
             var state=new NativeMobileControlsView.State {Right=IsLeftHanded};
             state.Controls.Add(new NativeMobileControlsView.Control {Id="pause",Icon="Pause"});
             state.Controls.Add(new NativeMobileControlsView.Control {Id="lock",Icon=locked?"Lock":"Unlock",Name=locked?(IsRussianUi?"ЗАБЛОКИРОВАНО":"LOCKED"):(IsRussianUi?"ПЕРЕМЕЩЕНИЕ":"MOVE")});
-            state.Controls.Add(new NativeMobileControlsView.Control {Id="follow",Icon="Move",Name=follow?(IsRussianUi?"СЛЕД":"FOLLOWING"):"FOLLOW",Disabled=!follow&&!SourceUiBinding("engine.ts","canActivateFormationFollow").Call(s).Truth});
+            state.Controls.Add(new NativeMobileControlsView.Control {Id="follow",Icon="Move",Name=follow?(IsRussianUi?"СЛЕД":"FOLLOWING"):"FOLLOW",Disabled=!follow&&!NativeCanActivateFollow()});
             foreach(var pair in (Dictionary<string,V>)s["activeKeyMap"].Raw){
                 V ability=pair.Value;double cd=Visual_MobileControls.Scope["getAbilityCooldown"].Call(s,ability).Number,max=Visual_MobileControls.Scope["getAbilityMaxCooldown"].Call(ability).Number;
                 var name=Visual_sphereProgression.Scope["getAbilityDisplayName"].Call(s,ability,lang);string label=name.Truth?name.Text:Visual_gameData.Scope["ABILITIES"][ability]["name"][lang].Text;

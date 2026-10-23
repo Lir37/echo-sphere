@@ -31,7 +31,6 @@ namespace EchoSphere.Runtime
         private VisualElement _nativeMobileGestureRoot;
         private V NativeMobileScene=>_sourceRenderState;
         private void NativeMobileHaptic(int duration)=>Visual_MobileControls.Scope["haptic"].Call(duration);
-        private void NativeMobileAction(string name,params V[] args)=>SourceUiBinding("engine.ts",name).Call(new[]{NativeMobileScene}.Concat(args).ToArray());
         private void NativeMobileClearKeys(){var keys=NativeMobileScene["keys"];if(!(keys.Raw is Dictionary<string,V>))return;foreach(var key in new[]{"w","a","s","d","arrowup","arrowleft","arrowdown","arrowright"})keys[key]=false;}
         private void ResetNativeMobileGestures(bool unmount)
         {
@@ -66,10 +65,10 @@ namespace EchoSphere.Runtime
             if(!NativeMobileAllowed||NativeMobileScene["pendingUpgrade"].Truth||NativeMobileScene["pendingArtifact"].Truth||!NativeMobileWorld(x,y,out double wx,out double wy))return;
             var spheres=NativeMobileScene["spheres"];V near=spheres.Items.FirstOrDefault(s=>s["alive"].Truth&&NativeMobileDistance(s["pos"],wx,wy)<26);
             if(_tutorialStep==2&&near.Truth)return;
-            if(near.Truth){NativeMobileCaptureMemory(NativeMobileNetwork());int before=(int)spheres["length"].Number;NativeMobileAction("placeSphere",wx,wy);if(NativeMobileScene["spheres"]["length"].Number<before)NativeMobileHaptic(10);return;}
+            if(near.Truth){NativeMobileCaptureMemory(NativeMobileNetwork());int before=(int)spheres["length"].Number;NativePlaceOrRemoveSphere(wx,wy);if(NativeMobileScene["spheres"]["length"].Number<before)NativeMobileHaptic(10);return;}
             if(spheres["length"].Number>=NativeMobileMaximum)return;
             if(!NativeMobileCanPlace(wx,wy)){NativeMobileFlash("Путь перекрыт","Path blocked",.8,"#ff4d5d");NativeMobileHaptic(35);return;}
-            int count=(int)spheres["length"].Number;NativeMobileAction("placeSphere",wx,wy);
+            int count=(int)spheres["length"].Number;NativePlaceOrRemoveSphere(wx,wy);
             if(NativeMobileScene["spheres"]["length"].Number>count){NativeMobileHaptic(8);_nativeMobilePlacement=new Vector2((float)x,(float)y);_nativeMobilePlacementAt=Time.unscaledTimeAsDouble;_nativeMobilePlacementColor=Visual_gameData.Scope["SPHERE_TYPES"][NativeMobileScene["selectedSphereType"]]["color"].Text;}
         }
         private NativeMobileGhost NativeMobilePreview(V sphere,double x,double y)
@@ -105,13 +104,13 @@ namespace EchoSphere.Runtime
         {
             _nativeMobilePointers.TryGetValue(id,out var p);_nativeMobilePointers.Remove(id);
             if(p!=null&&p.Sphere.Truth){
-                if(!p.Moved){NativeMobileAction("placeSphere",p.Sphere["pos"]["x"],p.Sphere["pos"]["y"]);_nativeMobileGhost=null;NativeMobileHaptic(10);}
-                else if(p.Repositioned){var old=NativeMobileNetwork();if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanMove(p.Sphere,wx,wy)){NativeMobileAction("repositionSphere",p.Sphere,wx,wy);NativeMobileRememberChange(old);NativeMobileFlash("Сфера перемещена","Sphere moved",.8,Visual_gameData.Scope["SPHERE_TYPES"][p.Sphere["type"]]["color"].Text);}_nativeMobileGhost=null;NativeMobileHaptic(12);}
+                if(!p.Moved){NativePlaceOrRemoveSphere(p.Sphere["pos"]["x"].Number,p.Sphere["pos"]["y"].Number);_nativeMobileGhost=null;NativeMobileHaptic(10);}
+                else if(p.Repositioned){var old=NativeMobileNetwork();if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanMove(p.Sphere,wx,wy)){NativeRepositionSphere(NativeSphereForView(p.Sphere),wx,wy);NativeMobileRememberChange(old);NativeMobileFlash("Сфера перемещена","Sphere moved",.8,Visual_gameData.Scope["SPHERE_TYPES"][p.Sphere["type"]]["color"].Text);}_nativeMobileGhost=null;NativeMobileHaptic(12);}
                 else {NativeMobileFlash("Недоступная позиция","Invalid position",.65,"#ff4d5d");_nativeMobileGhost=null;NativeMobileHaptic(22);}return;
             }
             if(p!=null&&p.Placing){
                 if(!p.Moved){NativeMobileTap(x,y);_nativeMobileGhost=null;return;}
-                if(p.Repositioned){if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanPlace(wx,wy)){var old=NativeMobileNetwork();int before=(int)NativeMobileScene["spheres"]["length"].Number;NativeMobileAction("placeSphere",wx,wy);if(NativeMobileScene["spheres"]["length"].Number>before){NativeMobileRememberChange(old);NativeMobileHaptic(8);}}_nativeMobileGhost=null;return;}
+                if(p.Repositioned){if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanPlace(wx,wy)){var old=NativeMobileNetwork();int before=(int)NativeMobileScene["spheres"]["length"].Number;NativePlaceOrRemoveSphere(wx,wy);if(NativeMobileScene["spheres"]["length"].Number>before){NativeMobileRememberChange(old);NativeMobileHaptic(8);}}_nativeMobileGhost=null;return;}
                 NativeMobileFlash("Недоступная позиция","Invalid position",.65,"#ff4d5d");_nativeMobileGhost=null;NativeMobileHaptic(22);return;
             }
             if(_nativeMobileJoystickId==id){_nativeMobileJoystickId=null;NativeMobileClearKeys();if(p!=null&&!p.Moved)NativeMobileTap(x,y);}else if(p!=null&&!p.Moved)NativeMobileTap(x,y);

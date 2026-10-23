@@ -10,7 +10,6 @@ namespace EchoSphere.Runtime
         private bool _nativePauseChromePilot=true;
         private NativePauseChromeView _nativePauseChromeIsland;
         private NativePauseChromeComposition _nativePauseChromeComposition;
-        private V _nativePauseChromeResume, _nativePauseChromeExit, _nativePauseChromeSelect;
         private bool NativePauseChromeRequested => _nativePauseChromePilot && !_mainMenu && !_gameOver && _userPaused && _sourceRenderState.Truth && !_sourceRenderState["pendingUpgrade"].Truth && !_sourceRenderState["pendingArtifact"].Truth && !_sourceRenderState["pendingStella"].Truth;
         public bool UsesNativePauseChrome => NativePauseChromeRequested && _nativePauseChromeIsland != null && _nativePauseChromeIsland.Ready;
         public void SetNativePauseChromePilot(bool enabled)
@@ -22,12 +21,6 @@ namespace EchoSphere.Runtime
         {
             _nativePauseChromeComposition?.Dispose(); _nativePauseChromeComposition = null;
             _nativePauseChromeIsland?.Dispose(); _nativePauseChromeIsland = null;
-            _nativePauseChromeResume = _nativePauseChromeExit = _nativePauseChromeSelect = default;
-        }
-        private void DispatchNativePauseChrome(V action, params V[] arguments)
-        {
-            if (!UsesNativePauseChrome || action.Undefined) return;
-            action.Call(arguments); ApplySourceUiWrites(); if (_sourceUi != null) _sourceUi.Dirty = true;
         }
         private void PrepareNativePauseChromeIsland(VisualCssNode root)
         {
@@ -46,12 +39,10 @@ namespace EchoSphere.Runtime
             if (head == null || foot == null) { DisposeNativePauseChromeIsland(); return; }
             if (_nativePauseChromeIsland == null)
             {
-                // Original actions are already bound while source content is visible.
-                // Keep them through native warmup; Dispose would clear first-frame input.
+                // Native controls bind directly to the existing runtime commands.
                 _nativePauseChromeComposition?.Dispose(); _nativePauseChromeComposition = null;
                 _nativePauseChromeIsland = new NativePauseChromeView(head, foot,
-                    () => DispatchNativePauseChrome(_nativePauseChromeResume), () => DispatchNativePauseChrome(_nativePauseChromeExit),
-                    index => DispatchNativePauseChrome(_nativePauseChromeSelect, new V(new[] { "stats", "skills", "artifacts", "synergies" }[index])));
+                    NativeResumeRun, NativeExitRun, NativeSelectPauseTab);
                 _nativePauseChromeComposition = new NativePauseChromeComposition(_nativePauseChromeIsland, _sourceUi);
             }
             else _nativePauseChromeIsland.Reparent(head, foot);
