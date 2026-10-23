@@ -64,7 +64,7 @@ namespace EchoSphere.Runtime
                     new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(Visual_engineCombat.Scope["getVampirePercent"].Call(scene))),
                     new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",scene["spheres"]["length"].Text+" / "+Visual_engineSpheres.Scope["getMaxSpheres"].Call(scene).Text),
                     new NativePauseStatsState.Stat(ru?"Убийства":"Kills",player["kills"].Text),
-                    new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(Visual_App.Scope["getXpPlannerMult"].Call(scene)))
+                    new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(new V(NativeXpPlannerMultiplier(scene))))
                 }
             };
             var cards=new List<NativePauseStatsState.Sphere>();

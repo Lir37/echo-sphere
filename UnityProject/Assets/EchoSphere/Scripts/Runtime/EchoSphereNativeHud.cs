@@ -61,7 +61,7 @@ namespace EchoSphere.Runtime
             string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
             string N(double value)=>value.ToString(CultureInfo.InvariantCulture);
             float Percent(double value)=>(float)Math.Max(0,Math.Min(100,value));
-            NativeHudView.Formation Formation(V item)=>!item.Truth?null:new NativeHudView.Formation {Id=item["type"].Text,Name=Visual_App.Scope["formationDisplayName"].Call(item["type"],lang).Text,Inactive=item["active"].Raw is bool active&&!active};
+            NativeHudView.Formation Formation(V item)=>!item.Truth?null:new NativeHudView.Formation {Id=item["type"].Text,Name=NativeFormationName(item["type"].Text,ru),Inactive=item["active"].Raw is bool active&&!active};
             var enemies=new System.Collections.Generic.List<NativeHudRadarView.Enemy>();
             foreach(var enemy in scene["enemies"].Items)enemies.Add(new NativeHudRadarView.Enemy(enemy["pos"]["x"].Number,enemy["pos"]["y"].Number,enemy["hp"].Number>0,enemy["isBoss"].Truth,enemy["isElite"].Truth));
             var pois=new System.Collections.Generic.List<NativeHudRadarView.Poi>();var region=scene["region"];
@@ -85,12 +85,12 @@ namespace EchoSphere.Runtime
         }
         private NativeHudView.Tooltip ReadNativeHudTooltip(string type)
         {
-            var scene=_sourceRenderState;var network=scene["nativeNetwork"];var lang=IsRussianUi?"ru":"en";
+            var scene=_sourceRenderState;var network=scene["nativeNetwork"];
             var secondary=network["secondaryFormation"]["type"].Text==type;
             var inactive=network["dominantFormation"]["type"].Text==type&&network["dominantFormation"]["active"].Raw is bool active&&!active;
             var lines=new System.Collections.Generic.List<NativeHudView.TooltipLine>();
-            foreach(var line in Visual_App.Scope["getNetworkTooltipLines"].Call(type.ToUpperInvariant(),scene,lang,network).Items)lines.Add(new NativeHudView.TooltipLine(line["active"].Text,line["rest"].Text));
-            return new NativeHudView.Tooltip {Title=Visual_App.Scope["formationDisplayName"].Call(type,lang).Text,Secondary=secondary,Inactive=inactive,Effectiveness=inactive?(IsRussianUi?"ВРЕМЕННО ОТКЛ.":"TEMP OFF"):secondary?"50%":"100%",Lines=lines};
+            foreach(var line in NativeNetworkTooltipLines(type.ToUpperInvariant(),scene,IsRussianUi,network))lines.Add(line);
+            return new NativeHudView.Tooltip {Title=NativeFormationName(type,IsRussianUi),Secondary=secondary,Inactive=inactive,Effectiveness=inactive?(IsRussianUi?"ВРЕМЕННО ОТКЛ.":"TEMP OFF"):secondary?"50%":"100%",Lines=lines};
         }
     }
 }

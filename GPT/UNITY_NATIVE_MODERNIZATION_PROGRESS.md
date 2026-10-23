@@ -1,5 +1,19 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23 follow-up: All active runtime Visual_App.Scope calls removed.
+Formation names, network tooltip text/scaling and displayed XP planner multiplier
+are direct C# read helpers, preserving the original display quirks and formula.
+Actual Editor comparison against the original helpers matched 112 tooltip cases
+(7 forms, RU/EN, empty/populated sphere types, four active/secondary/inactive
+combinations), 16 name cases and 12 XP cases. This is read-only model parity, not
+an input/gameplay/device acceptance claim. Editor compile zero errors/warnings;
+272/272 local Node regression tests pass. CI#806 correctly rejected the previous
+commit: CS0649 on unused legacy BeforePaint field and two tests requiring retired
+reset/cadence wiring. The optional legacy hook is now a property; tests verify
+direct native reset and the native 10Hz/dirty model cadence with per-frame effects.
+A containing-commit CI rerun is required. Data/catalogue/helper V adapters outside
+App remain. Overall modernization/acceptance still PARTIAL; no APK.
+
 2026-10-23: Production run UI now belongs to NativeRunDocument (retained Unity
 UIDocument). World Image/filter, vignette, HUD hosts, combo, pause shell/highlight,
 result/upgrade/reward/tutorial hosts and ordered blur prefixes are authored native

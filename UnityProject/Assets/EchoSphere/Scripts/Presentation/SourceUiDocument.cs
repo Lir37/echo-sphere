@@ -112,7 +112,7 @@ namespace EchoSphere.Presentation
         private Material _svgMaterial;
         public SourceUiEnvironment Environment {get;private set;}
         public Func<V> Render;
-        internal Action<VisualCssNode> BeforePaint;
+        internal Action<VisualCssNode> BeforePaint {get;set;}
         public Func<Texture> CanvasTexture;
         public Action AfterEvent;
         public bool Dirty=true;

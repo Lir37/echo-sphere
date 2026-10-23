@@ -16,7 +16,10 @@ test('Settings uses native UI Toolkit controls and existing runtime callbacks', 
   assert.doesNotMatch(bridge, /_sourceUi\.gameObject\.SetActive\(false\)/);
   assert.doesNotMatch(bridge, /SetSourceScreenHidden/);
   assert.match(screen, /_root\.style\.backgroundColor=Hex\("#02050d"\)/);
-  assert.match(owner, /SourceUiBinding\("persistence\.ts","resetAll"\)\.Call\(\)/);
+  assert.match(owner, /NativeResetAllProgress\(\)/);
+  const commands = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeUiPreferences.cs');
+  assert.match(commands, /ClearRunSnapshot\(\);PlayerPrefs\.Save\(\)/);
+  assert.match(bridge, /case "resetAll":NativeResetAllProgress\(\);return default/);
   assert.match(owner, /_nativeSettingsScreen\.Show\(SourceDevicePixelRatio\*scale/);
 
   assert.match(screen, /_confirmation\.Add\(row\)/);
