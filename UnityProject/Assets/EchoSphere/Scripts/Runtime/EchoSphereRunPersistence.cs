@@ -42,6 +42,7 @@ namespace EchoSphere.Runtime
             "_nativeJoystickFeedback", "_nativePlacementFeedback", "_nativeJoystickState", "_nativePlacementState",
             "_nativeRegionPois", "_nativeProjectileCount", "_nativeParticleCount", "_nativeEnemyProjectileGroups", "_nativeEnemyProjectileLists",
             "_nativeWorldField", "_nativeWorldAmbient", "_nativeWorldRegion", "_nativeWorldPickups", "_nativeWorldMinions", "_nativeWorldEnergyBolts", "_nativeWorldSprites", "_nativeWorldProjectiles", "_nativeWorldCreatures", "_nativeWorldStandardSphere", "_nativeWorldPickableViews", "_nativeWorldPlayer", "_nativeWorldSphereFamilies", "_nativeWorldCharacterIndicators", "_nativeWorldNetwork", "_nativeWorldFeedback",
+            "_nativeMobileMoveInput",
             "_nativeMobilePointers", "_nativeMobileJoystickId", "_nativeMobileJoystickX", "_nativeMobileJoystickY", "_nativeMobileDx", "_nativeMobileDy", "_nativeMobileJoystickActive",
             "_nativeMobileLastX", "_nativeMobileLastY", "_nativeMobileGhost", "_nativeMobileMemory", "_nativeMobileMemoryClosed", "_nativeMobileMounted", "_nativeMobileHandedness", "_nativeMobilePresent",
             "_nativeMobileMemoryAt", "_nativeMobilePlacementAt", "_nativeMobilePlacementColor", "_nativeMobilePlacement", "_nativeMobileGestureRoot",

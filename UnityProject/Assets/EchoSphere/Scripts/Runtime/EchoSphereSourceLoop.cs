@@ -14,7 +14,7 @@ namespace EchoSphere.Runtime
         private void TrySourceDash(bool useTouchDirection = false)
         {
             if (_follow) { ShowTimedCombatMessage("FOLLOW: DASH LOCKED", 0.55f); return; }
-            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + (_sourceUi!=null?SourceUiMovement():_sourceJoystickDirection);
+            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + (_sourceUi!=null?NativeMobileMovement:_sourceJoystickDirection);
             if (useTouchDirection && _playerCore != null)
             {
                 var remembered = _sourceTouchLastDirection;

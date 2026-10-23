@@ -1106,3 +1106,27 @@ compile 20 assemblies PASS without APK. Previous sphere/mobile commit
 387ab14493d7150a2442622e4f9b694d9b246897 CI #825 SUCCESS.
 Remaining: gesture pointer/keys, planner/modal data and Orbital radius adapter;
 final visual/control/device acceptance. Full modernization remains incomplete.
+
+### Native movement input and Orbital radius boundary retirement (2026-10-24)
+
+Mobile joystick/dash direction is a native Vector2. Removed all production Runtime
+keys-dictionary reads/writes and SourceUiMovement. Original .2 directional thresholds,
+12-unit dead zone, transient dash direction and keyboard Input.GetAxisRaw addition
+remain unchanged. New transient input field is excluded from run capture/restore.
+
+Orbital radius now reads native player/ability/artifact/character/sphere data in the
+same double operation order as the established source-stat reader, without a V
+snapshot. Preserves nearest-eight stable local selection, Engineer component size
+(with distinct coincident spheres), mastery thresholds, mutation/buff multipliers
+and native source modifier input. No approximate float gameplay helper substituted.
+All sphere drawing is now independent of V entity/player data, including radius.
+
+Real paused Editor: 144 direction/dead-zone/NaN/Infinity comparisons PASS, clear and
+save exclusion PASS. Exact radius comparisons: 540 cases PASS across all characters,
+six mastery levels, three geometry layouts and three radius-artifact loadouts;
+mutation/radius buff covered. Temporary fields/lists/artifacts fully restored,
+no ability activation or PlayerPrefs write. 12 native frame constructions PASS,
+legacy documents 0. Editor compile 0 errors/warnings; Android C# 20 assemblies PASS.
+Previous fdc31d2eeba7722090c1440a2b80554bd52dd8ed CI #826 SUCCESS.
+Remaining: gesture sphere handles, read-only planner/modal models and final visual /
+control/device acceptance. Full migration still not declared complete.

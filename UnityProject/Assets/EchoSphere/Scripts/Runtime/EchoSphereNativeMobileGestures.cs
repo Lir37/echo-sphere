@@ -38,7 +38,10 @@ namespace EchoSphere.Runtime
             Handheld.Vibrate();
 #endif
         }
-        private void NativeMobileClearKeys(){var keys=NativeMobileScene["keys"];if(!(keys.Raw is Dictionary<string,V>))return;foreach(var key in new[]{"w","a","s","d","arrowup","arrowleft","arrowdown","arrowright"})keys[key]=false;}
+        private Vector2 _nativeMobileMoveInput;
+        private Vector2 NativeMobileMovement=>_nativeMobileMoveInput;
+        private void NativeMobileClearKeys()=>_nativeMobileMoveInput=Vector2.zero;
+        private void NativeMobileSetDirection(double x,double y)=>_nativeMobileMoveInput=new Vector2((x>.2?1f:0f)-(x<-.2?1f:0f),(y<-.2?1f:0f)-(y>.2?1f:0f));
         private void ResetNativeMobileGestures(bool unmount)
         {
             NativeMobileClearKeys();if(_nativeMobileGestureRoot!=null)foreach(int id in _nativeMobilePointers.Keys)_nativeMobileGestureRoot.ReleasePointer(id);
@@ -132,7 +135,7 @@ namespace EchoSphere.Runtime
             if(p.Sphere.Truth||p.Placing){if(distance>12){p.Moved=true;if(NativeMobileWorld(e.position.x,e.position.y,out double x,out double y)){var preview=NativeMobilePreview(p.Sphere,x,y);if(preview!=null){p.Repositioned=preview.Valid;_nativeMobileGhost=preview;}}}NativeMobileEventCompleted();return;}
             if(distance>12)p.Moved=true;
             if(_nativeMobileJoystickId==e.pointerId){_nativeMobileJoystickActive=distance>12;double length=distance==0?1:distance,scale=Math.Min(1,Math.Max(0,length/58));_nativeMobileDx=dx/length*58*scale;_nativeMobileDy=dy/length*58*scale;
-                if(distance<12)NativeMobileClearKeys();else{_nativeMobileLastX=dx/distance;_nativeMobileLastY=dy/distance;var keys=NativeMobileScene["keys"];keys["w"]=_nativeMobileLastY<-.2;keys["s"]=_nativeMobileLastY>.2;keys["a"]=_nativeMobileLastX<-.2;keys["d"]=_nativeMobileLastX>.2;}}
+                if(distance<12)NativeMobileClearKeys();else{_nativeMobileLastX=dx/distance;_nativeMobileLastY=dy/distance;NativeMobileSetDirection(_nativeMobileLastX,_nativeMobileLastY);}}
             NativeMobileEventCompleted();
         }
         private void NativeMobileEnd(int id,double x,double y)

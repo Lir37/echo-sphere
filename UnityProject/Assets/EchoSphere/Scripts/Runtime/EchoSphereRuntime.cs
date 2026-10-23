@@ -1180,7 +1180,7 @@ namespace EchoSphere.Runtime
 
         private Vector2 ReadMovement()
         {
-            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + (_sourceUi!=null?SourceUiMovement():_sourceJoystickDirection);
+            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + (_sourceUi!=null?NativeMobileMovement:_sourceJoystickDirection);
             direction.x = Mathf.Clamp(direction.x, -1f, 1f); direction.y = Mathf.Clamp(direction.y, -1f, 1f);
             return direction.sqrMagnitude > 0f ? direction.normalized : Vector2.zero;
         }

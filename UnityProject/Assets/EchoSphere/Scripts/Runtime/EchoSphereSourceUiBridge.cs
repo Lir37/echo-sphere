@@ -103,8 +103,6 @@ namespace EchoSphere.Runtime
             });
         }
         #endif
-        private Vector2 SourceUiMovement()
-        {if(_sourceRenderState.Undefined)return Vector2.zero;var keys=_sourceRenderState["keys"];return new Vector2((keys["d"].Truth||keys["arrowright"].Truth?1f:0f)-(keys["a"].Truth||keys["arrowleft"].Truth?1f:0f),(keys["w"].Truth||keys["arrowup"].Truth?1f:0f)-(keys["s"].Truth||keys["arrowdown"].Truth?1f:0f));}
         private void ApplySourceUiWrites()
         {
             if(_sourceRenderState.Undefined)return;_sphereMovementLocked=_sourceRenderState["player"]["sphereMovementLocked"].Truth;

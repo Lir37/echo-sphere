@@ -22,7 +22,7 @@ namespace EchoSphere.Runtime
                 else {NativeMobileFlash("FORMATION FOLLOW","FORMATION FOLLOW",.8,"#63e6ff");NativeMobileHaptic(12);}
             }
             else if(id=="dash"){
-                if(_gameOver||_paused||_follow)return;NativeMobileClearKeys();var keys=s["keys"];if(_nativeMobileLastY<-.2)keys["w"]=true;if(_nativeMobileLastY>.2)keys["s"]=true;if(_nativeMobileLastX<-.2)keys["a"]=true;if(_nativeMobileLastX>.2)keys["d"]=true;NativeMobileHaptic(16);NativeActivateDash();NativeMobileClearKeys();
+                if(_gameOver||_paused||_follow)return;NativeMobileClearKeys();NativeMobileSetDirection(_nativeMobileLastX,_nativeMobileLastY);NativeMobileHaptic(16);NativeActivateDash();NativeMobileClearKeys();
             }
             else if(id.StartsWith("sphere:",StringComparison.Ordinal)){NativeMobileHaptic(6);NativeSelectSphere(id.Substring(7));}
             else if(id.StartsWith("ability:",StringComparison.Ordinal)){
