@@ -14,7 +14,8 @@ namespace EchoSphere.Presentation
     {
         private sealed class State
         {
-            internal Matrix4x4 Matrix=Matrix4x4.identity;internal float Alpha=1,ShadowBlur,ShadowX,ShadowY,DashOffset,Miter=10;
+            internal Matrix4x4 Matrix=Matrix4x4.identity;internal float Alpha=1,ShadowBlur,Miter=10;
+            internal readonly float ShadowX=0,ShadowY=0,DashOffset=0;
             internal string Blend="source-over",Baseline="alphabetic";internal Color Shadow=Color.clear;
             internal float[] Dash=Array.Empty<float>();internal State Copy()=>(State)MemberwiseClone();
         }

@@ -1,5 +1,10 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23 CI follow-up: run #799 found no C# errors but rejected three CS0649
+warnings for the native compositor zero shadow/dash offsets. These fixed defaults
+are now explicitly initialized readonly fields; values/paint behavior are unchanged.
+A fresh containing-commit CI run is required and is checked separately.
+
 2026-10-23: The active world now renders through NativeWorldSurface, a dedicated
 Unity CommandBuffer mesh compositor. SourceCanvasSurface is no longer instantiated
 by the game frame. Native world owners no longer construct/retain Canvas current
