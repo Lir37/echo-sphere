@@ -19,14 +19,14 @@ namespace EchoSphere.Runtime
         {
             var home=_nativeMainMenuEnabled&&_mainMenu&&!_regionSelect&&_mainMenuPage==MainMenuPage.Home;
             if(!home){
-                if(_nativeMainMenuWasActive){_nativeMainMenuScreen.Hide();if(_sourceUi!=null){_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;}_nativeMainMenuWasActive=false;}
+                if(_nativeMainMenuWasActive){_nativeMainMenuScreen.Hide();if(_sourceUi!=null){_sourceUi.Dirty=true;}_nativeMainMenuWasActive=false;}
                 return false;
             }
             if(!_nativeMainMenuWasActive){
                 if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
                 if(_sourceUi!=null){
-                    // Enter Home once to unmount the previous source page/hooks.
-                    _sourceUi.SetPresentationSuspended(false);_nativeSettingsWasActive=false;_sourceUi.Dirty=true;_sourceUi.Draw(SourceDevicePixelRatio);
+                    // Native run pages do not mount source hooks or DOM trees.
+                    _nativeSettingsWasActive=false;_sourceUi.Dirty=true;
                 }else{
                     // Menu's original mount effect persists its loaded name.
                     PlayerPrefs.SetString(NamePreferenceKey,_playerName);PlayerPrefs.Save();
@@ -38,7 +38,7 @@ namespace EchoSphere.Runtime
             }
             if(_nativeMenuShownVersion!=_nativeMenuModelVersion){_nativeMenuState=ReadNativeMainMenuState(_nativeMenuState.SavedRunTime);_nativeMenuShownVersion=_nativeMenuModelVersion;}
             _nativeMainMenuScreen.Show(_nativeMenuState,SourceDevicePixelRatio,_nativeMenuCharacterColor);
-            if(_sourceUi!=null&&_nativeMainMenuScreen.Ready){_sourceUi.SetPresentationSuspended(true);_sourceUi.Draw(SourceDevicePixelRatio);}
+
             return true;
         }
         // The native owner supplies the full accepted background/core/icon layers.

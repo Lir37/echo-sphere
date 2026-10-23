@@ -31,6 +31,14 @@ namespace EchoSphere.Presentation
             };
             definition.passes=new[]{effect};_definitions.Add(definition);_namedDefinitions[name]=definition;return definition;
         }
+        internal void ApplyNativeGameField(VisualElement element)
+        {
+            var filters=new List<FilterFunction>();
+            foreach(var item in new[]{("saturate",0,1.16f),("contrast",3,1.08f),("brightness",1,.98f)}){
+                var filter=new FilterFunction(Define("native-field-"+item.Item1,item.Item2,1));filter.AddParameter(new FilterParameter(item.Item3));filters.Add(filter);
+            }
+            element.style.filter=filters;
+        }
         internal void Apply(VisualCss sheet,VisualCssNode node,VisualElement element,float dpr,bool surfaceFiltered=false)
         {
             var source=surfaceFiltered?"none":sheet.Get(node,"filter","none");var opacity=sheet.Get(node,"opacity","1");var key=source+"|"+opacity+"|"+sheet.Get(node,"color","#000000");

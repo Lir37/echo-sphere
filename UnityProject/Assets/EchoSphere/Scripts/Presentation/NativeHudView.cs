@@ -59,6 +59,7 @@ namespace EchoSphere.Presentation
         private float _safeLeft,_safeRight,_safeTop;
         private IVisualElementScheduledItem _hideTimer;
         public VisualElement Root=>_root;
+        internal Rect NetworkBounds=>_left.worldBound;
         public bool Ready {get;private set;}
         public NativeHudRadarView Radar {get;}
         private static Color C(string value){ColorUtility.TryParseHtmlString(value,out var color);return color;}

@@ -15,14 +15,14 @@ namespace EchoSphere.Runtime
         private bool TryDrawNativeCharacters()
         {
             if(!_mainMenu||_regionSelect||_mainMenuPage!=MainMenuPage.Characters){
-                if(_nativeCharacterWasActive){_nativeCharacterScreen.Hide();_nativeCharacterWasActive=false;if(_sourceUi!=null&&!UsesNativeMainMenu&&!_nativeProgressionWasActive&&!_nativeSettingsWasActive&&!_nativeRegionWasActive){_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;}}
+                if(_nativeCharacterWasActive){_nativeCharacterScreen.Hide();_nativeCharacterWasActive=false;if(_sourceUi!=null&&!UsesNativeMainMenu&&!_nativeProgressionWasActive&&!_nativeSettingsWasActive&&!_nativeRegionWasActive){_sourceUi.Dirty=true;}}
                 return false;
             }
             if(!_nativeCharacterWasActive){
                 if(_nativeCharacterScreen==null)_nativeCharacterScreen=new GameObject("Native Character Selection UI Toolkit").AddComponent<NativeCharacterScreen>();
                 _expandedCharacterId=CharacterRules.ToSourceId(_sphereCharacterId);_nativeCharacterMessage="";
                 _nativeCharacterState=ReadNativeCharacterState();_nativeCharacterWasActive=true;
-                if(_sourceUi!=null)_sourceUi.SetPresentationSuspended(true);_camera.cullingMask=0;
+                _camera.cullingMask=0;
             }
             _nativeCharacterScreen.Show(_nativeCharacterState,SourceDevicePixelRatio,()=>_mainMenuPage=MainMenuPage.Home,ChooseNativeCharacter,ExpandNativeCharacter);
             return true;

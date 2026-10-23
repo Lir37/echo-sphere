@@ -14,13 +14,13 @@ namespace EchoSphere.Runtime
         private bool TryDrawNativeArchive()
         {
             if(!_mainMenu||_regionSelect||_mainMenuPage!=MainMenuPage.Knowledge){
-                if(_nativeArchiveWasActive){_nativeArchiveScreen.Hide();_nativeArchiveWasActive=false;if(_sourceUi!=null&&!UsesNativeMainMenu&&!_nativeProgressionWasActive&&!_nativeSettingsWasActive&&!_nativeRegionWasActive&&!_nativeCharacterWasActive){_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;}}
+                if(_nativeArchiveWasActive){_nativeArchiveScreen.Hide();_nativeArchiveWasActive=false;if(_sourceUi!=null&&!UsesNativeMainMenu&&!_nativeProgressionWasActive&&!_nativeSettingsWasActive&&!_nativeRegionWasActive&&!_nativeCharacterWasActive){_sourceUi.Dirty=true;}}
                 return false;
             }
             if(!_nativeArchiveWasActive){
                 if(_nativeArchiveScreen==null)_nativeArchiveScreen=new GameObject("Native Echo Archive UI Toolkit").AddComponent<NativeArchiveScreen>();
                 _knowledgeSection="basics";_knowledgeQuery="";_nativeArchiveState=ReadNativeArchiveState();_nativeArchiveWasActive=true;
-                if(_sourceUi!=null)_sourceUi.SetPresentationSuspended(true);_camera.cullingMask=0;
+                _camera.cullingMask=0;
             }
             _nativeArchiveScreen.Show(_nativeArchiveState,SourceDevicePixelRatio,()=>_mainMenuPage=MainMenuPage.Home,SelectNativeArchiveSection,SearchNativeArchive);
             return true;

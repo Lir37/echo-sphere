@@ -34,6 +34,7 @@ namespace EchoSphere.Runtime
             bool ready = UsesNativePauseChrome && (UsesNativePauseStats || UsesNativePauseAbilities || UsesNativePauseArtifacts || UsesNativePauseSynergies);
             bool previous = _nativePauseScreen.Ready;
             _nativePauseScreen.Prepare(Screen.height / SourceDevicePixelRatio, ready);
+            _nativeRunDocument?.OrderPauseContent(_nativePauseScreen.Root);
             if (!previous && _nativePauseScreen.Ready) anchors.Invalidate?.Invoke();
         }
         private ScrollView NativePauseBody(NativeRunUiAnchors anchors,out NativeRunUiAnchors.Slot body)

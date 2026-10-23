@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace EchoSphere.Presentation
 {
-    // Authored mobile host geometry from BuildNativeMobileComponent. No DOM,
+    // Authored mobile host geometry from the original mobile component. No DOM,
     // CSS resolution or transient placeholder nodes are needed for these slots.
     internal sealed class NativeMobileLayout : IDisposable
     {

@@ -1026,3 +1026,40 @@ NativeMobileLayout now owns all mobile slots; mobile canvas-ref coordinate reads
 are gone. Next replace the remaining SourceUiDocument game/HUD/modal root and
 backdrop prefix ownership, then V model providers. Preserve gameplay/quality;
 no APK. Device/input/full visual acceptance remains open.
+
+
+## 2026-10-23: native run document and data-only context
+
+2026-10-23: Production run UI now belongs to NativeRunDocument (retained Unity
+UIDocument). World Image/filter, vignette, HUD hosts, combo, pause shell/highlight,
+result/upgrade/reward/tutorial hosts and ordered blur prefixes are authored native
+hierarchy/brushes; existing native presenters bind directly. Active game no longer
+constructs SourceUiDocument, VisualDom trees, CSS nodes, hook/reconciliation trees
+or Canvas command surfaces. EchoSphereLegacyRunUiProjection and the CSS anchor
+capture were deleted. NativeUiDataContext is a plain storage/date compatibility
+object with no GameObject, renderer, timers or UI environment. Main menu no longer
+draws hidden generated pages. Interface scale reads PlayerPrefs directly with the
+original Number conversion/clamp; reset command extracted unchanged and called
+directly. Read-model V/catalogue/calculation helpers remain; they do not own UI.
+Actual Editor compile zero errors/warnings. Paused real-runtime UI checks rendered
+all four tabs: Ready true for each across 48 bounded stepped frames. Screenshot
+inspected; fixed native shell brush covering its content, now ordered behind it.
+Save accumulator and menu/pause/tab flags restored; no save replacement or inputs.
+After deleting legacy runtime bindings, repeated native run: SourceUiDocument
+instances=0, NativeRunDocument=1, NativeUiDataContext, native stats Ready=true;
+menu flags restored. Current Console errors=0/warnings=0; retained Pipeline stream
+still contains earlier diagnostic records. Play stopped. Structural preflight,
+metadata/provenance and native route guard pass. CI on containing commit checked
+separately. Production visual ownership is native; overall acceptance remains
+PARTIAL: V read helpers and legacy reference code remain, full visual/input/effect
+cases, Android and performance have not all been accepted. No APK, protected
+baseline/gameplay/quality settings changes included.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD
+(git log -1 --format=%H). Read the three GPT docs and modernization reports.
+NativeRunDocument now owns production run hierarchy and blur prefixes; legacy
+SourceUiDocument is not instantiated, legacy tree/anchor adapters deleted.
+All pause tabs Ready, actual runtime has 0 legacy UI documents. Remaining:
+V read/calculation helpers and reference-code cleanup; finish positive controls,
+all result/upgrade/reward/tutorial/effect cases and Android acceptance before
+claiming full modernization DONE. Preserve gameplay/quality; no APK yet.

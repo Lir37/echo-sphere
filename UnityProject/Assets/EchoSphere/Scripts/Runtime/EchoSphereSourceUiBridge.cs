@@ -10,22 +10,15 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private SourceUiDocument _sourceUi;
+        private NativeUiDataContext _sourceUi;
         private SourceSettingsToolkitScreen _nativeSettingsScreen;
         private bool _nativeSettingsWasActive;
         private bool _sourceUiWasPaused;
-        private V _sourceUiStateRef,_sourceUiCanvasRef,_sourceUiTutorialRef;
-        private V _sourceUiSavedRunTime;
         private void DrawSourceDocument()
         {
             if(_sourceUi==null){
-                _sourceUi=new GameObject("Source TSX interface").AddComponent<SourceUiDocument>();_sourceUi.Initialize();
-                _sourceUiStateRef=VisualJs.Obj("current",_sourceRenderState);_sourceUiCanvasRef=VisualJs.Obj("current",VisualJs.Null);_sourceUiTutorialRef=VisualJs.Obj("current",VisualJs.Null);
-                var saved=LoadRunSnapshot();_sourceUiSavedRunTime=saved==null?VisualJs.Null:new V(Math.Floor(saved.time));
-                _sourceUi.Render=BuildNativeSourceUiTree;_sourceUi.AfterEvent=ApplySourceUiWrites;
-                _sourceUi.BeforePaint=root=>{var anchors=CaptureLegacyRunUiAnchors(root);PrepareNativeHudIsland(anchors);PrepareNativePauseScreen(anchors);PrepareNativePauseChromeIsland(anchors);PrepareNativePauseStatsIsland(anchors);PrepareNativePauseAbilitiesIsland(anchors);PrepareNativePauseArtifactsIsland(anchors);PrepareNativePauseSynergiesIsland(anchors);CompleteNativePauseScreen(anchors);PrepareNativeRunResult(anchors);PrepareNativeUpgrade(anchors);PrepareNativeArtifactRewards(anchors);PrepareNativePauseSetDetail(anchors);PrepareNativeTutorial(anchors);PrepareNativeMobileGestures(anchors);PrepareNativeMobileDock(anchors);PrepareNativeMobileFeedback(anchors);PrepareNativeMobileNetwork(anchors);};
-                _sourceUi.CanvasTexture=()=>_worldSurface.UiTexture;
-                var environment=_sourceUi.Environment;
+                _sourceUi=new NativeUiDataContext();
+                var environment=_sourceUi;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;
                 environment.WriteStorage=(key,value)=>{PlayerPrefs.SetString(key,value.Text);PlayerPrefs.Save();};
                 environment.RemoveStorage=key=>{PlayerPrefs.DeleteKey(key);PlayerPrefs.Save();};
@@ -33,75 +26,11 @@ namespace EchoSphere.Runtime
                 VisualUiBindings.Resolve=SourceUiBinding;
             }
             if(_sourceUiWasPaused!=_userPaused){_sourceUiWasPaused=_userPaused;_sourceUi.Dirty=true;}
-            _sourceUiStateRef["current"]=_sourceRenderState;UpdateSourceUiState();
-            // Active HUD data updates at 10 Hz. Paused simulation data is stable;
-            // actions, pointer events and resize invalidate immediately. Motion,
-            // native controls, layout, world paint and backdrop filters still tick.
-            _sourceUi.Continuous=false;_sourceUi.RefreshInterval=_mainMenu||_userPaused?0f:0.1f;TickNativeMobileTransients();_sourceUi.Draw(SourceDevicePixelRatio);
-        }
-        private V SourceUiTree()
-        {
-            var lang=IsRussianUi?"ru":"en";
-            V Action(Action<V[]> action)=>VisualJs.Fn(args=>{action(args);return default;});
-            void Page(MainMenuPage page){_mainMenuPage=page;_regionSelect=false;}
-            var props=VisualJs.Obj("lang",lang,"t",VisualJs.Fn(args=>Visual_i18n.Scope["translations"][lang][args[0]]),
-                "onBack",Action(args=>{_regionSelect=false;Page(MainMenuPage.Home);}),
-                "onExit",Action(args=>{ClearRunSnapshot();PlayerPrefs.SetInt("echo-sphere:open_region_select",1);PlayerPrefs.Save();SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);}),
-                "gold",GetGold(),"shop",VisualJs.Obj("gold",GetGold(),"upgrades",RenderValue(_shopSave.upgrades)),
-                "difficulty",PlayerPrefs.GetString(DifficultyPreferenceKey,"normal"),"soundOn",SourceAudio2D.IsEnabled,"handedness",IsLeftHanded?"left":"right",
-                "setDifficulty",Action(args=>{PlayerPrefs.SetString(DifficultyPreferenceKey,args[0].Text);PlayerPrefs.Save();}),
-                "setLang",Action(args=>{PlayerPrefs.SetString(LanguagePreferenceKey,args[0].Text);PlayerPrefs.Save();}),
-                "setSoundOn",Action(args=>{PlayerPrefs.SetInt(SoundPreferenceKey,args[0].Truth?1:0);PlayerPrefs.Save();SourceAudio2D.SetEnabled(args[0].Truth);}),
-                "setHandedness",Action(args=>{PlayerPrefs.SetString(HandednessPreferenceKey,args[0].Text);PlayerPrefs.Save();}),
-                "onReplayTutorial",Action(args=>{PlayerPrefs.SetInt(TutorialCompletedPreferenceKey,0);PlayerPrefs.Save();Page(MainMenuPage.Home);}),
-                "onGoldChange",Action(args=>SaveGold((int)args[0].Number)),
-                "setShop",Action(args=>SourceUiBinding("persistence.ts","saveShop").Call(args[0])));
-            if(_mainMenu){
-                if(_regionSelect){props["onStartRun"]=Action(args=>{
-                    var region=args[0].Text=="spectral_rift"?EchoRegionId.SpectralRift:EchoRegionId.ResonanceBasin;
-                    PlayerPrefs.SetInt(SelectedRegionPreferenceKey,(int)region);PlayerPrefs.SetString("echo-sphere:pending_region_challenge",args[2].Text);PlayerPrefs.SetInt("echo-sphere:pending_region_endless",args[1].Text=="endless"?1:0);PlayerPrefs.SetInt("echo-sphere:start_selected_region_after_reload",1);PlayerPrefs.Save();
-                    // Construct fresh player/spheres with the selected character
-                    // and purchased upgrades, as createInitialState does.
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                });return VisualDom.Component("EchoMapScreen",Visual_EchoMapScreen.Scope["EchoMapScreen"],props);}
-                var name=_mainMenuPage==MainMenuPage.Shop?"ShopScreen":_mainMenuPage==MainMenuPage.Settings?"SettingsScreen":_mainMenuPage==MainMenuPage.Leaderboard?"LeaderboardScreen":_mainMenuPage==MainMenuPage.Achievements?"AchievementsScreen":_mainMenuPage==MainMenuPage.Characters?"CharacterSelect":_mainMenuPage==MainMenuPage.Knowledge?"KnowledgeBase":"Menu";
-                props["onOpenMap"]=Action(args=>_regionSelect=true);props["onShop"]=Action(args=>Page(MainMenuPage.Shop));props["onSettings"]=Action(args=>Page(MainMenuPage.Settings));props["onLeader"]=Action(args=>Page(MainMenuPage.Leaderboard));props["onAchievements"]=Action(args=>Page(MainMenuPage.Achievements));props["onCharacters"]=Action(args=>Page(MainMenuPage.Characters));props["onKnowledge"]=Action(args=>Page(MainMenuPage.Knowledge));
-                props["savedRunTime"]=_sourceUiSavedRunTime;props["onContinue"]=Action(args=>ContinueSavedRun());
-                var module=name=="CharacterSelect"?Visual_CharacterSelect.Scope:name=="KnowledgeBase"?Visual_KnowledgeBase.Scope:Visual_App.Scope;
-                var tree=VisualDom.Component(name,module[name],props);if(name=="SettingsScreen")InstallSourceScaleControl(tree);return tree;
-            }
-            props["st"]=_sourceRenderState;props["stateRef"]=_sourceUiStateRef;props["canvasRef"]=_sourceUiCanvasRef;
-            props["tutorialStep"]=_tutorialStep<0?VisualJs.Null:new V(_tutorialStep);_sourceUiTutorialRef["current"]=props["tutorialStep"];props["tutorialStepRef"]=_sourceUiTutorialRef;
-            props["tutorialStartPosRef"]=VisualJs.Obj("current",SourcePoint((Vector2)_tutorialStartPosition));
-            props["paused"]=_userPaused;props["setPaused"]=Action(args=>SetUserPaused(args[0].Truth));
-            props["transitionTutorial"]=Action(args=>{if(args[0].Null)FinishTutorial(false);else SetTutorialStep((int)args[0].Number);});
-            props["setTutorialStep"]=Action(args=>{if(args[0].Null)FinishTutorial(true);else SetTutorialStep((int)args[0].Number);});
-            var tabs=new[]{"stats","skills","artifacts","synergies"};props["pauseTab"]=tabs[_pausePlannerTab];props["setPauseTab"]=Action(args=>_pausePlannerTab=Math.Max(0,Array.IndexOf(tabs,args[0].Text)));
-            // Skip compatibility content before the generated component builds
-            // it. Post-build pruning alone still paid for every discarded card.
-            props["nativePauseContent"]=UsesNativePauseStats||UsesNativePauseAbilities||UsesNativePauseArtifacts||NativePauseSynergiesRequested;
-            props["nativePauseChrome"]=UsesNativePauseChrome;
-            props["selectedArtifactSetId"]=_pauseArtifactSetId==null?VisualJs.Null:new V(_pauseArtifactSetId);props["setSelectedArtifactSetId"]=Action(args=>_pauseArtifactSetId=args[0].Null?null:args[0].Text);
-            props["gameOverData"]=_gameOver?VisualJs.Obj("time",Math.Floor(_runTime),"wave",_wave,"kills",_kills,"gold",_runGoldEarned,"rank",_sourceResultRank,"isNewRecord",_sourceResultNewRecord,"regionClear",_regionStabilized,"challengeProgress",GetCompletedRegionChallenges(EchoRegionId.ResonanceBasin).Length,"endlessUnlocked",IsRegionEndlessUnlocked(EchoRegionId.ResonanceBasin),"masteryChallengesCompleted",_regionMasteryChallengesCompleted):VisualJs.Null;
-            var mobile=Visual_MobileControls.Scope["MobileControls"];
-            try{Visual_MobileControls.Scope["MobileControls"]=VisualJs.Fn(BuildNativeMobileComponent);return VisualDom.Component("SourceGameView",Visual_App.Scope["SourceGameView"],props);}
-            finally{Visual_MobileControls.Scope["MobileControls"]=mobile;}
-        }
-        private void InstallSourceScaleControl(V tree)
-        {
-            IEnumerable<VisualDom.Node> Descendants(V value){if(value.Raw is VisualDom.Node node){yield return node;foreach(var child in node.Children)foreach(var nested in Descendants(child))yield return nested;}else if(value.Raw is List<V>)foreach(var child in value.Items)foreach(var nested in Descendants(child))yield return nested;}
-            var labels=Descendants(tree).Where(node=>node.Tag=="label").ToList();
-            bool HasText(VisualDom.Node node,string ru,string en)=>string.Concat(node.Children.Select(value=>value.Text)).Trim()==ru||string.Concat(node.Children.Select(value=>value.Text)).Trim()==en;
-            var controlsLabel=labels.FirstOrDefault(node=>HasText(node,"Управление","Controls"));if(controlsLabel==null)return;
-            VisualDom.Node Parent(VisualDom.Node target)=>Descendants(tree).FirstOrDefault(node=>node.Children.Any(value=>ReferenceEquals(value.Raw,target)));
-            var controlsSection=Parent(Parent(controlsLabel));var container=Parent(controlsSection);if(container==null)return;
-            var control=VisualDom.Component("SourceInterfaceScaleMarkup",Visual_App.Scope["SourceInterfaceScaleMarkup"],VisualJs.Obj());
-            var scale=Visual_interfaceScale.Scope["loadInterfaceScale"].Call();foreach(var node in Descendants(control)){
-                if(!node.Properties["data-interface-scale-title"].Undefined)node.Children.Add(IsRussianUi?"Масштаб интерфейса":"Interface scale");
-                if(!node.Properties["data-interface-scale-value"].Undefined)node.Children.Add(Visual_interfaceScale.Scope["formatInterfaceScale"].Call(scale));
-                if(!node.Properties["data-interface-scale-range"].Undefined){node.Properties["value"]=scale;node.Properties["onInput"]=VisualJs.Fn(args=>{Visual_interfaceScale.Scope["saveInterfaceScale"].Call(VisualJs.Number(args[0]["target"]["value"]));return default;});}
-            }
-            container.Children.Insert(container.Children.FindIndex(value=>ReferenceEquals(value.Raw,controlsSection)),control);
+            UpdateSourceUiState();
+            if(!_mainMenu){TickNativeMobileTransients();DrawNativeRunDocument();return;}
+            // Every production menu has its own retained native screen. There
+            // is no generated JSX/DOM fallback in the active runtime anymore.
+
         }
         private void UpdateSourceUiState()
         {
@@ -131,7 +60,7 @@ namespace EchoSphere.Runtime
         }
         private V SourceUiBinding(string module,string name)
         {
-            if(module=="global")return _sourceUi.Environment.Get(name);
+            if(module=="global")return _sourceUi.Get(name);
             if(module=="persistence.ts")return VisualJs.Fn(args=>{
                 switch(name){
                     case "loadName":return _playerName;case "saveName":_playerName=args[0].Text;PlayerPrefs.SetString(NamePreferenceKey,_playerName);PlayerPrefs.Save();return default;
@@ -145,7 +74,7 @@ namespace EchoSphere.Runtime
                     case "saveGold":SaveGold((int)args[0].Number);return default;
                     case "saveShop":EnsureShopSaveLoaded();foreach(var id in PersistentUpgradeRules.Ids)_shopSave.upgrades.Set(id,args[0]["upgrades"][id].Undefined?0:(int)args[0]["upgrades"][id].Number);SaveShopState();return default;
                     case "saveTutorialCompleted":PlayerPrefs.SetInt(TutorialCompletedPreferenceKey,args[0].Truth?1:0);PlayerPrefs.Save();return default;
-                    case "resetAll":foreach(var key in new[]{GoldPreferenceKey,ShopPreferenceKey,LeaderboardPreferenceKey,AchievementPreferenceKey,DifficultyPreferenceKey,SoundPreferenceKey,CharacterPreferenceKey,CharacterProfilesPreferenceKey,HandednessPreferenceKey,LanguagePreferenceKey,NamePreferenceKey,"echosphere_knowledge_v1",TutorialCompletedPreferenceKey})PlayerPrefs.DeleteKey(key);foreach(var region in new[]{EchoRegionId.ResonanceBasin,EchoRegionId.SpectralRift}){PlayerPrefs.DeleteKey(RegionStabilizedKey(region));PlayerPrefs.DeleteKey(RegionChallengesKey(region));PlayerPrefs.DeleteKey(RegionEndlessKey(region));}ClearRunSnapshot();PlayerPrefs.Save();return default;
+                    case "resetAll":NativeResetAllProgress();return default;
                     default:throw new InvalidOperationException("Unbound source persistence action "+name);
                 }
             });

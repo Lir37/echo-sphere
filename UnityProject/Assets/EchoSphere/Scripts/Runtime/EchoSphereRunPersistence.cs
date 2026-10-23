@@ -67,7 +67,7 @@ namespace EchoSphere.Runtime
             "_sourceArtifactScroll", "_sourceSetDetailScroll", "_sourceResultRank", "_sourceResultNewRecord",
             "_sourcePointers", "_sourceJoystickId", "_sourceJoystickStart", "_sourceJoystickDrag", "_sourceJoystickDirection", "_sourceTouchLastDirection",
             "_networkGlowRenderers", "_networkLinkRenderers", "_networkHighlightRenderers", "_networkComets", "_networkLineMaterial",
-            "_sourceRenderState", "_sourceRenderEntities", "_sourceUi", "_nativeRunUiAnchors", "_nativeMobileLayout", "_nativeRunField", "_sourceUiStateRef", "_sourceUiCanvasRef", "_sourceUiTutorialRef", "_sourceUiSavedRunTime", "_worldSurface", "_sourceHudTooltip", "_sourceHudTooltipUntil", "_sourceHudDragSlot", "_sourceHudTooltipRect"
+            "_sourceRenderState", "_sourceRenderEntities", "_sourceUi", "_nativeRunDocument", "_nativeRunNextModel", "_nativeMobileLayout", "_nativeRunField", "_sourceUiStateRef", "_sourceUiCanvasRef", "_sourceUiTutorialRef", "_sourceUiSavedRunTime", "_worldSurface", "_sourceHudTooltip", "_sourceHudTooltipUntil", "_sourceHudDragSlot", "_sourceHudTooltipRect"
         };
         private void TickRunAutosave()
         {

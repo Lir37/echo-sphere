@@ -17,12 +17,12 @@ namespace EchoSphere.Runtime
         private bool TryDrawNativeProgression()
         {
             bool selected=_mainMenu&&!_regionSelect&&(_mainMenuPage==MainMenuPage.Shop||_mainMenuPage==MainMenuPage.Leaderboard||_mainMenuPage==MainMenuPage.Achievements);
-            if(!selected){if(_nativeProgressionWasActive){_nativeProgressionScreen.Hide();_nativeProgressionWasActive=false;if(_sourceUi!=null){if(!UsesNativeMainMenu)_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;}}return false;}
+            if(!selected){if(_nativeProgressionWasActive){_nativeProgressionScreen.Hide();_nativeProgressionWasActive=false;if(_sourceUi!=null){_sourceUi.Dirty=true;}}return false;}
             if(!_nativeProgressionWasActive||_nativeProgressionPage!=_mainMenuPage){
                 if(_nativeProgressionScreen==null)_nativeProgressionScreen=new GameObject("Native Progression UI Toolkit").AddComponent<NativeProgressionScreen>();
                 _nativeProgressionPage=_mainMenuPage;_nativeProgressionState=ReadNativeProgressionState();_nativeProgressionWasActive=true;
                 if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
-                if(_sourceUi!=null)_sourceUi.SetPresentationSuspended(true);
+
                 _camera.cullingMask=0;
             }
             _nativeProgressionScreen.Show(_nativeProgressionState,SourceDevicePixelRatio,BackFromNativeProgression,BuyNativeShopUpgrade);

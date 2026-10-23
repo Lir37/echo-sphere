@@ -16,13 +16,13 @@ namespace EchoSphere.Runtime
         {
             if(!_mainMenu||!_regionSelect){
                 if(_nativeRegionWasActive){_nativeRegionScreen.Hide();_nativeRegionWasActive=false;
-                    if(_sourceUi!=null&&!UsesNativeMainMenu&&!_nativeProgressionWasActive&&!_nativeSettingsWasActive){_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;}}
+                    if(_sourceUi!=null&&!UsesNativeMainMenu&&!_nativeProgressionWasActive&&!_nativeSettingsWasActive){_sourceUi.Dirty=true;}}
                 return false;
             }
             if(!_nativeRegionWasActive){
                 if(_nativeRegionScreen==null)_nativeRegionScreen=new GameObject("Native Region Selection UI Toolkit").AddComponent<NativeRegionScreen>();
                 _nativeRegionState=ReadNativeRegionState();_nativeRegionWasActive=true;
-                if(_sourceUi!=null)_sourceUi.SetPresentationSuspended(true);_camera.cullingMask=0;
+                _camera.cullingMask=0;
             }
             _nativeRegionScreen.Show(_nativeRegionState,SourceDevicePixelRatio,()=>{_regionSelect=false;_mainMenuPage=MainMenuPage.Home;},StartNativeRegion);
             return true;

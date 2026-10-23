@@ -163,6 +163,7 @@ namespace EchoSphere.Runtime
         {
             if(_playerCore==null||_camera==null)return;
             VisualBindings.Locale=IsRussianUi?"ru":"en";
+            if(_mainMenu)_nativeRunDocument?.Hide();
             bool nativeHome=TryDrawNativeMainMenu();
             bool nativeProgression=TryDrawNativeProgression();
             bool nativeSettings=TryDrawNativeSettings();
@@ -183,7 +184,7 @@ namespace EchoSphere.Runtime
             UpdateSourceRenderState();
             // Menu screens have no game Canvas. Keep their authored CSS
             // animation running, without drawing an unused world texture.
-            if(!_mainMenu||_sourceUi==null||!_sourceUi.Query("canvas").Null){
+            if(!_mainMenu){
             _worldSurface.SetViewport(width,height,dpr);
             _worldSurface.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
             _worldSurface.Begin(new Vector2(width*.5f,height*.5f));
