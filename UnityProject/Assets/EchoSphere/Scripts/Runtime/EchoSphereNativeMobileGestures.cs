@@ -48,8 +48,8 @@ namespace EchoSphere.Runtime
         private bool NativeMobileAllowed=>NativeMobileScene.Truth&&!NativeMobileScene["gameOver"].Truth&&(!NativeMobileScene["paused"].Truth||_tutorialStep==1||_tutorialStep==2);
         private bool NativeMobileWorld(double x,double y,out double wx,out double wy)
         {
-            wx=wy=0;var canvas=_sourceUiCanvasRef["current"];if(canvas.Null||canvas.Undefined)return false;var rect=canvas["getBoundingClientRect"].Call();if(rect["width"].Number<=0||rect["height"].Number<=0)return false;
-            wx=x-rect["left"].Number-rect["width"].Number/2+NativeMobileScene["camera"]["x"].Number;wy=y-rect["top"].Number-rect["height"].Number/2+NativeMobileScene["camera"]["y"].Number;return true;
+            wx=wy=0;if(_nativeRunField==null)return false;var rect=_nativeRunField.worldBound;if(rect.width<=0||rect.height<=0)return false;
+            wx=x-(double)rect.xMin-(double)rect.width/2+NativeMobileScene["camera"]["x"].Number;wy=y-(double)rect.yMin-(double)rect.height/2+NativeMobileScene["camera"]["y"].Number;return true;
         }
         private static double NativeMobileDistance(double x,double y)=>Math.Sqrt(x*x+y*y);
         private static double NativeMobileDistance(V pos,double x,double y)=>NativeMobileDistance(pos["x"].Number-x,pos["y"].Number-y);

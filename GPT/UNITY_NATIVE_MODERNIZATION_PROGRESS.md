@@ -1,5 +1,27 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Mobile host geometry now belongs to retained NativeMobileLayout,
+not generated DOM/CSS placeholders. Dock, joystick, placement, ghost network,
+formation memory and movement tutorial target bind directly to typed anchors.
+Original 12/16px dock insets, hand-dependent origins, interface scaling, 116/52px
+feedback boxes, movement target quarter positions/bottom44, overflow and z-order
+are preserved. The z-20 native root is inserted above the authored z-4 vignette,
+below HUD and overlays. Mobile world/preview coordinates read the same canvas
+Content.worldBound and texture dimensions directly, removing their V canvas-ref
+bridge without changing the existing formulas. Mount/handedness/state reads and
+gameplay commands are unchanged. Native layout/field handles excluded from saves.
+Actual Editor compile zero errors/warnings. Real-runtime temporary pause-frame
+construction: native mobile root six hosts, sibling index2, HUD index5, same parent;
+flags restored and Play stopped. Isolated actual UI Toolkit geometry checks at
+1260x542 and interfaceScale1.25 verified both hands, feedback dimensions/origins,
+movement target positions and a sized dock child. Not positive input, all pixels,
+Android acceptance or measured FPS/GC. Diagnostic-only probe emitted a missing
+ThemeStyleSheet warning; an unsupported console_get command logged a Pipeline
+error. Both are identified as diagnostics, not suppressed or called a clean Console.
+Preflight/provenance/metadata pass; containing-commit CI checked separately.
+Legacy SourceUiDocument/game root, modal shells/prefix resolver and V data remain;
+full migration PARTIAL. No APK, gameplay/source-baseline/user-file changes.
+
 2026-10-23: All native run-panel preparation now consumes NativeRunUiAnchors rather
 than traversing VisualCssNode trees. Seventeen typed UI Toolkit slots, a live model
 version provider, invalidation, backdrop provider and tutorial target resolver form

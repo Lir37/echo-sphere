@@ -7289,6 +7289,7 @@ namespace EchoSphere.Runtime
             DisposeNativeMobileDock();
             DisposeNativeMobileFeedback();
             DisposeNativeMobileNetwork();
+            _nativeMobileLayout?.Dispose();_nativeMobileLayout=null;
             if(_nativeMainMenuScreen!=null)Destroy(_nativeMainMenuScreen.gameObject);
             if(_nativeProgressionScreen!=null)Destroy(_nativeProgressionScreen.gameObject);
             if(_nativeSettingsScreen!=null)Destroy(_nativeSettingsScreen.gameObject);
