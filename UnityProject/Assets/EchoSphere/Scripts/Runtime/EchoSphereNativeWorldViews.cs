@@ -6,32 +6,49 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        // Direct native presentation dispatch. No per-frame mutation of translated scopes.
-        private V DrawNativeWorldView(string name,V[] args)
-        {
-            switch(name){
-                case "drawVoidAmbient":{_nativeWorldAmbient.Draw(_worldSurface,(float)args[1].Number,(float)args[2].Number,args[3].Number);return default;}
-                case "drawVoidField":{_nativeWorldField.Draw(_worldSurface,(float)args[1].Number,(float)args[2].Number,(float)args[4].Number,(float)args[5].Number,(float)args[6].Number,(float)args[7].Number);return default;}
-                case "drawRegionLayer":{DrawNativeRegionWorld(args[1]);return default;}
-                case "drawFormationMemory":{DrawNativeFormationMemory(args[1]);return default;}
-                case "drawSphereNetwork":{DrawNativeNetwork(args[1],args[2]);return default;}
-                case "drawModernXp":{ColorUtility.TryParseHtmlString(args[4].Text,out var color);_nativeWorldPickups.DrawXp(_worldSurface,(float)args[1].Number,(float)args[2].Number,(float)args[3].Number,color,(float)args[5].Number);return default;}
-                case "drawModernHealth":{ColorUtility.TryParseHtmlString(args[3].Text,out var color);_nativeWorldPickups.DrawHealth(_worldSurface,(float)args[1].Number,(float)args[2].Number,color,_sourceRenderState["time"].Number);return default;}
-                case "drawRune":{var rune=args[1];ColorUtility.TryParseHtmlString(Visual_runes.Scope["RUNE_DEFS"][rune["type"]]["color"].Text,out var color);_nativeWorldPickableViews.DrawRune(_worldSurface,rune["pos"]["x"].Number,rune["pos"]["y"].Number,rune["type"].Text,color,_sourceRenderState["time"].Number);return default;}
-                case "drawChest":{var chest=args[1];_nativeWorldPickableViews.DrawChest(_worldSurface,chest["pos"]["x"].Number,chest["pos"]["y"].Number,_sourceRenderState["time"].Number,false,null);return default;}
-                case "drawStellaChest":{var chest=args[1];string label="STELLA";if(_worldSurface.LocalizeCanvasText)label=NativeLocalizationCatalog.Instance.CanvasText(label,IsRussianUi);_nativeWorldPickableViews.DrawChest(_worldSurface,chest["pos"]["x"].Number,chest["pos"]["y"].Number,_sourceRenderState["time"].Number,true,label);return default;}
-                case "drawModernMinion":{ColorUtility.TryParseHtmlString(args[5].Text,out var color);_nativeWorldMinions.Draw(_worldSurface,(float)args[1].Number,(float)args[2].Number,(float)args[3].Number,(float)args[4].Number,color,_sourceRenderState["time"].Number);return default;}
-                case "drawModernEnemy":{DrawNativeEnemyWorld(args[1],args[2]);return default;}
-                case "drawPlayer":{_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(args[1]),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);return default;}
-                case "drawEnemyProjectile":{bool sniper=args[5].Truth;ColorUtility.TryParseHtmlString(sniper?"#ffe066":"#ff6b55",out var color);_nativeWorldProjectiles.Draw(_worldSurface,(float)args[1].Number,(float)args[2].Number,(float)args[3].Number,args[4]["x"].Number,args[4]["y"].Number,sniper?1:0,color,_sourceRenderState["time"].Number);return default;}
-                case "drawBossProjectile":{ColorUtility.TryParseHtmlString(args[4].Text,out var color);string type=args[5].Text;_nativeWorldProjectiles.Draw(_worldSurface,(float)args[1].Number,(float)args[2].Number,(float)args[3].Number,args[6]["x"].Number,args[6]["y"].Number,type=="shooter"?2:type=="charger"?3:type=="summoner"?4:5,color,_sourceRenderState["time"].Number);return default;}
-                case "drawEnergyBolt":{_nativeWorldEnergyBolts.Draw(_worldSurface,args[1]["x"].Number,args[1]["y"].Number,args[2]["x"].Number,args[2]["y"].Number,args[3].Number,_sourceRenderState["time"].Number);return default;}
-                case "drawGroundShadow":{_nativeWorldCreatures.DrawGroundShadow(_worldSurface,args[1].Number,args[2].Number);return default;}
-                case "drawNetworkDisabledIndicator":{var timer=args[1]["networkDisabledTimer"];_nativeWorldCreatures.DrawDisabledNetwork(_worldSurface,timer.Truth?timer.Number:0,Visual_eliteBalance.Scope["LINK_BREAKER_DISABLED_SECONDS"].Number,args[2].Number);return default;}
-                case "drawStandardAttackVfx":{var sphere=args[1];_nativeWorldStandardSphere.DrawAttack(_worldSurface,sphere["pos"]["x"].Number,sphere["pos"]["y"].Number,sphere["rotation"].Truth?sphere["rotation"].Number:0,args[2].Number,sphere["attackTimer"].Number);return default;}
-                case "drawCharacterWorldIndicators":case "drawCharacterTargetIndicators":case "drawPlayerShield":DrawNativeCharacterIndicator(name,args[1]);return default;
-                default:throw new InvalidOperationException("Unmapped native world view: "+name);
-            }
-        }
+        private V DrawNativeViewVoidAmbient(V arg1,V arg2,V arg3)
+        {_nativeWorldAmbient.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,arg3.Number);return default;}
+        private V DrawNativeViewVoidField(V arg1,V arg2,V arg3,V arg4,V arg5,V arg6,V arg7)
+        {_nativeWorldField.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg4.Number,(float)arg5.Number,(float)arg6.Number,(float)arg7.Number);return default;}
+        private V DrawNativeViewRegionLayer(V arg1)
+        {DrawNativeRegionWorld(arg1);return default;}
+        private V DrawNativeViewFormationMemory(V arg1)
+        {DrawNativeFormationMemory(arg1);return default;}
+        private V DrawNativeViewSphereNetwork(V arg1,V arg2)
+        {DrawNativeNetwork(arg1,arg2);return default;}
+        private V DrawNativeViewModernXp(V arg1,V arg2,V arg3,V arg4,V arg5)
+        {ColorUtility.TryParseHtmlString(arg4.Text,out var color);_nativeWorldPickups.DrawXp(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,color,(float)arg5.Number);return default;}
+        private V DrawNativeViewModernHealth(V arg1,V arg2,V arg3)
+        {ColorUtility.TryParseHtmlString(arg3.Text,out var color);_nativeWorldPickups.DrawHealth(_worldSurface,(float)arg1.Number,(float)arg2.Number,color,_sourceRenderState["time"].Number);return default;}
+        private V DrawNativeViewRune(V arg1)
+        {var rune=arg1;ColorUtility.TryParseHtmlString(Visual_runes.Scope["RUNE_DEFS"][rune["type"]]["color"].Text,out var color);_nativeWorldPickableViews.DrawRune(_worldSurface,rune["pos"]["x"].Number,rune["pos"]["y"].Number,rune["type"].Text,color,_sourceRenderState["time"].Number);return default;}
+        private V DrawNativeViewChest(V arg1)
+        {var chest=arg1;_nativeWorldPickableViews.DrawChest(_worldSurface,chest["pos"]["x"].Number,chest["pos"]["y"].Number,_sourceRenderState["time"].Number,false,null);return default;}
+        private V DrawNativeViewStellaChest(V arg1)
+        {var chest=arg1;string label="STELLA";if(_worldSurface.LocalizeCanvasText)label=NativeLocalizationCatalog.Instance.CanvasText(label,IsRussianUi);_nativeWorldPickableViews.DrawChest(_worldSurface,chest["pos"]["x"].Number,chest["pos"]["y"].Number,_sourceRenderState["time"].Number,true,label);return default;}
+        private V DrawNativeViewModernMinion(V arg1,V arg2,V arg3,V arg4,V arg5)
+        {ColorUtility.TryParseHtmlString(arg5.Text,out var color);_nativeWorldMinions.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,(float)arg4.Number,color,_sourceRenderState["time"].Number);return default;}
+        private V DrawNativeViewModernEnemy(V arg1,V arg2)
+        {DrawNativeEnemyWorld(arg1,arg2);return default;}
+        private V DrawNativeViewPlayer(V arg1)
+        {_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(arg1),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);return default;}
+        private V DrawNativeViewEnemyProjectile(V arg1,V arg2,V arg3,V arg4,V arg5)
+        {bool sniper=arg5.Truth;ColorUtility.TryParseHtmlString(sniper?"#ffe066":"#ff6b55",out var color);_nativeWorldProjectiles.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,arg4["x"].Number,arg4["y"].Number,sniper?1:0,color,_sourceRenderState["time"].Number);return default;}
+        private V DrawNativeViewBossProjectile(V arg1,V arg2,V arg3,V arg4,V arg5,V arg6)
+        {ColorUtility.TryParseHtmlString(arg4.Text,out var color);string type=arg5.Text;_nativeWorldProjectiles.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,arg6["x"].Number,arg6["y"].Number,type=="shooter"?2:type=="charger"?3:type=="summoner"?4:5,color,_sourceRenderState["time"].Number);return default;}
+        private V DrawNativeViewEnergyBolt(V arg1,V arg2,V arg3)
+        {_nativeWorldEnergyBolts.Draw(_worldSurface,arg1["x"].Number,arg1["y"].Number,arg2["x"].Number,arg2["y"].Number,arg3.Number,_sourceRenderState["time"].Number);return default;}
+        private V DrawNativeViewGroundShadow(V arg1,V arg2,V arg3)
+        {_nativeWorldCreatures.DrawGroundShadow(_worldSurface,arg1.Number,arg2.Number);return default;}
+        private V DrawNativeViewNetworkDisabledIndicator(V arg1,V arg2)
+        {var timer=arg1["networkDisabledTimer"];_nativeWorldCreatures.DrawDisabledNetwork(_worldSurface,timer.Truth?timer.Number:0,Visual_eliteBalance.Scope["LINK_BREAKER_DISABLED_SECONDS"].Number,arg2.Number);return default;}
+        private V DrawNativeViewStandardAttackVfx(V arg1,V arg2,V arg3)
+        {var sphere=arg1;_nativeWorldStandardSphere.DrawAttack(_worldSurface,sphere["pos"]["x"].Number,sphere["pos"]["y"].Number,sphere["rotation"].Truth?sphere["rotation"].Number:0,arg2.Number,sphere["attackTimer"].Number);return default;}
+        private V DrawNativeViewCharacterWorldIndicators(V scene)
+        {DrawNativeCharacterIndicator("drawCharacterWorldIndicators",scene);return default;}
+        private V DrawNativeViewCharacterTargetIndicators(V scene)
+        {DrawNativeCharacterIndicator("drawCharacterTargetIndicators",scene);return default;}
+        private V DrawNativeViewPlayerShield(V scene)
+        {DrawNativeCharacterIndicator("drawPlayerShield",scene);return default;}
     }
 }

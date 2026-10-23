@@ -1174,3 +1174,21 @@ Validation: 1440 network projection comparisons PASS, Editor compile 0 errors /
 0 warnings, 272 Node tests and project/provenance/metadata checks PASS.
 Evolution-card commit a4e92fadbfb61fff7dd17bf466166b91b91a2389 CI #811 SUCCESS.
 No gameplay, graph quality, RNG or APK changes; FPS/GC not measured in this block.
+
+### Direct world calls and native Ghost Snap projection (2026-10-23)
+
+Removed the string-based NativeFrameView/DrawNativeWorldView dispatcher: 22 direct
+C# draw methods retain the exact call order/arguments while avoiding both the
+params array and leading-null array copy at each invocation. Entity snapshots
+remain V at this boundary and are not claimed retired.
+
+Ghost Snap candidate projection is now native C#: sphere order, moving index,
+participation, disabled state and empty-input behavior are preserved. The graph
+analyzer is still the existing translated network calculation; collision preview
+also remains open. Runtime no longer calls translated networkPreview.
+
+Validation: Editor compile 0 errors/warnings; bounded paused Play Mode after draw
+refactor, stopped with current Console 0 errors/0 warnings. Ghost network outputs
+matched source in 105 cases, including disabled and omitted alive flags. 272 Node
+tests PASS. Network projection commit f841c86b6450811388ab65c71aa3bd5a605988b4 CI
+#812 SUCCESS. No measured FPS/GC or Android/full-game acceptance claimed.

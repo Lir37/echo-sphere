@@ -78,13 +78,20 @@ namespace EchoSphere.Runtime
             int count=(int)spheres["length"].Number;NativePlaceOrRemoveSphere(wx,wy);
             if(NativeMobileScene["spheres"]["length"].Number>count){NativeMobileHaptic(8);_nativeMobilePlacement=new Vector2((float)x,(float)y);_nativeMobilePlacementAt=Time.unscaledTimeAsDouble;_nativeMobilePlacementColor=NativeRunCatalog.Instance.GetSphere(NativeMobileScene["selectedSphereType"].Text).Color;}
         }
+        internal static V NativeMobilePreviewNetwork(V spheres,double x,double y,int movingIndex,out int candidateIndex)
+        {
+            int count=(int)spheres["length"].Number;candidateIndex=movingIndex>=0&&movingIndex<count?movingIndex:count;if(count==0)return VisualJs.Null;
+            var nodes=new List<V>();int index=0;
+            foreach(var sphere in spheres.Items){var position=sphere["pos"];var alive=sphere["alive"];var disabled=sphere["networkDisabledTimer"];nodes.Add(VisualJs.Obj("pos",VisualJs.Obj("x",index==candidateIndex?new V(x):position["x"],"y",index==candidateIndex?new V(y):position["y"]),"alive",alive.Truth?new V((disabled.Truth?disabled.Number:0)<=0):alive,"networkDisabledTimer",0));index++;}
+            if(candidateIndex==count)nodes.Add(VisualJs.Obj("pos",VisualJs.Obj("x",x,"y",y),"alive",true,"networkDisabledTimer",0));
+            return Visual_network.Scope["analyzeSphereNetwork"].Call(VisualJs.Arr(nodes.ToArray()),220);
+        }
         private NativeMobileGhost NativeMobilePreview(V sphere,double x,double y)
         {
             var spheres=NativeMobileScene["spheres"];int index=sphere.Truth?spheres.Items.ToList().IndexOf(sphere):-1;
-            var preview=Visual_networkPreview.Scope["buildGhostSnapPreview"].Call(spheres,VisualJs.Obj("x",x,"y",y),default,index<0?default:new V(index));
-            if(!sphere.Truth&&!preview.Truth)return null;
-            var network=preview.Truth?preview["network"]:NativeMobileNetwork();
-            return new NativeMobileGhost {Index=sphere.Truth?index:(int)preview["candidateIndex"].Number,X=x,Y=y,Valid=sphere.Truth?NativeMobileCanMove(sphere,x,y):NativeMobileCanPlace(x,y),Network=network,Formation=preview.Truth&&preview["formation"].Truth&&NativeMobileFormation(network).Truth?preview["formation"]:VisualJs.Null};
+            var preview=NativeMobilePreviewNetwork(spheres,x,y,index,out int candidateIndex);
+            if(!sphere.Truth&&!preview.Truth)return null;var network=preview.Truth?preview:NativeMobileNetwork();
+            return new NativeMobileGhost {Index=sphere.Truth?index:candidateIndex,X=x,Y=y,Valid=sphere.Truth?NativeMobileCanMove(sphere,x,y):NativeMobileCanPlace(x,y),Network=network,Formation=preview.Truth?NativeMobileFormation(network):VisualJs.Null};
         }
         private void NativeMobileDown(PointerDownEvent e)
         {

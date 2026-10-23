@@ -16,8 +16,6 @@ namespace EchoSphere.Runtime
         private static readonly UnityEngine.Color NativeWorldBorderShadow=new UnityEngine.Color(57/255f,216/255f,1,.22f);
         private void NativeWorldTranslate(V x,V y)=>_worldSurface.Translate(x.Number,y.Number);
         private UnityEngine.Color NativeFrameColor(V value)=>NativeMutationColor(value.Text);
-        private V NativeFrameView(string name,params V[] args)
-        {var values=new V[args.Length+1];values[0]=VisualJs.Null;Array.Copy(args,0,values,1,args.Length);return DrawNativeWorldView(name,values);}
         // Authored frame orchestration, replacing Visual_renderer.render. Existing
         // game helpers remain authoritative while their V data adapter is retired separately.
         private void RenderNativeFrameContents(float backingWidth,float backingHeight)
@@ -25,27 +23,27 @@ namespace EchoSphere.Runtime
             var s=_sourceRenderState;var ctx=VisualJs.Null;var player=s["player"];double time=s["time"].Number;
             double w=backingWidth,h=backingHeight,started=VisualJs.PerformanceObject["now"].Call().Number;
             _worldSurface.ResetTransform();_nativeWorldFeedback.Background(w,h,NativeWorldBackground,NativeWorldDarkBackground);
-            NativeFrameView("drawVoidAmbient",w,h,time);
+            DrawNativeViewVoidAmbient(w,h,time);
             double load=s["enemies"]["length"].Number+s["sphereProjectiles"]["length"].Number*.55+s["particles"]["length"].Number*.28+s["damageNumbers"]["length"].Number*.42+s["lightnings"]["length"].Number*.75;
             int fxStride=load>220?3:load>150?2:1,damageStride=s["damageNumbers"]["length"].Number>36?2:1,lightningStride=s["lightnings"]["length"].Number>18?2:1;
             double shakeX=0,shakeY=0;_worldSurface.Save();
             if(s["screenShake"].Number>0){shakeX=(VisualJs.MathObject["random"].Call().Number-.5)*s["screenShake"].Number*20;shakeY=(VisualJs.MathObject["random"].Call().Number-.5)*s["screenShake"].Number*20;}
             NativeWorldTranslate(w/2-s["camera"]["x"].Number+shakeX,h/2-s["camera"]["y"].Number+shakeY);
-            NativeFrameView("drawVoidField",s["worldWidth"],s["worldHeight"],VisualJs.Null,-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,player["pos"]["x"],player["pos"]["y"]);NativeFrameView("drawRegionLayer",s);
+            DrawNativeViewVoidField(s["worldWidth"],s["worldHeight"],VisualJs.Null,-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,player["pos"]["x"],player["pos"]["y"]);DrawNativeViewRegionLayer(s);
             _worldSurface.Shadow=NativeWorldBorderShadow;_worldSurface.ShadowBlur=0;_worldSurface.SetDash(new[]{10f,8f});
             _nativeWorldFeedback.Rectangle(-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,s["worldWidth"].Number,s["worldHeight"].Number,1.5,NativeWorldBorder);_worldSurface.SetDash(Array.Empty<float>());
-            NativeFrameView("drawCharacterWorldIndicators",s);
+            DrawNativeViewCharacterWorldIndicators(s);
             foreach(var ft in s["fireTrails"].Items){double alpha=Math.Max(0,Math.Min(1,ft["life"].Number/ft["maxLife"].Number));_worldSurface.Save();NativeWorldTranslate(ft["pos"]["x"],ft["pos"]["y"]);_nativeWorldFeedback.FireTrail(ft["pos"]["x"].Number,time,alpha,_nativeWorldCreatures);_worldSurface.Restore();}
-            NativeFrameView("drawFormationMemory",s);NativeFrameView("drawSphereNetwork",s,VisualBindings.Get("engineRuntime.ts","getNetworkFrame").Call(s));
-            foreach(var orb in s["xpOrbs"].Items)NativeFrameView("drawModernXp",orb["pos"]["x"],orb["pos"]["y"],orb["radius"],"#63e6ff",orb["rotation"]);
-            foreach(var hp in s["healthPacks"].Items)NativeFrameView("drawModernHealth",hp["pos"]["x"],hp["pos"]["y"],"#ff5c72");
-            foreach(var rune in s["runes"].Items)if(rune["alive"].Truth)NativeFrameView("drawRune",rune);
-            foreach(var chest in s["chests"].Items)if(chest["alive"].Truth)NativeFrameView("drawChest",chest);
-            foreach(var chest in s["stellaChests"].Items)if(chest["alive"].Truth)NativeFrameView("drawStellaChest",chest);
+            DrawNativeViewFormationMemory(s);DrawNativeViewSphereNetwork(s,VisualBindings.Get("engineRuntime.ts","getNetworkFrame").Call(s));
+            foreach(var orb in s["xpOrbs"].Items)DrawNativeViewModernXp(orb["pos"]["x"],orb["pos"]["y"],orb["radius"],"#63e6ff",orb["rotation"]);
+            foreach(var hp in s["healthPacks"].Items)DrawNativeViewModernHealth(hp["pos"]["x"],hp["pos"]["y"],"#ff5c72");
+            foreach(var rune in s["runes"].Items)if(rune["alive"].Truth)DrawNativeViewRune(rune);
+            foreach(var chest in s["chests"].Items)if(chest["alive"].Truth)DrawNativeViewChest(chest);
+            foreach(var chest in s["stellaChests"].Items)if(chest["alive"].Truth)DrawNativeViewStellaChest(chest);
             foreach(var sphere in s["spheres"].Items)DrawNativeSphereFrame(s,sphere,time);
             foreach(var p in s["sphereProjectiles"].Items)DrawNativeSphereProjectile(new V[]{ctx,p,player,time});
-            foreach(var m in s["minions"].Items){string color=NativeRunCatalog.Instance.GetSphere(m["anchorType"].Text)?.Color;NativeFrameView("drawModernMinion",m["pos"]["x"],m["pos"]["y"],m["radius"],m["rotation"],new V(string.IsNullOrEmpty(color)?"#ffb84d":color));}
-            foreach(var e in s["enemies"].Items)NativeFrameView("drawModernEnemy",e,player["pos"]);
+            foreach(var m in s["minions"].Items){string color=NativeRunCatalog.Instance.GetSphere(m["anchorType"].Text)?.Color;DrawNativeViewModernMinion(m["pos"]["x"],m["pos"]["y"],m["radius"],m["rotation"],new V(string.IsNullOrEmpty(color)?"#ffb84d":color));}
+            foreach(var e in s["enemies"].Items)DrawNativeViewModernEnemy(e,player["pos"]);
             foreach(var sphere in s["spheres"].Items)if(sphere["alive"].Truth&&sphere["type"].Text=="orbital"){
                 double tier=sphere["visualTier"].Truth?sphere["visualTier"].Number:0,scale=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+tier*.8))/24;
                 var network=VisualBindings.Get("engineRuntime.ts","getNetworkFrame").Call(s);var index=s["spheres"]["indexOf"].Call(sphere);var profile=Visual_network.Scope["getSphereNetworkProfile"].Call(network,index);
@@ -53,13 +51,13 @@ namespace EchoSphere.Runtime
                 double multiplier=1+(cluster>0?.08*cluster:0)+(ring>0?.12*ring:0)+Math.Min(.20,profile["linkedNeighbours"].Number*.03),radius=Visual_engineSpheres.Scope["getSphereRadius"].Call(s,sphere).Number/Math.Max(1,sphere["radius"].Number)*multiplier;
                 DrawNativeOrbitalSphere(new V[]{ctx,sphere,player,time,scale,s["enemies"],radius},true);
             }
-            NativeFrameView("drawPlayerShield",s);NativeFrameView("drawPlayer",player);NativeFrameView("drawCharacterTargetIndicators",s);
-            foreach(var e in s["enemies"].Items)foreach(var bp in e["bossProjectiles"].Items){string type=bp["visualType"].Text;if(type=="enemy_ranged"||type=="enemy_sniper")NativeFrameView("drawEnemyProjectile",bp["pos"]["x"],bp["pos"]["y"],bp["radius"],bp["vel"],type=="enemy_sniper");else NativeFrameView("drawBossProjectile",bp["pos"]["x"],bp["pos"]["y"],bp["radius"],e["color"],e["bossType"],bp["vel"]);}
+            DrawNativeViewPlayerShield(s);DrawNativeViewPlayer(player);DrawNativeViewCharacterTargetIndicators(s);
+            foreach(var e in s["enemies"].Items)foreach(var bp in e["bossProjectiles"].Items){string type=bp["visualType"].Text;if(type=="enemy_ranged"||type=="enemy_sniper")DrawNativeViewEnemyProjectile(bp["pos"]["x"],bp["pos"]["y"],bp["radius"],bp["vel"],type=="enemy_sniper");else DrawNativeViewBossProjectile(bp["pos"]["x"],bp["pos"]["y"],bp["radius"],e["color"],e["bossType"],bp["vel"]);}
             int particleIndex=0;foreach(var p in s["particles"].Items){if(particleIndex++%fxStride!=0)continue;double alpha=p["life"].Number/p["maxLife"].Number;_worldSurface.Shadow=NativeFrameColor(p["color"]);_worldSurface.ShadowBlur=0;var vx=p["vel"]["x"];var vy=p["vel"]["y"];_nativeWorldFeedback.Particle(p["pos"]["x"].Number,p["pos"]["y"].Number,p["size"].Number,alpha,vx.Truth?vx.Number:1,vy.Truth?vy.Number:0,NativeMutationColor(p["color"].Text));}
             _worldSurface.SetOpacity(1);int damageIndex=0;
             foreach(var dn in s["damageNumbers"].Items){int i=damageIndex++;if(i%damageStride==0&&dn["sourceSphereType"].Text!="orbital")DrawNativeDamageNumber(dn);}
             foreach(var dn in s["damageNumbers"].Items)if(dn["sourceSphereType"].Text=="orbital")DrawNativeDamageNumber(dn);_worldSurface.SetOpacity(1);
-            int lightningIndex=0;foreach(var l in s["lightnings"].Items){if(lightningIndex++%lightningStride!=0)continue;double alpha=Math.Max(0,Math.Min(1,l["life"].Number/.3));if(!DrawNativeChainLightning(new V[]{ctx,l,player,alpha,time}).Truth)NativeFrameView("drawEnergyBolt",l["from"],l["to"],alpha);_worldSurface.SetOpacity(1);}
+            int lightningIndex=0;foreach(var l in s["lightnings"].Items){if(lightningIndex++%lightningStride!=0)continue;double alpha=Math.Max(0,Math.Min(1,l["life"].Number/.3));if(!DrawNativeChainLightning(new V[]{ctx,l,player,alpha,time}).Truth)DrawNativeViewEnergyBolt(l["from"],l["to"],alpha);_worldSurface.SetOpacity(1);}
             _worldSurface.Restore();DrawNativeFrameOverlay(s,w,h,shakeX,shakeY);
             double cost=VisualJs.PerformanceObject["now"].Call().Number-started;
             if(cost>10&&time-_nativeRenderLastLog>=3){_nativeRenderLastLog=time;VisualJs.ConsoleObject["info"].Call("[ECHO_RENDER_PERF]",VisualJs.Obj("ms",VisualJs.Number(new V(cost)["toFixed"].Call(2)),"enemies",s["enemies"]["length"],"spheres",s["spheres"]["length"],"projectiles",s["sphereProjectiles"]["length"],"particles",s["particles"]["length"],"damageNumbers",s["damageNumbers"]["length"],"lightnings",s["lightnings"]["length"]));}
