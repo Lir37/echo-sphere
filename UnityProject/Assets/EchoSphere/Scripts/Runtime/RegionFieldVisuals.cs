@@ -43,6 +43,13 @@ namespace EchoSphere.Runtime
         { public int id; public string type; public Vector2 position; public float expiresAt; }
         [Serializable] public sealed class PoiSnapshot
         { public float nextPoiAt; public List<PoiState> pois = new List<PoiState>(); }
+        internal readonly struct PresentationPoi
+        {
+            internal readonly int Id;internal readonly string Type;internal readonly Vector2 Position;
+            internal PresentationPoi(int id,string type,Vector2 position){Id=id;Type=type;Position=position;}
+        }
+        internal void CopyPresentationPois(List<PresentationPoi> output)
+        {output.Clear();foreach(var poi in _pois)output.Add(new PresentationPoi(poi.Id,poi.Type,poi.Position));}
         public PoiSnapshot CapturePoiState()
         {
             var save = new PoiSnapshot { nextPoiAt = _nextPoiAt };

@@ -1017,3 +1017,25 @@ Real paused Editor: 50 checks for 12 live inputs, typed player fields and HUD le
 PASS with all temporary native field values restored. Editor compile 0 errors /
 warnings. Previous 1e26a1924c64762e69e49fd96e9f6385209db626 CI #821 SUCCESS.
 Still no complete device/visual/performance acceptance claim.
+
+### Direct native HUD/region views and reusable POI presentation (2026-10-24)
+
+Production HUD values now project directly from PlayerCore, runtime counters,
+Core network shapes and native enemy/POI records. The V-based HUD projector remains
+Editor-only as a reference. Region world composition reads native region state,
+not V dictionaries. POI presentation uses a reusable struct list copied from the
+existing RegionFieldVisuals data; it no longer allocates a save-game PoiSnapshot
+on every display update. Persistence CapturePoiState/RestorePoiState is unchanged.
+
+Confirmed another stale adapter input: MaxSpheres is stored in the dedicated
+_maxSphereAbilityLevel field, but the old UI copied only _abilityLevels. Explicitly
+projecting the existing GetAbilityLevel(MaxSpheres) restores the correct existing
+HUD/mobile maximum; no sphere limit rule or balance changed.
+
+Real paused Editor comparisons: 24 live HUD scenarios / 576 checks PASS, RU/EN,
+both regions and modes, three phase times, unknown-pocket fallback and three
+max-sphere levels. All temporary runtime fields restored. Editor compile 0 errors /
+warnings; Android C# compile 20 assemblies PASS without APK. Preflight/provenance /
+metadata PASS. Previous 95173ab58adff787c5c52c3b0298847ddf068bbf CI #822 SUCCESS.
+Remaining: sphere/read-only planner/modal/mobile plain V data seams; final device,
+visual and control acceptance. No full modernization DONE or FPS/GC claim.

@@ -48,11 +48,29 @@ namespace EchoSphere.Runtime
         {
             return new NativeHudView(parent,NativeSwapFormationSlots,ReadNativeHudTooltip);
         }
-        public NativeHudView.State ReadNativeHudState()
+        public NativeHudView.State ReadNativeHudState()=>ProjectNativeLiveHudState(IsRussianUi);
+        private NativeHudView.State ProjectNativeLiveHudState(bool ru)
         {
-            if(_sourceRenderState.Undefined)throw new InvalidOperationException("Existing render snapshot required");
-            return ProjectNativeHudState(_sourceRenderState,IsRussianUi);
+            if(_playerCore==null)throw new InvalidOperationException("Native player required");
+            string T(string key)=>NativeText(key,ru);string N(double value)=>value.ToString(CultureInfo.InvariantCulture);float Percent(double value)=>(float)Math.Max(0,Math.Min(100,value));
+            NativeHudView.Formation Formation(EchoSphere.Core.SphereNetworkShape shape){if(shape==null)return null;string id=shape.Type.ToString().ToLowerInvariant();return new NativeHudView.Formation {Id=id,Name=NativeFormationName(id,ru),Inactive=!shape.Active};}
+            var enemies=new System.Collections.Generic.List<NativeHudRadarView.Enemy>();bool boss=false;
+            foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive){var point=NativeSourcePixels(enemy.transform.position);enemies.Add(new NativeHudRadarView.Enemy(point.x,point.y,enemy.CurrentHp>0,enemy.IsBoss,enemy.IsElite));boss|=enemy.IsBoss;}
+            var pois=new System.Collections.Generic.List<NativeHudRadarView.Poi>();foreach(var poi in _nativeRegionPois){var point=NativeSourcePixels(poi.Position);pois.Add(new NativeHudRadarView.Poi(point.x,point.y,true,poi.Type));}
+            int spheres=0;foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy)spheres++;
+            var network=_networkState;var position=NativeSourcePixels(PlayerPosition);double time=_runTime,maxSpheres=Math.Min(5+GetAbilityLevel(EchoSphere.Core.RunUpgradeKind.MaxSpheres)+GetShopUpgradeLevel("spheres"),8);
+            var config=NativeRunCatalog.Instance.GetRegion(RegionSourceId(_selectedRegion));var pocket=config.Pockets[0];foreach(var item in config.Pockets)if(item.Id==_regionHudPocketId){pocket=item;break;}
+            string mode=_regionEndlessMode?(ru?"БЕСКОНЕЧНЫЙ":"ENDLESS"):(ru?"СТАБИЛИЗАЦИЯ":"STABILIZATION");
+            return new NativeHudView.State {
+                Russian=ru,Level=T("level")+" "+N(_level),Hp=N(Math.Ceiling(_playerCore.CurrentHp))+"/"+N(Math.Ceiling(_playerCore.MaxHp)),
+                XpPercent=Percent((double)_xp/_xpRequired*100),HpPercent=Percent((double)_playerCore.CurrentHp/_playerCore.MaxHp*100),
+                ResonancePercent=Percent(_resonanceCharge),ResonanceReady=_resonanceCharge>=100,Resonance=N(Math.Floor(_resonanceCharge))+"/100",
+                Spheres=T("spheres").ToUpperInvariant()+" <color=#cde8f6><b>"+N(spheres)+"/"+N(maxSpheres)+"</b></color>",Wave=T("wave").ToUpperInvariant()+" <color=#cde8f6><b>"+N(_wave)+"</b></color>",Links=N(network==null?0:network.Links.Count),
+                Timer=N(Math.Floor(time/60)).PadLeft(2,'0')+":"+N(Math.Floor(time%60)).PadLeft(2,'0'),Dominant=Formation(network?.DominantFormation),Secondary=Formation(network?.SecondaryFormation),HasRegion=true,
+                PlayerX=position.x,PlayerY=position.y,Enemies=enemies,Pois=pois,Boss=boss,BossLabel=T("bossWave").ToUpperInvariant(),Region=config.Name(ru),Phase=NativeRunCatalog.Instance.RegionPhases[NativeRegionPhaseIndex(time)].Name(ru),Pocket=pocket.Name(ru)+" · "+mode
+            };
         }
+#if UNITY_EDITOR
         // Explicit display inputs allow source parity checks without changing
         // runtime state, language preferences or the authoritative simulation.
         internal static NativeHudView.State ProjectNativeHudState(V scene,bool ru)
@@ -83,6 +101,7 @@ namespace EchoSphere.Runtime
             }
             return state;
         }
+#endif
         private NativeHudView.Tooltip ReadNativeHudTooltip(string type)
         {
             var scene=_sourceRenderState;var network=scene["nativeNetwork"];

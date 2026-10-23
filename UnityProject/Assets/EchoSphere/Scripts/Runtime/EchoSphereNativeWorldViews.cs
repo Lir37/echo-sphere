@@ -11,7 +11,7 @@ namespace EchoSphere.Runtime
         private V DrawNativeViewVoidField(V arg1,V arg2,V arg3,V arg4,V arg5,V arg6,V arg7)
         {_nativeWorldField.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg4.Number,(float)arg5.Number,(float)arg6.Number,(float)arg7.Number);return default;}
         private V DrawNativeViewRegionLayer(V arg1)
-        {DrawNativeRegionWorld(arg1);return default;}
+        {DrawNativeRegionWorld();return default;}
         private V DrawNativeViewFormationMemory(V arg1)
         {DrawNativeFormationMemory(arg1);return default;}
         private V DrawNativeViewSphereNetwork(V arg1)

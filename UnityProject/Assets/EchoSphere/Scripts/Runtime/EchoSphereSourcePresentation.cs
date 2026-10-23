@@ -129,7 +129,7 @@ namespace EchoSphere.Runtime
             player["formationFollowActive"]=_follow;player["formationFollowStrain"]=_formationStrain;player["voidPhantomPos"]=_voidPhantomTimer>0f?SourcePoint(_voidPhantomPosition):VisualJs.Null;
             player["formationFollowLastDirection"]=SourcePoint(_lastDirection*SpherePlacementRules.SourcePixelsToWorld);
             player["resonanceGeometryNodes"]=RenderValue(_resonanceGeometryNodeIndexes);player["resonanceLastActiveFormationKey"]=_resonanceGeometryKey;player["resonanceFormationCandidateKeys"]=RenderValue(_resonanceGeometryCandidateKeys);
-            var abilities=VisualJs.Obj();foreach(var pair in _abilityLevels)abilities[SourceAbilityId(pair.Key)]=pair.Value;player["abilities"]=abilities;
+            var abilities=VisualJs.Obj();foreach(var pair in _abilityLevels)abilities[SourceAbilityId(pair.Key)]=pair.Value;abilities["maxspheres"]=GetAbilityLevel(RunUpgradeKind.MaxSpheres);player["abilities"]=abilities;
             var abilityBranches=VisualJs.Obj();foreach(var pair in _abilityBranches)abilityBranches[SourceAbilityId(pair.Key)]=pair.Value;player["abilityBranches"]=abilityBranches;
             var evolutions=new List<V>();foreach(var pair in _sphereBranches)if(!string.IsNullOrEmpty(pair.Value))evolutions.Add("sphere:"+pair.Key.ToString().ToLowerInvariant()+":4:"+pair.Value);
             foreach(var pair in _sphereFinals)if(!string.IsNullOrEmpty(pair.Value)) {
@@ -153,7 +153,7 @@ namespace EchoSphere.Runtime
             if(_ownedArtifacts.Contains("foresight_eye"))foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){var delta=(Vector2)enemy.transform.position-PlayerPosition;if(delta.sqrMagnitude>0f)scene["bossArrow"]=SourcePoint(delta.normalized*SpherePlacementRules.SourcePixelsToWorld);break;}
             // Transient entity layers read Unity components directly. Do not
             // build duplicate V dictionaries for those native consumers.
-            var pois=new List<V>();if(_regionFieldVisuals!=null)foreach(var poi in _regionFieldVisuals.CapturePoiState().pois)pois.Add(VisualJs.Obj("id",poi.id,"type",poi.type,"pos",SourcePoint(poi.position),"alive",true));
+            var pois=new List<V>();_nativeRegionPois.Clear();if(_regionFieldVisuals!=null)_regionFieldVisuals.CopyPresentationPois(_nativeRegionPois);foreach(var poi in _nativeRegionPois)pois.Add(VisualJs.Obj("id",poi.Id,"type",poi.Type,"pos",SourcePoint(poi.Position),"alive",true));
             var region=scene["region"];region["id"]=RegionSourceId(_selectedRegion);region["mode"]=_regionEndlessMode?"endless":"stabilization";region["pocketId"]=_regionHudPocketId;region["pois"]=VisualJs.Arr(pois.ToArray());
             int phase=NativeRegionPhaseIndex(_runTime);region["phaseId"]=phase;region["phaseName"]=NativeLocalizedName(NativeRunCatalog.Instance.RegionPhases[phase]);
             region["cleared"]=_regionStabilized;region["endlessUnlocked"]=IsRegionEndlessUnlocked(_selectedRegion);region["challengeId"]=_regionChallengeId;region["challengeContractsCompleted"]=_regionChallengeContractsCompleted;region["masteryChallengesCompleted"]=_regionMasteryChallengesCompleted;region["masteryGeometryTypes"]=RenderValue(_regionMasteryGeometryTypes);region["masteryDominantSeconds"]=_regionMasteryDominantSeconds;region["loreDiscovered"]=RenderValue(_regionLoreDiscovered);region["damageTaken"]=_regionDamageTaken;region["lastHp"]=_regionLastHp;region["regionGoldReward"]=_regionGoldReward;region["regionXpReward"]=_regionXpReward;
