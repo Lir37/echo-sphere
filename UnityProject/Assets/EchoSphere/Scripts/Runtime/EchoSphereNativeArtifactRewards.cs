@@ -14,7 +14,7 @@ namespace EchoSphere.Runtime
         private NativeArtifactSetDetailView _nativeRewardSetDetail,_nativePauseSetDetail;
         private string _nativeRewardSetId;
         private int _nativeArtifactRewardVersion=-1;
-        private bool NativeArtifactRewardRequested=>!_mainMenu&&!_gameOver&&_sourceRenderState["pendingArtifact"].Truth;
+        private bool NativeArtifactRewardRequested=>!_mainMenu&&!_gameOver&&_stellaRewardPending;
         private void DisposeNativeArtifactRewards(){_nativeRewardSetDetail?.Dispose();_nativeRewardSetDetail=null;_nativeArtifactRewards?.Dispose();_nativeArtifactRewards=null;_nativeArtifactRewardVersion=-1;_nativeRewardSetId=null;}
         private void DisposeNativePauseSetDetail(){_nativePauseSetDetail?.Dispose();_nativePauseSetDetail=null;}
         private void PrepareNativeArtifactRewards(NativeRunUiAnchors anchors)
@@ -40,16 +40,31 @@ namespace EchoSphere.Runtime
 
         private void PickNativeArtifact(string id)
         {
-            if(NativeArtifactRewardRequested){int index=_stellaRewardChoices.FindIndex(choice=>choice.Id==id);if(index>=0){ChooseStellaReward(index);_sourceRenderState["pendingArtifact"]=VisualJs.Null;ApplySourceUiWrites();}}
+            if(NativeArtifactRewardRequested){int index=_stellaRewardChoices.FindIndex(choice=>choice.Id==id);if(index>=0){ChooseStellaReward(index);RefreshNativeCommandModels();}}
             if(_sourceUi!=null)_sourceUi.Dirty=true;
         }
-        private NativeArtifactRewardView.State ReadNativeArtifactRewardState()
+        private NativeArtifactRewardView.State ReadNativeArtifactRewardState()=>ProjectNativeLiveArtifactRewards(IsRussianUi);
+        private NativeArtifactRewardView.State ProjectNativeLiveArtifactRewards(bool ru)
         {
-            bool ru=IsRussianUi;string lang=ru?"ru":"en";var choices=new List<NativeArtifactRewardView.Choice>();var active=new HashSet<string>();foreach(var synergy in NativeArtifactSynergies(_sourceRenderState))active.Add(synergy.Id);
+            string lang=ru?"ru":"en";var choices=new List<NativeArtifactRewardView.Choice>();var active=new HashSet<string>();foreach(var synergy in NativeOwnedArtifactSynergies(_ownedArtifacts))active.Add(synergy.Id);
+            var projected=ProjectNativeArtifactList(_ownedArtifacts,ru,_stellaRewardChoices.Select(choice=>choice.Id));var signature=new StringBuilder(lang);
+            foreach(var artifact in projected.Artifacts){var newSynergies=new List<string>();foreach(var synergy in NativeOwnedArtifactSynergies(_ownedArtifacts,artifact.Id))if(!active.Contains(synergy.Id))newSynergies.Add(synergy.Name(ru));string mechanic=NativeRunCatalog.Instance.GetArtifact(artifact.Id).Mechanic;choices.Add(new NativeArtifactRewardView.Choice {Artifact=artifact,Mechanic=NativeArtifactMechanic(mechanic,ru),Synergies=newSynergies});signature.Append('|').Append(artifact.Id);}
+            foreach(var id in _ownedArtifacts)signature.Append('|').Append(id);
+            return new NativeArtifactRewardView.State {Russian=ru,Signature=signature.ToString(),Choices=choices};
+        }
+#if UNITY_EDITOR
+        private NativeArtifactRewardView.State LegacyReadNativeArtifactRewardState(bool ru)
+        {
+            string lang=ru?"ru":"en";var choices=new List<NativeArtifactRewardView.Choice>();var active=new HashSet<string>();foreach(var synergy in NativeArtifactSynergies(_sourceRenderState))active.Add(synergy.Id);
             var projected=ProjectNativeArtifacts(_sourceRenderState,ru,_sourceRenderState["pendingArtifact"].Items);var signature=new StringBuilder(lang);
             foreach(var artifact in projected.Artifacts){var newSynergies=new List<string>();foreach(var synergy in NativeArtifactSynergies(_sourceRenderState,artifact.Id))if(!active.Contains(synergy.Id))newSynergies.Add(synergy.Name(ru));string mechanic=NativeRunCatalog.Instance.GetArtifact(artifact.Id).Mechanic;choices.Add(new NativeArtifactRewardView.Choice {Artifact=artifact,Mechanic=NativeArtifactMechanic(mechanic,ru),Synergies=newSynergies});signature.Append('|').Append(artifact.Id);}
             foreach(var id in _sourceRenderState["player"]["artifacts"].Items)signature.Append('|').Append(id.Text);
             return new NativeArtifactRewardView.State {Russian=ru,Signature=signature.ToString(),Choices=choices};
+        }
+#endif
+        private static IReadOnlyList<NativeRunCatalog.Synergy> NativeOwnedArtifactSynergies(IEnumerable<string> ids,string added=null)
+        {
+            var owned=new HashSet<string>(ids,StringComparer.Ordinal);if(added!=null)owned.Add(added);return NativeRunCatalog.Instance.Synergies.Where(row=>row.Requires.All(owned.Contains)).ToList();
         }
         private static string NativeArtifactMechanic(string id,bool ru)
         {
@@ -58,8 +73,8 @@ namespace EchoSphere.Runtime
         private NativeArtifactSetDetailView.State ReadNativeArtifactSetDetail(string id)
         {
             var found=NativeRunCatalog.Instance.Sets.FirstOrDefault(set=>set.Id==id);if(found==null)return null;
-            var owned=new HashSet<string>(_sourceRenderState["player"]["artifacts"].Items.Select(item=>item.Text),StringComparer.Ordinal);
-            var items=new List<NativeArtifactSetDetailView.Item>();foreach(var artifact in ProjectNativeArtifacts(_sourceRenderState,IsRussianUi,found.ArtifactIds.Select(item=>new V(item))).Artifacts)items.Add(new NativeArtifactSetDetailView.Item {Artifact=artifact,Owned=owned.Contains(artifact.Id)});
+            var owned=new HashSet<string>(_ownedArtifacts,StringComparer.Ordinal);
+            var items=new List<NativeArtifactSetDetailView.Item>();foreach(var artifact in ProjectNativeArtifactList(_ownedArtifacts,IsRussianUi,found.ArtifactIds).Artifacts)items.Add(new NativeArtifactSetDetailView.Item {Artifact=artifact,Owned=owned.Contains(artifact.Id)});
             return new NativeArtifactSetDetailView.State {Id=id,Name=found.Name(IsRussianUi),Description=found.Description(IsRussianUi),Owned=found.ArtifactIds.Count(owned.Contains),Total=found.ArtifactIds.Count,Russian=IsRussianUi,Items=items};
         }
     }

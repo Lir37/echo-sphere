@@ -12,8 +12,7 @@ namespace EchoSphere.Runtime
         private string NativeMobileText(string key)=>NativeText(key,IsRussianUi);
         private void NativeMobileControl(string id)
         {
-            var s=NativeMobileScene;
-            if(id=="pause"){NativeMobileHaptic(6);if(_tutorialStep>=0||_levelUp||_stellaRewardPending)return;bool next=!_paused;s["paused"]=next;SetUserPaused(next);}
+            if(id=="pause"){NativeMobileHaptic(6);if(_tutorialStep>=0||_levelUp||_stellaRewardPending)return;bool next=!_paused;SetUserPaused(next);RefreshNativeCommandModels();}
             else if(id=="lock"){NativeSetSphereMovementLocked(!_sphereMovementLocked);NativeMobileHaptic(6);}
             else if(id=="follow"){
                 if(_gameOver)return;

@@ -44,8 +44,8 @@ namespace EchoSphere.Runtime
             string status=_tutorialStep==4?(IsRussianUi?"Выбери одну карту. Обучение продолжится после выбора.":"Choose one card. The tutorial continues after your choice."):advance&&action?T(_tutorialStep==1?"tutorialMoveDone":"tutorialPlaceDone"):(IsRussianUi?"Выполни действие, чтобы продолжить.":"Perform the action to continue.");
             return new NativeTutorialView.State {Step=_tutorialStep,CanAdvance=advance,ShowAction=action,Kicker=(IsRussianUi?"ОБУЧЕНИЕ · ":"TUTORIAL · ")+(_tutorialStep+1)+"/6",Title=T(NativeTutorialTitles[_tutorialStep]),Body=T(NativeTutorialBodies[_tutorialStep]),Status=status,Skip=T("tutorialSkip"),Next=T("tutorialNext")};
         }
-        private void NextNativeTutorial(){if(!NativeTutorialRequested||!CanAdvanceNativeTutorial()||_tutorialStep==4)return;if(_tutorialStep==5)FinishTutorial(false);else SetTutorialStep(_tutorialStep+1);ApplySourceUiWrites();_sourceUi.Dirty=true;}
-        private void SkipNativeTutorial(){if(!NativeTutorialRequested)return;FinishTutorial(true);ApplySourceUiWrites();_sourceUi.Dirty=true;}
+        private void NextNativeTutorial(){if(!NativeTutorialRequested||!CanAdvanceNativeTutorial()||_tutorialStep==4)return;if(_tutorialStep==5)FinishTutorial(false);else SetTutorialStep(_tutorialStep+1);RefreshNativeCommandModels();_sourceUi.Dirty=true;}
+        private void SkipNativeTutorial(){if(!NativeTutorialRequested)return;FinishTutorial(true);RefreshNativeCommandModels();_sourceUi.Dirty=true;}
 
     }
 }

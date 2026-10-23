@@ -48,7 +48,7 @@ namespace EchoSphere.Runtime
             _nativeMobilePointers.Clear();_nativeMobileJoystickId=null;_nativeMobileDx=_nativeMobileDy=0;_nativeMobileJoystickActive=false;
             if(unmount){_nativeMobileGhost=null;_nativeMobileMemory=null;_nativeMobilePlacementColor=null;_nativeMobileMounted=false;_nativeMobileLastX=0;_nativeMobileLastY=-1;}
         }
-        private bool NativeMobileAllowed=>NativeMobileScene.Truth&&!NativeMobileScene["gameOver"].Truth&&(!NativeMobileScene["paused"].Truth||_tutorialStep==1||_tutorialStep==2);
+        private bool NativeMobileAllowed=>_playerCore!=null&&!_gameOver&&(!_paused||_tutorialStep==1||_tutorialStep==2);
         private bool NativeMobileWorld(double x,double y,out double wx,out double wy)
         {
             wx=wy=0;if(_nativeRunField==null)return false;var rect=_nativeRunField.worldBound;if(rect.width<=0||rect.height<=0)return false;
@@ -88,10 +88,10 @@ namespace EchoSphere.Runtime
         {
             var before=NativeMobileFormation(oldNetwork);var after=NativeMobileFormation(NativeMobileNetwork());if(before!=null&&(after==null||before.Type!=after.Type||!before.NodeIndexes.SequenceEqual(after.NodeIndexes)))NativeMobileCaptureMemory(oldNetwork);
         }
-        private void NativeMobileFlash(string ru,string en,double life,string color){_sourceRenderState["flashText"]=VisualJs.Obj("text",IsRussianUi?ru:en,"life",life,"color",color);}
+        private void NativeMobileFlash(string ru,string en,double life,string color){string text=IsRussianUi?ru:en;if(text!=_message)ShowTimedCombatMessage(text,(float)life,color);}
         private void NativeMobileTap(double x,double y)
         {
-            if(!NativeMobileAllowed||NativeMobileScene["pendingUpgrade"].Truth||NativeMobileScene["pendingArtifact"].Truth||!NativeMobileWorld(x,y,out double wx,out double wy))return;
+            if(!NativeMobileAllowed||_levelUp||_stellaRewardPending||!NativeMobileWorld(x,y,out double wx,out double wy))return;
             var spheres=NativeMobileScene["spheres"];V near=spheres.Items.FirstOrDefault(s=>s["alive"].Truth&&NativeMobileDistance(s["pos"],wx,wy)<26);
             if(_tutorialStep==2&&near.Truth)return;
             if(near.Truth){NativeMobileCaptureMemory(NativeMobileNetwork());int before=(int)spheres["length"].Number;NativePlaceOrRemoveSphere(wx,wy);if(NativeMobileScene["spheres"]["length"].Number<before)NativeMobileHaptic(10);return;}
@@ -155,7 +155,7 @@ namespace EchoSphere.Runtime
         }
         private void NativeMobileUp(PointerUpEvent e){NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
         private void NativeMobileCancel(PointerCancelEvent e){NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
-        private void NativeMobileEventCompleted(){ApplySourceUiWrites();if(_sourceUi!=null)_sourceUi.Dirty=true;}
+        private void NativeMobileEventCompleted(){if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void PrepareNativeMobileGestures(NativeRunUiAnchors anchors)
         {
             var element=anchors.Mobile.Content;if(element==_nativeMobileGestureRoot)return;DetachNativeMobileGestures();_nativeMobileGestureRoot=element;if(element==null)return;

@@ -12,7 +12,7 @@ namespace EchoSphere.Runtime
         private bool _nativePauseAbilitiesPilot=true;
         private NativePauseAbilitiesView _nativePauseAbilitiesIsland;
         private int _nativePauseAbilitiesBoundVersion=-1;
-        private bool NativePauseAbilitiesRequested=>_nativePauseAbilitiesPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==1&&_sourceRenderState.Truth&&!_sourceRenderState["pendingUpgrade"].Truth&&!_sourceRenderState["pendingArtifact"].Truth&&!_sourceRenderState["pendingStella"].Truth;
+        private bool NativePauseAbilitiesRequested=>_nativePauseAbilitiesPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==1&&_playerCore!=null&&!_levelUp&&!_stellaRewardPending;
         public bool UsesNativePauseAbilities=>NativePauseAbilitiesRequested&&_nativePauseAbilitiesIsland!=null&&_nativePauseAbilitiesIsland.Ready;
         public void SetNativePauseAbilitiesPilot(bool enabled){if(_nativePauseAbilitiesPilot==enabled)return;_nativePauseAbilitiesPilot=enabled;if(!enabled)DisposeNativePauseAbilitiesIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void DisposeNativePauseAbilitiesIsland(){_nativePauseAbilitiesIsland?.Dispose();_nativePauseAbilitiesIsland=null;_nativePauseAbilitiesBoundVersion=-1;}

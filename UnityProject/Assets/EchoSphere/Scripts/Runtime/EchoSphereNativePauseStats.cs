@@ -12,7 +12,7 @@ namespace EchoSphere.Runtime
         private bool _nativePauseStatsPilot=true;
         private NativePauseStatsView _nativePauseStatsIsland;
         private int _nativePauseStatsBoundVersion=-1;
-        private bool NativePauseStatsRequested=>_nativePauseStatsPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==0&&_sourceRenderState.Truth&&!_sourceRenderState["pendingUpgrade"].Truth&&!_sourceRenderState["pendingArtifact"].Truth&&!_sourceRenderState["pendingStella"].Truth;
+        private bool NativePauseStatsRequested=>_nativePauseStatsPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==0&&_playerCore!=null&&!_levelUp&&!_stellaRewardPending;
         public bool UsesNativePauseStats=>NativePauseStatsRequested&&_nativePauseStatsIsland!=null&&_nativePauseStatsIsland.Ready;
         public void SetNativePauseStatsPilot(bool enabled)
         {

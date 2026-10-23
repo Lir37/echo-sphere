@@ -10,7 +10,7 @@ namespace EchoSphere.Runtime
         private bool _nativePauseChromePilot=true;
         private NativePauseChromeView _nativePauseChromeIsland;
         private NativePauseChromeComposition _nativePauseChromeComposition;
-        private bool NativePauseChromeRequested => _nativePauseChromePilot && !_mainMenu && !_gameOver && _userPaused && _sourceRenderState.Truth && !_sourceRenderState["pendingUpgrade"].Truth && !_sourceRenderState["pendingArtifact"].Truth && !_sourceRenderState["pendingStella"].Truth;
+        private bool NativePauseChromeRequested => _nativePauseChromePilot && !_mainMenu && !_gameOver && _userPaused && _playerCore!=null && !_levelUp && !_stellaRewardPending;
         public bool UsesNativePauseChrome => NativePauseChromeRequested && _nativePauseChromeIsland != null && _nativePauseChromeIsland.Ready;
         public void SetNativePauseChromePilot(bool enabled)
         {
@@ -47,11 +47,13 @@ namespace EchoSphere.Runtime
                 _nativePauseChromeIsland.UseFlowLayout(true); if (!ready) anchors.Invalidate?.Invoke();
             }
         }
-        public NativePauseChromeState ReadNativePauseChromeState()
+        public NativePauseChromeState ReadNativePauseChromeState()=>ProjectNativeLivePauseChrome(IsRussianUi,_pausePlannerTab);
+        private NativePauseChromeState ProjectNativeLivePauseChrome(bool ru,int tab)
         {
-            if (_sourceRenderState.Undefined) throw new InvalidOperationException("Existing render snapshot required");
-            return ProjectNativePauseChromeState(_sourceRenderState, IsRussianUi, _pausePlannerTab);
+            var character=EchoSphere.Core.CharacterRules.Get(_sphereCharacterId);string T(string key)=>NativeText(key,ru);
+            return new NativePauseChromeState {Eyebrow=ru?"Билд забега":"Run Build",Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+VisualJs.NumberText(_level)+" · "+T("wave")+" "+VisualJs.NumberText(_wave),Tabs=ru?new[]{"Показатели","Способности","Артефакты","Синергии"}:new[]{"Stats","Abilities","Artifacts","Synergies"},Resume=T("resume"),Return=T("return"),SelectedTab=tab};
         }
+#if UNITY_EDITOR
         internal static NativePauseChromeState ProjectNativePauseChromeState(V scene, bool ru, int tab)
         {
             var lang = ru ? "ru" : "en"; EchoSphere.Core.CharacterRules.TryParseSourceId(scene["player"]["characterId"].Text,out var characterId);var character=EchoSphere.Core.CharacterRules.Get(characterId);
@@ -63,5 +65,6 @@ namespace EchoSphere.Runtime
                 Resume = T("resume"), Return = T("return"), SelectedTab = tab
             };
         }
+#endif
     }
 }

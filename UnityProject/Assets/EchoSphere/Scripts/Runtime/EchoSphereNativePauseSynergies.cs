@@ -11,7 +11,7 @@ namespace EchoSphere.Runtime
         private bool _nativePauseSynergiesPilot=true;
         private NativePauseSynergiesView _nativePauseSynergiesIsland;
         private int _nativePauseSynergiesBoundVersion=-1;
-        private bool NativePauseSynergiesRequested=>_nativePauseSynergiesPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==3&&_sourceRenderState.Truth&&!_sourceRenderState["pendingUpgrade"].Truth&&!_sourceRenderState["pendingArtifact"].Truth&&!_sourceRenderState["pendingStella"].Truth;
+        private bool NativePauseSynergiesRequested=>_nativePauseSynergiesPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==3&&_playerCore!=null&&!_levelUp&&!_stellaRewardPending;
         public bool UsesNativePauseSynergies=>NativePauseSynergiesRequested&&_nativePauseSynergiesIsland!=null&&_nativePauseSynergiesIsland.Ready;
         public void SetNativePauseSynergiesPilot(bool enabled){if(_nativePauseSynergiesPilot==enabled)return;_nativePauseSynergiesPilot=enabled;if(!enabled)DisposeNativePauseSynergiesIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void DisposeNativePauseSynergiesIsland(){_nativePauseSynergiesIsland?.Dispose();_nativePauseSynergiesIsland=null;_nativePauseSynergiesBoundVersion=-1;}

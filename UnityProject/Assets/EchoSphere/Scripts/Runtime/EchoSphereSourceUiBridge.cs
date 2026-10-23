@@ -40,6 +40,7 @@ namespace EchoSphere.Runtime
             var hotkeys=VisualJs.Obj();foreach(var pair in _activeAbilityHotkeys)hotkeys[pair.Value.ToString().Replace("Alpha","").ToLowerInvariant()]=SourceAbilityId(pair.Key);scene["activeKeyMap"]=hotkeys;
             scene["selectedSphereType"]=_selectedSphereType.ToString().ToLowerInvariant();var player=scene["player"];player["sphereMovementLocked"]=_sphereMovementLocked;
             scene["bossActive"]=VisualJs.Null;foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){scene["bossActive"]=RenderEntity(enemy);break;}
+            #if UNITY_EDITOR
             var choices=new List<V>();
             if(_levelUp){
                 if(_choosingEvolution){
@@ -59,6 +60,7 @@ namespace EchoSphere.Runtime
             scene["pendingArtifact"]=_stellaRewardPending?VisualJs.Arr(_stellaRewardChoices.Select(choice=>new V(choice.Id)).ToArray()):VisualJs.Null;scene["pendingStella"]=VisualJs.Null;
             scene["levelUpRerollsRemaining"]=_levelUpRerollsRemaining;scene["levelUpLocksRemaining"]=_levelUpLocksRemaining;
             scene["levelUpLockChoiceKey"]=_levelUpLockChoiceKey==null?VisualJs.Null:new V(_levelUpLockChoiceKey);scene["oracleForecastKeys"]=RenderValue(_oracleForecastKeys);
+            #endif
         }
         #if UNITY_EDITOR
         private V SourceUiBinding(string module,string name)
@@ -103,11 +105,13 @@ namespace EchoSphere.Runtime
             });
         }
         #endif
+        #if UNITY_EDITOR
         private void ApplySourceUiWrites()
         {
             if(_sourceRenderState.Undefined)return;_sphereMovementLocked=_sourceRenderState["player"]["sphereMovementLocked"].Truth;
             var selection=_sourceRenderState["networkFormationSelection"];if(!selection.Null&&!selection.Undefined&&Enum.TryParse<SphereNetworkFormation>(selection["dominant"].Text,true,out var dominant)&&Enum.TryParse<SphereNetworkFormation>(selection["secondary"].Text,true,out var secondary)){_preferredDominantFormation=dominant;_preferredSecondaryFormation=secondary;RefreshNetworkState();_sourceRenderState["networkFormationSelection"]=VisualJs.Null;}
             var flash=_sourceRenderState["flashText"];if(!flash.Null&&!flash.Undefined&&flash["text"].Text!=_message)ShowTimedCombatMessage(flash["text"].Text,(float)flash["life"].Number,flash["color"].Text);
         }
+        #endif
     }
 }

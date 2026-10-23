@@ -13,18 +13,17 @@ namespace EchoSphere.Runtime
 
             var now=Time.unscaledTimeAsDouble;bool update=_sourceUi.Dirty||(!_userPaused&&now>=_nativeRunNextModel);
             if(update){_sourceUi.Dirty=false;_nativeRunNextModel=now+.1;}
-            bool active=!_gameOver,upgrade=_sourceRenderState["pendingUpgrade"].Truth,reward=_sourceRenderState["pendingArtifact"].Truth;
+            bool active=!_gameOver,upgrade=_levelUp,reward=_stellaRewardPending;
             _nativeMobilePresent=active;
             if(active){
                 if(!_nativeMobileMounted){_nativeMobileMounted=true;_nativeMobileHandedness=IsLeftHanded;NativeMobileClearKeys();}
                 else if(_nativeMobileHandedness!=IsLeftHanded){ResetNativeMobileGestures(false);_nativeMobileHandedness=IsLeftHanded;}
                 if(update)ReadNativeMobileState();
             }else{if(_nativeMobileMounted)ResetNativeMobileGestures(true);_nativeMobileDockState=null;_nativeJoystickState=_nativePlacementState=null;_nativeGhostNetworkState=_nativeFormationMemoryState=null;}
-            var player=_sourceRenderState["player"];
             _nativeRunDocument.Begin(_worldSurface.UiTexture,SourceDevicePixelRatio,update,active,
                 NativePauseChromeRequested,!string.IsNullOrEmpty(_pauseArtifactSetId),upgrade,reward,NativeTutorialRequested,
-                player["combo"].Number,player["comboTimer"].Number,NativeText("combo",IsRussianUi)+" x"+player["combo"].Text,
-                NativeText("comboMultiplier",IsRussianUi).Replace("{mult}",player["comboMult"].Text));
+                _combo,_comboTimer,NativeText("combo",IsRussianUi)+" x"+VisualJs.NumberText(_combo),
+                NativeText("comboMultiplier",IsRussianUi).Replace("{mult}",VisualJs.NumberText(_comboMultiplier)));
             _nativeRunField=_nativeRunDocument.Field;
             var anchors=_nativeRunDocument.Anchors;anchors.TutorialTarget=ReadNativeRunTutorialTarget;
             if(active){

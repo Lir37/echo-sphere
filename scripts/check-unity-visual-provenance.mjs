@@ -22,6 +22,7 @@ for(const item of code.filter(item=>/\/Generated\/Visual[^/]*\.cs$/.test(item.fi
 for(const item of code.filter(item=>item.file.includes('/Runtime/')))assert.ok(!/Visual_[A-Za-z0-9_]+\.Scope|VisualUiBindings|VisualInitialState|VisualJs\.Arg\(|V\[\]\s+args|\.Call\(/.test(playerText(item.text)),'Player code must not invoke translated modules or dynamic function adapters: '+item.file);
 for(const item of code.filter(item=>item.file.includes('/Runtime/')))assert.ok(!/DrawNative(?:Sphere(?:Frame|Mutation|Elements|Modifiers|Family)|OrbitalSphere)\(V\b/.test(playerText(item.text)),'Sphere drawing must receive typed component views: '+item.file);
 for(const item of code.filter(item=>item.file.includes('/Runtime/')))assert.ok(!/\["keys"\]/.test(playerText(item.text)),'Mobile movement must not use a compatibility key dictionary: '+item.file);
+for(const item of code.filter(item=>item.file.includes('/Runtime/')))assert.ok(!/ApplySourceUiWrites|\["pending(?:Upgrade|Artifact|Stella)"\]/.test(playerText(item.text)),'Native modal controls must not depend on mutable compatibility UI models: '+item.file);
 const runtime=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs','utf8');
 assert.ok(!/\bvoid\s+OnGUI\s*\(/.test(runtime),'Legacy migration GUI must not overlay the authored source UI');
 const bridge=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs','utf8');

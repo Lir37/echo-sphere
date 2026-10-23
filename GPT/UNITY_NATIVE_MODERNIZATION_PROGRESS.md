@@ -1130,3 +1130,40 @@ legacy documents 0. Editor compile 0 errors/warnings; Android C# 20 assemblies P
 Previous fdc31d2eeba7722090c1440a2b80554bd52dd8ed CI #826 SUCCESS.
 Remaining: gesture sphere handles, read-only planner/modal models and final visual /
 control/device acceptance. Full migration still not declared complete.
+
+### Native modal models, artifact collections and direct controller commands (2026-10-24)
+
+Upgrade/evolution cards now build typed inputs from RunUpgradeChoice, native
+pending-evolution state and ScriptableObject text/card metadata. All sphere and
+active-ability branch/final ordering, categories, levels, element badges and hints
+are preserved. Regular card identity now uses GetUpgradeChoiceKey, the same key
+actually written by LockLevelUpChoice and Oracle forecast selection. Confirmed old
+adapter mismatch: source-format keys never equalled native lock/forecast keys,
+so the UI could omit locked/forecast markers. This corrects display identity only,
+not choice selection, lock/reroll rules, costs or RNG.
+
+Owned artifact cards, reward candidates and set details now use native string lists
+and catalog records. Typed synergy reads preserve source requirement/order behavior.
+Pause chrome and modal visibility/priority read native flags/counters; combo text
+reads actual runtime values. Mutable pending-card/lock/reroll UI snapshots are now
+Editor-only. Upgrade/reward/tutorial actions call existing native commands and
+refresh read models; production no longer calls ApplySourceUiWrites. Mobile flash
+uses the existing native message method and preserves the old repeated-text guard.
+
+Validation: 268 upgrade/evolution states, 9636 comparisons PASS (RU/EN, all sphere /
+active-ability branches/finals and ordinary kinds). Routine lock/Oracle keys are
+intentionally compared against actual Core keys, not the broken old identity.
+Artifact/reward model integration: 90 states / 16518 comparisons PASS. Independent
+original PausePlanner artifact check: 40 cases / 10192 comparisons PASS. Modal
+visibility matrix: 128 cases; live pause chrome 80 cases; 1696 checks PASS.
+Temporary flags/dictionaries/lists restored; no pick/reroll/grant/roll/save invoked.
+
+Actual Editor Play Mode: 12 stepped frames (not manual LateUpdate-only calls),
+UsesNativePauseChrome=true, UsesNativePauseScreen=true, UsesNativePauseStats=true,
+legacy UI documents=0; flags and autosave accumulator restored. Current Console
+errors/warnings=0. This is bounded activation/layout smoke, not full visual or
+interactive acceptance for every modal. Editor compile 0 errors/warnings; Android
+C# compile 20 assemblies PASS, no APK. Previous 8baecffe90821681a972e5e45e7b7f6d1f2d6f99
+CI #827 SUCCESS. Remaining: gesture sphere handles, remaining scene/overlay and
+read-only stats/abilities/synergy models, final visual/control/device acceptance.
+Full migration not marked DONE; no FPS/GC values claimed.
