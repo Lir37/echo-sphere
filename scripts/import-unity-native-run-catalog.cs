@@ -9,7 +9,7 @@ var data=Scope("gameData");var progression=Scope("sphereProgression");var artifa
 void Fill(EchoSphere.Presentation.NativeRunCatalog.Text row,EchoSphere.Presentation.V source){row.NameRu=source["name"]["ru"].Text;row.NameEn=source["name"]["en"].Text;row.DescriptionRu=source["desc"]["ru"].Text;row.DescriptionEn=source["desc"]["en"].Text;}
 EchoSphere.Presentation.NativeRunCatalog.Choice Choice(EchoSphere.Presentation.V source){var row=new EchoSphere.Presentation.NativeRunCatalog.Choice {Id=source["id"].Text};Fill(row,source);return row;}
 foreach(var pair in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)data["SPHERE_TYPES"].Raw){
- var row=new EchoSphere.Presentation.NativeRunCatalog.Sphere {Id=pair.Key,Color=pair.Value["color"].Text,RangeMultiplier=pair.Value["rangeMult"].Number,Projectile=data["sphereUsesProjectileModifiers"].Call(pair.Key).Truth};Fill(row,pair.Value);
+ var row=new EchoSphere.Presentation.NativeRunCatalog.Sphere {Id=pair.Key,Color=pair.Value["color"].Text,RangeMultiplier=pair.Value["rangeMult"].Number,DelayMultiplier=pair.Value["delayMult"].Number,Pellets=pair.Value["pellets"].Number,Aura=pair.Value["aura"].Truth,Projectile=data["sphereUsesProjectileModifiers"].Call(pair.Key).Truth};Fill(row,pair.Value);
  foreach(var item in progression["SPHERE_PROGRESSION"][pair.Key]["evolution4Choices"].Items){var branch=Choice(item);var element=progression["getSphereElementForBranch"].Call(branch.Id);branch.Element=element.Truth?element.Text:null;foreach(var final in item["final"].Items)branch.Finals.Add(Choice(final));row.Branches.Add(branch);}catalog.Spheres.Add(row);
 }
 foreach(var pair in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)data["ABILITIES"].Raw){

@@ -94,10 +94,10 @@ namespace EchoSphere.Runtime
                     FinalName=finalChoice!=null?finalChoice.Name(ru):null
                 };
                 if(live.Truth)card.Metrics=new[] {
-                    new NativePauseStatsState.Stat(ru?"урон":"damage",Round(Visual_engineSpheres.Scope["getSphereDamage"].Call(scene,live))+(live["type"].Text=="aura"?"/имп.":"")),
-                    new NativePauseStatsState.Stat(ru?"интервал":"delay",Visual_engineSpheres.Scope["getSphereDelay"].Call(scene,live)["toFixed"].Call(new V(2)).Text+"с"),
-                    new NativePauseStatsState.Stat(ru?"дальность":"range",Round(Visual_engineSpheres.Scope["getSphereRadius"].Call(scene,live))),
-                    new NativePauseStatsState.Stat("DPS",Visual_engineSpheres.Scope["getSphereDpsEstimate"].Call(scene,live)["toFixed"].Call(new V(1)).Text)
+                    new NativePauseStatsState.Stat(ru?"урон":"damage",Round(new V(NativePlannerSphereDamage(scene,live)))+(live["type"].Text=="aura"?"/имп.":"")),
+                    new NativePauseStatsState.Stat(ru?"интервал":"delay",new V(NativePlannerSphereDelay(scene,live))["toFixed"].Call(new V(2)).Text+"с"),
+                    new NativePauseStatsState.Stat(ru?"дальность":"range",Round(new V(NativePlannerSphereRadius(scene,live)))),
+                    new NativePauseStatsState.Stat("DPS",new V(NativePlannerSphereDps(scene,live))["toFixed"].Call(new V(1)).Text)
                 };
                 cards.Add(card);
             }

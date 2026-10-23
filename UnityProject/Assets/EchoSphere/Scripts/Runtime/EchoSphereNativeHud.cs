@@ -70,7 +70,7 @@ namespace EchoSphere.Runtime
                 Russian=ru,Level=T("level")+" "+player["level"].Text,Hp=N(Math.Ceiling(player["hp"].Number))+"/"+N(Math.Ceiling(player["maxHp"].Number)),
                 XpPercent=Percent(player["xp"].Number/player["xpToNext"].Number*100),HpPercent=Percent(player["hp"].Number/player["maxHp"].Number*100),
                 ResonancePercent=Percent(player["resonanceCharge"].Number),ResonanceReady=player["resonanceCharge"].Number>=100,Resonance=N(Math.Floor(player["resonanceCharge"].Number))+"/100",
-                Spheres=T("spheres").ToUpperInvariant()+" <color=#cde8f6><b>"+scene["spheres"]["length"].Text+"/"+Visual_engineSpheres.Scope["getMaxSpheres"].Call(scene).Text+"</b></color>",
+                Spheres=T("spheres").ToUpperInvariant()+" <color=#cde8f6><b>"+scene["spheres"]["length"].Text+"/"+VisualJs.NumberText(NativeMaximumSphereCount(scene))+"</b></color>",
                 Wave=T("wave").ToUpperInvariant()+" <color=#cde8f6><b>"+scene["wave"].Text+"</b></color>",Links=network["links"]["length"].Text,
                 Timer=N(Math.Floor(scene["time"].Number/60)).PadLeft(2,'0')+":"+N(Math.Floor(scene["time"].Number%60)).PadLeft(2,'0'),
                 Dominant=Formation(network["dominantFormation"]),Secondary=Formation(network["secondaryFormation"]),HasRegion=region.Truth,

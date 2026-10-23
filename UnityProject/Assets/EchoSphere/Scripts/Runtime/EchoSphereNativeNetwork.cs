@@ -23,9 +23,9 @@ namespace EchoSphere.Runtime
         private void DrawNativeNetwork(V scene)
         {
             var spheres=scene["spheres"].Items.Select(s=>new NativeWorldNetwork.Node {X=s["pos"]["x"].Number,Y=s["pos"]["y"].Number,Charge=s["formationHitCount"].Number,Pulse=s["resonancePulseTimer"].Number}).ToArray();
-            var positions=scene["spheres"].Items.Select(s=>s["pos"]).ToList();if(scene["player"]["abilities"]["minion"].Number>=3)positions.AddRange(scene["minions"].Items.Select(minion=>minion["pos"]));
+            var positions=spheres.Select(sphere=>(NativeWorldNetwork.Node?)new NativeWorldNetwork.Node {X=sphere.X,Y=sphere.Y}).ToList();if(GetAbilityLevel(RunUpgradeKind.Minion)>=3)foreach(var agent in _simulationAgents)if(agent is AbilityDroneAgent2D drone&&drone!=null&&drone.gameObject.activeInHierarchy){var point=NativeSourcePixels(drone.transform.position);positions.Add(new NativeWorldNetwork.Node {X=point.x,Y=point.y});}
             var projected=ProjectNativeNetworkState(_networkState,spheres);
-            _nativeWorldNetwork.Draw(_worldSurface,projected.Network,positions.Select(position=>position.Truth?(NativeWorldNetwork.Node?)NativeNetworkPoint(position):null).ToArray(),projected.ExternalLinks,scene["time"].Number);
+            _nativeWorldNetwork.Draw(_worldSurface,projected.Network,positions.ToArray(),projected.ExternalLinks,scene["time"].Number);
         }
         internal static (NativeWorldNetwork.Network Network,NativeWorldNetwork.Link[] ExternalLinks) ProjectNativeNetworkState(SphereNetworkState state,NativeWorldNetwork.Node[] spheres)
         {

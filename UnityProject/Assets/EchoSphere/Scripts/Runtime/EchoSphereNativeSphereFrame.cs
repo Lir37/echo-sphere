@@ -15,7 +15,7 @@ namespace EchoSphere.Runtime
                 DrawNativeSphereMutation(args);DrawNativeViewStandardAttackVfx(sphere,r,time);DrawNativeSphereElements(args);DrawNativeSphereModifiers(args);DrawNativeViewNetworkDisabledIndicator(sphere,time);return;
             }
             if(type=="orbital"){
-                double radius=Visual_engineSpheres.Scope["getSphereRadius"].Call(scene,sphere).Number/Math.Max(1,sphere["radius"].Number);DrawNativeOrbitalSphere(new V[]{ctx,sphere,scene["player"],time,scale,scene["enemies"],radius},false);
+                double radius=NativePlannerSphereRadius(scene,sphere)/Math.Max(1,sphere["radius"].Number);DrawNativeOrbitalSphere(new V[]{ctx,sphere,scene["player"],time,scale,scene["enemies"],radius},false);
             }else if(type=="sniper"||type=="shotgun"||type=="prism"||type=="void"){
                 DrawNativeSphereMutation(args);DrawNativeSphereFamily(type,args);
             }else if(type=="chain"||type=="aura"||type=="gravity"||type=="pulse"){

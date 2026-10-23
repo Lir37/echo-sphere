@@ -884,3 +884,31 @@ warnings, 272 Node tests and preflight/metadata PASS. Network unification commit
 b90ebdd5a08290eaa822178e27311c339a4d1f66 CI #816 SUCCESS (.NET 8 checks included).
 Remaining: sphere radius/damage/delay/DPS read adapters, player/sphere/overlay V
 models and remaining production compatibility bindings. No full completion claim.
+
+### Native sphere statistics and transient snapshot retirement (2026-10-23)
+
+Radius/damage/delay/DPS presentation calculations are now authored C#. Runtime
+has no direct translated engineSpheres scope calls. Original source operation
+order/constants, orbital pass-rate DPS and special cadence floors are preserved.
+The native cached modifier input remains authoritative at this transition boundary.
+
+Found an actual retired-adapter defect: evolved Orbital DPS called unsupported
+V-string lastIndexOf and threw. The native reader parses the existing marker and
+is checked against original TypeScript for that case, rather than the broken adapter.
+
+All transient component layers now bypass V dictionaries in UpdateSourceRenderState.
+XP/health/runes/chests/drones/particles/sphere projectiles and enemy bullets are not
+serialized into duplicate per-frame model arrays. Native counts keep the original
+load/stride rules. Enemy bullets are grouped in reusable native lists in owner order,
+not scanned quadratically and not reordered. Native network positions read drones
+directly. Lists release entity references on world disposal.
+
+Validation: 800 radius/delay comparisons; 1170 legacy stat comparisons with artifact
+inputs; 30 broken legacy Orbital DPS comparisons explicitly excluded and covered by
+original TS instead. Original TS artifact-free scenes: 1200 comparisons, max relative
+error 1.54e-16. This does not claim full artifact-instance modifier payload identity.
+Real paused Editor: 35 transient-retirement/count/order/projectile-field checks PASS;
+12 bounded native frames, SourceUiDocument instances 0, stop with current Console
+0 errors/0 warnings. No saved game or input mutation. No FPS/GC/device claim.
+Remaining: player/sphere/overlay V models and remaining compatibility bindings;
+production modernization is not marked complete.

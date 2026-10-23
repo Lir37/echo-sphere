@@ -138,18 +138,14 @@ namespace EchoSphere.Runtime
             scene["formationMemory"]=_formationMemoryTimer>0f&&_formationMemoryPoints!=null?VisualJs.Obj("type",_formationMemoryType.ToString().ToLowerInvariant(),"nodes",RenderValue(_formationMemoryPoints),"expiresAt",_runTime+_formationMemoryTimer):VisualJs.Null;
             scene["flashText"]=_messageTimer>0f?VisualJs.Obj("text",_message,"color",_sourceFlashColor,"kind",_sourceFlashKind,"life",_messageTimer):VisualJs.Null;
             var upgrades=VisualJs.Obj();foreach(var key in new[]{"hp","dmg","speed","xp","radius","spheres","crit"})upgrades[key]=GetShopUpgradeLevel(key);scene["shopUpgrades"]=upgrades;
-            foreach(var key in new[]{"spheres","enemies","sphereProjectiles","minions","xpOrbs","healthPacks","runes","chests","stellaChests","particles","damageNumbers","lightnings"})scene[key]=VisualJs.Arr();
+            foreach(var key in new[]{"spheres","enemies","damageNumbers","lightnings"})scene[key]=VisualJs.Arr();
             void Add(string key,V value)=>scene[key]["push"].Call(value);
             foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy)Add("spheres",RenderEntity(sphere));
             foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive)Add("enemies",RenderEntity(enemy));
             scene["bossArrow"]=VisualJs.Null;
             if(_ownedArtifacts.Contains("foresight_eye"))foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){var delta=(Vector2)enemy.transform.position-PlayerPosition;if(delta.sqrMagnitude>0f)scene["bossArrow"]=SourcePoint(delta.normalized*SpherePlacementRules.SourcePixelsToWorld);break;}
-            foreach(var agent in _simulationAgents) {
-                if(agent==null||!agent.gameObject.activeInHierarchy)continue;
-                var key=agent is ProjectileAgent?"sphereProjectiles":agent is AbilityDroneAgent2D?"minions":agent is ExperienceOrbAgent?"xpOrbs":agent is HealthPackAgent2D?"healthPacks":agent is RuneAgent2D?"runes":agent is ArtifactChestAgent2D?"chests":agent is StellaChestAgent2D?"stellaChests":agent is SourceParticle2D?"particles":null;
-                if(key!=null)Add(key,RenderEntity(agent));
-                if(agent is BossProjectileAgent2D bullet&&bullet.SourceOwner!=null&&bullet.SourceOwner.IsAlive)_sourceRenderEntities[bullet.SourceOwner]["bossProjectiles"]["push"].Call(RenderEntity(bullet));
-            }
+            // Transient entity layers read Unity components directly. Do not
+            // build duplicate V dictionaries for those native consumers.
             foreach(var number in _damageNumbers)Add("damageNumbers",VisualJs.Obj("pos",SourcePoint(number.position),"value",number.value,"crit",number.critical,"element",number.element,"life",number.life,"maxLife",number.maxLife,"sourceSphereType",number.sourceSphereType==null?VisualJs.Null:new V(number.sourceSphereType)));
             foreach(var lightning in _sourceLightningVisuals)Add("lightnings",VisualJs.Obj("from",SourcePoint(lightning.from),"to",SourcePoint(lightning.to),"life",lightning.life,"sourceSphere",lightning.sphereType==null?VisualJs.Null:VisualJs.Obj("type",lightning.sphereType)));
             var pois=new List<V>();if(_regionFieldVisuals!=null)foreach(var poi in _regionFieldVisuals.CapturePoiState().pois)pois.Add(VisualJs.Obj("id",poi.id,"type",poi.type,"pos",SourcePoint(poi.position),"alive",true));

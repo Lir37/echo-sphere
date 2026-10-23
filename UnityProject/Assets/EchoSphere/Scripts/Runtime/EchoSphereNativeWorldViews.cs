@@ -18,10 +18,6 @@ namespace EchoSphere.Runtime
         {DrawNativeNetwork(arg1);return default;}
         private V DrawNativeViewPlayer(V arg1)
         {_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(arg1),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);return default;}
-        private V DrawNativeViewEnemyProjectile(V arg1,V arg2,V arg3,V arg4,V arg5)
-        {bool sniper=arg5.Truth;ColorUtility.TryParseHtmlString(sniper?"#ffe066":"#ff6b55",out var color);_nativeWorldProjectiles.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,arg4["x"].Number,arg4["y"].Number,sniper?1:0,color,_sourceRenderState["time"].Number);return default;}
-        private V DrawNativeViewBossProjectile(V arg1,V arg2,V arg3,V arg4,V arg5,V arg6)
-        {ColorUtility.TryParseHtmlString(arg4.Text,out var color);string type=arg5.Text;_nativeWorldProjectiles.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,arg6["x"].Number,arg6["y"].Number,type=="shooter"?2:type=="charger"?3:type=="summoner"?4:5,color,_sourceRenderState["time"].Number);return default;}
         private V DrawNativeViewEnergyBolt(V arg1,V arg2,V arg3)
         {_nativeWorldEnergyBolts.Draw(_worldSurface,arg1["x"].Number,arg1["y"].Number,arg2["x"].Number,arg2["y"].Number,arg3.Number,_sourceRenderState["time"].Number);return default;}
         private V DrawNativeViewGroundShadow(V arg1,V arg2,V arg3)

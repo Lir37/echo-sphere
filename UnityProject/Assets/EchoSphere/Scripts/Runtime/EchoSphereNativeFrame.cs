@@ -20,11 +20,12 @@ namespace EchoSphere.Runtime
         // game helpers remain authoritative while their V data adapter is retired separately.
         private void RenderNativeFrameContents(float backingWidth,float backingHeight)
         {
+            PrepareNativeEntityFrame();
             var s=_sourceRenderState;var ctx=VisualJs.Null;var player=s["player"];double time=s["time"].Number;
             double w=backingWidth,h=backingHeight,started=VisualJs.PerformanceObject["now"].Call().Number;
             _worldSurface.ResetTransform();_nativeWorldFeedback.Background(w,h,NativeWorldBackground,NativeWorldDarkBackground);
             DrawNativeViewVoidAmbient(w,h,time);
-            double load=s["enemies"]["length"].Number+s["sphereProjectiles"]["length"].Number*.55+s["particles"]["length"].Number*.28+s["damageNumbers"]["length"].Number*.42+s["lightnings"]["length"].Number*.75;
+            double load=s["enemies"]["length"].Number+_nativeProjectileCount*.55+_nativeParticleCount*.28+s["damageNumbers"]["length"].Number*.42+s["lightnings"]["length"].Number*.75;
             int fxStride=load>220?3:load>150?2:1,damageStride=s["damageNumbers"]["length"].Number>36?2:1,lightningStride=s["lightnings"]["length"].Number>18?2:1;
             double shakeX=0,shakeY=0;_worldSurface.Save();
             if(s["screenShake"].Number>0){shakeX=(VisualJs.MathObject["random"].Call().Number-.5)*s["screenShake"].Number*20;shakeY=(VisualJs.MathObject["random"].Call().Number-.5)*s["screenShake"].Number*20;}
@@ -46,11 +47,11 @@ namespace EchoSphere.Runtime
             foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive)DrawNativeEnemyWorld(enemy);
             int orbitalIndex=-1;foreach(var sphere in s["spheres"].Items){orbitalIndex++;if(!sphere["alive"].Truth||sphere["type"].Text!="orbital")continue;
                 double tier=sphere["visualTier"].Truth?sphere["visualTier"].Number:0,scale=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+tier*.8))/24;
-                double multiplier=NativeOrbitalNetworkMultiplier(_networkState,orbitalIndex),radius=Visual_engineSpheres.Scope["getSphereRadius"].Call(s,sphere).Number/Math.Max(1,sphere["radius"].Number)*multiplier;
+                double multiplier=NativeOrbitalNetworkMultiplier(_networkState,orbitalIndex),radius=NativePlannerSphereRadius(s,sphere)/Math.Max(1,sphere["radius"].Number)*multiplier;
                 DrawNativeOrbitalSphere(new V[]{ctx,sphere,player,time,scale,s["enemies"],radius},true);
             }
             DrawNativeViewPlayerShield(s);DrawNativeViewPlayer(player);DrawNativeViewCharacterTargetIndicators(s);
-            foreach(var e in s["enemies"].Items)foreach(var bp in e["bossProjectiles"].Items){string type=bp["visualType"].Text;if(type=="enemy_ranged"||type=="enemy_sniper")DrawNativeViewEnemyProjectile(bp["pos"]["x"],bp["pos"]["y"],bp["radius"],bp["vel"],type=="enemy_sniper");else DrawNativeViewBossProjectile(bp["pos"]["x"],bp["pos"]["y"],bp["radius"],e["color"],e["bossType"],bp["vel"]);}
+            DrawNativeEnemyProjectileLayer();
             DrawNativeParticleLayer(fxStride);
             _worldSurface.SetOpacity(1);int damageIndex=0;
             foreach(var dn in s["damageNumbers"].Items){int i=damageIndex++;if(i%damageStride==0&&dn["sourceSphereType"].Text!="orbital")DrawNativeDamageNumber(dn);}
@@ -58,7 +59,7 @@ namespace EchoSphere.Runtime
             int lightningIndex=0;foreach(var l in s["lightnings"].Items){if(lightningIndex++%lightningStride!=0)continue;double alpha=Math.Max(0,Math.Min(1,l["life"].Number/.3));if(!DrawNativeChainLightning(new V[]{ctx,l,player,alpha,time}).Truth)DrawNativeViewEnergyBolt(l["from"],l["to"],alpha);_worldSurface.SetOpacity(1);}
             _worldSurface.Restore();DrawNativeFrameOverlay(s,w,h,shakeX,shakeY);
             double cost=VisualJs.PerformanceObject["now"].Call().Number-started;
-            if(cost>10&&time-_nativeRenderLastLog>=3){_nativeRenderLastLog=time;VisualJs.ConsoleObject["info"].Call("[ECHO_RENDER_PERF]",VisualJs.Obj("ms",VisualJs.Number(new V(cost)["toFixed"].Call(2)),"enemies",s["enemies"]["length"],"spheres",s["spheres"]["length"],"projectiles",s["sphereProjectiles"]["length"],"particles",s["particles"]["length"],"damageNumbers",s["damageNumbers"]["length"],"lightnings",s["lightnings"]["length"]));}
+            if(cost>10&&time-_nativeRenderLastLog>=3){_nativeRenderLastLog=time;VisualJs.ConsoleObject["info"].Call("[ECHO_RENDER_PERF]",VisualJs.Obj("ms",VisualJs.Number(new V(cost)["toFixed"].Call(2)),"enemies",s["enemies"]["length"],"spheres",s["spheres"]["length"],"projectiles",_nativeProjectileCount,"particles",_nativeParticleCount,"damageNumbers",s["damageNumbers"]["length"],"lightnings",s["lightnings"]["length"]));}
         }
         private void DrawNativeDamageNumber(V dn)
         {
