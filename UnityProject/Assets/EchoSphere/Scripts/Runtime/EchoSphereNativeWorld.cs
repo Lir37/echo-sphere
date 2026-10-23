@@ -35,11 +35,11 @@ namespace EchoSphere.Runtime
             if(_nativeWorldNetwork==null)_nativeWorldNetwork=new NativeWorldNetwork();_nativeWorldNetwork.BeginFrame();
             RenderNativeFrameContents(width,height);
         }
-        private bool DrawNativeStandardAssembly(V sphere,double radius,double time)
+        private bool DrawNativeStandardAssembly(NativeSphereVisual sphere,double radius,double time)
         {
-            double x=sphere["pos"]["x"].Number,y=sphere["pos"]["y"].Number,range=sphere["radius"].Number*NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).RangeMultiplier;bool target=false;
+            double x=sphere.X,y=sphere.Y,range=sphere.Radius*NativeRunCatalog.Instance.GetSphere(sphere.Family).RangeMultiplier;bool target=false;
             foreach(var enemy in _enemies){if(enemy==null||!enemy.IsAlive)continue;var point=NativeSourcePixels(enemy.transform.position);double dx=point.x-x,dy=point.y-y;if(enemy.CurrentHp>0&&System.Math.Sqrt(dx*dx+dy*dy)<range){target=true;break;}}
-            var tier=sphere["visualTier"];return _nativeWorldStandardSphere.DrawAssembly(_worldSurface,x,y,radius,tier.Truth?tier.Number:0,time,target,_nativeWorldSprites,ResolveNativePlayerArt);
+            return _nativeWorldStandardSphere.DrawAssembly(_worldSurface,x,y,radius,sphere.Tier,time,target,_nativeWorldSprites,ResolveNativePlayerArt);
         }
         private NativeWorldPlayer.State NativePlayerState()
         {

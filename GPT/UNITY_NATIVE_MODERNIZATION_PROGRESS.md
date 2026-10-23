@@ -1051,3 +1051,37 @@ boundary. Persistence format and authoritative run fields remain unchanged.
 Paused Editor snapshot capture: 6 checks PASS; 273 nodes, no PlayerPrefs write,
 all five caches absent and authoritative level retained. Previous
 e8f67d09b51d9a59456193322be6468a719cbc2e CI #823 SUCCESS.
+
+### Typed sphere presentation and native mobile dock/controller (2026-10-24)
+
+All sphere frame/family/mutation/element/modifier/Orbital drawing now receives a
+NativeSphereVisual projected directly from SphereAttackAgent and native evolution
+state. No V sphere/player dictionaries are passed between these drawing functions.
+Identity uses the stable native component. Existing draw ordering, source logical
+coordinate conversion, rotation signs, timer projection, base presentation radius /
+delay, branch/final selection and RingCounts formulas are preserved. Orbital's
+read-only radius calculator remains one explicit legacy-data boundary; it is not
+replaced with an approximately equivalent gameplay float formula.
+
+Mobile dock reads native cooldowns, follow/lock/strain, dash, selected sphere and
+ability evolution names. The controller gates actions using actual native modal /
+pause/game-over flags. Existing keys/placement/Ghost preview seams remain.
+Found four additional stale display bindings: shield/firetrail/minion/lightning
+cooldowns never left their initial zeros in the old snapshot. The native dock now
+reads GetActiveAbilityCooldown directly, and those snapshot bindings are corrected
+for remaining data consumers. No ability timing/rule/balance changes.
+
+Real paused Editor: 390 sphere family/branch/final/angle/tier cases, 6630 exact
+projection-field comparisons PASS. Native absent branch canonicalizes null to empty
+string, preserving the same existing unbranched drawing path. Mobile ability names:
+624 RU/EN stage/branch/final cases PASS; cooldown input/text/fill checks included,
+696 comparisons total. Runtime dictionaries/timers restored; temporary sphere and
+its dictionary entry destroyed. No ability activation, simulation or save mutation.
+12 additional native frame constructions PASS with legacy documents 0; this is not
+full visual acceptance or a measured FPS/GC run. Editor compile 0 errors/warnings.
+Remaining: Orbital radius/planner/modal data adapters, gesture/Ghost preview models
+and final visual/control/device acceptance. Full migration not marked DONE.
+
+Android C# compile after sphere/mobile changes: PASS (20 assemblies), no APK.
+272 Node tests plus preflight/provenance/metadata PASS. CI checked on containing
+commit separately from Unity Editor/Android script compilation.

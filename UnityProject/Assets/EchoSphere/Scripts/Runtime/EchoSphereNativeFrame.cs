@@ -42,15 +42,11 @@ namespace EchoSphere.Runtime
             DrawNativeRuneLayer();
             DrawNativeChestLayer(false);
             DrawNativeChestLayer(true);
-            foreach(var sphere in s["spheres"].Items)DrawNativeSphereFrame(s,sphere,time);
+            foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy)DrawNativeSphereFrame(sphere,time);
             DrawNativeProjectileLayer();
             DrawNativeDroneLayer();
             foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive)DrawNativeEnemyWorld(enemy);
-            int orbitalIndex=-1;foreach(var sphere in s["spheres"].Items){orbitalIndex++;if(!sphere["alive"].Truth||sphere["type"].Text!="orbital")continue;
-                double tier=sphere["visualTier"].Truth?sphere["visualTier"].Number:0,scale=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+tier*.8))/24;
-                double multiplier=NativeOrbitalNetworkMultiplier(_networkState,orbitalIndex),radius=NativePlannerSphereRadius(s,sphere)/Math.Max(1,sphere["radius"].Number)*multiplier;
-                DrawNativeOrbitalSphere(sphere,player,time,scale,radius,true);
-            }
+            int orbitalIndex=-1;foreach(var component in _spheres){if(component==null||!component.gameObject.activeInHierarchy)continue;orbitalIndex++;if(component.Type!=EchoSphere.Core.SphereId.Orbital)continue;var sphere=ProjectNativeSphereVisual(component);double radius=NativeOrbitalRadiusScale(sphere)*NativeOrbitalNetworkMultiplier(_networkState,orbitalIndex);DrawNativeOrbitalSphere(sphere,time,NativeSphereScale(sphere),radius,true);}
             DrawNativePlayerShield();_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);DrawNativeCharacterTargetIndicators();
             DrawNativeEnemyProjectileLayer();
             DrawNativeParticleLayer(fxStride);

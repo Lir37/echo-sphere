@@ -102,6 +102,7 @@ namespace EchoSphere.Runtime
             // Live presentation inputs: these values are already updated by the
             // native simulation and must not remain at createInitialState defaults.
             player["level"]=_level;player["mutationStage"]=_mutationStage;player["buffTimer"]=_buffTimer;
+            player["shieldCooldown"]=_shieldCooldown;player["fireTrailCooldown"]=_fireTrailCooldown;player["minionCooldown"]=_minionCooldown;player["lightningCooldown"]=_lightningCooldown;
             player["shieldTimer"]=_shieldTimer;player["shieldVisualPulse"]=_shieldVisualPulse;player["deathTimer"]=_deathTimer;
             player["chaosOrbBuff"]=_chaosOrbBuff==null?VisualJs.Null:new V(_chaosOrbBuff);player["chaosOrbBuffTimer"]=_chaosOrbBuffTimer;
             player["teleportDamageBuffTimer"]=_teleportDamageBuffTimer;player["fireCatalystTimer"]=_fireCatalystTimer;
