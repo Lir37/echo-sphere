@@ -35,25 +35,23 @@ namespace EchoSphere.Runtime
             DrawNativeViewCharacterWorldIndicators(s);
             foreach(var ft in s["fireTrails"].Items){double alpha=Math.Max(0,Math.Min(1,ft["life"].Number/ft["maxLife"].Number));_worldSurface.Save();NativeWorldTranslate(ft["pos"]["x"],ft["pos"]["y"]);_nativeWorldFeedback.FireTrail(ft["pos"]["x"].Number,time,alpha,_nativeWorldCreatures);_worldSurface.Restore();}
             DrawNativeViewFormationMemory(s);DrawNativeViewSphereNetwork(s);
-            foreach(var orb in s["xpOrbs"].Items)DrawNativeViewModernXp(orb["pos"]["x"],orb["pos"]["y"],orb["radius"],"#63e6ff",orb["rotation"]);
-            foreach(var hp in s["healthPacks"].Items)DrawNativeViewModernHealth(hp["pos"]["x"],hp["pos"]["y"],"#ff5c72");
-            foreach(var rune in s["runes"].Items)if(rune["alive"].Truth)DrawNativeViewRune(rune);
-            foreach(var chest in s["chests"].Items)if(chest["alive"].Truth)DrawNativeViewChest(chest);
-            foreach(var chest in s["stellaChests"].Items)if(chest["alive"].Truth)DrawNativeViewStellaChest(chest);
+            DrawNativeExperienceLayer();
+            DrawNativeHealthLayer();
+            DrawNativeRuneLayer();
+            DrawNativeChestLayer(false);
+            DrawNativeChestLayer(true);
             foreach(var sphere in s["spheres"].Items)DrawNativeSphereFrame(s,sphere,time);
             foreach(var p in s["sphereProjectiles"].Items)DrawNativeSphereProjectile(new V[]{ctx,p,player,time});
-            foreach(var m in s["minions"].Items){string color=NativeRunCatalog.Instance.GetSphere(m["anchorType"].Text)?.Color;DrawNativeViewModernMinion(m["pos"]["x"],m["pos"]["y"],m["radius"],m["rotation"],new V(string.IsNullOrEmpty(color)?"#ffb84d":color));}
-            foreach(var e in s["enemies"].Items)DrawNativeViewModernEnemy(e,player["pos"]);
-            foreach(var sphere in s["spheres"].Items)if(sphere["alive"].Truth&&sphere["type"].Text=="orbital"){
+            DrawNativeDroneLayer();
+            foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive)DrawNativeEnemyWorld(enemy);
+            int orbitalIndex=-1;foreach(var sphere in s["spheres"].Items){orbitalIndex++;if(!sphere["alive"].Truth||sphere["type"].Text!="orbital")continue;
                 double tier=sphere["visualTier"].Truth?sphere["visualTier"].Number:0,scale=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+tier*.8))/24;
-                var network=s["nativeNetwork"];var index=s["spheres"]["indexOf"].Call(sphere);var profile=Visual_network.Scope["getSphereNetworkProfile"].Call(network,index);
-                double cluster=Visual_network.Scope["getFormationBonusMultiplier"].Call(network,"cluster",index).Number,ring=Visual_network.Scope["getFormationBonusMultiplier"].Call(network,"ring",index).Number;
-                double multiplier=1+(cluster>0?.08*cluster:0)+(ring>0?.12*ring:0)+Math.Min(.20,profile["linkedNeighbours"].Number*.03),radius=Visual_engineSpheres.Scope["getSphereRadius"].Call(s,sphere).Number/Math.Max(1,sphere["radius"].Number)*multiplier;
+                double multiplier=NativeOrbitalNetworkMultiplier(_networkState,orbitalIndex),radius=Visual_engineSpheres.Scope["getSphereRadius"].Call(s,sphere).Number/Math.Max(1,sphere["radius"].Number)*multiplier;
                 DrawNativeOrbitalSphere(new V[]{ctx,sphere,player,time,scale,s["enemies"],radius},true);
             }
             DrawNativeViewPlayerShield(s);DrawNativeViewPlayer(player);DrawNativeViewCharacterTargetIndicators(s);
             foreach(var e in s["enemies"].Items)foreach(var bp in e["bossProjectiles"].Items){string type=bp["visualType"].Text;if(type=="enemy_ranged"||type=="enemy_sniper")DrawNativeViewEnemyProjectile(bp["pos"]["x"],bp["pos"]["y"],bp["radius"],bp["vel"],type=="enemy_sniper");else DrawNativeViewBossProjectile(bp["pos"]["x"],bp["pos"]["y"],bp["radius"],e["color"],e["bossType"],bp["vel"]);}
-            int particleIndex=0;foreach(var p in s["particles"].Items){if(particleIndex++%fxStride!=0)continue;double alpha=p["life"].Number/p["maxLife"].Number;_worldSurface.Shadow=NativeFrameColor(p["color"]);_worldSurface.ShadowBlur=0;var vx=p["vel"]["x"];var vy=p["vel"]["y"];_nativeWorldFeedback.Particle(p["pos"]["x"].Number,p["pos"]["y"].Number,p["size"].Number,alpha,vx.Truth?vx.Number:1,vy.Truth?vy.Number:0,NativeMutationColor(p["color"].Text));}
+            DrawNativeParticleLayer(fxStride);
             _worldSurface.SetOpacity(1);int damageIndex=0;
             foreach(var dn in s["damageNumbers"].Items){int i=damageIndex++;if(i%damageStride==0&&dn["sourceSphereType"].Text!="orbital")DrawNativeDamageNumber(dn);}
             foreach(var dn in s["damageNumbers"].Items)if(dn["sourceSphereType"].Text=="orbital")DrawNativeDamageNumber(dn);_worldSurface.SetOpacity(1);

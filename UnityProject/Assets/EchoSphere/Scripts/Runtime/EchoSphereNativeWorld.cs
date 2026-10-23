@@ -47,19 +47,37 @@ namespace EchoSphere.Runtime
             return new NativeWorldPlayer.State {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number,Radius=NativePlayerRadiusPixels,Time=_sourceRenderState["time"].Number,Hp=player["hp"].Number,ContactCooldown=player["contactDamageCooldown"].Number,ShieldTimer=player["shieldTimer"].Number,ShieldCharges=player["shieldCharges"].Number,DashTimer=player["dashTimer"].Number,DeathTimer=player["deathTimer"].Number,Character=id,Color=color};
         }
         private static INativeWorldSprite ResolveNativePlayerArt(string key)=>NativeWorldArtLibrary.Resolve(key);
+        private void DrawNativeEnemyWorld(EnemyAgent2D enemy)
+        {
+            _nativeWorldCreatures.DrawEnemy(_worldSurface,ProjectNativeEnemyView(enemy,PlayerPosition,_worldSurface.LocalizeCanvasText,IsRussianUi),_runTime);
+        }
+        internal static NativeWorldCreatures.EnemyView ProjectNativeEnemyView(EnemyAgent2D enemy,Vector2 playerPosition,bool localize,bool ru)
+        {
+            float scale=EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld;Vector2 position=enemy.transform.position;
+            double x=position.x/scale,y=-position.y/scale,playerX=playerPosition.x/scale,playerY=-playerPosition.y/scale;
+            bool boss=enemy.IsBoss;string type=enemy.BossType;string name=type=="charger"?"BREACHER":type=="shooter"?"VOID LANCER":type=="summoner"?"BROOD MIND":"AURA TITAN";
+            if(boss&&localize)name=NativeLocalizationCatalog.Instance.CanvasText(name,ru);
+            ColorUtility.TryParseHtmlString(enemy.SourceColorHtml,out var color);var combat=enemy.SourceProjectionBossCombat;var target=enemy.SourceProjectionLinkBreakerTarget;var visual=enemy.SourceProjectionCreatureVisual;
+            Vector2 direction=combat==null?Vector2.zero:combat.ChargeDirection*scale;
+            var signal=new NativeWorldCreatures.BossSignal {Boss=boss,Charging=combat!=null&&combat.IsCharging,Type=type,Radius=enemy.SourceRadius,ChargeTimer=combat==null?double.NaN:combat.ChargeTimer,ChargeX=combat==null?double.NaN:direction.x/scale,ChargeY=combat==null?double.NaN:-direction.y/scale,ShootTimer=combat==null?double.NaN:combat.ShootTimer,SummonTimer=combat==null?double.NaN:combat.SummonTimer,AuraRadius=combat==null?double.NaN:combat.AuraRadius/scale,TargetX=playerX-x,TargetY=playerY-y,ShooterWindow=.7,SummonerWindow=.9,AuraWindow=.8};
+            Vector2 targetPosition=target==null?Vector2.zero:(Vector2)target.transform.position;
+            return new NativeWorldCreatures.EnemyView {Identity=enemy,X=x,Y=y,Radius=enemy.SourceRadius,HasRotation=true,Rotation=enemy.SourceProjectionRotation,HitFlash=enemy.SourceProjectionHitFlash,Tier=enemy.SourceVisualTier,Hp=enemy.CurrentHp,MaxHp=enemy.MaxHp,Boss=boss,Elite=enemy.IsElite,Fire=enemy.SourceProjectionFireTimer>0,Poison=enemy.SourceProjectionPoisonTimer>0,Freeze=enemy.SourceProjectionFreezeTimer>0,Variant=boss?type:visual!=null&&!string.IsNullOrEmpty(visual.SourceVariant)?visual.SourceVariant:"wisp",BossName=name,Color=color,Signal=signal,LinkTarget=target!=null,LinkTimer=enemy.SourceProjectionLinkBreakerTelegraphTimer,LinkX=target==null?double.NaN:targetPosition.x/scale,LinkY=target==null?double.NaN:-targetPosition.y/scale,LinkWindow=.75};
+        }
+#if UNITY_EDITOR
         private static NativeWorldCreatures.BossSignal NativeBossSignal(V e,V target)
         {
             var windows=Visual_bossBalance.Scope["BOSS_TELEGRAPH_WINDOWS"];
             return new NativeWorldCreatures.BossSignal {Boss=e["isBoss"].Truth,Charging=e["isCharging"].Truth,Type=e["bossType"].Text,Radius=e["radius"].Number,ChargeTimer=e["chargeTimer"].Number,ChargeX=e["chargeDir"]["x"].Number,ChargeY=e["chargeDir"]["y"].Number,ShootTimer=e["bossShootTimer"].Number,SummonTimer=e["summonTimer"].Number,AuraRadius=e["auraRadius"].Number,TargetX=target["x"].Number-e["pos"]["x"].Number,TargetY=target["y"].Number-e["pos"]["y"].Number,ShooterWindow=windows["shooter"].Number,SummonerWindow=windows["summoner"].Number,AuraWindow=windows["aura"].Number};
         }
-        private void DrawNativeEnemyWorld(V e,V player)
+        internal static NativeWorldCreatures.EnemyView ProjectLegacyEnemyView(V e,V player,bool localize,bool ru)
         {
             ColorUtility.TryParseHtmlString(e["color"].Text,out var color);bool boss=e["isBoss"].Truth;string type=e["bossType"].Text;
             string name=type=="charger"?"BREACHER":type=="shooter"?"VOID LANCER":type=="summoner"?"BROOD MIND":"AURA TITAN";
-            if(boss&&_worldSurface.LocalizeCanvasText)name=NativeLocalizationCatalog.Instance.CanvasText(name,IsRussianUi);
+            if(boss&&localize)name=NativeLocalizationCatalog.Instance.CanvasText(name,ru);
             var target=e["elitePulseTarget"];var timer=e["elitePulseTelegraphTimer"];
-            _nativeWorldCreatures.DrawEnemy(_worldSurface,new NativeWorldCreatures.EnemyView {Identity=e.Raw,X=e["pos"]["x"].Number,Y=e["pos"]["y"].Number,Radius=e["radius"].Number,HasRotation=e["rotation"].Raw is double,Rotation=e["rotation"].Number,HitFlash=e["hitFlash"].Number,Tier=e["tier"].Number,Hp=e["hp"].Number,MaxHp=e["maxHp"].Number,Boss=boss,Elite=e["isElite"].Truth,Fire=e["fireTimer"].Number>0,Poison=e["poisonTimer"].Number>0,Freeze=e["freezeTimer"].Number>0,Variant=boss?type:e["visualVariant"].Truth?e["visualVariant"].Text:"wisp",BossName=name,Color=color,Signal=NativeBossSignal(e,player),LinkTarget=target.Truth,LinkTimer=timer.Truth?timer.Number:0,LinkX=target["pos"]["x"].Number,LinkY=target["pos"]["y"].Number,LinkWindow=Visual_eliteBalance.Scope["LINK_BREAKER_TELEGRAPH_SECONDS"].Number},_sourceRenderState["time"].Number);
+            return new NativeWorldCreatures.EnemyView {Identity=e.Raw,X=e["pos"]["x"].Number,Y=e["pos"]["y"].Number,Radius=e["radius"].Number,HasRotation=e["rotation"].Raw is double,Rotation=e["rotation"].Number,HitFlash=e["hitFlash"].Number,Tier=e["tier"].Number,Hp=e["hp"].Number,MaxHp=e["maxHp"].Number,Boss=boss,Elite=e["isElite"].Truth,Fire=e["fireTimer"].Number>0,Poison=e["poisonTimer"].Number>0,Freeze=e["freezeTimer"].Number>0,Variant=boss?type:e["visualVariant"].Truth?e["visualVariant"].Text:"wisp",BossName=name,Color=color,Signal=NativeBossSignal(e,player),LinkTarget=target.Truth,LinkTimer=timer.Truth?timer.Number:0,LinkX=target["pos"]["x"].Number,LinkY=target["pos"]["y"].Number,LinkWindow=Visual_eliteBalance.Scope["LINK_BREAKER_TELEGRAPH_SECONDS"].Number};
         }
+#endif
         private V DrawNativeSprite(V[] args,bool part)
         {
             // Retain the existing availability gate, including first-call false

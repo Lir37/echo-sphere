@@ -824,3 +824,24 @@ rejected, all matching the prior source gate. Initial unrefreshed menu-snapshot
 attempt was invalid and is excluded. Compile 0 errors/warnings, 272 Node tests PASS.
 Remaining graph analysis for Ghost Snap/read-only diagnostics, numerical stat
 adapters and broad V entity/player snapshots are still open. No completion claim.
+
+### Direct Unity entity layers (2026-10-23)
+
+Enemies/bosses now project NativeWorldCreatures.EnemyView directly from
+EnemyAgent2D/BossCombatAgent2D; the V-based comparator is Editor-only. XP, health
+packs, both chest layers, runes, drones and particles draw directly from active
+Unity simulation components in their original layer and entity order. Nine rune
+metadata definitions are now in NativeRunCatalog. Particle source-pixel conversion
+keeps double intermediates, exact previous RGB quantization and zero-X fallback.
+Orbital visual network multiplier now reuses cached Core state directly as well.
+
+Validation: 1480 enemy/boss view field comparisons; 189 particle field comparisons;
+1215 native cached-network/orbital comparisons PASS. Compile 0 errors/warnings;
+272 Node tests PASS. Prior commit 9313e834df57dfd7e62e817bed6eb34d4d522688 CI #814
+SUCCESS. No device/FPS/GC/full gameplay identity claim.
+
+Important open finding: see UNITY_NATIVE_NETWORK_PARITY_GAP_2026-10-23.md.
+Existing Core graph classification does not fully match original source; attempted
+analyzer replacement was reverted. Native gameplay network/formulas were not
+changed. Broad sphere/projectile/player/overlay V snapshots and numerical adapters
+remain open; this is not a full migration completion statement.

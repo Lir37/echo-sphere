@@ -16,20 +16,6 @@ namespace EchoSphere.Runtime
         {DrawNativeFormationMemory(arg1);return default;}
         private V DrawNativeViewSphereNetwork(V arg1)
         {DrawNativeNetwork(arg1);return default;}
-        private V DrawNativeViewModernXp(V arg1,V arg2,V arg3,V arg4,V arg5)
-        {ColorUtility.TryParseHtmlString(arg4.Text,out var color);_nativeWorldPickups.DrawXp(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,color,(float)arg5.Number);return default;}
-        private V DrawNativeViewModernHealth(V arg1,V arg2,V arg3)
-        {ColorUtility.TryParseHtmlString(arg3.Text,out var color);_nativeWorldPickups.DrawHealth(_worldSurface,(float)arg1.Number,(float)arg2.Number,color,_sourceRenderState["time"].Number);return default;}
-        private V DrawNativeViewRune(V arg1)
-        {var rune=arg1;ColorUtility.TryParseHtmlString(Visual_runes.Scope["RUNE_DEFS"][rune["type"]]["color"].Text,out var color);_nativeWorldPickableViews.DrawRune(_worldSurface,rune["pos"]["x"].Number,rune["pos"]["y"].Number,rune["type"].Text,color,_sourceRenderState["time"].Number);return default;}
-        private V DrawNativeViewChest(V arg1)
-        {var chest=arg1;_nativeWorldPickableViews.DrawChest(_worldSurface,chest["pos"]["x"].Number,chest["pos"]["y"].Number,_sourceRenderState["time"].Number,false,null);return default;}
-        private V DrawNativeViewStellaChest(V arg1)
-        {var chest=arg1;string label="STELLA";if(_worldSurface.LocalizeCanvasText)label=NativeLocalizationCatalog.Instance.CanvasText(label,IsRussianUi);_nativeWorldPickableViews.DrawChest(_worldSurface,chest["pos"]["x"].Number,chest["pos"]["y"].Number,_sourceRenderState["time"].Number,true,label);return default;}
-        private V DrawNativeViewModernMinion(V arg1,V arg2,V arg3,V arg4,V arg5)
-        {ColorUtility.TryParseHtmlString(arg5.Text,out var color);_nativeWorldMinions.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg3.Number,(float)arg4.Number,color,_sourceRenderState["time"].Number);return default;}
-        private V DrawNativeViewModernEnemy(V arg1,V arg2)
-        {DrawNativeEnemyWorld(arg1,arg2);return default;}
         private V DrawNativeViewPlayer(V arg1)
         {_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(arg1),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);return default;}
         private V DrawNativeViewEnemyProjectile(V arg1,V arg2,V arg3,V arg4,V arg5)
