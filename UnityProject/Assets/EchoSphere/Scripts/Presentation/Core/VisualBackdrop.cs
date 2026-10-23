@@ -9,6 +9,7 @@ namespace EchoSphere.Presentation
     // portable checks. No screen capture, frame history or Unity native calls.
     public static class VisualBackdrop
     {
+#if UNITY_EDITOR
         public static double Sigma(VisualCss sheet,VisualCssNode node)
         {
             var value=sheet.Get(node,"backdrop-filter",sheet.Get(node,"-webkit-backdrop-filter","none")).Trim();
@@ -17,6 +18,8 @@ namespace EchoSphere.Presentation
             if(!match.Success)throw new InvalidOperationException("Unsupported authored backdrop filter: "+value);
             return Math.Max(0d,sheet.Length(match.Groups[1].Value.Length==0?"0":match.Groups[1].Value,node.Width));
         }
+#endif
+#if UNITY_EDITOR
         public static bool IsRoot(VisualCss sheet,VisualCssNode node)
         {
             if(node.Parent==null)return true;
@@ -26,6 +29,7 @@ namespace EchoSphere.Presentation
             if(sheet.Get(node,"mix-blend-mode","normal")!="normal")return true;
             return sheet.Get(node,"will-change","").Split(',').Any(value=>new[]{"opacity","filter","mask","mask-image","mask-border","clip-path","backdrop-filter","mix-blend-mode"}.Contains(value.Trim()));
         }
+#endif
         // [a c; b d] = Rotate(first) * Scale(x,y) * Rotate(second).
         // Two retained elements represent shear/reflection as well as rotation,
         // avoiding a lossy TRS decomposition of nested CSS transforms.

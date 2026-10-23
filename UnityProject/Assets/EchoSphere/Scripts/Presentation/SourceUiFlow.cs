@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -85,3 +86,4 @@ namespace EchoSphere.Presentation
         private static bool Finite(float value)=>!float.IsNaN(value)&&!float.IsInfinity(value);
     }
 }
+#endif

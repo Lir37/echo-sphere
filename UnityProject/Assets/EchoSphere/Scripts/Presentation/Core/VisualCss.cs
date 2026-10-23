@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace EchoSphere.Presentation
 {
+    #if UNITY_EDITOR
     public sealed class VisualCssNode
     {
         public string Tag,Text,Pseudo;
@@ -51,8 +52,10 @@ namespace EchoSphere.Presentation
         }
         #endif
     }
+    #endif
     public sealed class VisualCss
     {
+        #if UNITY_EDITOR
         private sealed class Rule {public string Selector;public V Conditions,Declarations;public int Specificity,Order;public bool Enabled;}
         private sealed class ParsedSelector {public List<string> Parts;public List<char> Relations;}
         private static readonly Dictionary<string,ParsedSelector> SelectorCache=new Dictionary<string,ParsedSelector>();
@@ -135,12 +138,14 @@ namespace EchoSphere.Presentation
             }
             return true;
         }
+        #endif
         public static List<string> Split(string text,char separator)
         {
             var parts=new List<string>();var start=0;var depth=0;char quote='\0';var escape=false;
             for(var i=0;i<text.Length;i++){var c=text[i];if(escape){escape=false;continue;}if(c=='\\'){escape=true;continue;}if(quote!='\0'){if(c==quote)quote='\0';continue;}if(c=='\''||c=='"'){quote=c;continue;}if(c=='('||c=='[')depth++;if(c==')'||c==']')depth--;if(c==separator&&depth==0){parts.Add(text.Substring(start,i-start));start=i+1;}}
             parts.Add(text.Substring(start));return parts;
         }
+        #if UNITY_EDITOR
         private static int Close(string text,int start)
         {var depth=0;for(var i=start;i<text.Length;i++){if(text[i]=='(')depth++;else if(text[i]==')'&&--depth==0)return i;}return -1;}
         private static int AttributeEnd(string text,int start){char quote='\0';var escape=false;for(var i=start;i<text.Length;i++){var c=text[i];if(escape){escape=false;continue;}if(c=='\\'){escape=true;continue;}if(quote!='\0'){if(c==quote)quote='\0';continue;}if(c=='\''||c=='"'){quote=c;continue;}if(c==']')return i;}return -1;}
@@ -270,5 +275,6 @@ namespace EchoSphere.Presentation
             depth=0;for(var i=value.Length-1;i>0;i--){if(value[i]==')')depth++;if(value[i]=='(')depth--;if(depth==0&&(value[i]=='*'||value[i]=='/'))return value[i]=='*'?Sum(value.Substring(0,i),reference,font)*Sum(value.Substring(i+1),reference,font):Sum(value.Substring(0,i),reference,font)/Sum(value.Substring(i+1),reference,font);}
             return Length(value.Trim(),reference,font);
         }
+        #endif
     }
 }

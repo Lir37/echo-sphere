@@ -38,6 +38,7 @@ namespace EchoSphere.Presentation
             var index=_cursor++;if(index==_targets.Count)_targets.Add(null);var target=_targets[index];
             if(target==null||target.width!=width||target.height!=height||target.sRGB!=srgb){if(target!=null){target.Release();UnityEngine.Object.Destroy(target);}target=new RenderTexture(Math.Max(1,width),Math.Max(1,height),0,RenderTextureFormat.ARGB32,srgb?RenderTextureReadWrite.sRGB:RenderTextureReadWrite.Linear){filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp,name="Source CSS surface filter"};target.Create();_targets[index]=target;}return target;
         }
+#if UNITY_EDITOR
         internal Texture Render(Texture source,Rect bounds,string filters,VisualCss sheet,VisualCssNode node,float scale)
         {
             _cursor=0;Bounds=bounds;var previous=RenderTexture.active;var gamma=GL.sRGBWrite;
@@ -64,6 +65,7 @@ namespace EchoSphere.Presentation
                 var result=Target(current.width,current.height,true);GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(current,result,_material,5);return result;
             }finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
         }
+#endif
         public void Dispose(){foreach(var target in _targets)if(target!=null){target.Release();UnityEngine.Object.Destroy(target);}UnityEngine.Object.Destroy(_material);}
     }
 }

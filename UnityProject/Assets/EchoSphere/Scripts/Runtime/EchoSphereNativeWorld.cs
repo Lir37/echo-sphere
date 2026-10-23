@@ -35,11 +35,11 @@ namespace EchoSphere.Runtime
             if(_nativeWorldNetwork==null)_nativeWorldNetwork=new NativeWorldNetwork();_nativeWorldNetwork.BeginFrame();
             RenderNativeFrameContents(width,height);
         }
-        private V DrawNativeStandardAssembly(V[] args)
+        private bool DrawNativeStandardAssembly(V sphere,double radius,double time)
         {
-            var scene=args[1];var sphere=args[2];double x=sphere["pos"]["x"].Number,y=sphere["pos"]["y"].Number,range=sphere["radius"].Number*NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).RangeMultiplier;bool target=false;
-            foreach(var enemy in scene["enemies"].Items){double dx=enemy["pos"]["x"].Number-x,dy=enemy["pos"]["y"].Number-y;if(enemy["hp"].Number>0&&System.Math.Sqrt(dx*dx+dy*dy)<range){target=true;break;}}
-            var tier=sphere["visualTier"];return _nativeWorldStandardSphere.DrawAssembly(_worldSurface,x,y,args[3].Number,tier.Truth?tier.Number:0,args[4].Number,target,_nativeWorldSprites,ResolveNativePlayerArt);
+            double x=sphere["pos"]["x"].Number,y=sphere["pos"]["y"].Number,range=sphere["radius"].Number*NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).RangeMultiplier;bool target=false;
+            foreach(var enemy in _enemies){if(enemy==null||!enemy.IsAlive)continue;var point=NativeSourcePixels(enemy.transform.position);double dx=point.x-x,dy=point.y-y;if(enemy.CurrentHp>0&&System.Math.Sqrt(dx*dx+dy*dy)<range){target=true;break;}}
+            var tier=sphere["visualTier"];return _nativeWorldStandardSphere.DrawAssembly(_worldSurface,x,y,radius,tier.Truth?tier.Number:0,time,target,_nativeWorldSprites,ResolveNativePlayerArt);
         }
         private NativeWorldPlayer.State NativePlayerState()
         {

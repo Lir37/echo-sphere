@@ -17,6 +17,7 @@ namespace EchoSphere.Presentation
         private static readonly Dictionary<string,FontAsset> Fonts=new Dictionary<string,FontAsset>();
         private static readonly Dictionary<string,string> Faces=new Dictionary<string,string>();
         private static bool _initialized;
+#if UNITY_EDITOR
         internal static FontAsset Resolve(VisualCss sheet,VisualCssNode node,float size)
         {
             var family=sheet.Get(node,"font-family","system-ui,sans-serif");
@@ -26,6 +27,7 @@ namespace EchoSphere.Presentation
             var ratio=height=="normal"?double.NaN:double.TryParse(height,NumberStyles.Float,CultureInfo.InvariantCulture,out var number)?number:sheet.Length(height,size,size)/size;
             return Resolve(family,weight,italic,ratio);
         }
+#endif
         // Typed native views share the established platform font resolver,
         // without constructing CSS nodes or parsing styles at runtime.
         internal static FontAsset Resolve(string family,string weight,bool italic,double ratio)
@@ -96,6 +98,7 @@ namespace EchoSphere.Presentation
             }
             Faces[key]=null;return null;
         }
+#if UNITY_EDITOR
         internal static void Apply(VisualCss sheet,VisualCssNode node,VisualElement element,float size)
         {
             var asset=Resolve(sheet,node,size);
@@ -103,5 +106,6 @@ namespace EchoSphere.Presentation
             element.style.unityFontDefinition=FontDefinition.FromSDFFont(asset);
             element.style.unityFontStyleAndWeight=FontStyle.Normal;
         }
+#endif
     }
 }

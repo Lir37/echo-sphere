@@ -10,10 +10,10 @@ namespace EchoSphere.Runtime
         {
             foreach(var evolution in player["evolutions"].Items){if(!evolution.Text.StartsWith("sphere:"+family+":7:",System.StringComparison.Ordinal))continue;var parts=evolution.Text.Split(':');double n=VisualJs.Number(parts[parts.Length-1]).Number;return double.IsNaN(n)||double.IsInfinity(n)?-1:n;}return -1;
         }
-        private void DrawNativeSphereMutation(V[] args)
+        private void DrawNativeSphereMutation(V sphere,V player,double time,double scale)
         {
-            var sphere=args[1];var player=args[2];var branch=player["sphereBranches"][sphere["type"]];if(!branch.Truth)return;var scale=VisualJs.Arg(args,4);double rotation=sphere["rotation"].Truth?sphere["rotation"].Number:0;double finite=sphere["rotation"].Raw is double&&!double.IsNaN(rotation)&&!double.IsInfinity(rotation)?rotation:0;
-            _nativeWorldSphereFamilies.DrawMutation(_worldSurface,new NativeWorldSphereFamilies.MutationView {X=sphere["pos"]["x"].Number,Y=sphere["pos"]["y"].Number,Radius=24*(scale.Undefined?1:scale.Number),Time=args[3].Number,Rotation=rotation,FiniteRotation=finite,Final=NativeMutationFinal(player,sphere["type"].Text),AttackDelay=sphere["attackDelay"].Truth?sphere["attackDelay"].Number:1,AttackTimer=sphere["attackTimer"].Number,Branch=branch.Text,Color=NativeMutationColor(NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).Color),Directed=NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).Projectile,Emitter=(NativeRunCatalog.Instance.GetSphere(branch.Text.Split('_')[0])?.Projectile??false)});
+            var branch=player["sphereBranches"][sphere["type"]];if(!branch.Truth)return;double rotation=sphere["rotation"].Truth?sphere["rotation"].Number:0;double finite=sphere["rotation"].Raw is double&&!double.IsNaN(rotation)&&!double.IsInfinity(rotation)?rotation:0;
+            _nativeWorldSphereFamilies.DrawMutation(_worldSurface,new NativeWorldSphereFamilies.MutationView {X=sphere["pos"]["x"].Number,Y=sphere["pos"]["y"].Number,Radius=24*(scale),Time=time,Rotation=rotation,FiniteRotation=finite,Final=NativeMutationFinal(player,sphere["type"].Text),AttackDelay=sphere["attackDelay"].Truth?sphere["attackDelay"].Number:1,AttackTimer=sphere["attackTimer"].Number,Branch=branch.Text,Color=NativeMutationColor(NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).Color),Directed=NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).Projectile,Emitter=(NativeRunCatalog.Instance.GetSphere(branch.Text.Split('_')[0])?.Projectile??false)});
         }
         private double NativeSphereFinalIndex(EchoSphere.Core.SphereId type)
         {

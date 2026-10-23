@@ -22,7 +22,7 @@ namespace EchoSphere.Runtime
         {
             using var frameSample=NativeWorldFrameMarker.Auto();
             PrepareNativeEntityFrame();
-            var s=_sourceRenderState;var ctx=VisualJs.Null;var player=s["player"];double time=s["time"].Number;
+            var s=_sourceRenderState;var player=s["player"];double time=s["time"].Number;
             double w=backingWidth,h=backingHeight;
             _worldSurface.ResetTransform();_nativeWorldFeedback.Background(w,h,NativeWorldBackground,NativeWorldDarkBackground);
             DrawNativeViewVoidAmbient(w,h,time);
@@ -49,7 +49,7 @@ namespace EchoSphere.Runtime
             int orbitalIndex=-1;foreach(var sphere in s["spheres"].Items){orbitalIndex++;if(!sphere["alive"].Truth||sphere["type"].Text!="orbital")continue;
                 double tier=sphere["visualTier"].Truth?sphere["visualTier"].Number:0,scale=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+tier*.8))/24;
                 double multiplier=NativeOrbitalNetworkMultiplier(_networkState,orbitalIndex),radius=NativePlannerSphereRadius(s,sphere)/Math.Max(1,sphere["radius"].Number)*multiplier;
-                DrawNativeOrbitalSphere(new V[]{ctx,sphere,player,time,scale,s["enemies"],radius},true);
+                DrawNativeOrbitalSphere(sphere,player,time,scale,radius,true);
             }
             DrawNativePlayerShield();_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);DrawNativeCharacterTargetIndicators();
             DrawNativeEnemyProjectileLayer();

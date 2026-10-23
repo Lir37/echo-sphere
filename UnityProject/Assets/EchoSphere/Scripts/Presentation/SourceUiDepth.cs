@@ -56,12 +56,14 @@ namespace EchoSphere.Presentation
         private RenderTexture _premultiplied,_result;
         internal Rect Bounds;
         internal SourceUiDepth(){_material=new Material(Resources.Load<Shader>("EchoSphere/SourceUiDepth"));}
+#if UNITY_EDITOR
         internal static Matrix4x4 Transform(VisualCss sheet,VisualCssNode node)
         {
             var values=VisualCssTransform.Parse(sheet,node,origin:true);var matrix=new Matrix4x4();
             for(var column=0;column<4;column++)for(var row=0;row<4;row++)matrix[row,column]=(float)values[column*4+row];
             return matrix;
         }
+#endif
 
         private void Add(ref Branch branch,Polygon polygon)
         {

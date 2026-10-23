@@ -39,6 +39,7 @@ namespace EchoSphere.Presentation
             }
             element.style.filter=filters;
         }
+#if UNITY_EDITOR
         internal void Apply(VisualCss sheet,VisualCssNode node,VisualElement element,float dpr,bool surfaceFiltered=false)
         {
             var source=surfaceFiltered?"none":sheet.Get(node,"filter","none");var opacity=sheet.Get(node,"opacity","1");var key=source+"|"+opacity+"|"+sheet.Get(node,"color","#000000");
@@ -64,6 +65,7 @@ namespace EchoSphere.Presentation
             }
             element.style.opacity=1f;element.style.filter=filters;
         }
+#endif
         public void Dispose(){foreach(var definition in _definitions)UnityEngine.Object.Destroy(definition);UnityEngine.Object.Destroy(_material);}
     }
 }

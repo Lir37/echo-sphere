@@ -973,3 +973,29 @@ values. Local actual-Unity-API typecheck: Android player 0 errors/0 warnings;
 Editor configurations checked separately below/on CI. No visual behavior change.
 Remaining: sphere/region and remaining run UI plain V data boundaries, plus final
 visual/control/device acceptance. Full migration is still not marked DONE.
+
+### Retired CSS engine and explicit sphere drawing calls (2026-10-24)
+
+CSS node/cascade/selector/length layout, grid, animation, CPU paint, CSS transform,
+SVG DOM serialization, old range/timer hosts and old inline/flow layout are now
+Editor-only. Native graphics retain only required stateless token/color/math helpers.
+Legacy sheet-based overloads of typography/depth/filter adapters are Editor-only;
+shared native FontAsset, GPU blur, depth composition and UI Toolkit filters remain.
+
+Sphere drawing no longer allocates JS-style V[] argument lists or uses VisualJs.Arg.
+Mutation/element/modifier/family/orbital calls have explicit C# parameters. Standard
+sphere target checks and Orbital attack points read alive native EnemyAgent2D
+components directly, preserving list order and source coordinate precision.
+
+Preceding a606631ecb320db399b3765c770555e1901677b1 CI #820 SUCCESS. Local real
+Unity API typecheck after CSS retirement: Android player, Editor runtime and Editor
+assembly all 0 errors/0 warnings. Real Android C# compilation: 20 assemblies PASS,
+no APK. Editor compile after sphere calling-convention changes: 0 errors/warnings.
+Remaining plain V scene/sphere/run-UI snapshots are data adapters; their complete
+retirement and final visual/control/device acceptance are still open.
+
+Final bounded checks for this group: Android C# compile 20 assemblies PASS; 12
+more native frame constructions in paused Play Mode, legacy documents 0; current
+Unity Console errors/warnings 0 (historical Pipeline entries are retained). Inspected
+Android assembly: 12 retired CSS/layout/SVG-host types absent. 272 Node tests and
+preflight/provenance/meta PASS. No FPS/GC or full visual acceptance claim.

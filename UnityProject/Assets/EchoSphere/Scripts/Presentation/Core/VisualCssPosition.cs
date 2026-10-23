@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 
 namespace EchoSphere.Presentation
@@ -18,3 +19,4 @@ namespace EchoSphere.Presentation
         {var value=sheet.Length(sheet.Get(block,"border-"+side+"-width","0"),block.Width);return sheet.Get(block,"border-"+side+"-style","none")=="none"||double.IsNaN(value)?0d:value;}
     }
 }
+#endif
