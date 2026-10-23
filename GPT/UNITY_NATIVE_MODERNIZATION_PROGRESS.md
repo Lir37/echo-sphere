@@ -1039,3 +1039,15 @@ warnings; Android C# compile 20 assemblies PASS without APK. Preflight/provenanc
 metadata PASS. Previous 95173ab58adff787c5c52c3b0298847ddf068bbf CI #822 SUCCESS.
 Remaining: sphere/read-only planner/modal/mobile plain V data seams; final device,
 visual and control acceptance. No full modernization DONE or FPS/GC claim.
+
+### Persistence boundary follow-up (2026-10-24)
+
+Explicitly exclude new region-POI/display-count/projectile-group caches from both
+run snapshot capture and restore. They are derived presentation data, not run
+state. Generic Unity-object filtering already excludes projectile component lists,
+but primitive display counts and the new POI struct list also require this explicit
+boundary. Persistence format and authoritative run fields remain unchanged.
+
+Paused Editor snapshot capture: 6 checks PASS; 273 nodes, no PlayerPrefs write,
+all five caches absent and authoritative level retained. Previous
+e8f67d09b51d9a59456193322be6468a719cbc2e CI #823 SUCCESS.
