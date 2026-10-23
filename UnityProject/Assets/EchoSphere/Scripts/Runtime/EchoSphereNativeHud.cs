@@ -104,11 +104,12 @@ namespace EchoSphere.Runtime
 #endif
         private NativeHudView.Tooltip ReadNativeHudTooltip(string type)
         {
-            var scene=_sourceRenderState;var network=scene["nativeNetwork"];
-            var secondary=network["secondaryFormation"]["type"].Text==type;
-            var inactive=network["dominantFormation"]["type"].Text==type&&network["dominantFormation"]["active"].Raw is bool active&&!active;
+            var network=_networkState;
+            var secondary=network?.SecondaryFormation?.Type.ToString().ToLowerInvariant()==type;
+            var inactive=network?.DominantFormation?.Type.ToString().ToLowerInvariant()==type&&network.DominantFormation.Active==false;
+            var activeTypes=new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy)activeTypes.Add(sphere.Type.ToString().ToLowerInvariant());
             var lines=new System.Collections.Generic.List<NativeHudView.TooltipLine>();
-            foreach(var line in NativeNetworkTooltipLines(type.ToUpperInvariant(),scene,IsRussianUi,network))lines.Add(line);
+            foreach(var line in NativeNetworkTooltipLines(type.ToUpperInvariant(),IsRussianUi,activeTypes,secondary,inactive))lines.Add(line);
             return new NativeHudView.Tooltip {Title=NativeFormationName(type,IsRussianUi),Secondary=secondary,Inactive=inactive,Effectiveness=inactive?(IsRussianUi?"ВРЕМЕННО ОТКЛ.":"TEMP OFF"):secondary?"50%":"100%",Lines=lines};
         }
     }

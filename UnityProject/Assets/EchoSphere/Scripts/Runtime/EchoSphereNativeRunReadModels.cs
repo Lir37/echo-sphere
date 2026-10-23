@@ -14,17 +14,25 @@ namespace EchoSphere.Runtime
                 case "ring":return ru?"КОЛЬЦО":"RING";case "lattice":return ru?"РЕШЁТКА":"LATTICE";
                 case "fractal":return ru?"ФРАКТАЛ":"FRACTAL";default:return type.ToUpperInvariant();}
         }
+#if UNITY_EDITOR
         private static double NativeXpPlannerMultiplier(V scene)
         {
             var xp=scene["shopUpgrades"]["xp"];double mult=1+(xp.Truth?xp.Number:0)*.05;
             foreach(var id in scene["player"]["artifacts"].Items){var artifact=NativeRunCatalog.Instance.GetArtifact(id.Text);if(artifact!=null)mult+=artifact.Effect("xpGain");}
             return mult;
         }
+#endif
+#if UNITY_EDITOR
         private static IReadOnlyList<NativeHudView.TooltipLine> NativeNetworkTooltipLines(string label,V scene,bool ru,V network)
         {
             var activeTypes=new HashSet<string>(StringComparer.Ordinal);foreach(var sphere in scene["spheres"].Items)if(sphere["alive"].Truth)activeTypes.Add(sphere["type"].Text);
             bool isSecondary=network["secondaryFormation"]["type"].Text==label.ToLowerInvariant();
             bool isInactiveDominant=network["dominantFormation"]["active"].Raw is bool active&&!active&&network["dominantFormation"]["type"].Text==label.ToLowerInvariant();
+            return NativeNetworkTooltipLines(label,ru,activeTypes,isSecondary,isInactiveDominant);
+        }
+#endif
+        private static IReadOnlyList<NativeHudView.TooltipLine> NativeNetworkTooltipLines(string label,bool ru,HashSet<string> activeTypes,bool isSecondary,bool isInactiveDominant)
+        {
             double scale=isInactiveDominant?0:isSecondary?.5:1;
             string Percent(double value){double scaled=value*scale;return Math.Truncate(scaled)==scaled?scaled.ToString(CultureInfo.InvariantCulture):scaled.ToString("F1",CultureInfo.InvariantCulture);}
             var lines=new List<NativeHudView.TooltipLine>();

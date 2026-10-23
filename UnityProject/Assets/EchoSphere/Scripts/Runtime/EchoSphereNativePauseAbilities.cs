@@ -27,11 +27,32 @@ namespace EchoSphere.Runtime
             bool ready=_nativePauseAbilitiesIsland.Ready;_nativePauseAbilitiesIsland.Prepare(SourceDevicePixelRatio);
             if(_nativePauseAbilitiesIsland.Ready){body?.HideLegacy(true);_nativePauseAbilitiesIsland.UseFlowLayout(true);if(!ready)anchors.Invalidate?.Invoke();}
         }
-        public NativePauseAbilitiesState ReadNativePauseAbilitiesState()
+        public NativePauseAbilitiesState ReadNativePauseAbilitiesState()=>ProjectNativeLivePauseAbilities(IsRussianUi);
+        private NativeRunCatalog.Definition NativeLiveAbilityChoice(EchoSphere.Core.RunUpgradeKind kind,NativeRunCatalog.Ability definition,int stage)
         {
-            if(_sourceRenderState.Undefined)throw new InvalidOperationException("Existing render snapshot required");
-            return ProjectNativePauseAbilitiesState(_sourceRenderState,IsRussianUi);
+            if(!definition.HasProgression)return null;var branch=definition.Branches.FirstOrDefault(row=>row.Id==GetAbilityBranch(kind));if(stage==4)return branch;if(branch==null)return null;IEnumerable<NativeRunCatalog.Definition> pool=branch.HasFinalPool?branch.Finals:definition.FallbackFinals;return pool.FirstOrDefault(row=>row.Id==GetAbilityFinal(kind));
         }
+        private string NativeLiveAbilityName(EchoSphere.Core.RunUpgradeKind kind,bool ru)
+        {
+            var definition=NativeRunCatalog.Instance.GetAbility(SourceAbilityId(kind));int level=GetAbilityLevel(kind);var choice=level>=7?NativeLiveAbilityChoice(kind,definition,7):null;if(choice==null&&level>=4)choice=NativeLiveAbilityChoice(kind,definition,4);return definition.Name(ru)+(choice==null?"":" · "+choice.Name(ru));
+        }
+        private string NativeLiveAbilityDescription(EchoSphere.Core.RunUpgradeKind kind,NativeRunCatalog.Ability definition,bool ru)
+        {
+            int level=GetAbilityLevel(kind);if(!definition.HasProgression||level<=0)return "";var final=level>=7?NativeLiveAbilityChoice(kind,definition,7):null;if(final!=null)return final.Description(ru);var branch=NativeLiveAbilityChoice(kind,definition,4);string description=level>=1&&level<=definition.Levels.Count?definition.Levels[level-1].Description(ru):"";
+            if(level>=5&&branch!=null)return string.IsNullOrEmpty(description)?branch.Description(ru):description;return level>=4&&branch!=null?branch.Description(ru):description;
+        }
+        private NativePauseAbilitiesState ProjectNativeLivePauseAbilities(bool ru)
+        {
+            var active=new List<NativePauseAbilitiesState.Ability>();var passive=new List<NativePauseAbilitiesState.Ability>();
+            foreach(var definition in NativeRunCatalog.Instance.Abilities){bool known=Enum.TryParse<EchoSphere.Core.RunUpgradeKind>(definition.Id,true,out var kind);int level=known?GetAbilityLevel(kind):0;
+                if(definition.Category=="active"){
+                    var branch=known?NativeLiveAbilityChoice(kind,definition,4):null;var final=known?NativeLiveAbilityChoice(kind,definition,7):null;string Names(IEnumerable<NativeRunCatalog.Definition> choices)=>string.Join(" · ",choices.Select(choice=>choice.Name(ru)));
+                    active.Add(new NativePauseAbilitiesState.Ability {Id=definition.Id,Acquired=level!=0,Level=VisualJs.NumberText(level)+"/7",Name=level!=0?NativeLiveAbilityName(kind,ru):definition.Name(ru),Description=level!=0?NativeLiveAbilityDescription(kind,definition,ru):NativeBaseAbilityDescription(definition,1,ru),HasProgression=definition.HasProgression,Branch=definition.HasProgression?(branch!=null?branch.Name(ru):Names(definition.Branches)):null,Final=definition.HasProgression?(final!=null?final.Name(ru):Names(definition.FallbackFinals)):null});
+                }else if(definition.Category=="passive"&&level>0)passive.Add(new NativePauseAbilitiesState.Ability {Id=definition.Id,Acquired=true,Level=VisualJs.NumberText(level)+"/7",Name=definition.Name(ru),Description=NativeBaseAbilityDescription(definition,level,ru)});
+            }
+            return new NativePauseAbilitiesState {ActiveHeading=ru?"Активные способности":"Active abilities",PassiveHeading=ru?"Пассивные":"Passive",Active=active,Passive=passive};
+        }
+#if UNITY_EDITOR
         internal static NativePauseAbilitiesState ProjectNativePauseAbilitiesState(V scene,bool ru)
         {
             var active=new List<NativePauseAbilitiesState.Ability>();
@@ -58,5 +79,6 @@ namespace EchoSphere.Runtime
             }
             return new NativePauseAbilitiesState {ActiveHeading=ru?"Активные способности":"Active abilities",PassiveHeading=ru?"Пассивные":"Passive",Active=active,Passive=passive};
         }
+#endif
     }
 }

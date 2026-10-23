@@ -36,13 +36,65 @@ namespace EchoSphere.Runtime
                 _nativePauseStatsIsland.UseFlowLayout(true);if(!ready)anchors.Invalidate?.Invoke();
             }
         }
-        // Projection only, not selected by a production pause view yet. Use the
-        // same existing UI/Core outputs as App.tsx, not the older IMGUI formulas.
-        public NativePauseStatsState ReadNativePauseStatsState()
+        public NativePauseStatsState ReadNativePauseStatsState()=>ProjectNativeLivePauseStatsState(IsRussianUi);
+        private NativePauseStatsState ProjectNativeLivePauseStatsState(bool ru)
         {
-            if(_sourceRenderState.Undefined)throw new InvalidOperationException("Existing render snapshot required");
-            return ProjectNativePauseStatsState(_sourceRenderState,IsRussianUi);
+            var lang=ru?"ru":"en";
+            string T(string key)=>NativeText(key,lang=="ru");
+            string Round(double value)=>VisualJs.NumberText(Math.Floor(value+.5d));
+            string Ceil(double value)=>VisualJs.NumberText(Math.Ceiling(value));
+            string Percent(double value)=>Round(value*100)+"%";
+            var character=EchoSphere.Core.CharacterRules.Get(_sphereCharacterId);
+            var result=new NativePauseStatsState {
+                Russian=ru,Kicker=ru?"Билд забега":"Run Build",
+                Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),
+                Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+VisualJs.NumberText(_level)+" · "+T("wave")+" "+VisualJs.NumberText(_wave),
+                CharacterHeading=ru?"Персонаж":"Character",SpheresHeading=ru?"Сферы":"Spheres",Resume=T("resume"),Return=T("return"),
+                Stats=new[] {
+                    new NativePauseStatsState.Stat("HP",Ceil(_playerCore.CurrentHp)+" / "+Ceil(_playerCore.MaxHp)),
+                    new NativePauseStatsState.Stat(ru?"Скорость":"Speed",Round(NativeLivePlannerMoveSpeed())),
+                    new NativePauseStatsState.Stat(ru?"Крит":"Crit",Percent(NativeLivePlannerCritChance())),
+                    new NativePauseStatsState.Stat(ru?"Уклонение":"Dodge",Percent(NativeLivePlannerDodgeChance())),
+                    new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(NativeLivePlannerVampire())),
+                    new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",VisualJs.NumberText(_spheres.Count(s=>s!=null&&s.gameObject.activeInHierarchy))+" / "+VisualJs.NumberText(NativeMobileMaximum)),
+                    new NativePauseStatsState.Stat(ru?"Убийства":"Kills",VisualJs.NumberText(_kills)),
+                    new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(NativeLiveXpPlannerMultiplier()))
+                }
+            };
+            var cards=new List<NativePauseStatsState.Sphere>();
+            foreach(var definition in NativeRunCatalog.Instance.Spheres){
+                string type=definition.Id;var sphereType=(EchoSphere.Core.SphereId)Enum.Parse(typeof(EchoSphere.Core.SphereId),type,true);
+                var placed=_spheres.Where(sphere=>sphere!=null&&sphere.gameObject.activeInHierarchy&&sphere.Type==sphereType).ToList();
+                var live=placed.Count>0?placed[0]:null;
+                var branch=GetSphereBranch(sphereType);NativeRunCatalog.Choice branchChoice=null;NativeRunCatalog.Definition finalChoice=null;
+                if(!string.IsNullOrEmpty(branch)){
+                    branchChoice=definition.Branches.FirstOrDefault(item=>item.Id==branch);
+                    if(branchChoice!=null){
+                        // Preserve the source presentation lookup, including its
+                        // empty-string Number conversion. Do not invent a level
+                        // gate or change actual evolution state in a UI reader.
+                        double finalIndex=NativeSphereFinalIndex(sphereType);if(finalIndex<0)finalIndex=0;if(finalIndex==Math.Truncate(finalIndex)&&finalIndex>=0&&finalIndex<branchChoice.Finals.Count)finalChoice=branchChoice.Finals[(int)finalIndex];
+                    }
+                }
+                var card=new NativePauseStatsState.Sphere {
+                    Id=type,Color=definition.Color,Name=definition.Name(ru),
+                    Level=(ru?"ур. ":"lvl ")+VisualJs.NumberText(NativeLiveSphereLevel(type)),
+                    OnField=live!=null,Placement=placed.Count>0?(ru?"на поле ×":"field ×")+placed.Count:(ru?"не установлена":"not placed"),
+                    Description=live!=null?null:definition.Description(ru),
+                    HasBranch=!string.IsNullOrEmpty(branch),BranchLabel=ru?"Ветка:":"Branch:",BranchName=branchChoice!=null?branchChoice.Name(ru):"",
+                    FinalName=finalChoice!=null?finalChoice.Name(ru):null
+                };
+                if(live!=null)card.Metrics=new[] {
+                    new NativePauseStatsState.Stat(ru?"урон":"damage",Round(NativeLivePlannerSphereDamage(live))+(type=="aura"?"/имп.":"")),
+                    new NativePauseStatsState.Stat(ru?"интервал":"delay",NativeLivePlannerSphereDelay(live).ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+"с"),
+                    new NativePauseStatsState.Stat(ru?"дальность":"range",Round(NativeLiveSphereRadius(sphereType))),
+                    new NativePauseStatsState.Stat("DPS",NativeLivePlannerSphereDps(live).ToString("F1",System.Globalization.CultureInfo.InvariantCulture))
+                };
+                cards.Add(card);
+            }
+            result.Spheres=cards;return result;
         }
+#if UNITY_EDITOR
         internal static NativePauseStatsState ProjectNativePauseStatsState(V scene,bool ru)
         {
             var lang=ru?"ru":"en";var player=scene["player"];
@@ -103,5 +155,6 @@ namespace EchoSphere.Runtime
             }
             result.Spheres=cards;return result;
         }
+#endif
     }
 }

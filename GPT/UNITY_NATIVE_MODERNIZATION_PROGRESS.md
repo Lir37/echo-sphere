@@ -1193,3 +1193,34 @@ accumulator restored. Bounded layout/activation smoke only, not full visual/cont
 acceptance or FPS/GC measurement. Previous 024160ceb13b5e8e28debe7aad18b43853a23e02
 CI #828 SUCCESS. Remaining: gesture sphere handles and stats/abilities/synergy read
 models, final visual/control/device acceptance. Full modernization not marked DONE.
+
+### Native pause read models and formation tooltip (2026-10-24)
+
+All four pause tabs now build their display models directly from native runtime
+fields/components and imported Unity catalogs. Abilities, sphere/character stats,
+synergies, build diagnostics and protocol visibility no longer consume V scene
+snapshots. The formation HUD tooltip likewise uses typed Core shapes and active
+native sphere types. Old V projections/formulas are Editor-only reference oracles.
+Existing double display operation order, local-distance tests, duplicate-sphere
+identity, cached formation efficiency, artifact ordering, branch/final labels and
+unselected-final display fallback are preserved. No combat formula was changed.
+The bare echoaccumulator evolution marker has no producer in the native adapter;
+its unreachable display branch stays in the Editor oracle, with no invented rule.
+
+Checks: live abilities 60 complete model comparisons; live synergy/diagnostics/
+protocols 216 complete model comparisons; live stats 2160 complete model comparisons
+plus exact damage/delay/DPS equality for every placed sphere, all ten characters,
+mastery thresholds, artifact loadouts, branches/finals, timed buffs and cached
+formation conditions. Temporary native state restored. Independent original
+PausePlanner checks: abilities 56 cases/5944 checks; stats 18/1760; synergies
+64/41440 PASS. Android player/editor C# compile 20 assemblies, 0 errors/warnings;
+272 Node tests and project/provenance guards PASS. CI #829 on previous
+adfbc56a7861b4dde3cad08e7a8bcaa1a944eeca SUCCESS.
+
+Remaining: mobile pointer sphere handles, the residual compatibility snapshot
+producer/controller seams, final visual/control/device acceptance. Full migration
+not marked DONE; no FPS or GC measurements claimed.
+Real Editor activation/layout smoke: all four pause tabs individually Ready=true
+with native chrome after 12 stepped frames each (48 total); original pause/menu/
+tab/autosave fields restored, Play Mode stopped. Current Console 0 errors and
+0 warnings. This does not establish complete visual/control/device acceptance.

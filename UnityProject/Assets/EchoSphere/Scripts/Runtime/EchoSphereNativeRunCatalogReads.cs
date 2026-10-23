@@ -7,6 +7,7 @@ namespace EchoSphere.Runtime
  public sealed partial class EchoSphereRuntime
  {
   internal static V NativeLocalizedName(NativeRunCatalog.Text text)=>VisualJs.Obj("ru",text.NameRu,"en",text.NameEn);
+#if UNITY_EDITOR
   internal static V NativeEvolutionChoices(V scene,string id,bool ability,int stage)
   {
    var result=new List<V>();
@@ -55,6 +56,7 @@ namespace EchoSphere.Runtime
    if(level>=5&&branch!=null)return string.IsNullOrEmpty(description)?branch.Description(ru):description;
    return level>=4&&branch!=null?branch.Description(ru):description;
   }
+#endif
   internal static string NativeBaseAbilityDescription(NativeRunCatalog.Ability definition,double level,bool ru)
   {
    if(level!=Math.Truncate(level)||level<0||level>=definition.BaseLevels.Count)throw new ArgumentOutOfRangeException(nameof(level),"Native ability level outside imported source domain");

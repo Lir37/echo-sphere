@@ -62,13 +62,7 @@ namespace EchoSphere.Runtime
             _nativePlacementState=_nativeMobilePlacementColor!=null?new NativeMobileFeedbackView.State {Id=VisualJs.NumberText(_nativeMobilePlacementAt),Color=_nativeMobilePlacementColor}:null;
             ReadNativeMobileNetworkState();
         }
-        private string NativeMobileAbilityName(EchoSphere.Core.RunUpgradeKind kind,bool ru)
-        {
-            var definition=NativeRunCatalog.Instance.GetAbility(SourceAbilityId(kind));int level=GetAbilityLevel(kind);NativeRunCatalog.Definition choice=null;
-            var branch=definition.Branches.FirstOrDefault(row=>row.Id==GetAbilityBranch(kind));
-            if(level>=7&&branch!=null){IEnumerable<NativeRunCatalog.Definition> pool=branch.HasFinalPool?branch.Finals:definition.FallbackFinals;choice=pool.FirstOrDefault(row=>row.Id==GetAbilityFinal(kind));}
-            if(choice==null&&level>=4)choice=branch;return definition.Name(ru)+(choice==null?"":" · "+choice.Name(ru));
-        }
+        private string NativeMobileAbilityName(EchoSphere.Core.RunUpgradeKind kind,bool ru)=>NativeLiveAbilityName(kind,ru);
         private void TickNativeMobileTransients()
         {
             if(!_nativeMobileMounted)return;double now=Time.unscaledTimeAsDouble;
