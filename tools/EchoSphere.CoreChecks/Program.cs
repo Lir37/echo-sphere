@@ -118,8 +118,10 @@ internal static class Program
         };
         True(FormationFollowRules.TryGetCentroid(nodes, out var centroid), "active centroid exists");
         True(centroid.Equals(new Vec2(1f, 0f)), "disabled/dead nodes excluded from centroid");
-        True(FormationFollowRules.CanActivate(new Vec2(1f, 0f), new[] { new FormationNode(new Vec2(2.5f, 0f), true) }), "activation inside 1.6 world units");
-        True(!FormationFollowRules.CanActivate(new Vec2(0f, 0f), new[] { new FormationNode(new Vec2(1.61f, 0f), true) }), "activation outside 1.6 world units denied");
+        var followScale = SpherePlacementRules.SourcePixelsToWorld;
+        True(FormationFollowRules.CanActivate(Vec2.Zero, new[] { new FormationNode(new Vec2(100f * followScale, 0f), true) }), "source 100px inside Follow radius");
+        True(FormationFollowRules.CanActivate(Vec2.Zero, new[] { new FormationNode(new Vec2(160f * followScale, 0f), true) }), "source 160px inclusive Follow boundary");
+        True(!FormationFollowRules.CanActivate(Vec2.Zero, new[] { new FormationNode(new Vec2(160.01f * followScale, 0f), true) }), "outside source 160px Follow radius denied");
         Near(FormationFollowRules.GetNetworkEfficiency(true, 100f), 0.72f, 0.000001f, "network strain floor");
         Near(FormationFollowRules.GetResonanceEfficiency(true, 100f), 0.65f, 0.000001f, "resonance strain floor");
         Near(FormationFollowRules.GetMovementMultiplier(true, 100f, new Vec2(1f, 0f), new Vec2(0f, 1f)), 0.77f, 0.000001f, "quarter-turn movement multiplier");

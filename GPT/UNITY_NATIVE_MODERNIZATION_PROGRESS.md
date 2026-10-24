@@ -26,6 +26,34 @@ built. Keep new-desing protected; preserve local project/quality/recovery change
 Later historical entries describe earlier intermediate states.
 
 
+2026-10-24 native combat-control command acceptance: actual native command
+transaction passed 78 checks: all catalog Sphere selectors, Pause/unpause and
+modal/tutorial guards, movement Lock, nine Dash directions/default direction,
+source Dash timing/cooldown/repeat/blocked gates, Shield hotkey/cooldown/blocked
+gates, actual Sphere creation, source-pixel placement coordinates, reposition,
+removal and Follow enable/disable/denial. Newly created Sphere/particle/audio
+fixture objects were disabled/destroyed; runtime/player fields, collections and
+exact RNG restored in finally. No simulation frame advanced or preference save
+was invoked. This does not replace live pointer/combat/device acceptance.
+The run exposed two confirmed Follow parity defects: FormationFollowRules still
+used 1.6 old world units despite shared source calibration 12.6/720. Source
+formationFollow.ts specifies 160 logical pixels. ActivateRadius now uses exactly
+160 * SpherePlacementRules.SourcePixelsToWorld (2.8 world units at current scale).
+Also both NativeCanActivateFollow and the actual SetFormationFollowMode guard now
+exclude inactive/network-disabled Sphere nodes, matching source centroid filtering.
+No source activation distance, strain, movement, network/resonance multipliers,
+pool weights, RNG algorithm, artwork or effects were redesigned. Updated the old
+C# checks that incorrectly hardcoded 1.6; checks now cover source 100px, inclusive
+160px and outside 160.01px. Actual Editor checks cover 159.99/160.01px and reject
+inactive-only/disabled-only formations in both UI eligibility and commit paths.
+Unity 6000.3.24f1 compile and Android player/editor semantic typechecks: 0 errors/
+warnings; actual Console 0 errors/0 warnings. Core contracts PASS 1383 assertions,
+47339 direct TS/C# comparisons; 272 Node tests and preflight/provenance PASS.
+Play stopped; user settings/recovery edits preserved. Containing-commit CI must
+pass. Still OPEN: full live combat/gesture/visual flows and device performance;
+no new FPS/GC measurements and no APK. Previous command-application commit
+5fa52d93f44279462ab53bff65b6595fb84d4ffb passed CI #838 SUCCESS.
+
 2026-10-24 command application acceptance: found a source-proven handler gap.
 Native cards can represent Resonance, CritPower, ProjectileSpeed (proj_speed)
 and Fortune, but ChooseUpgrade consumed those choices without assigning their

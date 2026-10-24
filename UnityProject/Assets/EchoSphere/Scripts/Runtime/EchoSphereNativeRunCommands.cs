@@ -14,7 +14,7 @@ namespace EchoSphere.Runtime
         private SphereNetworkFormation? _nativePresentedDominant,_nativePresentedSecondary;
         private void RefreshNativePresentedState(){RefreshNativeMobileSphereHandles();_nativePresentedDominant=_networkState?.DominantFormation?.Type;_nativePresentedSecondary=_networkState?.SecondaryFormation?.Type;_nativeRegionPois.Clear();if(_regionFieldVisuals!=null)_regionFieldVisuals.CopyPresentationPois(_nativeRegionPois);}
         private void RefreshNativeCommandModels(){RefreshNativePresentedState();EnsureShopSaveLoaded();if(_sourceUi!=null)_sourceUi.Dirty=true;}
-        private bool NativeCanActivateFollow()=>FormationFollowRules.CanActivate(new Vec2(_player.position.x,_player.position.y),_spheres.Where(agent=>agent!=null).Select(agent=>new FormationNode(new Vec2(agent.transform.position.x,agent.transform.position.y),true)).ToList());
+        private bool NativeCanActivateFollow()=>FormationFollowRules.CanActivate(new Vec2(_player.position.x,_player.position.y),_spheres.Where(agent=>agent!=null&&agent.gameObject.activeInHierarchy&&!agent.NetworkDisabled).Select(agent=>new FormationNode(new Vec2(agent.transform.position.x,agent.transform.position.y),true)).ToList());
         private bool NativeSetFormationFollow(bool active)
         {bool followed=SetFormationFollowMode(active);RefreshNativeCommandModels();return followed;}
         private void NativeActivateHotkey(string key)

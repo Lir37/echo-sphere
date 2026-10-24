@@ -3616,7 +3616,7 @@ namespace EchoSphere.Runtime
                 {
                     if (sphere == null) continue;
                     var p = (Vector2)sphere.transform.position;
-                    nodes.Add(new FormationNode(new Vec2(p.x, p.y), true));
+                    nodes.Add(new FormationNode(new Vec2(p.x, p.y), sphere.gameObject.activeInHierarchy && !sphere.NetworkDisabled));
                 }
                 var core = (Vector2)_player.position;
                 if (!FormationFollowRules.CanActivate(new Vec2(core.x, core.y), nodes))

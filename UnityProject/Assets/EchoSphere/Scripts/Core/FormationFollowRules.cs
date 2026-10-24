@@ -2,10 +2,10 @@ using System.Collections.Generic;
 
 namespace EchoSphere.Core
 {
-    /// <summary>Pure Formation Follow contract port; 100 logical pixels equal one Unity unit.</summary>
+    /// <summary>Pure Formation Follow contract port using the shared source-pixel calibration.</summary>
     public static class FormationFollowRules
     {
-        public const float ActivateRadius = 1.6f;
+        public const float ActivateRadius = 160f * SpherePlacementRules.SourcePixelsToWorld;
         public const float StrainMax = 100f;
         public const float StrainBuildPerSecond = 0.80f;
         public const float StrainMovingRecoveryPerSecond = 0.55f;
