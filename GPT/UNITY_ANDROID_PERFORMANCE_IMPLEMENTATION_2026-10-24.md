@@ -80,3 +80,20 @@ User URP/quality/volume/settings/recovery changes are excluded from this work.
 No graphics effects were disabled, no resolution/MSAA was reduced, and no gameplay,
 balance, formulas, RNG, character progression or protected branch was changed.
 P1/P2 and Android performance acceptance are NOT DONE.
+
+## Verification closure — 2026-10-25
+
+Implementation commit: `318a00fc771f71f9b228a04d8184ac6b8bb84cd0`.
+GitHub Actions Unity Migration Contracts #848: **SUCCESS**:
+https://github.com/Lir37/echo-sphere/actions/runs/40132214918
+
+Final local semantic checks: 334 Android runtime source files, 0 errors/warnings
+in player, editor-runtime and editor assemblies. Both modified shaders report
+no compiler messages. Gameplay: 1,383 assertions and 47,389 source comparisons.
+The actual live runtime snapshot also serialized identically with Unity
+JsonUtility across three retained captures (273 nodes), without writing prefs.
+Fresh final Play session: character entry/mastery control passed; Console 0
+errors / 0 warnings. Play stopped; original Game View preset restored and the
+temporary portrait preset removed. User render/settings/recovery changes remain
+uncommitted and excluded. A documentation-only follow-up records this closure;
+its CI result must be distinguished from implementation #848.

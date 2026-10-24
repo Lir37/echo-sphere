@@ -5714,3 +5714,20 @@ passed CI #846 SUCCESS; containing implementation commit CI must pass separately
 Elite/tier/status/hit/death and projectile effects retain their pre-faceted-trial
 implementation. They remain a separate visual follow-up, alongside actual crowded
 combat/device performance and user acceptance. P1/P2 are not marked DONE.
+
+2026-10-25 ANDROID PERFORMANCE FOLLOW-UP
+Implementation: 318a00fc771f71f9b228a04d8184ac6b8bb84cd0, unity-migration.
+CI #848 SUCCESS: https://github.com/Lir37/echo-sphere/actions/runs/40132214918
+See UNITY_ANDROID_PERFORMANCE_IMPLEMENTATION_2026-10-24.md for the confirmed
+expensive paths, implementation and outstanding acceptance. Main changes are
+retained/incremental menus, visible-first async portraits, shared skins and glass
+invalidation, bounded route diagnostics, object-region world shadow blur, paired
+Gaussian taps, retained text/bones/draw state, exact network caching, reusable
+phase snapshots and save nodes. Save schema/frequency and gameplay are unchanged.
+Actual Editor GPU comparisons: 180 world cases (peak 2/255 channel rounding),
+24 UI blur cases (peak 1/255); about 8.5x less shadow buffer area in the fixture.
+These are not device FPS/GC measurements. C# player/editor checks 0 errors and
+warnings; final fresh Play Console 0/0. No APK, quality reduction or protected
+branch edits. Xiaomi 11T acceptance and the reported intermittent REGION window
+remain open. Further aggregation/static world-mask reuse/dynamic run rendering
+are explicitly outstanding; P1/P2 are NOT DONE.

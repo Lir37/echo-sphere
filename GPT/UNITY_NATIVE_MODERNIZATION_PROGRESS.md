@@ -1766,3 +1766,11 @@ UNITY_ANDROID_PERFORMANCE_IMPLEMENTATION_2026-10-24.md. Android FPS/GC, crowded
 combat and the reported region overlay still require actual device verification.
 No APK, gameplay/formula/RNG/quality-setting changes or protected branch edits.
 P1/P2 remain NOT DONE; Editor/CI checks do not establish Xiaomi 11T performance.
+
+Verification closure (2026-10-25): implementation
+318a00fc771f71f9b228a04d8184ac6b8bb84cd0 passed CI #848 SUCCESS
+(https://github.com/Lir37/echo-sphere/actions/runs/40132214918).
+Final actual Editor Play Console: 0 errors / 0 warnings; original Game View preset
+restored, validation portrait preset removed, Play stopped. The live runtime
+snapshot also matched Unity JsonUtility output over three retained captures.
+Remaining device/overlay/renderer follow-up is explicit in the detailed report.
