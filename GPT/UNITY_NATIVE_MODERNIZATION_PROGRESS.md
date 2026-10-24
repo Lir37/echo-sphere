@@ -25,6 +25,29 @@ Implementation completion does not mark P1/P2 acceptance DONE. No APK has been
 built. Keep new-desing protected; preserve local project/quality/recovery changes.
 Later historical entries describe earlier intermediate states.
 
+
+2026-10-24 final modal lifecycle acceptance: reproduced the reported UI Toolkit
+"Attempted to get a texture ... that is not allocated" during the retained
+upgrade/reward/tutorial/result transition sequence (128 errors on a repeat).
+Absolute NativeRunDocument overlays now retain their filtered render trees when
+hidden: Visibility.Hidden plus subtree opacity zero, instead of display:none.
+Hidden overlays are excluded from backdrop preparation. Opacity also suppresses
+replica descendants with explicit visibility. No shader, blur radius, artwork,
+animation, simulation formula, RNG or gameplay command changed.
+Actual Editor 6000.3.24f1: nine modal stages / 150 frames / 414 activation,
+layout and grid hit-test checks PASS, flags restored and Play stopped. Six tutorial
+steps, upgrade/reward hosts and result activated; upgrade/reward choices were
+empty fixtures, so this does not accept choosing actual cards/artifacts. Hidden
+overlays intercepted none of the sampled panel picks. Real Game View result
+screenshot reviewed. Actual Unity LogEntries: 0 errors / 0 warnings after fixed
+sequence. Existing original baseline reproduced 128 texture errors; no current
+FPS/GC before/after measurement or Android/device/full-effect acceptance claim.
+Unity compile and Android player/editor semantic typechecks: 0 errors/warnings;
+272 Node tests and preflight/provenance/code export guards PASS. Added reusable
+scripts/check-unity-native-modal-lifecycle.cs. CI must pass on containing commit.
+Remaining acceptance: populated card/reward actions, complete live input and
+combat/effect/device parity and performance. P1/P2 acceptance remains OPEN.
+
 2026-10-23: Native world resources and localization no longer initialize or call
 the translated renderer/i18n/canvasLocale/orbitalGeometry modules. Added actual
 Unity ScriptableObject catalogs: 17 existing Sprite references with source natural

@@ -86,11 +86,19 @@ namespace EchoSphere.Presentation
             Show(_combo,active&&combo>=5);_comboTitle.text=comboTitle;_comboTitle.style.color=C(combo>=50?"#ffb84d":combo>=25?"#ff6b6b":"#ff4d5d");_comboMultiplier.text=multiplier;_comboBar.style.width=Length.Percent((float)(comboTimer/3*100));
         }
         private static void Bind(NativeRunUiAnchors.Slot slot,VisualElement element)=>slot.Bind(element,element,null);
-        private static void Show(VisualElement e,bool show)=>e.style.display=show?DisplayStyle.Flex:DisplayStyle.None;
+        // Retain filtered render trees when an absolute overlay is hidden. Unity's
+        // filter compositor can retain freed texture IDs across display:none.
+        private static void Show(VisualElement e,bool show)
+        {
+            e.style.visibility=show?Visibility.Visible:Visibility.Hidden;
+            // Replica descendants can have explicit visibility. Opacity applies
+            // to the whole subtree, including those descendants.
+            e.style.opacity=show?1:0;
+        }
         internal void End(float dpr)
         {
             foreach(var p in _paint)p.Prepare(dpr);
-            void Visit(VisualElement e){if(e.resolvedStyle.display==DisplayStyle.None)return;if(_backdrops.Contains(e)){var prefix=_root;for(var p=e.parent;p!=null;p=p.parent)if(p==_pause||p==_rewards){prefix=p;break;}_backdrops.Prepare(e,prefix);}for(int i=0;i<e.hierarchy.childCount;i++){var c=e.hierarchy[i];if(c.userData==SourceUiBackdrop.ReplicaTag||c.userData is SourceUiBackdrop.ClipTag)continue;Visit(c);}}
+            void Visit(VisualElement e){if(e.style.visibility==Visibility.Hidden||e.resolvedStyle.display==DisplayStyle.None)return;if(_backdrops.Contains(e)){var prefix=_root;for(var p=e.parent;p!=null;p=p.parent)if(p==_pause||p==_rewards){prefix=p;break;}_backdrops.Prepare(e,prefix);}for(int i=0;i<e.hierarchy.childCount;i++){var c=e.hierarchy[i];if(c.userData==SourceUiBackdrop.ReplicaTag||c.userData is SourceUiBackdrop.ClipTag)continue;Visit(c);}}
             _snapshots.Begin();try{Visit(_root);}finally{_snapshots.End();}
         }
         internal void OrderPauseContent(VisualElement content)
