@@ -1790,3 +1790,8 @@ succeeded; no APK/device FPS claim. Explicit variant WarmUp was removed after
 an Editor native crash; recovery and GPU retests used the same D3D12 backend.
 See detailed Android implementation report for limits and acceptance still open.
 P1/P2 remain NOT DONE. User graphics/settings changes remain excluded.
+
+Desktop implementation e91dfe377a44aeeac3246ab5ebc50b198b2c1f76:
+CI #850 SUCCESS (https://github.com/Lir37/echo-sphere/actions/runs/40137812178).
+Final GPU checks and fresh menu/character/mastery/back Play session: Console 0/0.
+Play stopped; no APK. Device/region-overlay acceptance remains open.

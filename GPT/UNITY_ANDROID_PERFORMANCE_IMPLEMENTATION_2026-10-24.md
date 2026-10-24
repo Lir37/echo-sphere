@@ -173,3 +173,15 @@ is claimed. The intermittent region window still needs a captured occurrence
 and its journal. Synchronous persistence and fresh-region scene reload remain
 unchanged to preserve recovery/start semantics. No APK, gameplay, effects,
 resolution/MSAA, protected-branch or user render/settings changes are included.
+
+Desktop follow-up implementation: `e91dfe377a44aeeac3246ab5ebc50b198b2c1f76`.
+Unity Migration Contracts **#850 SUCCESS**:
+https://github.com/Lir37/echo-sphere/actions/runs/40137812178
+All three jobs (real-API C# checks, gameplay/visual/source contracts and source
+typecheck) passed. Final actual Editor GPU rerun also passed with Console 0/0;
+validation readbacks restore their active target before resize/release. Fresh
+Play: home -> characters -> mastery expansion -> home passed; visible-first
+portrait loading and retained controls present, Console 0 errors / 0 warnings.
+Play stopped. Only pre-existing user settings/SVG metadata/recovery files remain
+uncommitted. The following documentation commit records this closure and requires
+its own CI; it does not add a device acceptance result.

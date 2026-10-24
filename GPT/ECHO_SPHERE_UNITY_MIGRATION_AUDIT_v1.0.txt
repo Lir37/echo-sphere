@@ -5747,3 +5747,9 @@ removed after native D3D12 Editor crash; same-backend retests passed after resta
 Detailed findings and limits: UNITY_ANDROID_PERFORMANCE_IMPLEMENTATION_2026-10-24.md.
 Device performance, crowded combat, full tutorial and intermittent REGION cause
 remain open. User settings and protected branch unchanged; P1/P2 NOT DONE.
+
+Desktop implementation e91dfe377a44aeeac3246ab5ebc50b198b2c1f76:
+Unity Migration Contracts #850 SUCCESS, all three jobs passed:
+https://github.com/Lir37/echo-sphere/actions/runs/40137812178
+Final GPU checks and fresh home/characters/mastery/back Play: Console 0/0.
+Play stopped. Documentation closure is separate from phone acceptance.
