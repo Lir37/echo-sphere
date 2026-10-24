@@ -1333,3 +1333,10 @@ Original menu/region route restored and Play stopped. Current Console 0 errors /
 0 warnings, Editor compile clean. Android player/editor typechecks, 272 Node tests,
 portable visual suite, metadata, source catalog/CSS/art and provenance guards PASS.
 No APK, gameplay, quality or protected-branch changes. Check containing commit CI.
+
+CI correction: #832/#833 passed source and Unity C# checks but the core job found
+an old SourceUiStyles path in the range-control reference manifest. Updated that
+manifest and all eight .cjs fixture/exporter path consumers; reference payloads and
+image hashes are unchanged. Re-ran every command in the exact failed CI visual/
+styles/artwork/provenance step locally: all eight checks PASS. A fresh HEAD CI is
+required; no browser/reference artwork regeneration was performed.

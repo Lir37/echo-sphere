@@ -3,7 +3,7 @@ const fs=require('node:fs');
 const {chromium}=require(process.env.ECHO_PLAYWRIGHT_PATH||'playwright');
 const output='tools/EchoSphere.VisualChecks/source-transition-fixtures.json';
 async function main(){
- const styles=JSON.parse(fs.readFileSync('UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json','utf8'));
+ const styles=JSON.parse(fs.readFileSync('UnityProject/Assets/Editor/EchoSphereReference/SourceUiStyles.json','utf8'));
  const wanted=new Set(['transform','opacity','filter','box-shadow','text-shadow','color','background-color','border-color']);const seen=new Set(),cases=[];
  for(const rule of styles.rules)for(const d of rule.declarations){
   if(!wanted.has(d.property)||/var\(|currentColor|color-mix\(/i.test(d.value))continue;

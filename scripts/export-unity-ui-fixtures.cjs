@@ -44,7 +44,7 @@ async function main(){
   const icons={};const text=['App','CharacterSelect','KnowledgeBase','EchoMapScreen','MobileControls','TutorialOverlay'].map(name=>fs.readFileSync('src/'+name+'.tsx','utf8')).join('\n');
   for(const match of text.matchAll(/<([A-Z][A-Za-z0-9]*)(?:\s|\/>)/g)){const name=match[1];if(reference.Icons[name])icons[name]=clean(element(reference.Icons[name],{}));}
   for(const imported of text.matchAll(/import\s*\{([^}]+)\}\s*from\s*'lucide-react'/g))for(const entry of imported[1].split(',')){const name=entry.trim().split(/\s+as\s+/)[0];if(reference.Icons[name])icons[name]=clean(element(reference.Icons[name],{}));}
-  const iconPath='UnityProject/Assets/Resources/EchoSphere/SourceUiIcons.json';const fixturePath='tools/EchoSphere.VisualChecks/source-ui-fixtures.json';
+  const iconPath='UnityProject/Assets/Editor/EchoSphereReference/SourceUiIcons.json';const fixturePath='tools/EchoSphere.VisualChecks/source-ui-fixtures.json';
   for(const [file,value] of [[iconPath,icons],[fixturePath,fixtures]]){const data=JSON.stringify(value)+'\n';if(process.argv.includes('--check')){if(fs.readFileSync(file,'utf8').replaceAll('\r\n','\n')!==data)throw new Error('Source UI fixture changed: '+file);}else fs.writeFileSync(file,data);}
   console.log(`Source TSX: ${fixtures.length} complete retained UI trees; ${Object.keys(icons).length} original Lucide icons.`);
 }

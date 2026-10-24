@@ -1,6 +1,6 @@
 const fs=require('node:fs'),zlib=require('node:zlib');const {chromium}=require(process.env.ECHO_PLAYWRIGHT_PATH||'playwright');
 const {stylesheet,png}=require('./source-css-browser.cjs');
-const styles=JSON.parse(fs.readFileSync('UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json','utf8'));
+const styles=JSON.parse(fs.readFileSync('UnityProject/Assets/Editor/EchoSphereReference/SourceUiStyles.json','utf8'));
 const output='tools/EchoSphere.VisualChecks/source-paint-fixtures.json.gz';
 const properties=['background-image','background-color','background-size','background-position','background-repeat','background-origin','background-clip','color','box-shadow','clip-path','mask-image','font-size',...['top','right','bottom','left'].flatMap(side=>['width','style','color'].map(kind=>'border-'+side+'-'+kind)),...['top-left','top-right','bottom-left','bottom-right'].map(corner=>'border-'+corner+'-radius')];
 async function main(){const browser=await chromium.launch({headless:true,channel:process.env.ECHO_ART_BROWSER||'msedge'});try{

@@ -2,7 +2,7 @@
 // CSS rules. The keyframe data and shorthand declarations come from the source.
 const fs=require('node:fs');
 const {chromium}=require(process.env.ECHO_PLAYWRIGHT_PATH||'playwright');
-const styles=JSON.parse(fs.readFileSync('UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json','utf8'));
+const styles=JSON.parse(fs.readFileSync('UnityProject/Assets/Editor/EchoSphereReference/SourceUiStyles.json','utf8'));
 const output='tools/EchoSphere.VisualChecks/source-animation-fixtures.json';
 async function main(){
  const browser=await chromium.launch({headless:true,channel:process.env.ECHO_ART_BROWSER||'msedge'});

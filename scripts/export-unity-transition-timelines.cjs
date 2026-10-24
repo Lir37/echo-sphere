@@ -1,5 +1,5 @@
 const fs=require('node:fs');const {chromium}=require(process.env.ECHO_PLAYWRIGHT_PATH||'playwright');
-const styles=JSON.parse(fs.readFileSync('UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json'));const output='tools/EchoSphere.VisualChecks/source-transition-timelines.json';
+const styles=JSON.parse(fs.readFileSync('UnityProject/Assets/Editor/EchoSphereReference/SourceUiStyles.json'));const output='tools/EchoSphere.VisualChecks/source-transition-timelines.json';
 async function main(){const browser=await chromium.launch({headless:true,channel:process.env.ECHO_ART_BROWSER||'msedge'});try{const page=await browser.newPage();const fixtures=[];
  const unique=new Map();for(const rule of styles.rules){const declarations=rule.declarations.filter(d=>d.property.startsWith('transition'));if(declarations.length)unique.set(JSON.stringify(declarations),{selector:rule.selector,declarations});}const rules=[...unique.values()];
  const tailwind=styles.rules.find(rule=>rule.selector==='.transition');for(const rule of [...rules])if(rule.declarations.some(d=>d.property==='transition'))rules.push({selector:'.transition + '+rule.selector,declarations:[...tailwind.declarations.filter(d=>d.property.startsWith('transition')),...rule.declarations]});

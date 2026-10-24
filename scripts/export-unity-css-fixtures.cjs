@@ -1,6 +1,6 @@
 const fs=require('node:fs'),path=require('node:path');
 const {chromium}=require(process.env.ECHO_PLAYWRIGHT_PATH||'playwright');
-const stylePath='UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json';
+const stylePath='UnityProject/Assets/Editor/EchoSphereReference/SourceUiStyles.json';
 const treePath='tools/EchoSphere.VisualChecks/source-ui-fixtures.json';
 const output='tools/EchoSphere.VisualChecks/source-css-fixtures.json.gz';
 const styles=JSON.parse(fs.readFileSync(stylePath,'utf8'));
