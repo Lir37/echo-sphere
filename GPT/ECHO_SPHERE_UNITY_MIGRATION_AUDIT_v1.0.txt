@@ -5489,3 +5489,87 @@ Native implementation remains complete; full P1/P2 acceptance remains OPEN:
 continuous live combat, physical Android touch/multitouch, full visual/device
 flows and performance. No new FPS/GC measurement, no APK, protected source branch
 and user project/quality/recovery changes preserved.
+
+2026-10-24 user-reported blocking regressions: Editor fixes, acceptance still OPEN
+User reports are authoritative acceptance failures: inverted vertical movement,
+upside-down/misplaced text, misplaced/dragged Spheres, severe combat lag and a
+reappearing CHARACTER LIST (not upgrade choices). Do not call this fully accepted.
+
+Confirmed causes and changes:
+- Actual Direct3D12 GPU readback reproduced the entire world texture inverted:
+  a source red top band appeared at the bottom, with inverted text. The direct
+  UI texture compositor incorrectly requested Camera render-target Y inversion.
+  NativeWorldSurface uses the non-Camera GPU projection for world AND shadow
+  targets now. Input Y was already mapped to Unity world Up correctly; it was
+  the displayed world that was mirrored. No movement/gameplay formula changed.
+- NativeWorldLabel subtracted font ascent from TextGenerator vertices that were
+  already alphabetic-baseline relative. Removed that second ascent. Actual Unity
+  6000.3 TextGenerator also returned real final glyph vertices rather than an
+  empty final quad: unconditional Count-4 removed the last visible character
+  (TOP 123 rendered TOP 12; a single-character label could disappear). Trim only
+  an actually empty quad now. Native GPU label is upright, on baseline and whole.
+- Field input and Ghost/memory overlays now share the compositor's logical
+  viewport, not the physical DPR-sized texture. Screen/source mapping includes
+  actual field bounds and stretch; no new placement, snap or movement rules.
+- Profiler identified repeated Vector Graphics tessellation, especially enemy
+  limb fills. Retained Mesh inputs now use exact immutable contour/stroke/dash
+  snapshots (weak mesh ownership, no quantization); unchanged shapes skip rebuild.
+  Limb fills share a canonical power-of-two length mesh and only shrink its X
+  transform. The source Bezier controls scale exactly with length; the existing
+  absolute error bound cannot increase. Stroke still tessellates at actual length
+  to preserve thickness/caps. No enemy animation or effect disabled.
+- Portrait/landscape resize then reproduced a major UI texture registry failure:
+  tens of thousands of Attempted to get a texture ... not allocated errors,
+  eventually >111k during isolation. Removing the field's three retained UI
+  filters stopped one flood; returning/resizing retained filtered UI reproduced
+  the remaining failure. Bake the SAME saturation 1.16 -> contrast 1.08 ->
+  brightness .98 operations, with each original clamp, into the native field
+  compositor copy pass instead. Keep the entire inactive run document retained
+  with hidden visibility/zero opacity/disabled input, matching modal host lifetime,
+  rather than display:none invalidating its filter texture ownership. Blur,
+  glyph glows and other authored effects remain enabled. No panel-rebuild workaround
+  or lower graphic quality was shipped.
+
+Actual Editor verification (Unity 6000.3.24f1, Direct3D12):
+- 5 GPU/readback checks PASS: top/bottom orientation, alphabetic baseline, complete
+  final glyph and DPR-independent logical viewport. Corrected the probe itself to
+  restore RenderTexture.active before resizing its temporary target; clean rerun
+  has no warning. 15 actual-field projection checks PASS across centers/quadrants
+  and stretched logical viewports; 24 actual pointer-dispatch checks PASS including
+  added Up/Down directions, placement, Ghost, drag, cancellation and blocked input.
+- 29 exact mesh retention/fresh-tessellation checks PASS (mutable path/dash input,
+  width/cap/corner/miter/dash offset/fill invalidation). 18 GPU limb comparisons
+  against original per-length geometry: nonempty renders, ZERO changed pixels.
+- Fresh native color-pass versus old three-UI-filter color ramp: maximum 1/255
+  channel difference, due intermediate render-target rounding; same effects/order.
+- Final same-Play 1080x1920 -> 1280x720 -> 1080x1920 pointer/pause/tutorial passes:
+  47 checks each, baseline/final Console errors ZERO. Then 9 populated modal
+  stages / 270 frames / 420 checks PASS, every stage ZERO errors. Pointer/modal
+  checks now disable simulation Update while driving actual presentation LateUpdate:
+  tutorial steps 1/2 otherwise permit simulation even with _paused=true. The
+  production pointer check also verifies unchanged run time and RNG.
+- Actual Characters -> Back -> Map -> native region Start with real scene reload:
+  one runtime, only Native Run UIDocument, _mainMenu=false, page Home; no reappearing
+  character list reproduced. This specific user symptom remains OPEN pending a
+  renewed observation after texture-registry fixes; no invented navigation change.
+- Before/after shared limb fills in instrumented stationary 15s live-combat Editor
+  captures, both already using exact-input mesh retention, up to 5 enemies:
+  BuildFrame mean 19.034 -> 10.932 ms; tessellation mean 17.824 -> 9.922 ms;
+  GC counter mean 1,776,642 -> 1,008,310 bytes/frame. Different sample counts (385 /
+  675); CPU Profiler and capture code add overhead. These are diagnostic Editor
+  measurements, NOT a complete before/after FPS benchmark or Android results.
+  They precede the later UI texture-lifetime/color-pass fixes. Remaining dynamic
+  strokes/allocations and device performance still need measurement and work.
+- C# player/editor semantic checks: 324 runtime files, 0 errors/warnings; actual
+  Editor compile up-to-date with 0 errors/warnings. 272 Node tests, native retirement,
+  preflight, provenance and exports PASS. Final actual Console 0 errors/0 warnings.
+  Play stopped; original Game View restored and temporary preset removed. All 10
+  game preference keys backed up before the real scene-reload diagnostic were
+  restored/verified without writing PlayerSettings. User project/quality/volume/
+  pipeline/recovery changes preserved. No APK, no source branch/gameplay/RNG changes.
+
+Containing implementation commit CI must pass. Previous HEAD
+8daa4507fed55ac1f185bea721588ad14469bc2e passed CI #841 SUCCESS.
+Next: verify current Editor playability and the reported character-list reappearance;
+continue remaining combat performance/visual/control acceptance. Android acceptance
+waits for a usable Editor run. P1/P2 are NOT DONE.

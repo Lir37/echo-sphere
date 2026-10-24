@@ -71,7 +71,7 @@ namespace EchoSphere.Runtime
         }
         private void ReadNativeMobileNetworkState()
         {
-            _nativeGhostNetworkState=_nativeFormationMemoryState=null;if(_nativeRunField==null)return;var rect=_nativeRunField.worldBound;var texture=_worldSurface.UiTexture;double pixelWidth=texture!=null?texture.width:300,pixelHeight=texture!=null?texture.height:150;var camera=NativeSourcePixels((Vector2)(_camera.transform.position-_lastHunterScreenShakeOffset));
+            _nativeGhostNetworkState=_nativeFormationMemoryState=null;if(_nativeRunField==null)return;var rect=_nativeRunField.worldBound;var size=_worldSurface.LogicalSize;double pixelWidth=size.x,pixelHeight=size.y;var camera=NativeSourcePixels((Vector2)(_camera.transform.position-_lastHunterScreenShakeOffset));
             Vector2 ScreenPoint(double x,double y)=>new Vector2((float)((double)rect.xMin+(x-camera.x+pixelWidth/2)*((double)rect.width/pixelWidth)),(float)((double)rect.yMin+(y-camera.y+pixelHeight/2)*((double)rect.height/pixelHeight)));
             var ghost=_nativeMobileGhost;if(ghost!=null){
                 double scale=(double)rect.width/pixelWidth;var center=ScreenPoint(ghost.X,ghost.Y);ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetSphere(_selectedSphereType.ToString().ToLowerInvariant()).Color,out var color);

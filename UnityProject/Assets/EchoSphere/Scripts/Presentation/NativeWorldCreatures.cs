@@ -103,8 +103,17 @@ namespace EchoSphere.Presentation
         {
             double dx=x2-x1,dy=y2-y1,len=Math.Sqrt(dx*dx+dy*dy);if(_segmentUsed==_segments.Count)_segments.Add(new Art());var art=_segments[_segmentUsed++];
             var ending=_surface.NativeStrokeEnding;var corner=_surface.NativeStrokeCorner;float miter=_surface.NativeStrokeMiter;
-            if(art.Fill==null||art.Length!=len||art.Width!=w||art.Ending!=ending||art.Corner!=corner||art.Miter!=miter){art.Build(Quadratic(P(0,-w*.34),true,P(len*.48,-w*.48),P(len,-w*.10),P(len*.62,w*.42),P(0,w*.30)),(float)Math.Max(.7,w*.09),ending,corner,miter);art.Length=len;art.Width=w;art.Ending=ending;art.Corner=corner;art.Miter=miter;}
-            Paint(art,m*T(x1,y1,Math.Atan2(dy,dx)),C(4,8,15,.98),color,(float)alpha);
+            if(art.Stroke==null||art.Length!=len||art.Width!=w||art.Ending!=ending||art.Corner!=corner||art.Miter!=miter){art.Build(Quadratic(P(0,-w*.34),true,P(len*.48,-w*.48),P(len,-w*.10),P(len*.62,w*.42),P(0,w*.30)),(float)Math.Max(.7,w*.09),ending,corner,miter,fill:false);art.Length=len;art.Width=w;art.Ending=ending;art.Corner=corner;art.Miter=miter;}
+            // Every fill control X is proportional to length. Share a canonical
+            // filled mesh and animate its X transform instead of retriangulating
+            // each limb each frame. Only shrink from a power-of-two envelope, so
+            // the original tessellation's absolute curve-error bound cannot grow.
+            // Keep the stroke at the actual length: scaling it would distort width.
+            double envelope=Math.Pow(2,Math.Ceiling(Math.Log(Math.Max(1,len),2)));
+            var fill=Get(900,envelope,w,0,()=>Quadratic(P(0,-w*.34),true,P(envelope*.48,-w*.48),P(envelope,-w*.10),P(envelope*.62,w*.42),P(0,w*.30)));
+            var root=m*T(x1,y1,Math.Atan2(dy,dx));
+            _surface.DrawNativeMesh(fill.Fill,_solid,Properties(C(4,8,15,.98)),root*T(sx:len/envelope),inheritBlend:true,inheritShadow:true,opacity:(float)alpha);
+            _surface.DrawNativeMesh(art.Stroke,_solid,Properties(color),root,inheritBlend:true,inheritShadow:true,opacity:(float)alpha);
         }
         private void Legs(Matrix4x4 m,double r,double[] xs,double bodySideY,double len,double phase,Color color,double thick)
         {

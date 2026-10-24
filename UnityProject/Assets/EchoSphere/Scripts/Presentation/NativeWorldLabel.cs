@@ -31,8 +31,10 @@ namespace EchoSphere.Presentation
             var atlas=_font.material.mainTexture;_properties.SetTexture("_Glyphs",atlas);_properties.SetVector("_Glyphs_TexelSize",new Vector4(1f/atlas.width,1f/atlas.height,atlas.width,atlas.height));if(!_dirty)return;
             float scale=_logicalSize/_size,width=SourceCanvasTypography.Width(_font,_text,_size,_style)*scale,ascent=_font.ascent*(float)_size/_font.fontSize;
             float lineHeight=_font.lineHeight*(float)_size/_font.fontSize,offset=0;if(_baseline=="top"||_baseline=="hanging")offset=ascent;else if(_baseline=="middle")offset=ascent-lineHeight*.5f;else if(_baseline=="bottom"||_baseline=="ideographic")offset=-(lineHeight-ascent);
+            // TextGenerator vertices already use the alphabetic baseline.
+            // Subtracting ascent again raises every label by a second ascent.
             var vertices=SourceCanvasTypography.Vertices(_font,_text,_size,_style);_vertices.Clear();_uv.Clear();_triangles.Clear();
-            for(int i=0;i+3<vertices.Length;i+=4){int first=_vertices.Count;for(int j=0;j<4;j++){var v=vertices[i+j];_vertices.Add(new Vector3(-width*.5f+v.position.x*scale,(-v.position.y-ascent+offset)*scale,0));_uv.Add(v.uv0);}_triangles.Add(first);_triangles.Add(first+1);_triangles.Add(first+2);_triangles.Add(first);_triangles.Add(first+2);_triangles.Add(first+3);}
+            for(int i=0;i+3<vertices.Length;i+=4){int first=_vertices.Count;for(int j=0;j<4;j++){var v=vertices[i+j];_vertices.Add(new Vector3(-width*.5f+v.position.x*scale,(-v.position.y+offset)*scale,0));_uv.Add(v.uv0);}_triangles.Add(first);_triangles.Add(first+1);_triangles.Add(first+2);_triangles.Add(first);_triangles.Add(first+2);_triangles.Add(first+3);}
             _mesh.Clear();_mesh.SetVertices(_vertices);_mesh.SetUVs(0,_uv);_mesh.SetTriangles(_triangles,0);_mesh.RecalculateBounds();_dirty=false;
         }
         public void Dispose(){Font.textureRebuilt-=Rebuilt;UnityEngine.Object.Destroy(_mesh);UnityEngine.Object.Destroy(_material);}

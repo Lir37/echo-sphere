@@ -36,5 +36,28 @@ Shader "EchoSphere/SourceCanvasPresent" {
             }
             ENDHLSL
         }
+        // Native run Image receives the complete authored color treatment.
+        // Avoid retained UI filter render targets becoming stale on viewport resize.
+        Pass {
+            ZWrite Off Cull Off Blend Off
+            HLSLPROGRAM
+            #pragma vertex vert_img
+            #pragma fragment nativeFieldFragment
+            #include "UnityCG.cginc"
+            sampler2D _MainTex;
+            float4 nativeFieldFragment(v2f_img input):SV_Target {
+                float4 color=tex2D(_MainTex,input.uv);float3 rgb=color.a>0?color.rgb/color.a:0;
+                // Preserve the order AND per-stage clamping of the three UI passes.
+                float luma=dot(rgb,float3(.213,.715,.072));
+                rgb=saturate(lerp(luma.xxx,rgb,1.16));
+                rgb=saturate((rgb-.5)*1.08+.5);
+                rgb=saturate(rgb*.98);
+                #ifndef UNITY_COLORSPACE_GAMMA
+                rgb=GammaToLinearSpace(rgb);
+                #endif
+                return float4(rgb,color.a);
+            }
+            ENDHLSL
+        }
     }
 }

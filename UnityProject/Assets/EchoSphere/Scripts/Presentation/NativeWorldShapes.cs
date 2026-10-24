@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Unity.Profiling;
 using Unity.VectorGraphics;
 using UnityEngine;
 
@@ -9,6 +11,35 @@ namespace EchoSphere.Presentation
     // animated paths can upload into an existing Unity mesh.
     internal static class NativeWorldShapes
     {
+        private static readonly ConditionalWeakTable<Mesh,TessellationInput> RetainedInputs=new ConditionalWeakTable<Mesh,TessellationInput>();
+        private static readonly ProfilerMarker TessellationMarker=new ProfilerMarker("EchoSphere.World.Tessellate");
+        // Owners already retain these meshes. Keep an exact immutable input snapshot
+        // so unchanged paths need no Vector Graphics tessellation or mesh upload.
+        // Weak keys do not extend the lifetime of discarded entity mesh owners.
+        private sealed class TessellationInput
+        {
+            private readonly BezierContour[] _paths;
+            private readonly float _width,_miter,_offset;
+            private readonly PathEnding _ending;private readonly PathCorner _corner;
+            private readonly float[] _dash;
+            internal TessellationInput(BezierContour contour,BezierContour[] contours,float width,PathEnding ending,PathCorner corner,float miter,float[] dash,float offset)
+            {
+                var paths=contours??new[]{contour};_paths=new BezierContour[paths.Length];
+                for(int i=0;i<paths.Length;i++)_paths[i]=new BezierContour {Closed=paths[i].Closed,Segments=(BezierPathSegment[])paths[i].Segments.Clone()};
+                _width=width;_ending=ending;_corner=corner;_miter=miter;_offset=offset;_dash=dash==null?Array.Empty<float>():(float[])dash.Clone();
+            }
+            internal bool Matches(BezierContour contour,BezierContour[] contours,float width,PathEnding ending,PathCorner corner,float miter,float[] dash,float offset)
+            {
+                if(!_width.Equals(width)||_ending!=ending||_corner!=corner||!_miter.Equals(miter)||!_offset.Equals(offset)||_dash.Length!=(dash?.Length??0)||_paths.Length!=(contours?.Length??1))return false;
+                for(int i=0;i<_dash.Length;i++)if(!_dash[i].Equals(dash[i]))return false;
+                for(int i=0;i<_paths.Length;i++){
+                    var a=_paths[i];var b=contours==null?contour:contours[i];
+                    if(a.Closed!=b.Closed||a.Segments.Length!=b.Segments.Length)return false;
+                    for(int j=0;j<a.Segments.Length;j++){var x=a.Segments[j];var y=b.Segments[j];if(!x.P0.Equals(y.P0)||!x.P1.Equals(y.P1)||!x.P2.Equals(y.P2))return false;}
+                }
+                return true;
+            }
+        }
         internal static BezierContour EllipseContour(Vector2 center,float rx,float ry,float start=0,float end=Mathf.PI*2)
         {
             float delta=end-start,tau=Mathf.PI*2;delta=delta>=tau?tau:Mathf.Repeat(delta,tau);int count=Mathf.Max(1,Mathf.CeilToInt(delta/(Mathf.PI*.25f)));float step=delta/count;var segments=new BezierPathSegment[count+1];
@@ -41,8 +72,11 @@ namespace EchoSphere.Presentation
         }
         internal static Mesh Tessellate(BezierContour contour,float width,Mesh target=null,bool roundCaps=false,PathCorner corners=PathCorner.Tipped,float miter=10,PathEnding? cap=null,BezierContour[] contours=null,float[] dash=null,float dashOffset=0)
         {
-            var ending=cap??(roundCaps?PathEnding.Round:PathEnding.Chop);var shape=new Shape {Contours=contours??new[]{contour}};if(width>0)shape.PathProps=new PathProperties {Head=ending,Tail=ending,Corners=corners,Stroke=new Stroke {Color=Color.white,HalfThickness=width*.5f,Pattern=dash??Array.Empty<float>(),PatternOffset=dashOffset,TippedCornerLimit=miter}};else shape.Fill=new SolidFill {Color=Color.white,Mode=FillMode.NonZero};
-            var options=new VectorUtils.TessellationOptions {StepDistance=float.MaxValue,MaxCordDeviation=.02f,MaxTanAngleDeviation=.08f,SamplingStepSize=.01f};var geometry=VectorUtils.TessellateScene(new Scene {Root=new SceneNode {Shapes=new List<Shape>{shape}}},options);var vertices=new List<Vector3>();var triangles=new List<int>();foreach(var g in geometry){int first=vertices.Count;foreach(var p in g.Vertices)vertices.Add(g.WorldTransform*p);foreach(var i in g.Indices)triangles.Add(first+i);}var mesh=target??new Mesh {name="Native world art"};mesh.Clear();mesh.SetVertices(vertices);mesh.SetTriangles(triangles,0);mesh.RecalculateBounds();return mesh;
+            var ending=cap??(roundCaps?PathEnding.Round:PathEnding.Chop);
+            if(target!=null&&RetainedInputs.TryGetValue(target,out var previous)&&previous.Matches(contour,contours,width,ending,corners,miter,dash,dashOffset))return target;
+            using var tessellation=TessellationMarker.Auto();
+            var shape=new Shape {Contours=contours??new[]{contour}};if(width>0)shape.PathProps=new PathProperties {Head=ending,Tail=ending,Corners=corners,Stroke=new Stroke {Color=Color.white,HalfThickness=width*.5f,Pattern=dash??Array.Empty<float>(),PatternOffset=dashOffset,TippedCornerLimit=miter}};else shape.Fill=new SolidFill {Color=Color.white,Mode=FillMode.NonZero};
+            var options=new VectorUtils.TessellationOptions {StepDistance=float.MaxValue,MaxCordDeviation=.02f,MaxTanAngleDeviation=.08f,SamplingStepSize=.01f};var geometry=VectorUtils.TessellateScene(new Scene {Root=new SceneNode {Shapes=new List<Shape>{shape}}},options);var vertices=new List<Vector3>();var triangles=new List<int>();foreach(var g in geometry){int first=vertices.Count;foreach(var p in g.Vertices)vertices.Add(g.WorldTransform*p);foreach(var i in g.Indices)triangles.Add(first+i);}var mesh=target??new Mesh {name="Native world art"};mesh.Clear();mesh.SetVertices(vertices);mesh.SetTriangles(triangles,0);mesh.RecalculateBounds();RetainedInputs.Remove(mesh);RetainedInputs.Add(mesh,new TessellationInput(contour,contours,width,ending,corners,miter,dash,dashOffset));return mesh;
         }
         internal static Mesh Line(Vector2 a,Vector2 b,float width,bool roundCaps=false,PathEnding? cap=null)
         {

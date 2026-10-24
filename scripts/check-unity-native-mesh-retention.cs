@@ -1,0 +1,12 @@
+// Actual Vector Graphics retention contract. Cached results must equal fresh meshes.
+try{
+var a=typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly;var t=a.GetType("EchoSphere.Presentation.NativeWorldShapes");var f=System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Public;var method=t.GetMethod("Tessellate",f);var table=t.GetField("RetainedInputs",f).GetValue(null);var meshes=new List<UnityEngine.Mesh>();int checks=0;
+void Require(bool ok,string why){checks++;if(!ok)throw new System.Exception(why);}
+object Entry(UnityEngine.Mesh m){var p=new object[]{m,null};table.GetType().GetMethod("TryGetValue").Invoke(table,p);return p[1];}
+var contour=(Unity.VectorGraphics.BezierContour)t.GetMethod("EllipseContour",f).Invoke(null,new object[]{UnityEngine.Vector2.zero,30f,17f,0f,UnityEngine.Mathf.PI*2});var args=method.GetParameters().Select(p=>p.DefaultValue).ToArray();args[0]=contour;args[1]=2f;args[2]=null;
+UnityEngine.Mesh Build(bool fresh){var p=(object[])args.Clone();if(fresh)p[2]=null;var m=(UnityEngine.Mesh)method.Invoke(null,p);if(!meshes.Contains(m))meshes.Add(m);return m;}
+try{var retained=Build(true);args[2]=retained;var entry=Entry(retained);Require(Build(false)==retained&&object.ReferenceEquals(entry,Entry(retained)),"Unchanged geometry skips tessellation");
+void Changed(string why){var old=Entry(retained);Build(false);Require(!object.ReferenceEquals(old,Entry(retained)),"Invalidation: "+why);var fresh=Build(true);Require(retained.vertices.SequenceEqual(fresh.vertices)&&retained.triangles.SequenceEqual(fresh.triangles),"Exact fresh mesh: "+why);var current=Entry(retained);Build(false);Require(object.ReferenceEquals(current,Entry(retained)),"Retain new input: "+why);}
+contour.Segments[0].P1+=new UnityEngine.Vector2(.00001f,0);Changed("mutated shared path controls");args[1]=3f;Changed("stroke width");args[6]=Unity.VectorGraphics.PathEnding.Round;Changed("cap");args[4]=Unity.VectorGraphics.PathCorner.Round;Changed("corner");args[5]=4f;Changed("miter");var dash=new[]{3f,2f};args[8]=dash;Changed("dash pattern");dash[0]=4f;Changed("mutated shared dash");args[9]=1f;Changed("dash offset");args[1]=0f;Changed("fill");Require(retained.vertexCount>0,"Visible geometry retained");return new{status="PASS",checks,scope="Exact retained/fresh Vector Graphics geometry, mutable contour/dash snapshots and stroke/fill invalidation"};
+}finally{foreach(var mesh in meshes)UnityEngine.Object.DestroyImmediate(mesh);}
+}catch(System.Exception e){return "FAIL "+e;}

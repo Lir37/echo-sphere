@@ -14,7 +14,6 @@ namespace EchoSphere.Presentation
         private NativeUiBackdropRegistry _backdrops;
         private readonly List<NativeHudSurface> _paint = new List<NativeHudSurface>();
         private readonly List<IDisposable> _registrations = new List<IDisposable>();
-        private SourceUiFilters _fieldFilters;
         private Image _field;
         private VisualElement _highlight;
         private VisualElement _root,_left,_right,_pause,_shell,_detail,_result,_upgrade,_rewards,_tutorial,_combo,_comboBar;
@@ -41,7 +40,7 @@ namespace EchoSphere.Presentation
             _field=new Image {name="native-world-field",pickingMode=PickingMode.Ignore,scaleMode=ScaleMode.StretchToFill};
             _field.style.width=Length.Percent(100);_field.style.height=Length.Percent(100);_field.style.maxWidth=1280;_field.style.maxHeight=800;_field.style.flexShrink=0;
             _root.style.alignItems=Align.Center;_root.style.justifyContent=Justify.Center;_root.Add(_field);
-            _fieldFilters=new SourceUiFilters();_fieldFilters.ApplyNativeGameField(_field);
+            // Field color treatment is baked by NativeWorldSurface, outside UI filter targets.
             var vignette=Box(_root,"native-field-vignette",true);
             Paint(vignette,new NativeMenuBrush.Paint {Origin=new Vector2(.5f,.48f),Colors=new[]{Color.clear,new Color(0,0,0,.06f),new Color(0,0,0,.24f)},Stops=new[]{.48f,.72f,1f}});
             ControlsPredecessor=vignette;
@@ -76,7 +75,7 @@ namespace EchoSphere.Presentation
         internal void Begin(Texture world,float dpr,bool invalidate,bool active,bool pause,bool detail,bool upgrade,bool rewards,bool tutorial,
             double combo,double comboTimer,string comboTitle,string multiplier)
         {
-            _visible=true;_root.style.display=DisplayStyle.Flex;_panel.scale=dpr;_field.image=world;
+            _visible=true;_root.style.display=DisplayStyle.Flex;_root.style.visibility=Visibility.Visible;_root.style.opacity=1;_root.SetEnabled(true);_panel.scale=dpr;_field.image=world;
             if(invalidate)_version++;
             Anchors.Clear();Bind(Anchors.HudLeft,_left);Bind(Anchors.HudRight,_right);
             float w=Screen.width/dpr,h=Screen.height/dpr;_shell.style.width=Mathf.Max(0,Mathf.Min(768,w-28));_shell.style.maxHeight=Mathf.Min(h*.92f,780);
@@ -103,9 +102,16 @@ namespace EchoSphere.Presentation
         }
         internal void OrderPauseContent(VisualElement content)
         {if(content.parent==_shell)content.PlaceInFront(_highlight);}
-        internal void Hide(){if(!_visible)return;_visible=false;_root.style.display=DisplayStyle.None;}
+        internal void Hide()
+        {
+            if(!_visible)return;_visible=false;
+            // Retain filter target ownership across menu/run transitions, as for
+            // modal hosts. display:none invalidates Unity 6.3 filter texture IDs
+            // still referenced by the retained render chain after a resize.
+            _root.style.visibility=Visibility.Hidden;_root.style.opacity=0;_root.SetEnabled(false);
+        }
         public IDisposable RegisterNativeBackdrop(VisualElement e,float sigma)=>_backdrops.RegisterNativeBackdrop(e,sigma);
         private static Action<MeshGenerationContext> ReplicaPaint(VisualElement source)=>source.userData is SourceUiReplica.PaintTag tag?tag.Paint:source is Image||source is TextElement?null:source.generateVisualContent;
-        private void OnDestroy(){foreach(var r in _registrations)r.Dispose();_backdrops?.Dispose();foreach(var p in _paint)p.Dispose();_fieldFilters?.Dispose();if(_panel!=null)Destroy(_panel);}
+        private void OnDestroy(){foreach(var r in _registrations)r.Dispose();_backdrops?.Dispose();foreach(var p in _paint)p.Dispose();if(_panel!=null)Destroy(_panel);}
     }
 }

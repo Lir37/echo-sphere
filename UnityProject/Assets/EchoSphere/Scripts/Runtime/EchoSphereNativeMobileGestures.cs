@@ -64,7 +64,7 @@ namespace EchoSphere.Runtime
         private bool NativeMobileWorld(double x,double y,out double wx,out double wy)
         {
             wx=wy=0;if(_nativeRunField==null)return false;var rect=_nativeRunField.worldBound;if(rect.width<=0||rect.height<=0)return false;
-            var camera=NativeSourcePixels((Vector2)(_camera.transform.position-_lastHunterScreenShakeOffset));wx=x-(double)rect.xMin-(double)rect.width/2+camera.x;wy=y-(double)rect.yMin-(double)rect.height/2+camera.y;return true;
+            var camera=NativeSourcePixels((Vector2)(_camera.transform.position-_lastHunterScreenShakeOffset));var size=_worldSurface!=null?_worldSurface.LogicalSize:rect.size;wx=(x-rect.xMin)/rect.width*size.x-size.x/2+camera.x;wy=(y-rect.yMin)/rect.height*size.y-size.y/2+camera.y;return true;
         }
         private static double NativeMobileDistance(double x,double y)=>Math.Sqrt(x*x+y*y);
 #if UNITY_EDITOR

@@ -61,6 +61,10 @@ namespace EchoSphere.Presentation
         };
         private static string Normalize(string text)=>Regex.Replace(text,@"[\t\n\f\r]"," ");
         internal static UIVertex[] Vertices(Font font,string text,int size,FontStyle style)
-        {Generator.Invalidate();Generator.Populate(Normalize(text),Settings(font,size,style));var vertices=new UIVertex[System.Math.Max(0,Generator.verts.Count-4)];for(var index=0;index<vertices.Length;index++)vertices[index]=Generator.verts[index];return vertices;}
+        {Generator.Invalidate();Generator.Populate(Normalize(text),Settings(font,size,style));// Older TextGenerator versions appended an empty quad. Unity 6000.3
+            // can return only actual glyph quads: never discard a visible final glyph.
+            int count=Generator.verts.Count;
+            if(count>=4&&Generator.verts[count-1].position.Equals(Vector3.zero)&&Generator.verts[count-2].position.Equals(Vector3.zero)&&Generator.verts[count-3].position.Equals(Vector3.zero)&&Generator.verts[count-4].position.Equals(Vector3.zero))count-=4;
+            var vertices=new UIVertex[count];for(var index=0;index<vertices.Length;index++)vertices[index]=Generator.verts[index];return vertices;}
     }
 }

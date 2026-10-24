@@ -26,8 +26,9 @@ namespace EchoSphere.Presentation
             internal Action NativePrepareGlyphs,NativeEmitGlyphs;
         }
         private State _state=new State();private readonly Stack<State> _stack=new Stack<State>();private readonly List<Batch> _batches=new List<Batch>();
-        private CommandBuffer _commands;private Material _blurMaterial,_presentMaterial;private RenderTexture _target,_uiTarget;private Rect _viewport;private float _dpr=1;
+        private CommandBuffer _commands;private Material _blurMaterial,_presentMaterial;private RenderTexture _target,_uiTarget;private Rect _viewport;private float _dpr=1;private Vector2 _logicalSize;
         internal Vector2 SourceOrigin;internal bool LocalizeCanvasText=true;internal Texture UiTexture=>_uiTarget;
+        internal Vector2 LogicalSize=>_logicalSize;
         private static readonly ProfilerMarker ShadowCommandsMarker=new ProfilerMarker("EchoSphere.World.ShadowCommands"),ExecuteMarker=new ProfilerMarker("EchoSphere.World.Execute"),FrameMarker=new ProfilerMarker("EchoSphere.World.Composite");
         private static readonly int ShadowMaskId=Shader.PropertyToID("_SourceShadowMask");
         private static readonly int ShadowPingId=Shader.PropertyToID("_SourceShadowPing");
@@ -41,7 +42,7 @@ namespace EchoSphere.Presentation
         {_commands=new CommandBuffer {name="ECHO SPHERE native world"};_blurMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceCanvasShadow"));_presentMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceCanvasPresent"));}
         internal void SetViewport(float width,float height,float dpr)
         {
-            width=Mathf.Max(1,width);height=Mathf.Max(1,height);_viewport=new Rect(-width*.5f*SpherePlacementRules.SourcePixelsToWorld,-height*.5f*SpherePlacementRules.SourcePixelsToWorld,width*SpherePlacementRules.SourcePixelsToWorld,height*SpherePlacementRules.SourcePixelsToWorld);
+            width=Mathf.Max(1,width);height=Mathf.Max(1,height);_logicalSize=new Vector2(width,height);_viewport=new Rect(-width*.5f*SpherePlacementRules.SourcePixelsToWorld,-height*.5f*SpherePlacementRules.SourcePixelsToWorld,width*SpherePlacementRules.SourcePixelsToWorld,height*SpherePlacementRules.SourcePixelsToWorld);
             double density=Math.Min(1.75,Math.Max(1,float.IsNaN(dpr)||float.IsInfinity(dpr)?1:dpr));_dpr=(float)density;
             int w=Math.Max(1,(int)Math.Floor(width*density+.5)),h=Math.Max(1,(int)Math.Floor(height*density+.5));if(_target!=null&&_target.width==w&&_target.height==h)return;
             Release(ref _target);Release(ref _uiTarget);
@@ -63,7 +64,7 @@ namespace EchoSphere.Presentation
             using var frame=FrameMarker.Auto();bool dirty=false;void Rebuilt(Font font){dirty=true;}Font.textureRebuilt+=Rebuilt;
             try{int attempts=0;do{dirty=false;foreach(var batch in _batches)batch.NativePrepareGlyphs?.Invoke();if(++attempts>8&&dirty)throw new InvalidOperationException("Native font atlas could not retain the frame glyphs");}while(dirty);}finally{Font.textureRebuilt-=Rebuilt;}
             foreach(var batch in _batches)batch.NativeEmitGlyphs?.Invoke();RenderMeshes();
-            var previous=RenderTexture.active;var gamma=GL.sRGBWrite;try{GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(_target,_uiTarget,_presentMaterial,1);}finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
+            var previous=RenderTexture.active;var gamma=GL.sRGBWrite;try{GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(_target,_uiTarget,_presentMaterial,2);}finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
         }
         internal void DrawNativeMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Matrix4x4? localTransform=null,Color? shadow=null,float shadowBlur=0,bool inheritBlend=false,float? opacity=null,bool inheritShadow=false,bool screen=false,bool additive=false,bool inheritShadowOffsets=false)
         {
@@ -88,13 +89,15 @@ namespace EchoSphere.Presentation
         {
             if(_target==null)throw new InvalidOperationException("Native world viewport is not set");
             _commands.Clear();_commands.SetRenderTarget(_target);_commands.ClearRenderTarget(false,true,Color.clear);
-            var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),true);
+            // This texture is sampled directly by UI Toolkit, not presented by a Camera.
+            // Camera render-target Y inversion would mirror both the world and its labels.
+            var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),false);
             _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
             var mask=ShadowMaskId;var ping=ShadowPingId;var blur=ShadowBlurId;
             var hasShadows=false;var paddingX=0;var paddingY=0;foreach(var batch in _batches)if(batch.NativeMesh!=null&&batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)){hasShadows=true;paddingX=Math.Max(paddingX,VisualCanvasShadowViewport.Padding(batch.Blur,batch.X));paddingY=Math.Max(paddingY,VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y));}
             var shadowViewport=new VisualCanvasShadowViewport(_target.width,_target.height,paddingX,paddingY);
             var pixelX=_viewport.width/_target.width;var pixelY=_viewport.height/_target.height;
-            var shadowProjection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin-paddingX*pixelX,_viewport.xMax+paddingX*pixelX,_viewport.yMin-paddingY*pixelY,_viewport.yMax+paddingY*pixelY,-1f,1f),true);
+            var shadowProjection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin-paddingX*pixelX,_viewport.xMax+paddingX*pixelX,_viewport.yMin-paddingY*pixelY,_viewport.yMax+paddingY*pixelY,-1f,1f),false);
             if(hasShadows){_commands.GetTemporaryRT(mask,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear,4);
             _commands.GetTemporaryRT(ping,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
             _commands.GetTemporaryRT(blur,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);}
