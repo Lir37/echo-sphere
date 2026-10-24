@@ -64,7 +64,7 @@ namespace EchoSphere.Runtime
                 view["networkDisabledTimer"]=sphere.SourceProjectionNetworkDisabledTimer;view["formationHitCount"]=sphere.FormationHitCount;view["resonancePulseTimer"]=sphere.ResonancePulseTimer;
             } else if(entity is EnemyAgent2D enemy) {
                 view["hp"]=enemy.CurrentHp;view["maxHp"]=enemy.MaxHp;view["radius"]=enemy.SourceRadius;view["color"]=enemy.SourceColorHtml;
-                view["type"]=enemy.SourceMonsterType;view["isBoss"]=enemy.IsBoss;view["isElite"]=enemy.IsElite;view["bossType"]=enemy.BossType;view["role"]=enemy.Role;view["eliteVariant"]=enemy.EliteVariant;
+                view["type"]=enemy.SourceMonsterType;view["isBoss"]=enemy.IsBoss;view["isElite"]=enemy.IsElite;view["bossType"]=enemy.BossType;view["role"]=enemy.Role;view["bossShootTimer"]=enemy.SourceProjectionRoleActionTimer;view["eliteVariant"]=enemy.EliteVariant;
                 var visual=enemy.SourceProjectionCreatureVisual;view["visualVariant"]=visual==null?VisualJs.Null:new V(visual.SourceVariant);
                 view["hitFlash"]=enemy.SourceProjectionHitFlash;view["tier"]=enemy.SourceVisualTier;view["freezeTimer"]=enemy.SourceProjectionFreezeTimer;view["fireTimer"]=enemy.SourceProjectionFireTimer;view["poisonTimer"]=enemy.SourceProjectionPoisonTimer;
                 view["rotation"]=enemy.SourceProjectionRotation;

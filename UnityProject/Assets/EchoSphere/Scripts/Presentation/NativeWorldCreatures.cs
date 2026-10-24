@@ -40,7 +40,7 @@ namespace EchoSphere.Presentation
             _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native creature anatomy",hideFlags=HideFlags.DontSave};
             _radial=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldCreatureGlow")){name="Native creature glows",hideFlags=HideFlags.DontSave};
         }
-        internal void BeginFrame(){_used=0;_segmentUsed=0;_dynamicUsed=0;_labelUsed=0;}
+        internal void BeginFrame(){_hostileUsed=0;_used=0;_segmentUsed=0;_dynamicUsed=0;_labelUsed=0;}
         private Art Dynamic(BezierContour contour,double width=0,bool fill=true)
         {
             if(_dynamicUsed==_dynamic.Count)_dynamic.Add(new Art());var art=_dynamic[_dynamicUsed++];art.Build(contour,(float)width,_surface.NativeStrokeEnding,_surface.NativeStrokeCorner,_surface.NativeStrokeMiter,fill);return art;
@@ -138,6 +138,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){foreach(var art in _art.Values)art.Dispose();foreach(var art in _segments)art.Dispose();foreach(var art in _dynamic)art.Dispose();_art.Clear();_segments.Clear();_dynamic.Clear();foreach(var label in _bossLabels)label.Dispose();_bossLabels.Clear();Destroy(_solid);Destroy(_radial);}
+        public void Dispose(){DisposeSimpleHostiles();foreach(var art in _art.Values)art.Dispose();foreach(var art in _segments)art.Dispose();foreach(var art in _dynamic)art.Dispose();_art.Clear();_segments.Clear();_dynamic.Clear();foreach(var label in _bossLabels)label.Dispose();_bossLabels.Clear();Destroy(_solid);Destroy(_radial);}
     }
 }

@@ -1641,3 +1641,49 @@ This uses actual panel picking/callbacks with frozen simulation, not physical An
 touch or live-combat performance. Final Console 0 errors/0 warnings. Play stopped;
 all 10 backed-up game preference keys restored and verified. User settings, quality,
 URP, volume and recovery changes preserved.
+
+### Four-form hostile presentation trial (2026-10-24)
+
+User approved the simple geometric concept for an in-game trial before extending
+it to every enemy. NativeWorldSimpleHostiles replaces only skitter (Runner), wisp
+(Floater), brute (Heavy), and existing non-boss ranged/sniper roles (Shooter).
+Remaining variants, bosses, spheres and environment keep their existing artwork.
+Approved concept and actual native renderer evidence are in GPT/hostile-trial/.
+
+The implementation is articulated 2.5D Unity Mesh geometry, not a complete 3D
+scene or a textured concept-art cutout. Seven immutable shared part meshes use
+bevels, vertex shading and per-part transforms. Runner/Heavy gait follows traveled
+distance; Floater plates open/bob; Shooter glow/recoil reads the existing actual
+role-action timer and aims along the existing player target vector. New read-only
+projection fields expose role/timer; Editor reference projection exposes the same
+source bossShootTimer meaning. No attack timers, speed, damage, RNG or hitboxes
+were changed. No new enemy roles or attacks were added.
+
+Trial enemies use plate highlights and three compact sparks instead of the white
+hit cross, an additional armor plate/slit instead of the elite arc/squares, small
+surface status accents and integrated tier marks. Existing Link Breaker warnings
+remain. Ordinary/sniper hostile projectile visuals use nested dense seed/needle
+silhouettes and a shorter trail; projectile simulation and all boss-projectile
+forms remain unchanged. Death still uses the existing death/effect system; no
+complete death redesign or all-enemy conversion is claimed.
+
+Checks: actual Editor compile 0 errors/warnings; GPU sheet covers all four forms,
+elite/hit rows and 44px-scale examples (24 draw samples, 12 nonempty pixel cells,
+seven shared meshes). 32 actual GPU frames exported as native-animation.gif;
+10fps is export cadence, NOT measured gameplay FPS. Portrait 360x640 native
+preview is a controlled scale study, not Android device acceptance. Actual runtime
+scene capture used four temporary EnemyAgent2D instances, ordinary frame/UI/world
+pipeline and frozen simulation; original menu, time and RNG restored afterward.
+Projection comparison includes grunt/ranged/sniper roles and boss variants: 4680
+field comparisons PASS. Actual routed pointer regression 47 checks PASS.
+Android player/editor C# checks: 326 runtime files, 0 errors/warnings. 272 Node
+tests, preflight, provenance and generated exports PASS. Final Console 0 errors /
+0 warnings. Play stopped and all 10 preference keys restored/verified, including
+the user's saved active run. Existing quality/URP/volume/settings/recovery edits
+preserved. No APK and no protected-branch change.
+
+Acceptance is pending the user's assessment in real gameplay. This trial does
+not close combat performance, character-menu reappearance, all-enemy visual
+conversion, Android acceptance or P1/P2. Prior baseline
+9276a1a7e73fdedae4b588caa6336c51fddaa57b passed CI #843 SUCCESS; check the
+containing implementation commit CI separately.

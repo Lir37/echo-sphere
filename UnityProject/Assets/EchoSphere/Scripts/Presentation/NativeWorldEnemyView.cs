@@ -13,11 +13,12 @@ namespace EchoSphere.Presentation
             internal object Identity;
             internal double X,Y,Radius,Rotation,HitFlash,Tier,Hp,MaxHp,LinkTimer,LinkX,LinkY,LinkWindow;
             internal bool HasRotation,Boss,Elite,Fire,Poison,Freeze,LinkTarget;
-            internal string Variant,BossName;
+            internal string Variant,BossName,Role;
+            internal double ShotTimer;
             internal Color Color;
             internal BossSignal Signal;
         }
-        private sealed class Facing {internal double X,Y,Angle;}
+        private sealed class Facing {internal double X,Y,Angle,Travel;}
         private readonly ConditionalWeakTable<object,Facing> _facing=new ConditionalWeakTable<object,Facing>();
         private readonly List<NativeWorldLabel> _bossLabels=new List<NativeWorldLabel>();
         private int _labelUsed;
@@ -34,7 +35,7 @@ namespace EchoSphere.Presentation
         private double FacingAngle(EnemyView e)
         {
             if(!_facing.TryGetValue(e.Identity,out var previous)){previous=new Facing {Angle=e.HasRotation?e.Rotation:0};_facing.Add(e.Identity,previous);}
-            else{double dx=e.X-previous.X,dy=e.Y-previous.Y;if(dx*dx+dy*dy>.04)previous.Angle=Math.Atan2(dy,dx);}
+            else{double dx=e.X-previous.X,dy=e.Y-previous.Y;if(dx*dx+dy*dy>.04){previous.Angle=Math.Atan2(dy,dx);previous.Travel+=Math.Sqrt(dx*dx+dy*dy)/Math.Max(1,e.Radius);}}
             previous.X=e.X;previous.Y=e.Y;return previous.Angle;
         }
         private void LinkBreaker(Matrix4x4 root,EnemyView e,double t)
@@ -54,13 +55,16 @@ namespace EchoSphere.Presentation
         internal void DrawEnemy(NativeWorldSurface surface,EnemyView e,double t)
         {
             _surface=surface;double facing=FacingAngle(e),hit=Clamp(e.HitFlash/.15),pulse=1+Math.Sin(t*5+e.X*.01)*.025,scale=pulse+hit*.05;var root=T(e.X,e.Y,facing,scale,scale);var statusColor=e.Freeze?C(105,214,255):e.Color;
-            DrawOuterGlow(surface,e.Radius*(e.Boss?1.65:1.15),statusColor,e.Boss?.21:.10,root);
+            if(SimpleHostileKind(e)=="shooter"&&(e.Signal.TargetX*e.Signal.TargetX+e.Signal.TargetY*e.Signal.TargetY)>.001){facing=Math.Atan2(e.Signal.TargetY,e.Signal.TargetX);root=T(e.X,e.Y,facing,scale,scale);}
+            if(SimpleHostileKind(e)==null)DrawOuterGlow(surface,e.Radius*(e.Boss?1.65:1.15),statusColor,e.Boss?.21:.10,root);
             if(e.Boss){DrawBossSignal(surface,e.Signal,t,root);Draw(surface,e.Radius,e.Color,t,e.Variant,true,root);}
             else{
-                Draw(surface,e.Radius,e.Color,t,e.Variant,false,root);if(e.Elite)DrawElite(surface,e.Radius,e.Color,t,root);
+                bool simple=DrawSimpleHostile(surface,e,t,root,_facing.GetOrCreateValue(e.Identity).Travel);
+                if(!simple){Draw(surface,e.Radius,e.Color,t,e.Variant,false,root);if(e.Elite)DrawElite(surface,e.Radius,e.Color,t,root);
                 if(e.Tier>0){double n=Math.Min(3,e.Tier);var local=root*T(0,-e.Radius*1.55,t*.35);var ray=Get(44,e.Radius,0,1.2,()=>Straight(P(e.Radius*.10,0),P(e.Radius*.38,0)),false);for(int i=0;i<n;i++)Paint(ray,local*T(angle:i*Math.PI*2/n),null,A(statusColor,.46));}
-                LinkBreaker(root,e,t);if(e.Fire||e.Poison||e.Freeze)DrawStatus(surface,e.Radius,t,e.Fire,e.Poison,e.Freeze,root);
-                if(hit>0){var cross=Multi(45,e.Radius,2,()=>new[]{Straight(P(-e.Radius*.8,-e.Radius*.8),P(e.Radius*.8,e.Radius*.8)),Straight(P(e.Radius*.8,-e.Radius*.8),P(-e.Radius*.8,e.Radius*.8))});Paint(cross,root,null,C(255,255,255,hit*.75));}
+                }
+                LinkBreaker(root,e,t);if(!simple&&(e.Fire||e.Poison||e.Freeze))DrawStatus(surface,e.Radius,t,e.Fire,e.Poison,e.Freeze,root);
+                if(!simple&&hit>0){var cross=Multi(45,e.Radius,2,()=>new[]{Straight(P(-e.Radius*.8,-e.Radius*.8),P(e.Radius*.8,e.Radius*.8)),Straight(P(e.Radius*.8,-e.Radius*.8),P(-e.Radius*.8,e.Radius*.8))});Paint(cross,root,null,C(255,255,255,hit*.75));}
             }
 
             if(e.Boss){double w=Math.Max(110,e.Radius*1.55),ratio=Clamp(e.Hp/Math.Max(1,e.MaxHp)),x=e.X-w/2,y=e.Y-e.Radius-30;var bar=Get(46,w,6,1,()=>Poly(Vector2.zero,P(w,0),P(w,6),P(0,6)));Paint(bar,T(x,y),C(2,7,18,.88),null,shadow:statusColor);Paint(bar,T(x,y,sx:ratio),statusColor,null,shadow:statusColor);Paint(bar,T(x,y),null,C(220,250,255,.68),shadow:statusColor);
