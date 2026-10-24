@@ -2,7 +2,7 @@ import {createRequire} from 'node:module';
 import {readFileSync,writeFileSync,mkdirSync,readdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {resolve,dirname} from 'node:path';
-const output='UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json';
+const output='UnityProject/Assets/Editor/EchoSphereReference/SourceUiStyles.json';
 const manifestPath='UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/source-ui-style-manifest.json';
 const hash=text=>createHash('sha256').update(text.replaceAll('\r\n','\n')).digest('hex');
 if(process.argv.includes('--check')){

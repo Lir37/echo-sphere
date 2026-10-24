@@ -19,7 +19,7 @@ Add("radar","native-hud-radar",Row("es-radar"),62,62);Add("ring1","radar-ring-0"
 Add("enemy-normal","radar-enemy-0",Row("es-radar-dot"),2,2);Add("player","radar-player",Row("es-radar-player"),4,4);
 var enemyPaints=(EchoSphere.Presentation.NativeMenuBrush.Paint[])view.Radar.GetType().GetField("_enemyPaint",flags).GetValue(view.Radar);
 foreach(var item in new[]{("elite",1,3),("boss",2,5)}){var node=new EchoSphere.Presentation.VisualCssNode {Tag="span",Width=item.Item3,Height=item.Item3,Properties=EchoSphere.Presentation.VisualJs.Obj("className","es-radar-dot "+item.Item1)};cases.Add((item.Item1,enemyPaints[item.Item2],node));}
-var sheet=new EchoSphere.Presentation.VisualCss(EchoSphere.Presentation.VisualJson.Parse(UnityEngine.Resources.Load<UnityEngine.TextAsset>("EchoSphere/SourceUiStyles").text)){Width=1260,Height=542};
+var sheet=new EchoSphere.Presentation.VisualCss(EchoSphere.Presentation.VisualJson.Parse(UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>("Assets/Editor/EchoSphereReference/SourceUiStyles.json").text)){Width=1260,Height=542};
 foreach(var item in cases)if(item.Node.Style.Count==0)sheet.Apply(item.Node);
 var brush=new EchoSphere.Presentation.NativeMenuBrush();var results=new System.Collections.Generic.List<object>();int index=0;var scales=new[]{1f,1.75f,3f};
 UnityEditor.SessionState.SetString("EchoNativeHudBrushes","RUNNING");UnityEditor.EditorApplication.CallbackFunction tick=null;

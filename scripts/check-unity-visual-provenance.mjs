@@ -6,7 +6,7 @@ const manifestPath='tools/EchoSphere.VisualChecks/source-reference-manifest.json
 const hash=file=>{const bytes=readFileSync(file);return createHash('sha256').update(/\.(?:gz|png)$/.test(file)?bytes:bytes.toString('utf8').replaceAll('\r\n','\n')).digest('hex');};
 function files(directory){return readdirSync(directory,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?files(directory+'/'+entry.name):[directory+'/'+entry.name]);}
 const inputs=[...files('src').filter(file=>/\.(?:tsx?|css|js)$/.test(file)),...readdirSync('scripts').filter(file=>/^(?:export-unity-(?:visual|ui|css|animation|transition|paint|canvas|control|backdrop)|source-(?:ui-view|css-browser))/.test(file)).map(file=>'scripts/'+file),'package-lock.json','tailwind.config.js','postcss.config.js'];
-const outputs=[...files('tools/EchoSphere.VisualChecks').filter(file=>/\/source-(?!reference-manifest).*\.(?:json|gz)$/.test(file)&&!file.includes('/bin/')&&!file.includes('/obj/')),'UnityProject/Assets/Resources/EchoSphere/SourceUiIcons.json'];
+const outputs=[...files('tools/EchoSphere.VisualChecks').filter(file=>/\/source-(?!reference-manifest).*\.(?:json|gz)$/.test(file)&&!file.includes('/bin/')&&!file.includes('/obj/')),'UnityProject/Assets/Editor/EchoSphereReference/SourceUiIcons.json'];
 if(process.argv.includes('--record'))writeFileSync(manifestPath,JSON.stringify({referenceCommit:'737ef2af4a877e0995db5f92331d536d2f29a934',referenceBranch:'new-desing',runtime:'Original locked TypeScript 5.6.3 / React 18.3.1; browser references from Edge 155.0.4283.45',inputs:Object.fromEntries(inputs.sort().map(file=>[file,hash(file)])),outputs:Object.fromEntries(outputs.sort().map(file=>[file,hash(file)]))},null,2)+'\n');
 const manifest=JSON.parse(readFileSync(manifestPath,'utf8'));
 for(const [file,expected]of Object.entries({...manifest.inputs,...manifest.outputs}))assert.equal(hash(file),expected,'Source reference provenance changed: '+file);
@@ -34,7 +34,7 @@ assert.ok(!/\bV\b|_sourceRenderState/.test(nativeFrame),'World frame coordinatio
 assert.ok(!files('src').filter(file=>/\.tsx?$/.test(file)).some(file=>/\.fireTrails\s*(?:=(?!=)|\.(?:push|unshift)\s*\()/.test(readFileSync(file,'utf8'))),'Fire-trail segment producer added: port its live native segment layer before shipping');
 assert.ok(bridge.includes('AddComponent<NativeWorldSurface>()')&&!bridge.includes('AddComponent<SourceCanvasSurface>()'),'Active world must use the native mesh compositor');
 assert.ok(bridge.includes('_camera.cullingMask=0')&&!bridge.includes('FindObjectsByType<Renderer>'),'The source UI texture must replace scene rendering without a full-scene Renderer scan every frame');
-assert.ok(!code.filter(item=>item.file.includes('/Presentation/')).some(item=>/WebView|Jint|ClearScript|UnityEditor/.test(item.text)),'Source presentation must run as native runtime C#');
+assert.ok(!code.filter(item=>item.file.includes('/Presentation/')).some(item=>/WebView|Jint|ClearScript|UnityEditor/.test(playerText(item.text))),'Source presentation must run as native runtime C#');
 const uiBridge=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceUiBridge.cs','utf8');
 const runOwner=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeRunDocument.cs','utf8');
 const runDocument=readFileSync(presentation+'/NativeRunDocument.cs','utf8');

@@ -1,3 +1,4 @@
+using SourcePlannerEntry = EchoSphere.Presentation.NativeArchiveCatalog.PlannerEntry;
 using System;
 using System.Collections.Generic;
 using EchoSphere.Core;
@@ -18,7 +19,7 @@ namespace EchoSphere.Runtime
             return result;
         }
         private List<SourcePlannerEntry> SourceSetsForArtifact(string id)
-        { return _sourceKnowledge?.planner?.FindAll(set => set.category == "artifact-set" && SourceSetArtifacts(set).Contains(id)) ?? new List<SourcePlannerEntry>(); }
+        { return _sourceKnowledge?.Planner?.FindAll(set => set.category == "artifact-set" && SourceSetArtifacts(set).Contains(id)) ?? new List<SourcePlannerEntry>(); }
         private int SourceSetOwned(SourcePlannerEntry set)
         { var count = 0; foreach (var id in SourceSetArtifacts(set)) if (_ownedArtifacts.Contains(id)) count++; return count; }
         private void DrawSourceArtifactGlyph(Rect rect, ArtifactRewardDefinition artifact)
@@ -72,7 +73,7 @@ namespace EchoSphere.Runtime
         }
         private List<SourcePlannerEntry> SourceArtifactNewSynergies(string id)
         {
-            return _sourceKnowledge?.planner?.FindAll(pair => pair.category == "artifact-synergy" && Array.IndexOf(pair.requires, id) >= 0 && PlannerRequirementsOwned(pair, false) < pair.requires.Length && PlannerRequirementsOwned(pair, false) + 1 == pair.requires.Length) ?? new List<SourcePlannerEntry>();
+            return _sourceKnowledge?.Planner?.FindAll(pair => pair.category == "artifact-synergy" && Array.IndexOf(pair.requires, id) >= 0 && PlannerRequirementsOwned(pair, false) < pair.requires.Length && PlannerRequirementsOwned(pair, false) + 1 == pair.requires.Length) ?? new List<SourcePlannerEntry>();
         }
         private void DrawSourceArtifactChoices()
         {

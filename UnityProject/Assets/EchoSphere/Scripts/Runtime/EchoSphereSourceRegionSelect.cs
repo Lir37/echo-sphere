@@ -18,8 +18,8 @@ namespace EchoSphere.Runtime
             SourceUiLabel(new Rect(90f, 32f, _uiWidth - 180f, 12f), IsRussianUi ? "СТАБИЛИЗИРУЙ · ИСПЫТАЙ · УГЛУБИСЬ" : "STABILIZE · CHALLENGE · DESCEND", 6, "#7f9bb8", true);
             var width = Mathf.Min(720f, _uiWidth - 24f); var left = (_uiWidth - width) * .5f;
             var view = new Rect(left, 74f, width, _uiHeight - 92f);
-            if (_sourceKnowledge?.planner == null) return;
-            var regions = _sourceKnowledge.planner.FindAll(entry => entry.category == "region");
+            if (_sourceKnowledge?.Planner == null) return;
+            var regions = _sourceKnowledge.Planner.FindAll(entry => entry.category == "region");
             var total = 64f;
             foreach (var region in regions) total += (IsRegionAvailable(region.id == "spectral_rift" ? EchoRegionId.SpectralRift : EchoRegionId.ResonanceBasin) ? 367f : 150f) + 12f;
             _sourceRegionScroll = GUI.BeginScrollView(view, _sourceRegionScroll, new Rect(0f, 0f, width, total));

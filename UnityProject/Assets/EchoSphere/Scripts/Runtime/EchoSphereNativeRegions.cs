@@ -30,7 +30,7 @@ namespace EchoSphere.Runtime
         private NativeRegionScreen.State ReadNativeRegionState()
         {
             EnsureKnowledgeLoaded();var regions=new List<NativeRegionScreen.Region>();
-            foreach(var entry in _sourceKnowledge.planner){
+            foreach(var entry in _sourceKnowledge.Planner){
                 if(entry.category!="region")continue;
                 EchoRegionId id=entry.id=="spectral_rift"?EchoRegionId.SpectralRift:EchoRegionId.ResonanceBasin;
                 bool available=IsRegionAvailable(id);var completed=GetCompletedRegionChallenges(id);

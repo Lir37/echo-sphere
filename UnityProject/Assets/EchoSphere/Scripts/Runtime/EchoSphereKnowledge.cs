@@ -7,12 +7,8 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        [Serializable] private sealed class KnowledgeEntry
-        { public string section=null, id=null, group=null, nameRu=null, nameEn=null, descRu=null, descEn=null, detailsRu=null, detailsEn=null; }
-        [Serializable] private sealed class KnowledgeCatalog
-        { public string sourceCommit=null, sourceDigest=null; public List<KnowledgeEntry> entries=null; public List<SourcePlannerEntry> planner=null; }
         [Serializable] private sealed class KnowledgeSave { public List<string> ids = new List<string>(); }
-        private KnowledgeCatalog _sourceKnowledge;
+        private EchoSphere.Presentation.NativeArchiveCatalog _sourceKnowledge;
         private readonly HashSet<string> _knownKnowledgeIds = new HashSet<string>();
         private bool _knowledgeLoaded;
         private string _knowledgeSection = "basics", _knowledgeQuery = "";
@@ -23,8 +19,8 @@ namespace EchoSphere.Runtime
         private void EnsureKnowledgeLoaded()
         {
             if (_knowledgeLoaded) return;
-            var asset = Resources.Load<TextAsset>("EchoSphere/SourceCatalog");
-            if (asset != null) _sourceKnowledge = JsonUtility.FromJson<KnowledgeCatalog>(asset.text);
+            _sourceKnowledge = Resources.Load<EchoSphere.Presentation.NativeArchiveCatalog>("EchoSphere/NativeArchiveCatalog");
+            if (_sourceKnowledge == null) throw new InvalidOperationException("Native archive/planner catalog missing");
             try
             {
                 var save = JsonUtility.FromJson<KnowledgeSave>(PlayerPrefs.GetString("echosphere_knowledge_v1", "{}"));
@@ -89,7 +85,7 @@ namespace EchoSphere.Runtime
             _knowledgeQuery = GUI.TextField(new Rect(panel.x + 18f, panel.y + 150f, panel.width - 36f, 28f), _knowledgeQuery, _button);
             var view = new Rect(panel.x + 18f, panel.y + 188f, panel.width - 36f, panel.height - 239f);
             if (_sourceKnowledge == null) return;
-            var filtered = _sourceKnowledge.entries.FindAll(entry => entry.section == _knowledgeSection &&
+            var filtered = _sourceKnowledge.Entries.FindAll(entry => entry.section == _knowledgeSection &&
                 (_knowledgeSection == "basics" || _knowledgeSection == "evolutions" || (IsRussianUi ? entry.nameRu : entry.nameEn).IndexOf(_knowledgeQuery.Trim(), StringComparison.OrdinalIgnoreCase) >= 0));
             var columns = _knowledgeSection == "basics" || panel.width < 640f ? 1 : 2;
             var cardWidth = (view.width - 18f - (columns - 1) * 10f) / columns;

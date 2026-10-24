@@ -1,5 +1,5 @@
 UnityEditor.AssetDatabase.ImportAsset("Assets/Resources/EchoSphere/NativeMenuBrush.shader",UnityEditor.ImportAssetOptions.ForceUpdate);
-var sheet=new EchoSphere.Presentation.VisualCss(EchoSphere.Presentation.VisualJson.Parse(UnityEngine.Resources.Load<UnityEngine.TextAsset>("EchoSphere/SourceUiStyles").text)){Width=1260,Height=542};
+var sheet=new EchoSphere.Presentation.VisualCss(EchoSphere.Presentation.VisualJson.Parse(UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>("Assets/Editor/EchoSphereReference/SourceUiStyles.json").text)){Width=1260,Height=542};
 var cases=new[]{("body",68.2f,68.2f,1f),("ring",127f,127f,1f),("dot",7f,7f,1f),("highlight",37f,28f,1f),("avatar",29f,29f,1f),("body",68.2f,68.2f,.75f),("avatar",29f,29f,1.75f),("ring",127f,127f,1.75f),("ring-b",87f,87f,1f),("ring-c",59f,59f,1f),("ring-d",109f,109f,1f),("ring-e",35f,35f,1f)};
 var results=new System.Collections.Generic.List<object>();var brush=new EchoSphere.Presentation.NativeMenuBrush();int index=0;
 UnityEditor.SessionState.SetString("EchoNativeMenuBrushes","RUNNING");

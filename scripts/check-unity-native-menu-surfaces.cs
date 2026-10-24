@@ -1,7 +1,7 @@
 UnityEditor.AssetDatabase.ImportAsset("Assets/Resources/EchoSphere/NativeMenuBrush.shader",UnityEditor.ImportAssetOptions.ForceUpdate);
 var cases=new[]{("Loadout",false,false,1f),("Character",false,false,1f),("Character",true,false,1f),("Difficulty",false,false,1f),("Difficulty",false,true,1f),("Continue",false,false,1f),("Continue",true,false,1f),("Navigation",false,false,1f),("NavigationButton",false,false,1f),("NavigationButton",true,false,1f),("Continue",false,false,1.75f),("Navigation",false,false,1.75f)};
 var type=typeof(EchoSphere.Presentation.NativeMainMenuComposition);var kindType=type.GetNestedType("Kind",System.Reflection.BindingFlags.NonPublic);var method=type.GetMethod("Paint",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static);
-var sheet=new EchoSphere.Presentation.VisualCss(EchoSphere.Presentation.VisualJson.Parse(UnityEngine.Resources.Load<UnityEngine.TextAsset>("EchoSphere/SourceUiStyles").text)){Width=1260,Height=542};
+var sheet=new EchoSphere.Presentation.VisualCss(EchoSphere.Presentation.VisualJson.Parse(UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>("Assets/Editor/EchoSphereReference/SourceUiStyles.json").text)){Width=1260,Height=542};
 var brush=new EchoSphere.Presentation.NativeMenuBrush();int index=0;var results=new System.Collections.Generic.List<object>();
 UnityEditor.SessionState.SetString("EchoNativeMenuSurfaces","RUNNING");UnityEditor.EditorApplication.CallbackFunction tick=null;
 tick=()=>{

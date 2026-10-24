@@ -1517,12 +1517,17 @@ assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
   sourceHomeUi.includes('var navButtonHeight = narrowPhone ? 46f : 42f'),
   'main-menu navigation must preserve all six source icon identities as line-art alongside the live destinations');
 const knowledgeRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs'), 'utf8').replaceAll('\r\n', '\n');
-const sourceCatalogPath = join(root, 'Assets/Resources/EchoSphere/SourceCatalog.json');
+const sourceCatalogPath = join(root, 'Assets/Editor/EchoSphereReference/SourceCatalog.json');
 assert.ok(existsSync(sourceCatalogPath) &&
   ['nameRu', 'nameEn', 'descRu', 'descEn', 'detailsRu', 'detailsEn'].every(name => knowledgeRuntime.includes(name)) &&
-  knowledgeRuntime.includes('Resources.Load<TextAsset>("EchoSphere/SourceCatalog")') &&
+  knowledgeRuntime.includes('Resources.Load<EchoSphere.Presentation.NativeArchiveCatalog>("EchoSphere/NativeArchiveCatalog")') &&
   ['basics', 'spheres', 'monsters', 'bosses', 'abilities', 'artifacts', 'evolutions'].every(section => knowledgeRuntime.includes(section)),
-  'Unity knowledge base must load source-catalog localized names, descriptions and details for all source sections');
+  'Unity knowledge base must load the native catalog with source-authored localized names/descriptions/details');
+for (const name of ['SourceCatalog', 'SourceUiStyles', 'SourceUiIcons']) {
+  assert.ok(existsSync(join(root, 'Assets/Editor/EchoSphereReference', name + '.json')) &&
+    !existsSync(join(root, 'Assets/Resources/EchoSphere', name + '.json')),
+    'Retired reference data must stay Editor-only, not in player Resources: ' + name);
+}
 const regionSelectUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceRegionSelect.cs'), 'utf8').replaceAll('\\r\\n', '\\n');
 assert.ok(regionSelectUi.includes('var cardHeight = available ? 367f : 150f') &&
   regionSelectUi.includes('DrawRegionLockIcon') &&

@@ -1,6 +1,6 @@
 // GPU result versus the existing source CSS paint, without any browser.
 UnityEditor.AssetDatabase.ImportAsset("Assets/Resources/EchoSphere/NativeMainMenuBackground.shader",UnityEditor.ImportAssetOptions.ForceUpdate);
-var sheet=new EchoSphere.Presentation.VisualCss(EchoSphere.Presentation.VisualJson.Parse(UnityEngine.Resources.Load<UnityEngine.TextAsset>("EchoSphere/SourceUiStyles").text));
+var sheet=new EchoSphere.Presentation.VisualCss(EchoSphere.Presentation.VisualJson.Parse(UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>("Assets/Editor/EchoSphereReference/SourceUiStyles.json").text));
 var parent=new UnityEngine.UIElements.VisualElement();
 var background=new EchoSphere.Presentation.NativeMainMenuBackground(parent);
 var cases=new[]{new UnityEngine.Vector3(320,240,1),new UnityEngine.Vector3(480,854,1),new UnityEngine.Vector3(1260,542,1),new UnityEngine.Vector3(320,240,1.75f),new UnityEngine.Vector3(480,854,.75f)};

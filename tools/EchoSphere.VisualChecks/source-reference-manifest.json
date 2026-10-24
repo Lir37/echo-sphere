@@ -7,7 +7,7 @@
     "postcss.config.js": "e32657baf631d7c5f4dc67b4b2ee0ec8e7d5b3c41860e09cddce7c0377cd80bc",
     "scripts/export-unity-animation-fixtures.cjs": "02cbc748698647f308d6a47dd54b47af2aa05b76c1194f54b26336cdc03993be",
     "scripts/export-unity-backdrop-fixtures.cjs": "4bab47a9220d7c01be6823195133368f5789845a54bac26efc3b0db0297974fb",
-    "scripts/export-unity-canvas-art.cjs": "0c81a1c142f04ecd0c42b98931eccc5fd2c4eb30bc83fb1f5847600b3cd43cf5",
+    "scripts/export-unity-canvas-art.cjs": "2b324b2734e956e30defb7a6308074782eadcb9fa932b8f9a2ac3c4fd8534637",
     "scripts/export-unity-canvas-image-fixtures.cjs": "3c610d35caca442af20d84d05707bea7bf3e0577a32de40414f1e780e15af0b1",
     "scripts/export-unity-canvas-shadow-fixtures.cjs": "9952632deac1913524c45df1f9aee01cc32f48e2ef3a56809fb90f9d303ba9ab",
     "scripts/export-unity-control-art.cjs": "70c8367be3e3a8c52071556addd35836b79e2f62a70adea6ba6c215389ed8675",
@@ -19,7 +19,7 @@
     "scripts/export-unity-transition-timelines.cjs": "11e169e6c668543bc8f59fd4e767139e653f6cb00bfb10b24ccd49f5fd33cf41",
     "scripts/export-unity-ui-fixtures.cjs": "9518e1068f6051ced762d18770ff14bc766eff1b138b4c5137d2a2b4f241aa20",
     "scripts/export-unity-ui-interactions.cjs": "8bb05706c6838e75a16ea3ce7b242034fc06e28d687c93d6af5d51415f4e8a76",
-    "scripts/export-unity-ui-styles.mjs": "dc7a12554a16c099fa59f4e528107e6571f92f7a7ccb4d31b581a05d1d857f77",
+    "scripts/export-unity-ui-styles.mjs": "ef1913117bff1773ebafe0896dc139f417146a460d06c7c3d272370e05fa3fa6",
     "scripts/export-unity-visual-code.mjs": "fa2354ca8efe9f35630fe1d7a530d0291cc63339363c5241e80a21ed523225b8",
     "scripts/export-unity-visual-fixtures.mjs": "4eb9a72f0f3b68fcee7672e09c3cb5de841c1dab9107d5fee9572041c5bff1f9",
     "scripts/source-css-browser.cjs": "ae418cb3e248b538d88ff39d3bec8ed1562737a13a6d2d10b99e9b3bc8e9a3f5",
@@ -96,7 +96,7 @@
     "tailwind.config.js": "316c86f90ec708a4e953dbba5f6064ddae1feb701754f872b599c4bc2a0aceb5"
   },
   "outputs": {
-    "UnityProject/Assets/Resources/EchoSphere/SourceUiIcons.json": "2e92b9c2045cbcf29f7ec7b1bdcdc3c9e4583c9d5c4ddfec8e251e2262a8451c",
+    "UnityProject/Assets/Editor/EchoSphereReference/SourceUiIcons.json": "2e92b9c2045cbcf29f7ec7b1bdcdc3c9e4583c9d5c4ddfec8e251e2262a8451c",
     "tools/EchoSphere.VisualChecks/source-animation-fixtures.json": "2bc0a5702f0864e720c2a2b9cc33b12cfaa542755676094569037cb984470855",
     "tools/EchoSphere.VisualChecks/source-backdrop-fixtures.json.gz": "49f959df6e6ef75ee5ca5d512fb67ad9004ba238c44e752c4f9e552d3a37821d",
     "tools/EchoSphere.VisualChecks/source-canvas-image-fixtures.json": "786ddc22b2f3578fbce696cc862d4d70027a35aec05424441adddaee3fdb2540",

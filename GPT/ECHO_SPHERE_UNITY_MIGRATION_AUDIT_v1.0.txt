@@ -5316,3 +5316,19 @@ Implementation migration is complete as an active-code boundary; P1/P2 final
 visual/control/device/performance acceptance remains OPEN. This does not establish
 all-effect parity, FPS/GC improvement or Android device behavior. No APK was built,
 no gameplay/balance/RNG/quality changes, protected new-desing baseline unchanged.
+
+## 2026-10-24 — Final shared planner data / reference packaging dependency
+
+Native region/upgrade/evolution views no longer parse SourceCatalog JSON at runtime.
+The existing NativeArchiveCatalog ScriptableObject now owns all 822 unchanged
+planner rows and its existing 305 unchanged archive entries. Player knowledge
+progress/save IDs and all game rules are preserved. SourceCatalog/SourceUiStyles/
+SourceUiIcons TextAssets and their GUIDs moved to Assets/Editor/EchoSphereReference;
+only importers/reference checks consume them. Their old Resources paths are absent.
+The retired Canvas image host index is Editor-only; native Sprite assets unchanged.
+
+Actual Editor exercised all seven native menu destinations after this change;
+822-row field/order checks, Android player/editor typechecks, 272 Node tests and
+source/visual/provenance checks passed. Console 0 errors/warnings. See current
+UNITY_NATIVE_MODERNIZATION_PROGRESS.md entry for bounded coverage and limitations.
+Final visual/control/device/performance acceptance remains OPEN; no APK was built.

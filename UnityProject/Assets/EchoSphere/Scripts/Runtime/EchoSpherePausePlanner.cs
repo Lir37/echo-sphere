@@ -1,3 +1,4 @@
+using SourcePlannerEntry = EchoSphere.Presentation.NativeArchiveCatalog.PlannerEntry;
 using System;
 using System.Collections.Generic;
 using EchoSphere.Core;
@@ -9,18 +10,12 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         // The four tabs and their contents follow PausePlanner in src/App.tsx.
-        [Serializable] private sealed class SourcePlannerEntry
-        {
-            public string category=null, id=null, nameRu=null, nameEn=null, descRu=null, descEn=null;
-            public string sphere=null, sphereBranch=null, ability=null, abilityFinal=null, color=null;
-            public string[] levelsRu=null, levelsEn=null, requires=null;
-        }
         private int _pausePlannerTab;
         private Vector2 _pausePlannerScroll;
         private string _pauseArtifactSetId;
         private string PlannerName(SourcePlannerEntry entry) => entry == null ? "" : IsRussianUi ? entry.nameRu : entry.nameEn;
         private string PlannerDesc(SourcePlannerEntry entry) => entry == null ? "" : IsRussianUi ? entry.descRu : entry.descEn;
-        private SourcePlannerEntry PlannerEntry(string category, string id) => _sourceKnowledge?.planner?.Find(entry => entry.category == category && entry.id == id);
+        private SourcePlannerEntry PlannerEntry(string category, string id) => _sourceKnowledge?.Planner?.Find(entry => entry.category == category && entry.id == id);
         private RunUpgradeKind PlannerAbility(string id)
         {
             foreach (RunUpgradeKind kind in Enum.GetValues(typeof(RunUpgradeKind))) if (SourceAbilityId(kind) == id) return kind;
@@ -176,8 +171,8 @@ namespace EchoSphere.Runtime
             PauseCard(cards, IsRussianUi ? "Сфер" : "Spheres", _spheres.Count + " / " + GetCurrentMaxSpheres());
             PauseCard(cards, IsRussianUi ? "Убийства" : "Kills", _kills.ToString());
             PauseCard(cards, IsRussianUi ? "Множитель XP" : "XP Mult", Mathf.FloorToInt(xp * 100f + 0.5f) + "%");
-            if (_sourceKnowledge?.planner == null) return;
-            foreach (var entry in _sourceKnowledge.planner)
+            if (_sourceKnowledge?.Planner == null) return;
+            foreach (var entry in _sourceKnowledge.Planner)
             {
                 if (entry.category != "sphere") continue;
                 var type = (SphereId)Enum.Parse(typeof(SphereId), entry.id, true);
@@ -208,8 +203,8 @@ namespace EchoSphere.Runtime
         }
         private void BuildPauseAbilities(List<KeyValuePair<string, string>> cards)
         {
-            if (_sourceKnowledge?.planner == null) return;
-            foreach (var category in new[] { "active", "passive" }) foreach (var entry in _sourceKnowledge.planner)
+            if (_sourceKnowledge?.Planner == null) return;
+            foreach (var category in new[] { "active", "passive" }) foreach (var entry in _sourceKnowledge.Planner)
             {
                 if (entry.category != category) continue;
                 var kind = PlannerAbility(entry.id); var level = GetAbilityLevel(kind);
@@ -235,7 +230,7 @@ namespace EchoSphere.Runtime
         private List<string> AbilityPlannerChoices(string id, bool final)
         {
             var result = new List<string>();
-            foreach (var entry in _sourceKnowledge.planner)
+            foreach (var entry in _sourceKnowledge.Planner)
                 if (entry.category == "ability-evolution" && entry.id.StartsWith(id + "_", StringComparison.Ordinal) && entry.id.Contains("_f") == final)
                 { result.Add(PlannerName(entry)); if (result.Count == 3) break; }
             return result;
@@ -262,8 +257,8 @@ namespace EchoSphere.Runtime
         }
         private void BuildPauseSynergies(List<KeyValuePair<string, string>> cards)
         {
-            if (_sourceKnowledge?.planner == null) return;
-            foreach (var entry in _sourceKnowledge.planner)
+            if (_sourceKnowledge?.Planner == null) return;
+            foreach (var entry in _sourceKnowledge.Planner)
             {
                 if (entry.category != "sphere-synergy") continue;
                 var sphere = (SphereId)Enum.Parse(typeof(SphereId), entry.sphere, true);
@@ -274,7 +269,7 @@ namespace EchoSphere.Runtime
                 PauseCard(cards, PlannerName(entry) + " · " + status, PlannerDesc(entry) + "\n" + PlannerName(PlannerEntry("sphere", entry.sphere)) + " · " + PlannerName(PlannerEntry("sphere-branch", entry.sphereBranch)) + " · VII " + (sphereOk ? "✓" : "•") + " · " + PlannerName(PlannerEntry("active", entry.ability)) + " VII " + (abilityOk ? "✓" : "•"));
             }
             BuildPauseDiagnostics(cards);
-            foreach (var entry in _sourceKnowledge.planner)
+            foreach (var entry in _sourceKnowledge.Planner)
             {
                 if (entry.category != "artifact-set") continue;
                 var owned = PlannerRequirementsOwned(entry, true); var complete = owned == entry.requires.Length;
@@ -286,7 +281,7 @@ namespace EchoSphere.Runtime
                 PauseCard(cards, (discovered ? IsRussianUi ? protocol.NameRussian : protocol.NameEnglish : "???") + " · " + (active ? IsRussianUi ? "АКТИВЕН" : "ACTIVE" : discovered ? IsRussianUi ? "ОТКРЫТ" : "DISCOVERED" : "???"),
                     discovered ? IsRussianUi ? protocol.DescriptionRussian : protocol.DescriptionEnglish : IsRussianUi ? "Неизвестный протокол." : "Unknown protocol.");
             }
-            foreach (var entry in _sourceKnowledge.planner) if (entry.category == "artifact-synergy")
+            foreach (var entry in _sourceKnowledge.Planner) if (entry.category == "artifact-synergy")
             {
                 var names = new List<string>(); foreach (var id in entry.requires) { var artifact = ArtifactRewardRules.Get(id); if (artifact != null) names.Add((_ownedArtifacts.Contains(id) ? "✓ " : "• ") + (IsRussianUi ? artifact.NameRussian : artifact.NameEnglish)); }
                 PauseCard(cards, PlannerName(entry) + " · " + PlannerRequirementsOwned(entry, false) + "/" + entry.requires.Length, PlannerDesc(entry) + "\n" + string.Join(" · ", names));
@@ -309,7 +304,7 @@ namespace EchoSphere.Runtime
             PauseCard(cards, IsRussianUi ? "Сеть" : "Network", (IsRussianUi ? "Типов сфер: " : "Sphere types: ") + types.Count + (IsRussianUi ? " · Связей: " : " · Links: ") + (_networkState?.Links.Count ?? 0) + (IsRussianUi ? " · Геометрия: " : " · Geometry: ") + _resonanceGeometryKey);
             PauseCard(cards, IsRussianUi ? "Резонанс" : "Resonance", (IsRussianUi ? "Резонанс: " : "Resonance: ") + Mathf.FloorToInt(_resonanceCharge) + "/100" + (IsRussianUi ? " · Геометрия: " : " · Geometry: ") + _resonanceGeometryKey);
             var synergySignals = new List<string>(); var sphereSynergyCount = 0;
-            foreach (var entry in _sourceKnowledge.planner)
+            foreach (var entry in _sourceKnowledge.Planner)
             {
                 if (entry.category == "artifact-set" && PlannerRequirementsOwned(entry, true) == entry.requires.Length) synergySignals.Add(PlannerName(entry));
                 if (entry.category == "sphere-synergy" && HasActiveAbilitySynergy((SphereId)Enum.Parse(typeof(SphereId), entry.sphere, true), entry.sphereBranch, PlannerAbility(entry.ability), entry.abilityFinal)) sphereSynergyCount++;
@@ -320,8 +315,8 @@ namespace EchoSphere.Runtime
         }
         private void DrawPauseArtifactSetButtons(Rect panel)
         {
-            if (_sourceKnowledge?.planner == null) return;
-            var sets = _sourceKnowledge.planner.FindAll(entry => entry.category == "artifact-set" && PlannerRequirementsOwned(entry, true) > 0);
+            if (_sourceKnowledge?.Planner == null) return;
+            var sets = _sourceKnowledge.Planner.FindAll(entry => entry.category == "artifact-set" && PlannerRequirementsOwned(entry, true) > 0);
             if (sets.Count == 0) return;
             var y = panel.y + 128f;
             foreach (var set in sets)

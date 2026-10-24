@@ -127,8 +127,8 @@ namespace EchoSphere.Presentation
         public void Initialize()
         {
             _nativeBackdrops=new NativeUiBackdropRegistry(ReplicaPaint,_replicaSnapshots);
-            _sheet=new VisualCss(VisualJson.Parse(Resources.Load<TextAsset>("EchoSphere/SourceUiStyles").text));_layout=new SourceUiLayout(_sheet);
-            VisualSourceIcons.Data=VisualJson.Parse(Resources.Load<TextAsset>("EchoSphere/SourceUiIcons").text);
+            _sheet=new VisualCss(VisualJson.Parse(UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>("Assets/Editor/EchoSphereReference/SourceUiStyles.json").text));_layout=new SourceUiLayout(_sheet);
+            VisualSourceIcons.Data=VisualJson.Parse(UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>("Assets/Editor/EchoSphereReference/SourceUiIcons.json").text);
             _svgMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceUiVector"));
             _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Source CSS viewport";_panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.sortingOrder=1000;_panel.forceGammaRendering=true;
             _panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");

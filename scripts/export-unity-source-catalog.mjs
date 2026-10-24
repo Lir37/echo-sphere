@@ -105,8 +105,8 @@ for (const region of REGION_CONFIGS) {
   for (const challenge of region.challenges) plannerEntry('region-challenge', challenge.id, challenge.name, challenge.desc);
 }
 const text = JSON.stringify({ sourceCommit: '737ef2af4a877e0995db5f92331d536d2f29a934', sourceDigest: digest.digest('hex'), entries, planner }, null, 2) + '\n';
-const output = 'UnityProject/Assets/Resources/EchoSphere/SourceCatalog.json';
+const output = 'UnityProject/Assets/Editor/EchoSphereReference/SourceCatalog.json';
 if (process.argv.includes('--check')) {
   if (readFileSync(output, 'utf8').replaceAll('\r\n', '\n') !== text) throw new Error('Unity catalog differs from new-desing source metadata');
-} else { mkdirSync('UnityProject/Assets/Resources/EchoSphere', { recursive: true }); writeFileSync(output, text); }
+} else { mkdirSync('UnityProject/Assets/Editor/EchoSphereReference', { recursive: true }); writeFileSync(output, text); }
 console.log(`Unity source catalog: ${entries.length} entries, exact source strings`);

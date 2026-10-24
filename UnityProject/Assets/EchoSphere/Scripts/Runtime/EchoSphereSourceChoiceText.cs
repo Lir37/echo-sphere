@@ -1,3 +1,4 @@
+using SourcePlannerEntry = EchoSphere.Presentation.NativeArchiveCatalog.PlannerEntry;
 using EchoSphere.Core;
 using UnityEngine;
 namespace EchoSphere.Runtime

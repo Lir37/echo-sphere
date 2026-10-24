@@ -13,7 +13,7 @@ string Class(Newtonsoft.Json.Linq.JToken n)=>(string)n["properties"]?["className
 string Normal(string v)=>System.Text.RegularExpressions.Regex.Replace(v??"",@"\s+"," ").Trim();
 Newtonsoft.Json.Linq.JToken Freeze(EchoSphere.Presentation.V v){if(v.Raw is EchoSphere.Presentation.VisualDom.Node n)return new Newtonsoft.Json.Linq.JObject{["tag"]=n.Tag,["properties"]=Newtonsoft.Json.Linq.JToken.Parse(EchoSphere.Presentation.VisualJson.Stringify(n.Properties)),["children"]=new Newtonsoft.Json.Linq.JArray(n.Children.Select(Freeze))};if(v.Raw is System.Collections.Generic.List<EchoSphere.Presentation.V>)return new Newtonsoft.Json.Linq.JArray(v.Items.Select(Freeze));return new Newtonsoft.Json.Linq.JValue(v.Text);}
 int checks=0,cases=0;void Require(bool ok,string why){checks++;if(!ok)throw new System.Exception(why);}
-var previousIcons=EchoSphere.Presentation.VisualSourceIcons.Data;EchoSphere.Presentation.VisualSourceIcons.Data=EchoSphere.Presentation.VisualJson.Parse(UnityEngine.Resources.Load<UnityEngine.TextAsset>("EchoSphere/SourceUiIcons").text);
+var previousIcons=EchoSphere.Presentation.VisualSourceIcons.Data;EchoSphere.Presentation.VisualSourceIcons.Data=EchoSphere.Presentation.VisualJson.Parse(UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>("Assets/Editor/EchoSphereReference/SourceUiIcons.json").text);
 var observed=new System.Collections.Generic.HashSet<string>();var rows=new System.Collections.Generic.List<object>();
 try{
 foreach(var fixture in fixtures)for(int variant=0;variant<8;variant++){

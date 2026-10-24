@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 // Existing locked Lucide source geometry, imported once by Unity as VectorImage.
 // White strokes receive native USS tint, including hover. No runtime SVG parser.
-const icons=JSON.parse(readFileSync('UnityProject/Assets/Resources/EchoSphere/SourceUiIcons.json','utf8'));
+const icons=JSON.parse(readFileSync('UnityProject/Assets/Editor/EchoSphereReference/SourceUiIcons.json','utf8'));
 const directory='UnityProject/Assets/Resources/EchoSphere/NativeMenuIcons';
 const escape=value=>String(value).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;');
 const names={strokeWidth:'stroke-width',strokeLinecap:'stroke-linecap',strokeLinejoin:'stroke-linejoin',className:'class'};

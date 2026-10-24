@@ -1298,3 +1298,38 @@ Containing-commit CI must be checked separately. Remaining work is final broad
 visual/control/device acceptance and measured performance; no remaining active
 V/DOM/Canvas compatibility migration task was found. No APK, no gameplay/RNG/
 balance/quality changes; new-desing remains unchanged.
+
+### Shared native planner catalog and Editor reference asset isolation (2026-10-24)
+
+A final dependency audit found that native region selection and upgrade/evolution
+texts still entered EnsureKnowledgeLoaded, which parsed the old combined
+SourceCatalog JSON in the player. Its 822 planner rows now live alongside the
+existing 305 archive entries in NativeArchiveCatalog, a Unity ScriptableObject.
+Knowledge discovery/save IDs, planner lookups, choices, source text/order, region
+availability/challenges and all gameplay rules are unchanged. The pre-existing
+305 serialized archive entries are identical after YAML whitespace normalization.
+The importer preserves source commit/digest and every planner field.
+
+SourceCatalog.json, SourceUiStyles.json and SourceUiIcons.json plus their original
+GUID metadata moved from Resources into Assets/Editor/EchoSphereReference.
+They are now Editor reference/import inputs, not player Resources. Their combined
+raw size is 850298 bytes; this is not an APK size measurement or a claimed net
+build-size reduction. No scene/prefab/material/asset serialized references point
+to these TextAssets. Exporters, native icon import, portable checks and Editor
+oracles use the new paths. Locked reference payloads are unchanged; provenance
+updates are limited to the changed exporter paths/Editor-only generation guard.
+The retired SourceCanvasArtIndex host table is also Editor-only, while the native
+art catalog continues to reference the same Sprite assets and dimensions.
+
+Checks: native planner 822 rows / 11508 exact field/order comparisons PASS, with
+Unity's equivalent null/empty optional-string/array serialization normalization.
+Actual Editor confirms NativeArchiveCatalog is the live data owner and all three
+old Resources.Load<TextAsset> paths return null. Seven native navigation routes
+(shop, leaderboard, achievements, characters, archive, settings, map) exercised
+for 12 stepped frames each: native content present, no generated UI documents or
+V snapshot creation. Navigation callbacks were invoked directly; this is bounded
+route activation/layout coverage, not complete pointer or device acceptance.
+Original menu/region route restored and Play stopped. Current Console 0 errors /
+0 warnings, Editor compile clean. Android player/editor typechecks, 272 Node tests,
+portable visual suite, metadata, source catalog/CSS/art and provenance guards PASS.
+No APK, gameplay, quality or protected-branch changes. Check containing commit CI.

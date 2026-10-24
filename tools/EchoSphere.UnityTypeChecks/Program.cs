@@ -67,7 +67,7 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release, warningLevel: 4, allowUnsafe: false));
     if(configuration=="Android player")
     {
-        foreach(var name in new[]{"V","VisualJs","VisualJson","IVisualHost","IVisualCallable","SourceCanvasImage","NativeRunSnapshotDefaults","SourceUiDocument","SourceCanvasSurface"})
+        foreach(var name in new[]{"V","VisualJs","VisualJson","IVisualHost","IVisualCallable","SourceCanvasImage","SourceCanvasArtIndex","NativeRunSnapshotDefaults","SourceUiDocument","SourceCanvasSurface"})
             if(compilation.GetTypeByMetadataName("EchoSphere.Presentation."+name)!=null)throw new InvalidOperationException("Retired presentation compatibility type leaked into Android player: "+name);
         var runtime=compilation.GetTypeByMetadataName("EchoSphere.Runtime.EchoSphereRuntime");
         foreach(var name in new[]{"_sourceRenderState","_sourceRenderEntities","UpdateSourceRenderState","UpdateSourceUiState","ApplySourceUiWrites"})
