@@ -88,9 +88,12 @@ namespace EchoSphere.Presentation
             // own backdrop image and outer filter/opacity; those belong to the
             // live ancestor group. Use actual retained hierarchy paint order.
             // Explicit inline display:none suppresses the entire subtree in Unity.
-            // Read the current inline value, not last frame's resolved layout.
+            // Read current inline values, not last frame's resolved layout.
+            // Native filtered overlays retain their tree with opacity zero.
+            // Copying their previous resolved appearance would resurrect closed
+            // cards for one frame after their filter resources were disposed.
             foreach(var item in VisualBackdrop.PaintPrefix(root,stop,element=>element.hierarchy.childCount,(element,index)=>element.hierarchy[index],
-                element=>element.style.display==DisplayStyle.None||element.userData is SourceUiBackdrop.ClipTag clip&&(clip.Owner==root||!SourceUiBackdrop.WorldBounds(clip.Owner).Overlaps(area))))
+                element=>element.style.display==DisplayStyle.None||(element.style.opacity.keyword==StyleKeyword.Undefined&&element.style.opacity.value<=0)||element.userData is SourceUiBackdrop.ClipTag clip&&(clip.Owner==root||!SourceUiBackdrop.WorldBounds(clip.Owner).Overlaps(area))))
                 CopyNode(item.Node,item.Parent==null?parent:_copies[item.Parent].Element,item.Parent==null);
             _staleSources.Clear();
             foreach(var pair in _copies)if(!pair.Value.Used)_staleSources.Add(pair.Key);

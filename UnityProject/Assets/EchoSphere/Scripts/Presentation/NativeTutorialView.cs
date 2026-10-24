@@ -16,6 +16,8 @@ namespace EchoSphere.Presentation
         private readonly Button _skip,_next;
         private readonly NativeHudSurface _cardPaint,_focusPaint,_glowPaint,_ringPaint,_statusPaint,_nextPaint;
         private readonly NativeMenuBrush.Paint _waiting,_success,_upgrade;
+        private readonly INativeUiBackdrops _document;
+        private IDisposable _nextBackdrop;
         private readonly List<IDisposable> _backdrops=new List<IDisposable>();
         private readonly Material _shadeMaterial;
         private RenderTexture _shadeTarget;
@@ -25,7 +27,7 @@ namespace EchoSphere.Presentation
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         public NativeTutorialView(VisualElement parent,INativeUiBackdrops document,Action next,Action skip)
         {
-            Root=Box(parent,"native-tutorial");Fill(Root);Root.style.opacity=0;
+            _document=document;Root=Box(parent,"native-tutorial");Fill(Root);Root.style.opacity=0;
             // CSS lists the huge black shadow above the cyan glow, then paints
             // the border. Keep that order instead of brightening the glow.
             _glow=Box(Root,"tutorial-focus-glow");_glow.style.position=Position.Absolute;_glowPaint=new NativeHudSurface(_glow,new NativeMenuBrush.Paint {Radius=12,OuterA=new NativeMenuBrush.Shadow(24,Vector2.zero,C("#39d8ff4d"))});
@@ -44,7 +46,7 @@ namespace EchoSphere.Presentation
             _footer=Box(_card,"tutorial-footer",true);_footer.style.justifyContent=Justify.SpaceBetween;_footer.style.alignItems=Align.Center;_footer.style.marginTop=16;
             _skip=new Button(skip){name="tutorial-skip"};ButtonReset(_skip);_skip.style.paddingLeft=_skip.style.paddingRight=_skip.style.paddingTop=_skip.style.paddingBottom=8;_skip.style.borderTopLeftRadius=_skip.style.borderTopRightRadius=_skip.style.borderBottomLeftRadius=_skip.style.borderBottomRightRadius=8;_footer.Add(_skip);_skipText=Text(_skip,"tutorial-skip-text",9,"#718aa1","700");_skipText.style.letterSpacing=5;
             _next=new Button(next){name="tutorial-next"};ButtonReset(_next);_next.style.marginLeft=8;_next.style.paddingLeft=_next.style.paddingRight=16;_next.style.paddingTop=_next.style.paddingBottom=10;Border(_next,12,1);_footer.Add(_next);_nextPaint=new NativeHudSurface(_next,new NativeMenuBrush.Paint {Radius=12,Border=1,BorderColor=C("#63e6ff66"),Fill=C("#63e6ff1a")});_nextText=Text(_next,"tutorial-next-text",10,"#dffaff","900");_nextText.style.letterSpacing=5;
-            _backdrops.Add(document.RegisterNativeBackdrop(_skip,8));_backdrops.Add(document.RegisterNativeBackdrop(_next,8));
+            _backdrops.Add(document.RegisterNativeBackdrop(_skip,8));_nextBackdrop=document.RegisterNativeBackdrop(_next,8);
             var a=new Keyframe(0,0,0,0,1f/3,.4f){weightedMode=WeightedMode.Out};var b=new Keyframe(1,1,0,0,.4f,1f/3){weightedMode=WeightedMode.In};_pulse=new AnimationCurve(a,b);_createdFrame=Time.frameCount;
         }
         public void Bind(State state)
@@ -52,6 +54,10 @@ namespace EchoSphere.Presentation
             _state=state;Set(_kicker,state.Kicker);Set(_title,state.Title);Set(_body,state.Body);Set(_statusText,state.Status);Set(_skipText,state.Skip.ToUpperInvariant());Set(_nextText,state.Next.ToUpperInvariant());
             _status.style.display=state.ShowAction||state.Step==4?DisplayStyle.Flex:DisplayStyle.None;
             _statusPaint.SetPaint(state.Step==4?_upgrade:state.CanAdvance?_success:_waiting);_statusText.style.color=C(state.Step==4?"#dbcfff":state.CanAdvance?"#b9ffe8":"#7089a0");
+            // This flow button genuinely leaves layout on the choice step.
+            // Retire its nested filter before display:none, then create a fresh
+            // prefix when it returns; old prefixes can reference closed cards.
+            if(state.Step==4){_nextBackdrop?.Dispose();_nextBackdrop=null;}else if(_nextBackdrop==null)_nextBackdrop=_document.RegisterNativeBackdrop(_next,8);
             _next.style.display=state.Step==4?DisplayStyle.None:DisplayStyle.Flex;_next.SetEnabled(state.CanAdvance);_next.style.opacity=state.CanAdvance?1:.3f;
         }
         public void Prepare(float width,float height,float scale,Rect? target)
@@ -86,6 +92,6 @@ namespace EchoSphere.Presentation
         private static void Set(Label label,string value)=>NativePauseStatsView.Set(label,value);
         private static void ButtonReset(Button b){b.style.marginLeft=b.style.marginRight=b.style.marginTop=b.style.marginBottom=0;b.style.backgroundColor=Color.clear;b.style.borderLeftWidth=b.style.borderRightWidth=b.style.borderTopWidth=b.style.borderBottomWidth=0;}
         private static void Border(VisualElement e,float radius,float width){e.style.borderLeftWidth=e.style.borderRightWidth=e.style.borderTopWidth=e.style.borderBottomWidth=width;e.style.borderLeftColor=e.style.borderRightColor=e.style.borderTopColor=e.style.borderBottomColor=Color.clear;e.style.borderTopLeftRadius=e.style.borderTopRightRadius=e.style.borderBottomLeftRadius=e.style.borderBottomRightRadius=radius;}
-        public void Dispose(){if(_disposed)return;_disposed=true;foreach(var backdrop in _backdrops)backdrop.Dispose();_cardPaint.Dispose();_glowPaint.Dispose();_focusPaint.Dispose();_ringPaint.Dispose();_statusPaint.Dispose();_nextPaint.Dispose();ReleaseShade();UnityEngine.Object.Destroy(_shadeMaterial);Root.RemoveFromHierarchy();}
+        public void Dispose(){if(_disposed)return;_disposed=true;_nextBackdrop?.Dispose();foreach(var backdrop in _backdrops)backdrop.Dispose();_cardPaint.Dispose();_glowPaint.Dispose();_focusPaint.Dispose();_ringPaint.Dispose();_statusPaint.Dispose();_nextPaint.Dispose();ReleaseShade();UnityEngine.Object.Destroy(_shadeMaterial);Root.RemoveFromHierarchy();}
     }
 }

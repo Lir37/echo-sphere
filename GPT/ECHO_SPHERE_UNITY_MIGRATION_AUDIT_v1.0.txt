@@ -5355,3 +5355,29 @@ Unity compile and Android player/editor semantic typechecks: 0 errors/warnings;
 scripts/check-unity-native-modal-lifecycle.cs. CI must pass on containing commit.
 Remaining acceptance: populated card/reward actions, complete live input and
 combat/effect/device parity and performance. P1/P2 acceptance remains OPEN.
+
+2026-10-24 populated progression follow-up: the empty-modal pass did not cover
+one remaining texture-registry failure. Three populated upgrade cards plus the
+upgrade tutorial step reproduced 33 actual Console errors when that step closed.
+Registry inspection identified Unity-owned dynamic filter TempBuffers, not source
+Sprite/RenderTexture artwork. Two lifecycle defects were corrected: backdrop
+prefix traversal now immediately skips explicitly zero-opacity subtrees instead
+of copying their previous resolved appearance; the tutorial Next button retires
+its nested backdrop before leaving layout on the choice step and registers a
+fresh backdrop when shown again. Filter parameters, graphics, authored layout,
+animations, gameplay formulas and RNG remain unchanged.
+Actual Editor 6000.3.24f1: nine populated modal stages / 270 frames / 420 checks
+PASS; all six tutorial steps, three real upgrade kinds, three real set-member
+artifacts, card hover and hidden-overlay picks exercised. Each stage and the
+final Unity LogEntries had 0 errors / 0 warnings. Real Game View screenshots of
+populated upgrades/rewards and set detail reviewed. Actual nested badge pointer
+check: set callback=1, parent card callback=0. Actual runtime reward badge -> set
+detail -> native Close: 11 checks PASS, reward unconsumed, owned artifacts and
+choice lists unchanged. Gameplay picker was intercepted during this input check;
+this does not claim applying a reward/upgrade or combat formula acceptance.
+Flags/choices/callback restored, Play stopped. Unity recompile and Android
+player/editor semantic typechecks: 0 errors/warnings; 272 Node tests and project/
+provenance guards PASS. Added populated-modal and real reward-set-detail Editor
+checks; containing-commit CI must be green. Remaining: actual upgrade/reward/
+lock/reroll outcomes, complete live combat/effect/control and device/performance
+acceptance. No current FPS/GC before/after samples, no APK; P1/P2 acceptance OPEN.
