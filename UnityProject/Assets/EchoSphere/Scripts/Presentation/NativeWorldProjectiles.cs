@@ -48,16 +48,6 @@ namespace EchoSphere.Presentation
             var key=(r,kind,surface.NativeStrokeEnding,surface.NativeStrokeCorner,surface.NativeStrokeMiter);if(!_art.TryGetValue(key,out var art)){art=new Art(r,kind,key.Item3,key.Item4,key.Item5);_art.Add(key,art);}
             bool enemy=kind<2;var transform=Matrix4x4.TRS(new Vector3(x,y,0),Quaternion.Euler(0,0,(float)Math.Atan2(vy,vx)*Mathf.Rad2Deg),Vector3.one);
             void Paint(Mesh mesh,Color tint,Matrix4x4? local=null,bool additive=false){surface.DrawNativeMesh(mesh,_material,Properties(tint),transform*(local??Matrix4x4.identity),shadow:enemy?(Color?)color:null,shadowBlur:enemy?7:0,inheritShadow:!enemy,additive:additive,inheritShadowOffsets:enemy);}
-            if(enemy){
-                // Dense energy seed / narrow needle. Collision entity and radius
-                // remain unchanged; only presentation uses these nested silhouettes.
-                void Seed(Mesh mesh,Color tint,Matrix4x4? local=null,bool additive=false)=>surface.DrawNativeMesh(mesh,_material,Properties(tint),transform*(local??Matrix4x4.identity),additive:additive);
-                Seed(art.Tail,Alpha(color,.22f),Matrix4x4.Scale(new Vector3(.58f,.7f,1)),true);
-                Seed(art.Body,Color.Lerp(color,Color.black,.72f));
-                Seed(art.Body,Alpha(color,.92f),Matrix4x4.Scale(new Vector3(.74f,.58f,1)),true);
-                Seed(art.Core,new Color(1,.91f,.77f),Matrix4x4.Scale(new Vector3(.66f,.66f,1)),true);
-                return;
-            }
             Paint(art.Tail,Alpha(color,enemy?.30f:.20f),additive:enemy);
             if(!enemy)Paint(art.InnerTail,new Color(245/255f,252/255f,1,.65f));
             Paint(art.Body,Html(enemy?"#07101a":kind==2?"#06101c":kind==3?"#130b06":kind==4?"#0c0717":"#120511"));Paint(art.Outline,Alpha(color,enemy?1:.95f));

@@ -6,7 +6,6 @@ namespace EchoSphere.Runtime
     public sealed class EnemyAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
         internal float SourceProjectionHitFlash => _sourceHitFlash;
-        internal float SourceProjectionRoleActionTimer => _roleActionTimer;
         internal float SourceProjectionFreezeTimer => _freezeTimer;
         internal float SourceProjectionFireTimer => _fireTimer;
         internal float SourceProjectionPoisonTimer => _poisonTimer;
