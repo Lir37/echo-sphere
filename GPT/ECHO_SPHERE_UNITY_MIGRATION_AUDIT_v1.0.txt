@@ -5469,3 +5469,23 @@ Play stopped; no preference save invoked. Added reusable pointer-panel/dispatch
 and actor-lifecycle checks. Containing-commit CI must pass. Remaining: continuous
 live combat and production-document gestures/effects across devices/resolutions,
 Android performance and full P1/P2 acceptance; no measured FPS/GC change.
+
+2026-10-24 production UIDocument pointer acceptance
+Actual NativeRunDocument panel.Pick and registered input callbacks: 47 checks
+PASS at each of 1260x542, 1280x720 and 2400x1080 (141 total). The field reaches
+the handed joystick; real selectors pick and select all ten matching SphereIds
+without gesture leakage; pause intercepts input; tutorial movement spotlight
+permits its joystick. Exact RNG unchanged; zero new Console errors at all sizes.
+Simulation paused, save accumulators suppressed, selected Sphere/gesture flags
+restored; temporary Game View size removed and prior selection restored; Play
+stopped. Native source implementation unchanged: no new defect reproduced.
+Android player/editor semantic C# checks, preflight/provenance/export PASS;
+Editor compile up-to-date, zero errors/warnings. Added reusable production-panel
+check and full evidence to UNITY_NATIVE_MODERNIZATION_PROGRESS.md in d1d2b87f3ec4d467b387046a283506b28ae45750.
+That script/progress-only commit does not match CI push path filters; this audit
+sync is included in the configured Unity Migration Contracts trigger. Previous
+product commit e4c6bf590c84243cd762d5e3015f4577ee3d4a18: CI #840 SUCCESS.
+Native implementation remains complete; full P1/P2 acceptance remains OPEN:
+continuous live combat, physical Android touch/multitouch, full visual/device
+flows and performance. No new FPS/GC measurement, no APK, protected source branch
+and user project/quality/recovery changes preserved.
