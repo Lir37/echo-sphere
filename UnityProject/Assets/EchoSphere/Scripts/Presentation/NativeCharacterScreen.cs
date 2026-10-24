@@ -79,8 +79,10 @@ namespace EchoSphere.Presentation
             var choose=Button(card,"choose-"+character.Id,()=>_choose?.Invoke(character.Id));choose.style.width=Length.Percent(100);choose.style.borderTopLeftRadius=choose.style.borderTopRightRadius=choose.style.borderBottomLeftRadius=choose.style.borderBottomRightRadius=6;
             var row=Box(choose,"character-main",true);row.style.alignItems=Align.FlexStart;
             var glyph=Box(row,"character-glyph");glyph.style.width=glyph.style.height=44;glyph.style.marginRight=12;glyph.style.alignItems=Align.Center;glyph.style.justifyContent=Justify.Center;Border(glyph,12);Paint(glyph,new NativeMenuBrush.Paint {Radius=12,Border=1,Fill=C("#081522"),BorderColor=C("#243b55")});
-            if(character.Unlocked){var star=Text(glyph,"character-star","✦",16,"#effcff");star.style.textShadow=new TextShadow {color=C("#effcff"),blurRadius=10,offset=Vector2.zero};}
-            else Icon(glyph,"Lock",18,C(character.Color));
+            var portrait=NativeCharacterArtwork.Resolve(character.Id);
+            if(portrait!=null){var image=new Image {name="character-portrait",sprite=portrait.Sprite,scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};image.style.position=Position.Absolute;image.style.left=image.style.right=image.style.top=image.style.bottom=0;image.style.opacity=character.Unlocked?1:.35f;glyph.Add(image);}
+            else if(character.Unlocked){var star=Text(glyph,"character-star","✦",16,"#effcff");star.style.textShadow=new TextShadow {color=C("#effcff"),blurRadius=10,offset=Vector2.zero};}
+            if(!character.Unlocked)Icon(glyph,"Lock",18,C(character.Color));
             var copy=Box(row,"character-copy");copy.style.flexGrow=1;copy.style.flexShrink=1;
             var nameRow=Box(copy,"character-name-row",true);nameRow.style.justifyContent=Justify.SpaceBetween;nameRow.style.alignItems=Align.Center;
             var names=Box(nameRow,"character-name-group");names.style.flexGrow=1;names.style.flexShrink=1;

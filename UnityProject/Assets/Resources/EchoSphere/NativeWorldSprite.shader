@@ -7,7 +7,7 @@ Shader "EchoSphere/NativeWorldSprite"
         Cull Off ZWrite Off ZTest Always
         HLSLINCLUDE
         #include "UnityCG.cginc"
-        sampler2D _ImageTex;float4 _ImageTex_TexelSize;float _NativeOpacity;
+        sampler2D _ImageTex;float4 _ImageTex_TexelSize;float _NativeOpacity,_NativeMipmapped;
         struct appdata {float4 vertex:POSITION;float2 uv:TEXCOORD0;};
         struct v2f {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;};
         v2f vert(appdata v){v2f o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=v.uv;return o;}
@@ -18,6 +18,13 @@ Shader "EchoSphere/NativeWorldSprite"
             return float4(c.rgb*c.a,c.a);}
         float4 frag(v2f i):SV_Target
         {
+            // Large approved character cutouts use Unity's derivative-based mip
+            // selection. Original non-mipmapped artwork keeps its exact sampler.
+            if(_NativeMipmapped>.5){float4 c=tex2D(_ImageTex,i.uv);
+                #ifndef UNITY_COLORSPACE_GAMMA
+                c.rgb=LinearToGammaSpace(c.rgb);
+                #endif
+                return float4(c.rgb*c.a,c.a)*saturate(_NativeOpacity);}
             float2 q=i.uv*_ImageTex_TexelSize.zw-.5,f=frac(q),a=(floor(q)+.5)*_ImageTex_TexelSize.xy;
             float4 color=lerp(lerp(SamplePixel(a),SamplePixel(a+float2(_ImageTex_TexelSize.x,0)),f.x),lerp(SamplePixel(a+float2(0,_ImageTex_TexelSize.y)),SamplePixel(a+_ImageTex_TexelSize.xy),f.x),f.y);return color*saturate(_NativeOpacity);
         }

@@ -1606,3 +1606,38 @@ models, stats 2160 full models plus exact sphere metrics, synergies 216 full mod
 PASS. Temporary state restored, Play stopped, Console 0 errors/warnings. Android
 player/editor typechecks and 272 Node tests PASS. Prior d14c6f6b8a1a3936b85cd10e9423e6ffd8007f33
 CI #834 SUCCESS; check the containing correction commit's CI separately.
+
+### Approved character roster integration (2026-10-24)
+
+User explicitly approved introducing the newly generated ten-character roster.
+Added ten transparent 1254x1254 PNG render sprites in Resources/EchoSphere/CharacterArt.
+These are 2.5D artwork, not rigged 3D models. The approved sheet, generation prompt
+set and SHA256 asset manifest are retained in GPT/character-art/.
+
+NativeWorldPlayer uses the approved Sprite for every existing character ID;
+original artwork/procedural bodies remain fallback paths. Existing spherist bob,
+pulse, movement mirroring, death transform/fragments and dynamic character effects
+remain in their existing presentation paths. New full-frame artwork replaces the
+old front/side body images, not the underlying simulation or animation state rules.
+NativeCharacterScreen displays all ten portraits, dimming locked ones beneath the
+existing lock indicator. Main menu avatar follows the selected character. No unlock,
+selection, hitbox, gameplay, balance, RNG or protected branch changes; no APK.
+
+Unity imports use alpha transparency, centered FullRect Sprites, uncompressed
+original-size artwork and trilinear mipmaps. NativeWorldSprite adds mip sampling
+only for mipmapped textures; original CanvasArt imports all have mipmaps disabled
+and retain their original manual sampling path. No runtime image generation/decode.
+
+Verification: actual Unity 6000.3.24f1 compile 0 errors/warnings; all ten rendered
+through NativeWorldPlayer with actual GPU readback (20 checks), live character menu
+and selected home avatar (12 checks). Android player/editor C# checks: 325 runtime
+files, 0 errors/warnings. 272 Node tests, preflight and provenance checks PASS.
+Performance/device acceptance remains OPEN; no FPS/GC improvement claimed.
+Containing commit CI must be checked separately. Previous baseline 7b774cecfe4e9f3c282f0c5ef2fea19990909245
+passed CI #842 SUCCESS. P1/P2 overall acceptance is not marked DONE.
+
+Final Play check: 47 production document pointer checks PASS with the new assets.
+This uses actual panel picking/callbacks with frozen simulation, not physical Android
+touch or live-combat performance. Final Console 0 errors/0 warnings. Play stopped;
+all 10 backed-up game preference keys restored and verified. User settings, quality,
+URP, volume and recovery changes preserved.

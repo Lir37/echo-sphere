@@ -37,6 +37,7 @@ namespace EchoSphere.Runtime
                 _nativeMainMenuWasActive=true;_camera.cullingMask=0;
             }
             if(_nativeMenuShownVersion!=_nativeMenuModelVersion){_nativeMenuState=ReadNativeMainMenuState(_nativeMenuState.SavedRunTime);_nativeMenuShownVersion=_nativeMenuModelVersion;}
+            _nativeMainMenuScreen.Composition.SetCharacter(CharacterRules.ToSourceId(_sphereCharacterId));
             _nativeMainMenuScreen.Show(_nativeMenuState,SourceDevicePixelRatio,_nativeMenuCharacterColor);
 
             return true;

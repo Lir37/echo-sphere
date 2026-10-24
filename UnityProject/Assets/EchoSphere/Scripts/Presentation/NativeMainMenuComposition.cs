@@ -18,6 +18,8 @@ namespace EchoSphere.Presentation
         private readonly NativeMenuBrush _avatar=new NativeMenuBrush();
         private readonly Image _avatarImage;
         private readonly Label _avatarGlyph;
+        private readonly Image _characterPortrait;
+        private string _portraitId;
         private readonly List<Surface> _surfaces=new List<Surface>();
         private readonly List<VisualElement> _observed=new List<VisualElement>();
         private float _scale,_avatarWidth,_avatarHeight;
@@ -53,12 +55,20 @@ namespace EchoSphere.Presentation
             _avatarGlyph.style.position=Position.Absolute;_avatarGlyph.style.left=_avatarGlyph.style.right=_avatarGlyph.style.top=_avatarGlyph.style.bottom=0;
             _avatarGlyph.style.fontSize=16;_avatarGlyph.style.letterSpacing=.192f;_avatarGlyph.style.color=Color.white;_avatarGlyph.style.unityTextAlign=TextAnchor.MiddleCenter;
             Font(_avatarGlyph,"400",1.5);view.Avatar.Add(_avatarGlyph);
+            _characterPortrait=new Image {name="native-menu-character-portrait",pickingMode=PickingMode.Ignore,scaleMode=ScaleMode.ScaleToFit};
+            _characterPortrait.style.position=Position.Absolute;_characterPortrait.style.left=_characterPortrait.style.right=_characterPortrait.style.top=_characterPortrait.style.bottom=0;view.Avatar.Add(_characterPortrait);
             Add(view.Root.Q(className:"loadout"),Kind.Loadout,0,view.Root);
             Add(view.Root.Q("open-character"),Kind.Character,8,view.Root);
             foreach(var id in new[]{"easy","normal","hard","nightmare"})Add(view.Root.Q("difficulty-"+id),Kind.Difficulty,8,view.Root);
             Add(view.Root.Q("continue-run"),Kind.Continue,8,view.Root);
             Add(view.Navigation,Kind.Navigation,12,view.Root);
             for(int i=0;i<6;i++)Add(view.Root.Q("nav-"+i),Kind.NavigationButton,8,view.Navigation);
+        }
+        public void SetCharacter(string id)
+        {
+            if(_portraitId==id)return;_portraitId=id;
+            var art=NativeCharacterArtwork.Resolve(id);_characterPortrait.sprite=art?.Sprite;
+            _avatarGlyph.style.display=art==null?DisplayStyle.Flex:DisplayStyle.None;
         }
         private void Observe(VisualElement node)
         {

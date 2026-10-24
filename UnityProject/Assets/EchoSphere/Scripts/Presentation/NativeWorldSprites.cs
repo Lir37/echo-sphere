@@ -5,7 +5,7 @@ using UnityEngine;
 namespace EchoSphere.Presentation
 {
     // Existing imported Sprite assets, native UV mesh and material submission.
-    // No runtime SVG decode, Canvas drawImage or replacement artwork.
+    // No runtime SVG decode or Canvas drawImage; approved roster art shares this path.
     internal sealed class NativeWorldSprites : IDisposable
     {
         private readonly Dictionary<Sprite,Mesh> _meshes=new Dictionary<Sprite,Mesh>();
@@ -20,6 +20,7 @@ namespace EchoSphere.Presentation
             double iw=Math.Max(1,image.Width),ih=Math.Max(1,image.Height),scale=Math.Min(size/iw,size/ih);
             var transform=Matrix4x4.TRS(new Vector3((float)x,(float)y,0),Quaternion.Euler(0,0,(float)rotation*Mathf.Rad2Deg),new Vector3((float)(iw*scale)*(mirrorX?-1:1),(float)(ih*scale)*(mirrorY?-1:1),1));
             if(_used==_properties.Count)_properties.Add(new MaterialPropertyBlock());var properties=_properties[_used++];properties.SetTexture("_ImageTex",texture);properties.SetVector("_ImageTex_TexelSize",new Vector4(1f/texture.width,1f/texture.height,texture.width,texture.height));
+            properties.SetFloat("_NativeMipmapped",texture.mipmapCount>1?1:0);
             // Canvas ignores an invalid globalAlpha assignment rather than
             // clamping it. These helpers assign opacity, not multiply it.
             float effective=opacity>=0&&opacity<=1?(float)opacity:surface.NativeOpacity;

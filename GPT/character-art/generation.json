@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-24",
+  "tool": "built-in image_gen",
+  "approvedReference": "GPT/character-art/approved-roster.png",
+  "format": "Transparent 2.5D render sprites, not rigged 3D meshes",
+  "assets": [
+    {
+      "id": "alchemist",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/alchemist.png",
+      "sha256": "c6a8683d407846ec1f4594bb5da9180dbf428130100a806c3158f6da8787f150",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the top row fifth, mint orb with three colored orbiting crystals character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    },
+    {
+      "id": "architect",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/architect.png",
+      "sha256": "849694f3b72c84e5d5d09dcebc10677e44dc0ae141e3390041a1cca90380b31a",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the bottom row first, gold nested triangular and square frames character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    },
+    {
+      "id": "berserker",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/berserker.png",
+      "sha256": "c675dc9be02b832a0dee8f31b97432ea9de3d5d77bee8f9e4e29d4101b5dbe61",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the top row fourth, red jagged armored orb character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    },
+    {
+      "id": "conductor",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/conductor.png",
+      "sha256": "cc59c26c13dcc3ec492e45186395a7825907b6ef400fab019a5cba39714248f8",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the bottom row second, electric cyan conductive sharp fins character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    },
+    {
+      "id": "engineer",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/engineer.png",
+      "sha256": "75d0dcb9bd11f0c51716a0f9811cd4266c5635cdd3c26549e2d4d67cddbbaae2",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the top row third, cyan blue modular mechanical orb with square plates character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    },
+    {
+      "id": "fractal",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/fractal.png",
+      "sha256": "e707b7d5803c6ba48a17d43721ca271041b9dd7ef5db2475760c027c75cb01c1",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the bottom row fifth, orange nested triangular folded geometry character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    },
+    {
+      "id": "hunter",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/hunter.png",
+      "sha256": "bb5981d39def3c3342eb3fca22bf60d34ea70f620ea80d5351dc9442f04218c6",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the top row second, magenta lean angular predator character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    },
+    {
+      "id": "oracle",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/oracle.png",
+      "sha256": "f2988848f8275b3bbfd7b718874b364155af61f4f1fdc4031ab3728bd9d34a30",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the bottom row third, violet eye aperture orb character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    },
+    {
+      "id": "spherist",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/spherist.png",
+      "sha256": "3aaa1eec25c156c2ac6418ae62ab8f3f6ced2e26dbcf3f770f27b9985c9dd454",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": null,
+      "promptNote": "Spherist cutout generated first from the same approved sheet; exact earlier prompt not retained."
+    },
+    {
+      "id": "voidwalker",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/voidwalker.png",
+      "sha256": "0847b381c9f8ecb29006e5d7f0d709abb6e2da0b4405b6fc0920cfba17e6f254",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: background-extraction. Extract ONLY the bottom row fourth, hollow plum dark sphere with offset plates character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
+      "promptNote": null
+    }
+  ]
+}

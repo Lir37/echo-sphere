@@ -46,16 +46,18 @@ namespace EchoSphere.Presentation
         internal void Draw(NativeWorldSurface surface,State p,NativeWorldSprites sprites,NativeWorldCreatures shadows,Func<string,INativeWorldSprite> resolve)
         {
             _surface=surface;double r=p.Radius,t=p.Time,pulse=1+Math.Sin(t*5.5)*.025;var root=T(p.X,p.Y-r*.1+Math.Sin(t*2.4)*.8,sx:pulse,sy:pulse);shadows.DrawGroundShadow(surface,r*.95,r*.25,root);
+            var characterArt=NativeCharacterArtwork.Resolve(p.Character);
             if(p.Character=="spherist"){
                 double dt=_lastTime>=0?Math.Max(.001,t-_lastTime):.016,vx=(p.X-_lastX)/dt,vy=(p.Y-_lastY)/dt;_lastX=p.X;_lastY=p.Y;_lastTime=t;
                 bool death=p.Hp<=0,hit=p.ContactCooldown>0,shield=p.ShieldTimer>0||p.ShieldCharges>0,moving=!death&&!hit&&!shield&&(p.DashTimer>0||Math.Sqrt(vx*vx+vy*vy)>.06);
                 if(death){double progress=Math.Min(1,Math.Max(0,1-p.DeathTimer/.90)),fold=progress*progress;var shear=Matrix4x4.identity;shear.m00=(float)(1-fold*.45);shear.m01=(float)(-.10*fold);shear.m11=(float)(1+fold*.06);root*=T(y:-progress*r*.10)*shear*T(sx:pulse*(1-fold*.18),sy:pulse*(1-fold*.18));
-                    if(sprites.Draw(surface,resolve("player-spherist"),0,0,r*2.9,fold*.25,1-progress*.92,false,false,false,root,true)){
+                    if(sprites.Draw(surface,characterArt??resolve("player-spherist"),0,0,r*2.9,fold*.25,1-progress*.92,false,false,false,root,true)){
                         double fragment=Math.Max(0,(progress-.22)/.78),size=2+fragment*2;var diamond=Get(1,1,0,()=>new[]{PolylineContour(true,P(0,-1),P(.75,0),P(0,1),P(-.75,0))});for(int i=0;i<8;i++){double a=i*Math.PI/4+.18,travel=r*(.10+fragment*.72);Paint(diamond,root*T(Math.Cos(a)*travel,Math.Sin(a)*travel,a+fragment*1.3,size,size),C(223,250,255),null,opacity:(float)((1-fragment)*.72));}return;}}
-                else{root*=T(sx:pulse,sy:pulse);if(moving&&vx>=0)root*=T(sx:-1);if(sprites.Draw(surface,resolve(moving?"player-spherist-side":"player-spherist"),0,0,r*2.9,0,1,false,false,false,root,true)){
+                else{root*=T(sx:pulse,sy:pulse);if(moving&&vx>=0)root*=T(sx:-1);if(sprites.Draw(surface,characterArt??resolve(moving?"player-spherist-side":"player-spherist"),0,0,r*2.9,0,1,false,false,false,root,true)){
                         double spark=.45+.35*Math.Sin(t*5.5);var arc=Get(2,r,1,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.18),(float)(r*1.18),-.55f,.55f)},false);Paint(arc,root*T(angle:t*.7),null,C(100,232,255,.24+spark*.18),additive:true);
                         var diamond=Get(3,0,0,()=>new[]{PolylineContour(true,P(0,-1.8),P(1.8,0),P(0,1.8),P(-1.8,0))});for(int i=0;i<4;i++){double a=t*.9+i*Math.PI/2,rr=r*(1.08+.08*Math.Sin(t*3+i));Paint(diamond,root*T(Math.Cos(a)*rr,Math.Sin(a)*rr*.70),C(220,252,255,.34+spark*.20),null,additive:true);}return;}}
             }
+            if(sprites.Draw(surface,characterArt,0,0,r*2.9,0,1,false,false,false,root,true)){DrawCharacterEffects(surface,p);return;}
             Silhouette(root,p);var core=Circle(r*.50);var properties=Properties(p.Color);properties.SetFloat("_Radius",(float)r);surface.DrawNativeMesh(core.Fill,_core,properties,root,shadow:p.Color,shadowBlur:6,inheritShadowOffsets:true);
             DrawCharacterEffects(surface,p);
         }
