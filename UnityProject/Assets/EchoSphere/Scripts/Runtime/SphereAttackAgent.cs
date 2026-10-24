@@ -15,6 +15,7 @@ namespace EchoSphere.Runtime
         private float _attackTimer;
         private float _contactTimer;
         private bool _followEnabled;
+        private bool _followOffsetValid;
         private SphereCombatProfile _profile;
         private SphereId _type;
         private float _orbitAngle;
@@ -134,12 +135,22 @@ namespace EchoSphere.Runtime
         public void SetFollowMode(bool enabled, Vector2 playerPosition)
         {
             _followEnabled = enabled;
-            if (enabled) _followOffset = (Vector2)transform.position - playerPosition;
+            // Source assigns offsets only to alive Spheres. An inactive Sphere
+            // joining later captures its offset on its first live sync.
+            _followOffsetValid = enabled && gameObject.activeInHierarchy;
+            if (_followOffsetValid) _followOffset = (Vector2)transform.position - playerPosition;
         }
 
         public void SyncFollowPosition()
         {
-            if (_followEnabled && _player != null) transform.position = (Vector2)_player.position + _followOffset;
+            if (!_followEnabled || _player == null || !gameObject.activeInHierarchy) return;
+            if (!_followOffsetValid)
+            {
+                _followOffset = (Vector2)transform.position - (Vector2)_player.position;
+                _followOffsetValid = true;
+                return;
+            }
+            transform.position = (Vector2)_player.position + _followOffset;
         }
 
         private void LateUpdate()

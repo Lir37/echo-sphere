@@ -26,6 +26,39 @@ built. Keep new-desing protected; preserve local project/quality/recovery change
 Later historical entries describe earlier intermediate states.
 
 
+2026-10-24 pointer dispatch and Follow actor lifecycle: exercised actual Unity
+UI Toolkit PointerDown/Move/Up/Cancel events on a temporary laid-out UIDocument,
+through the production native gesture handlers and BindNativeMobileInput. 22
+checks PASS: native/disabled button isolation; handed joystick capture; 11.99px,
+12px and >12px original deadzone/key/feedback boundaries; Up clears capture/keys;
+pause/game-over blocking; real Ghost Snap preview and placement commit; tutorial
+existing-Sphere protection; retained Sphere drag/reposition; movement lock and
+original same-position tap removal. PointerCancel intentionally retains source
+endPointer commit semantics; no new cancellation behavior was invented. A real
+seed Sphere is required for original Ghost Snap previews; empty-network null
+preview behavior was preserved. Tests used a temporary panel, not physical touch
+or continuous combat on the production document; broader input acceptance OPEN.
+Actual SphereAttackAgent lifecycle comparison then reproduced three failed
+assertions: inactive Spheres moved during Follow, and missing offsets were applied
+as pre-existing offsets when a Sphere reactivated. Source formationFollow.ts
+skips !alive nodes and captures a missing offset on first live sync without moving.
+SyncFollowPosition now skips inactive GameObjects; a private validity flag maps
+source's optional formationFollowOffset. Active enable captures normally; inactive
+enable defers capture; first active sync captures only, subsequent sync follows.
+All 7 actor lifecycle checks PASS, including ordinary offsets, inactive freeze,
+reactivation, free mode and newly captured offsets. Alive but network-disabled
+Spheres continue an already active Follow, matching source (activation eligibility
+is separately filtered); this distinction is explicitly checked. No balance,
+RNG, source distance/strain, input policy, graphic/effect or APK change.
+Actual Editor compile and Android player/editor typechecks: 0 errors/warnings;
+Console 0 errors/0 warnings. Repeated 78 mobile-command checks and 272 Node tests,
+preflight/provenance PASS. Simulation stayed paused during each transaction;
+player/runtime fields, collections and RNG restored; created fixtures cleaned up,
+Play stopped; no preference save invoked. Added reusable pointer-panel/dispatch
+and actor-lifecycle checks. Containing-commit CI must pass. Remaining: continuous
+live combat and production-document gestures/effects across devices/resolutions,
+Android performance and full P1/P2 acceptance; no measured FPS/GC change.
+
 2026-10-24 native combat-control command acceptance: actual native command
 transaction passed 78 checks: all catalog Sphere selectors, Pause/unpause and
 modal/tutorial guards, movement Lock, nine Dash directions/default direction,
