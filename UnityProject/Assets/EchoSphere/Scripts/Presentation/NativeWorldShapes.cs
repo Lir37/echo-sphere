@@ -12,21 +12,34 @@ namespace EchoSphere.Presentation
     internal static class NativeWorldShapes
     {
         private static readonly ConditionalWeakTable<Mesh,TessellationInput> RetainedInputs=new ConditionalWeakTable<Mesh,TessellationInput>();
+        private static ulong _geometryVersion;
+        internal static ulong GeometryVersion(Mesh mesh)=>RetainedInputs.TryGetValue(mesh,out var input)?input.Version:0;
+        // Uploads are synchronous on Unity's main thread. One shared high-water
+        // buffer avoids retaining a duplicate CPU vertex/index copy per mesh.
+        private static readonly List<Vector3> UploadVertices=new List<Vector3>();
+        private static readonly List<int> UploadTriangles=new List<int>();
         private static readonly ProfilerMarker TessellationMarker=new ProfilerMarker("EchoSphere.World.Tessellate");
         // Owners already retain these meshes. Keep an exact immutable input snapshot
         // so unchanged paths need no Vector Graphics tessellation or mesh upload.
         // Weak keys do not extend the lifetime of discarded entity mesh owners.
         private sealed class TessellationInput
         {
-            private readonly BezierContour[] _paths;
-            private readonly float _width,_miter,_offset;
-            private readonly PathEnding _ending;private readonly PathCorner _corner;
-            private readonly float[] _dash;
-            internal TessellationInput(BezierContour contour,BezierContour[] contours,float width,PathEnding ending,PathCorner corner,float miter,float[] dash,float offset)
+            internal ulong Version;
+            private BezierContour[] _paths=Array.Empty<BezierContour>();
+            private float _width,_miter,_offset;
+            private PathEnding _ending;private PathCorner _corner;
+            private float[] _dash=Array.Empty<float>();
+            internal void Capture(BezierContour contour,BezierContour[] contours,float width,PathEnding ending,PathCorner corner,float miter,float[] dash,float offset)
             {
-                var paths=contours??new[]{contour};_paths=new BezierContour[paths.Length];
-                for(int i=0;i<paths.Length;i++)_paths[i]=new BezierContour {Closed=paths[i].Closed,Segments=(BezierPathSegment[])paths[i].Segments.Clone()};
-                _width=width;_ending=ending;_corner=corner;_miter=miter;_offset=offset;_dash=dash==null?Array.Empty<float>():(float[])dash.Clone();
+                int count=contours?.Length??1;if(_paths.Length!=count)_paths=new BezierContour[count];
+                for(int i=0;i<count;i++){
+                    var path=contours==null?contour:contours[i];var points=_paths[i].Segments;
+                    if(points==null||points.Length!=path.Segments.Length)points=new BezierPathSegment[path.Segments.Length];
+                    Array.Copy(path.Segments,points,points.Length);_paths[i]=new BezierContour {Closed=path.Closed,Segments=points};
+                }
+                _width=width;_ending=ending;_corner=corner;_miter=miter;_offset=offset;
+                int dashCount=dash?.Length??0;if(_dash.Length!=dashCount)_dash=new float[dashCount];if(dashCount>0)Array.Copy(dash,_dash,dashCount);
+                Version=++_geometryVersion;
             }
             internal bool Matches(BezierContour contour,BezierContour[] contours,float width,PathEnding ending,PathCorner corner,float miter,float[] dash,float offset)
             {
@@ -73,10 +86,11 @@ namespace EchoSphere.Presentation
         internal static Mesh Tessellate(BezierContour contour,float width,Mesh target=null,bool roundCaps=false,PathCorner corners=PathCorner.Tipped,float miter=10,PathEnding? cap=null,BezierContour[] contours=null,float[] dash=null,float dashOffset=0)
         {
             var ending=cap??(roundCaps?PathEnding.Round:PathEnding.Chop);
-            if(target!=null&&RetainedInputs.TryGetValue(target,out var previous)&&previous.Matches(contour,contours,width,ending,corners,miter,dash,dashOffset))return target;
-            using var tessellation=TessellationMarker.Auto();
+            TessellationInput previous=null;
+            if(target!=null&&RetainedInputs.TryGetValue(target,out previous)&&previous.Matches(contour,contours,width,ending,corners,miter,dash,dashOffset))return target;
+            using var tessellation=TessellationMarker.Auto();var retained=previous??new TessellationInput();
             var shape=new Shape {Contours=contours??new[]{contour}};if(width>0)shape.PathProps=new PathProperties {Head=ending,Tail=ending,Corners=corners,Stroke=new Stroke {Color=Color.white,HalfThickness=width*.5f,Pattern=dash??Array.Empty<float>(),PatternOffset=dashOffset,TippedCornerLimit=miter}};else shape.Fill=new SolidFill {Color=Color.white,Mode=FillMode.NonZero};
-            var options=new VectorUtils.TessellationOptions {StepDistance=float.MaxValue,MaxCordDeviation=.02f,MaxTanAngleDeviation=.08f,SamplingStepSize=.01f};var geometry=VectorUtils.TessellateScene(new Scene {Root=new SceneNode {Shapes=new List<Shape>{shape}}},options);var vertices=new List<Vector3>();var triangles=new List<int>();foreach(var g in geometry){int first=vertices.Count;foreach(var p in g.Vertices)vertices.Add(g.WorldTransform*p);foreach(var i in g.Indices)triangles.Add(first+i);}var mesh=target??new Mesh {name="Native world art"};mesh.Clear();mesh.SetVertices(vertices);mesh.SetTriangles(triangles,0);mesh.RecalculateBounds();RetainedInputs.Remove(mesh);RetainedInputs.Add(mesh,new TessellationInput(contour,contours,width,ending,corners,miter,dash,dashOffset));return mesh;
+            var options=new VectorUtils.TessellationOptions {StepDistance=float.MaxValue,MaxCordDeviation=.02f,MaxTanAngleDeviation=.08f,SamplingStepSize=.01f};var geometry=VectorUtils.TessellateScene(new Scene {Root=new SceneNode {Shapes=new List<Shape>{shape}}},options);var vertices=UploadVertices;var triangles=UploadTriangles;vertices.Clear();triangles.Clear();foreach(var g in geometry){int first=vertices.Count;foreach(var p in g.Vertices)vertices.Add(g.WorldTransform*p);foreach(var i in g.Indices)triangles.Add(first+i);}var mesh=target??new Mesh {name="Native world art"};mesh.Clear();mesh.SetVertices(vertices);mesh.SetTriangles(triangles,0);mesh.RecalculateBounds();retained.Capture(contour,contours,width,ending,corners,miter,dash,dashOffset);if(previous==null)RetainedInputs.Add(mesh,retained);return mesh;
         }
         internal static Mesh Line(Vector2 a,Vector2 b,float width,bool roundCaps=false,PathEnding? cap=null)
         {

@@ -12,6 +12,7 @@ namespace EchoSphere.Presentation
         private readonly Dictionary<VisualElement,Snapshot> _values=new Dictionary<VisualElement,Snapshot>();
         private readonly List<VisualElement> _stale=new List<VisualElement>();
         internal void Begin(){foreach(var value in _values.Values)value.Used=false;}
+        internal void Touch(VisualElement source){if(_values.TryGetValue(source,out var value))value.Used=true;}
         internal void End(){_stale.Clear();foreach(var pair in _values)if(!pair.Value.Used)_stale.Add(pair.Key);foreach(var key in _stale)_values.Remove(key);_stale.Clear();}
         internal void Apply(VisualElement source,IStyle target,bool helper)
         {

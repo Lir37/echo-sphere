@@ -36,7 +36,7 @@ namespace EchoSphere.Presentation
             _root=_document.rootVisualElement;Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.style.backgroundColor=C("#02060d");
             _root.RegisterCallback<GeometryChangedEvent>(_=>invalidate());
             _root.style.color=C("#dcecff");_root.style.fontSize=16;
-            _backdrops=new NativeUiBackdropRegistry(ReplicaPaint,_snapshots);
+            _backdrops=new NativeUiBackdropRegistry(ReplicaPaint,_snapshots,true);
             _field=new Image {name="native-world-field",pickingMode=PickingMode.Ignore,scaleMode=ScaleMode.StretchToFill};
             _field.style.width=Length.Percent(100);_field.style.height=Length.Percent(100);_field.style.maxWidth=1280;_field.style.maxHeight=800;_field.style.flexShrink=0;
             _root.style.alignItems=Align.Center;_root.style.justifyContent=Justify.Center;_root.Add(_field);
@@ -97,7 +97,7 @@ namespace EchoSphere.Presentation
         internal void End(float dpr)
         {
             foreach(var p in _paint)p.Prepare(dpr);
-            void Visit(VisualElement e){if(e.style.visibility==Visibility.Hidden||e.resolvedStyle.display==DisplayStyle.None)return;if(_backdrops.Contains(e)){var prefix=_root;for(var p=e.parent;p!=null;p=p.parent)if(p==_pause||p==_rewards){prefix=p;break;}_backdrops.Prepare(e,prefix);}for(int i=0;i<e.hierarchy.childCount;i++){var c=e.hierarchy[i];if(c.userData==SourceUiBackdrop.ReplicaTag||c.userData is SourceUiBackdrop.ClipTag)continue;Visit(c);}}
+            void Visit(VisualElement e){if(e.style.visibility==Visibility.Hidden||e.resolvedStyle.display==DisplayStyle.None)return;if(_backdrops.Contains(e)){var prefix=_root;for(var p=e.parent;p!=null;p=p.parent)if(p==_pause||p==_rewards){prefix=p;break;}_backdrops.Prepare(e,prefix,dpr);}for(int i=0;i<e.hierarchy.childCount;i++){var c=e.hierarchy[i];if(c.userData==SourceUiBackdrop.ReplicaTag||c.userData is SourceUiBackdrop.ClipTag)continue;Visit(c);}}
             _snapshots.Begin();try{Visit(_root);}finally{_snapshots.End();}
         }
         internal void OrderPauseContent(VisualElement content)

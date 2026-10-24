@@ -18,6 +18,13 @@ namespace EchoSphere.Presentation
         private readonly SourceUiReplicaSnapshotCache _snapshots;
         internal SourceUiReplica(Func<VisualElement,Action<MeshGenerationContext>> paint):this(paint,null){}
         internal SourceUiReplica(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots){_paint=paint;_snapshots=snapshots;}
+        internal void RepaintDynamic()
+        {
+            foreach(var pair in _copies){
+                _snapshots?.Touch(pair.Key);var copy=pair.Value;
+                if(copy.Tag.Paint!=null||copy.Element is Image image&&image.image is RenderTexture)copy.Element.MarkDirtyRepaint();
+            }
+        }
         internal void Update(VisualElement root,VisualElement stop,VisualElement parent,Rect area)
         {
             _childOrder.Clear();

@@ -5731,3 +5731,19 @@ warnings; final fresh Play Console 0/0. No APK, quality reduction or protected
 branch edits. Xiaomi 11T acceptance and the reported intermittent REGION window
 remain open. Further aggregation/static world-mask reuse/dynamic run rendering
 are explicitly outstanding; P1/P2 are NOT DONE.
+
+2026-10-25 DESKTOP RENDERER FOLLOW-UP
+Starting HEAD 1bc75337c87e3d001ae111a46cc6f50061f33af5 (CI #849 SUCCESS).
+Implemented bounded exact-input blurred world-mask reuse, consecutive compatible
+Unity GPU instancing, tessellation snapshot/upload buffer reuse and run-backdrop
+layout retention with live repaint and influence-region versions. Editor GPU
+masks: 8 scenarios bit-exact; instancing: 24 bit-exact comparisons, fixture
+geometry calls 3360 -> 396; native tessellation: 48 exact comparisons. Filtered
+UI capture including live RT, text/style/clip changes and owner removal matches
+full preparation exactly. Static tutorial step avoids repeated full prep;
+animated tutorial still invalidates conservatively. Android shader-only bundle
+compile succeeded, not an APK or device run. Explicit shader variant WarmUp
+removed after native D3D12 Editor crash; same-backend retests passed after restart.
+Detailed findings and limits: UNITY_ANDROID_PERFORMANCE_IMPLEMENTATION_2026-10-24.md.
+Device performance, crowded combat, full tutorial and intermittent REGION cause
+remain open. User settings and protected branch unchanged; P1/P2 NOT DONE.

@@ -1534,4 +1534,14 @@ assert.ok(regionSelectUi.includes('var cardHeight = available ? 367f : 150f') &&
   regionSelectUi.includes('var baseRect = new Rect(12f, y + 80f, contentWidth - 24f, 52f)') &&
   regionSelectUi.includes('var challengeRect = new Rect(12f, y + 164f + j * 43f, contentWidth - 24f, 38f)'),
   'region selection must preserve source card, challenge and line-icon proportions');
+// Runtime-created materials alone are insufficient evidence for preserving
+// instancing variants in a player build. Keep an explicit Resources material
+// and matching variant collection, without changing the user's global settings.
+const instancesPath = join(root, 'Assets/Resources/EchoSphere/NativeWorldSolidInstances');
+const instanceGuid = readFileSync(instancesPath + '.shader.meta', 'utf8').match(/^guid: (\w+)/m)?.[1];
+const instanceMaterial = readFileSync(instancesPath + '.mat', 'utf8');
+const instanceVariants = readFileSync(join(root, 'Assets/Resources/EchoSphere/NativeWorldSolidInstanceVariants.shadervariants'), 'utf8');
+assert.ok(instanceGuid && instanceMaterial.includes('guid: ' + instanceGuid) && /m_EnableInstancingVariants:\s*1/.test(instanceMaterial) &&
+  instanceVariants.includes('guid: ' + instanceGuid) && /keywords:\s*INSTANCING_ON/.test(instanceVariants),
+  'Native solid instancing requires the matching build-visible material and retained shader variant');
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);

@@ -1774,3 +1774,19 @@ Final actual Editor Play Console: 0 errors / 0 warnings; original Game View pres
 restored, validation portrait preset removed, Play stopped. The live runtime
 snapshot also matched Unity JsonUtility output over three retained captures.
 Remaining device/overlay/renderer follow-up is explicit in the detailed report.
+
+## 2026-10-25 — Desktop renderer follow-up
+
+From 1bc75337c87e3d001ae111a46cc6f50061f33af5 (CI #849 SUCCESS): bounded
+exact-input world shadow-mask reuse, ordered Unity solid GPU instancing,
+reused tessellation input/upload buffers, and retained run-backdrop layout with
+live repaint and region-aware invalidation implemented. Editor GPU: masks 8
+cases bit-exact; instancing 24 cases bit-exact, 3360 -> 396 fixture geometry
+draws; tessellation 48 exact comparisons. Live filtered UIR panel capture is
+pixel-identical to forced preparation, including text/opacity/clip/live RT and
+owner removal. Static tutorial step avoids full backdrop preparation; animated
+step still invalidates conservatively. Android shader-only bundle compile
+succeeded; no APK/device FPS claim. Explicit variant WarmUp was removed after
+an Editor native crash; recovery and GPU retests used the same D3D12 backend.
+See detailed Android implementation report for limits and acceptance still open.
+P1/P2 remain NOT DONE. User graphics/settings changes remain excluded.

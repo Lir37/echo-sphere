@@ -22,6 +22,7 @@ namespace EchoSphere.Presentation
         private Vector2 _panelSize;
         internal VisualElement Foreground=>_foreground;
         internal void SetVisible(bool visible){_clip.style.visibility=visible?Visibility.Visible:Visibility.Hidden;_foreground.style.visibility=visible?Visibility.Visible:Visibility.Hidden;}
+        internal void RepaintDynamic(){if(_normalPaint!=null)_foreground.MarkDirtyRepaint();_replica.RepaintDynamic();}
         internal SourceUiBackdrop(VisualElement original,Action<MeshGenerationContext> paint,Func<VisualElement,Action<MeshGenerationContext>> replicaPaint,SourceUiReplicaSnapshotCache snapshots)
         {
             _original=original;_normalPaint=original.generateVisualContent;
