@@ -1666,3 +1666,37 @@ released the capture-owned resources explicitly and cleared only that diagnostic
 baseline. No game-code workaround was introduced. Actual compile clean; 272 Node
 tests, preflight and provenance PASS. Check containing revert commit CI separately.
 P1/P2 and remaining enemy visual acceptance stay OPEN. No APK.
+
+### Single organic skitter trial, existing 2.5D style (2026-10-24)
+
+Rejected faceted trial was fully reverted in
+96f1f3a8eff00ec4290e54f946c0c8a3a9b3b4a8, CI #845 SUCCESS. User then authorized
+trying the organic direction while explicitly rejecting a 3D-looking replacement.
+Scope is deliberately ONE existing variant, skitter, before further visual approval.
+
+NativeWorldOrganicSkitter uses the same curved contour/segment/body renderer,
+original family color, original t*7 animation clock and existing compositor. It
+adds alternating six-leg tripod poses, overlapping abdominal segments, a smoothly
+curved head, small recessed red sensory slits and hooked mandibles. There are no
+faceted hulls, new shaders, textures, 3D meshes/lighting rigs or environment changes.
+The minor idle jaw motion is cosmetic and is not a new attack or telegraph.
+
+Only Creature's skitter branch is switched; all other variants/bosses, approved
+character art, spheres, projectiles, elite/status/hit/death effects and gameplay
+parameters retain their pre-faceted-trial implementation. No new mechanics, RNG,
+attack cadence, hitbox or balance changes. Full organic concept sheet remains a
+proposal: it is not a claim that all four designs have been implemented.
+
+Actual native GPU render exported 30 animation samples at enlarged radius 55 and
+original default radius 19. Evidence in GPT/organic-enemy-trial/skitter-native.*;
+these are controlled renderer samples, not recorded live combat or Android FPS.
+GIF cadence is approximately 30fps export only. Actual Editor compile 0 errors /
+0 warnings, final Play Console 0 errors/0 warnings; 47 routed pointer regression
+checks PASS with frozen simulation. C# Android player/editor checks: 326 runtime
+files, 0 errors/warnings. 272 Node tests, preflight, provenance and export checks
+PASS. Play stopped and all 10 saved preference keys restored/verified. User's
+settings/URP/quality/volume/recovery edits and protected branch preserved. No APK.
+
+User acceptance of this single in-game organic skitter is PENDING. Do not expand
+to other enemies without feedback. P1/P2, device/performance and remaining combat
+visual acceptance remain OPEN. Check containing implementation commit CI.

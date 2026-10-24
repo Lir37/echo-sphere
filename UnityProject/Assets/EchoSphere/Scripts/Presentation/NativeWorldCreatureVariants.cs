@@ -21,7 +21,7 @@ namespace EchoSphere.Presentation
                     var serpent=m*T(r*.50,-r*.06);Body(serpent,r*.36,color,-.06,.62);Eye(serpent,r*.14,-r*.10,r*.09,color);Eye(serpent,r*.14,r*.10,r*.09,color);
                     var fang=Get(4,r,0,1,()=>Poly(P(r*.12,0),P(r*.34,r*.05),P(r*.12,r*.10)));Paint(fang,serpent,C(2,5,10),color);break;
                 case "skitter":
-                    Body(m,r,color,Math.Sin(t*4)*.05,.58);Legs(m,r,SkitterLegs,.22,.58,t*7,color,.62);var skitter=m*T(r*.45);Body(skitter,r*.34,color,-.05,.70);Eye(skitter,0,-r*.10,r*.075,color);Eye(skitter,0,r*.10,r*.075,color);break;
+                    OrganicSkitter(m,r,color,t);break;
                 case "moth":
                     Wing(m,-r*.08,-r*.40,r*.92,r*.62,-2.72,color,t*8);Wing(m,-r*.08,r*.40,r*.92,r*.62,2.72,color,t*8);Body(m*T(sx:.45,sy:1.25),r*.72,color,0,.9);Legs(m,r,MothLegs,.28,.48,t*8,color,.36);Eye(m,-r*.07,-r*.26,r*.09,color);Eye(m,r*.07,-r*.26,r*.09,color);break;
                 case "beetle":
