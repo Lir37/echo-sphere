@@ -97,6 +97,21 @@ internal static class SourceParityChecks
         var filtered = RunSnapshotCodec.Capture(state, field => field.Name != "presentationVisible");
         if (RunSnapshotCodec.Field(filtered, "presentationVisible") != null || RunSnapshotCodec.Field(filtered, "xp") == null)
             throw new InvalidOperationException("Capture field selection differs from restore");
+        SnapshotValue retained=null;SnapshotNode previousRoot=null;
+        for(int frame=0;frame<50;frame++){
+            state.xp=frame*.375f;state.nullable=frame%2==0?SphereId.Pulse:(SphereId?)null;
+            state.ids.Clear();state.levels.Clear();state.choices.Clear();
+            for(int i=0;i<frame%7;i++){state.ids.Add("id-"+i);state.levels[(SphereId)i]=frame+i;state.choices.Add(new SphereEvolutionOption("id-"+i,"name-"+frame,"description"));}
+            retained=RunSnapshotCodec.CaptureRetained(state,retained,field=>field.Name!="presentationVisible");
+            var expected=JsonSerializer.Serialize(RunSnapshotCodec.Capture(state,field=>field.Name!="presentationVisible"),options);
+            var actual=JsonSerializer.Serialize(retained,options);
+            if(expected!=actual||actual.Contains("SpareNodes"))throw new InvalidOperationException("Retained save changed its serialized schema or collection contents");
+            if(previousRoot!=null&&!ReferenceEquals(previousRoot,retained.nodes[0]))throw new InvalidOperationException("Retained save did not reuse node storage");
+            var decoded=JsonSerializer.Deserialize<SnapshotValue>(actual,options);
+            var roundtrip=(SnapshotFixture)RunSnapshotCodec.Restore(decoded,typeof(SnapshotFixture),new SnapshotFixture());
+            if(roundtrip.xp!=state.xp||roundtrip.nullable!=state.nullable||!roundtrip.ids.SequenceEqual(state.ids)||roundtrip.levels.Count!=state.levels.Count||roundtrip.choices.Count!=state.choices.Count)throw new InvalidOperationException("Retained snapshot roundtrip failed after collection resize");
+            previousRoot=retained.nodes[0];_count++;
+        }
         Console.WriteLine($"Direct TypeScript → C# parity: PASS ({_count} comparisons, snapshot collections roundtrip)");
     }
     private sealed class SnapshotFixture

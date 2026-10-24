@@ -1747,3 +1747,22 @@ passed CI #846 SUCCESS; containing implementation commit CI must pass separately
 Elite/tier/status/hit/death and projectile effects retain their pre-faceted-trial
 implementation. They remain a separate visual follow-up, alongside actual crowded
 combat/device performance and user acceptance. P1/P2 are not marked DONE.
+
+## 2026-10-24 — Android performance implementation, device acceptance pending
+
+Baseline: b4a4ff4596727dfb8e08391a757f46ee426ba43d, unity-migration. The user
+corrected the intermittent overlay: REGION selection, not character selection.
+Implemented menu retention/incremental character cards, visible-first async art,
+clipped artwork preparation, shared immutable skins, glass appearance versions,
+bounded route/lifecycle diagnostics and stale-home/duplicate-launch guards.
+World shadows now blur integer-aligned object regions with full kernel margins;
+paired Gaussian taps retain the same kernel, with an analytic hardware fallback.
+World draw/state pools, retained text/glyph preparation, solver-length leg meshes,
+exact-input network analysis, reusable simulation snapshots and retained save
+nodes remove repeated work without changing simulation order or save frequency.
+
+Detailed findings, validation and explicit remaining work are recorded in
+UNITY_ANDROID_PERFORMANCE_IMPLEMENTATION_2026-10-24.md. Android FPS/GC, crowded
+combat and the reported region overlay still require actual device verification.
+No APK, gameplay/formula/RNG/quality-setting changes or protected branch edits.
+P1/P2 remain NOT DONE; Editor/CI checks do not establish Xiaomi 11T performance.

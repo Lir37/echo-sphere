@@ -24,7 +24,7 @@ namespace EchoSphere.Runtime
                 _nativeRegionState=ReadNativeRegionState();_nativeRegionWasActive=true;
                 _camera.cullingMask=0;
             }
-            _nativeRegionScreen.Show(_nativeRegionState,SourceDevicePixelRatio,()=>{_regionSelect=false;_mainMenuPage=MainMenuPage.Home;},StartNativeRegion);
+            _nativeRegionScreen.Show(_nativeRegionState,SourceDevicePixelRatio,()=>{if(!_mainMenu||!_regionSelect||NativeRoutes.RegionLaunchPending)return;TraceNativeRoute("region-back");_regionSelect=false;_mainMenuPage=MainMenuPage.Home;},StartNativeRegion);
             return true;
         }
         private NativeRegionScreen.State ReadNativeRegionState()
@@ -48,11 +48,12 @@ namespace EchoSphere.Runtime
         }
         private void StartNativeRegion(string sourceId,string mode,string challenge)
         {
-            if(!_mainMenu||!_regionSelect)return;
+            if(!_mainMenu||!_regionSelect||NativeRoutes.RegionLaunchPending){TraceNativeRoute("rejected-region-start");return;}
             EchoRegionId region=sourceId=="spectral_rift"?EchoRegionId.SpectralRift:EchoRegionId.ResonanceBasin;
             if(!IsRegionAvailable(region))return;
             if(mode=="endless"&&!IsRegionEndlessUnlocked(region))return;
             if(challenge!="none"&&!IsRegionStabilized(region))return;
+            NativeRoutes.RegionLaunchPending=true;TraceNativeRoute("region-start:"+sourceId+":"+mode+":"+challenge);
             // Exact original onStartRun handoff: reload constructs fresh player,
             // spheres and purchased stats with the selected character.
             PlayerPrefs.SetInt(SelectedRegionPreferenceKey,(int)region);

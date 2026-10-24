@@ -69,6 +69,10 @@ namespace EchoSphere.Runtime
 
         private void NavigateNativeMainMenu(NativeMainMenuView.Destination destination)
         {
+            // Queued clicks from a screen that has already lost ownership must
+            // not mutate the next screen or restart a run.
+            if(!_mainMenu||_regionSelect||_mainMenuPage!=MainMenuPage.Home||NativeRoutes.RegionLaunchPending){TraceNativeRoute("rejected-home:"+destination);return;}
+            TraceNativeRoute("home-command:"+destination);
             switch(destination){
                 case NativeMainMenuView.Destination.Map:_regionSelect=true;break;
                 case NativeMainMenuView.Destination.Characters:_mainMenuPage=MainMenuPage.Characters;break;

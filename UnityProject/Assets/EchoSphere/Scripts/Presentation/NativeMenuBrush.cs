@@ -31,6 +31,9 @@ namespace EchoSphere.Presentation
         private readonly List<RenderTexture> _temporary=new List<RenderTexture>();
         private RenderTexture _target;
         private bool _disposed;
+#if UNITY_EDITOR
+        internal bool AnalyticBlurForValidation=false;
+#endif
         public RenderTexture Texture=>_target;
         public Rect Bounds {get;private set;}
         public int PaintCount {get;private set;}
@@ -53,7 +56,13 @@ namespace EchoSphere.Presentation
             if(sigma>0){
                 int radius=Mathf.Max(1,Mathf.CeilToInt(4*sigma));
                 _material.SetFloat("_Sigma",sigma);_material.SetInt("_KernelRadius",radius);_material.SetFloat("_Outside",inset?1:0);
+                bool cached=NativeGaussianWeights.TryGet(sigma,out var weights)&&SystemInfo.IsFormatSupported(UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat,UnityEngine.Experimental.Rendering.GraphicsFormatUsage.Linear);
+#if UNITY_EDITOR
+                if(AnalyticBlurForValidation)cached=false;
+#endif
+                _material.SetInt("_KernelWeightCount",cached?radius+1:0);if(cached){_material.SetVectorArray("_KernelWeights",weights);mask.filterMode=FilterMode.Bilinear;}
                 var ping=Temporary(w,h);var blur=Temporary(w,h);
+                if(cached)ping.filterMode=FilterMode.Bilinear;
                 _material.SetVector("_Direction",new Vector4(1f/w,0,0,0));Graphics.Blit(mask,ping,_material,1);
                 _material.SetVector("_Direction",new Vector4(0,1f/h,0,0));Graphics.Blit(ping,blur,_material,1);mask=blur;
             }

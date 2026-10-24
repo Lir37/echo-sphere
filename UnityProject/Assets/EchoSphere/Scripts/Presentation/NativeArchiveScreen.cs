@@ -39,8 +39,9 @@ namespace EchoSphere.Presentation
         }
         public void Show(State state,float scale,Action back,Action<string> select,Action<string> query)
         {
-            Ensure();_back=back;_select=select;_query=query;_panel.scale=scale;_root.style.display=DisplayStyle.Flex;
-            bool opening=!_visible;_visible=true;bool changed=!ReferenceEquals(_state,state);_state=state;
+            Ensure();_back=back;_select=select;_query=query;_panel.scale=scale;_root.style.display=DisplayStyle.Flex;NativeMenuRetainedState.Visible(_root,true);
+            if(_state!=null&&_state.Russian!=state.Russian){Clear();_state=null;}
+            bool opening=_state==null;_visible=true;bool changed=!NativeMenuRetainedState.Same(_state,state);_state=state;
             if(opening){BuildChrome();_geometryFrame=Time.frameCount;_page.style.opacity=0;}
             if(changed){_search.SetValueWithoutNotify(state.Query);_searchBox.style.display=state.Section=="basics"?DisplayStyle.None:DisplayStyle.Flex;BindCards();_geometryFrame=Time.frameCount;_cards.style.opacity=0;_count.text=state.Known.ToString();for(int i=0;i<_tabs.Count;i++){var color=C(Sections[i]==state.Section?"#cffafe":"#64748b");_tabLabels[i].style.color=color;}}
             float width=Screen.width/scale;bool sm=width>=640,md=width>=768;Pad(_page,sm?20:12);
@@ -111,7 +112,7 @@ namespace EchoSphere.Presentation
         private static void Fill(VisualElement e){e.style.position=Position.Absolute;e.style.left=e.style.right=e.style.top=e.style.bottom=0;}
         private static void Pad(VisualElement e,float p){e.style.paddingLeft=e.style.paddingRight=e.style.paddingTop=e.style.paddingBottom=p;}
         private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var p in _chrome)p.Dispose();_chrome.Clear();foreach(var p in _cardPaint)p.Dispose();_cardPaint.Clear();_buttons.Clear();_tabs.Clear();_tabLabels.Clear();_subtitles.Clear();_columns.Clear();_conceptColumns.Clear();_page.Clear();}
-        public void Hide(){if(!_visible)return;_visible=false;Clear();_state=null;_root.style.display=DisplayStyle.None;}
+        public void Hide(){if(!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
         private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();if(_panel!=null)Destroy(_panel);}
     }
 }

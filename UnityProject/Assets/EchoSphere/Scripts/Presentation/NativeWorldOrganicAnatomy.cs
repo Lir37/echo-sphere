@@ -8,7 +8,7 @@ namespace EchoSphere.Presentation
         private bool _gaitActive,_airborneLegs,_organicFaces;
         private double _gaitTravel,_gaitBlend=1,_poseTime;
         private string _poseVariant;
-        internal struct OrganicLegPose {internal Vector2 Hip,Knee,Foot;internal bool Contact;}
+        internal struct OrganicLegPose {internal Vector2 Hip,Knee,Foot;internal bool Contact;internal double UpperLength,LowerLength;}
         // 64% planted stance, then eased recovery. Upper and lower bones keep
         // their length; the knee is solved from the hip and foot, not animated apart.
         internal static OrganicLegPose SolveOrganicLeg(double r,double hipX,int side,double bodySide,double length,double spread,double phase,double amount=1,double hipWave=0,bool flying=false)
@@ -26,7 +26,7 @@ namespace EchoSphere.Presentation
             double direction=Math.Atan2(dy,dx);fx=hx+Math.Cos(direction)*d;fy=hy+Math.Sin(direction)*d;
             double along=(upper*upper-lower*lower+d*d)/(2*d),height=Math.Sqrt(Math.Max(0,upper*upper-along*along));
             double bend=(hipX<-.15?1:-1)*side,nx=-Math.Sin(direction),ny=Math.Cos(direction);
-            return new OrganicLegPose {Hip=P(hx,hy),Knee=P(hx+Math.Cos(direction)*along+nx*height*bend,hy+Math.Sin(direction)*along+ny*height*bend),Foot=P(fx,fy),Contact=contact};
+            return new OrganicLegPose {Hip=P(hx,hy),Knee=P(hx+Math.Cos(direction)*along+nx*height*bend,hy+Math.Sin(direction)*along+ny*height*bend),Foot=P(fx,fy),Contact=contact,UpperLength=upper,LowerLength=lower};
         }
         private void OrganicEye(Matrix4x4 root,double r,Color color)
         {

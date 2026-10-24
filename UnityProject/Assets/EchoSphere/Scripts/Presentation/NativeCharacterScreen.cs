@@ -24,6 +24,7 @@ namespace EchoSphere.Presentation
         private readonly List<NativeMenuGlass> _glass=new List<NativeMenuGlass>();
         private readonly List<Button> _buttons=new List<Button>();
         private readonly List<VisualElement> _cards=new List<VisualElement>();
+        private readonly List<(Image image,string id)> _portraits=new List<(Image,string)>();
         private State _state;private Action _back;private Action<string> _choose,_expand;
         private bool _visible,_narrow,_restoreScroll;private int _geometryFrame;private Vector2 _pendingScroll;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
@@ -44,11 +45,20 @@ namespace EchoSphere.Presentation
         }
         public void Show(State state,float scale,Action back,Action<string> choose,Action<string> expand)
         {
-            Ensure();_back=back;_choose=choose;_expand=expand;_panel.scale=scale;_visible=true;_root.style.display=DisplayStyle.Flex;
+            Ensure();_back=back;_choose=choose;_expand=expand;_panel.scale=scale;_visible=true;_root.style.display=DisplayStyle.Flex;NativeMenuRetainedState.Visible(_root,true);
             bool narrow=Screen.width/scale<=650;
-            if(!ReferenceEquals(_state,state)||narrow!=_narrow){_pendingScroll=_state==null?Vector2.zero:_scroll.scrollOffset;_restoreScroll=true;_narrow=narrow;Clear();_state=state;Build();foreach(var button in _buttons)_glass.Add(new NativeMenuGlass(button,8));_geometryFrame=Time.frameCount;_page.style.opacity=0;}
+            if(!NativeMenuRetainedState.Same(_state,state)||narrow!=_narrow){
+                _pendingScroll=_state==null?Vector2.zero:_scroll.scrollOffset;_restoreScroll=true;
+                bool rebuild=_state==null||narrow!=_narrow||_state.Russian!=state.Russian||_state.Message!=state.Message||_state.Characters.Count!=state.Characters.Count;
+                if(!rebuild)for(int i=0;i<state.Characters.Count;i++)if(_state.Characters[i].Id!=state.Characters[i].Id){rebuild=true;break;}
+                var previous=_state;_narrow=narrow;_state=state;
+                if(rebuild){Clear();Build();foreach(var button in _buttons)_glass.Add(new NativeMenuGlass(button,8));}
+                else UpdateCards(previous);
+                _geometryFrame=Time.frameCount;_page.style.opacity=0;
+            }
             Pad(_page,narrow?10:16);_page.style.paddingTop=Mathf.Max(narrow?10:16,(Screen.height-Screen.safeArea.yMax)/scale);_page.style.paddingBottom=Mathf.Max(narrow?10:16,Screen.safeArea.yMin/scale);
             _background.SetViewport(Screen.width/scale,Screen.height/scale,scale);
+            LoadVisiblePortraits();
             if(Time.frameCount-_geometryFrame>=2){if(_restoreScroll){_scroll.scrollOffset=_pendingScroll;_restoreScroll=false;}foreach(var paint in _surfaces)paint.Prepare(scale);foreach(var glass in _glass)glass.Prepare(_root,8,scale);_page.style.opacity=1;}
         }
         private void Build()
@@ -79,9 +89,7 @@ namespace EchoSphere.Presentation
             var choose=Button(card,"choose-"+character.Id,()=>_choose?.Invoke(character.Id));choose.style.width=Length.Percent(100);choose.style.borderTopLeftRadius=choose.style.borderTopRightRadius=choose.style.borderBottomLeftRadius=choose.style.borderBottomRightRadius=6;
             var row=Box(choose,"character-main",true);row.style.alignItems=Align.FlexStart;
             var glyph=Box(row,"character-glyph");glyph.style.width=glyph.style.height=44;glyph.style.marginRight=12;glyph.style.alignItems=Align.Center;glyph.style.justifyContent=Justify.Center;Border(glyph,12);Paint(glyph,new NativeMenuBrush.Paint {Radius=12,Border=1,Fill=C("#081522"),BorderColor=C("#243b55")});
-            var portrait=NativeCharacterArtwork.Resolve(character.Id);
-            if(portrait!=null){var image=new Image {name="character-portrait",sprite=portrait.Sprite,scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};image.style.position=Position.Absolute;image.style.left=image.style.right=image.style.top=image.style.bottom=0;image.style.opacity=character.Unlocked?1:.35f;glyph.Add(image);}
-            else if(character.Unlocked){var star=Text(glyph,"character-star","✦",16,"#effcff");star.style.textShadow=new TextShadow {color=C("#effcff"),blurRadius=10,offset=Vector2.zero};}
+            var image=new Image {name="character-portrait",scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};image.style.position=Position.Absolute;image.style.left=image.style.right=image.style.top=image.style.bottom=0;image.style.opacity=character.Unlocked?1:.35f;glyph.Add(image);_portraits.Add((image,character.Id));
             if(!character.Unlocked)Icon(glyph,"Lock",18,C(character.Color));
             var copy=Box(row,"character-copy");copy.style.flexGrow=1;copy.style.flexShrink=1;
             var nameRow=Box(copy,"character-name-row",true);nameRow.style.justifyContent=Justify.SpaceBetween;nameRow.style.alignItems=Align.Center;
@@ -122,8 +130,39 @@ namespace EchoSphere.Presentation
         private static void Fill(VisualElement e){e.style.position=Position.Absolute;e.style.left=e.style.right=e.style.top=e.style.bottom=0;}
         private static void Pad(VisualElement e,float p){e.style.paddingLeft=e.style.paddingRight=e.style.paddingTop=e.style.paddingBottom=p;}
         private static void Border(VisualElement e,float radius){e.style.borderLeftWidth=e.style.borderRightWidth=e.style.borderTopWidth=e.style.borderBottomWidth=1;e.style.borderLeftColor=e.style.borderRightColor=e.style.borderTopColor=e.style.borderBottomColor=Color.clear;e.style.borderTopLeftRadius=e.style.borderTopRightRadius=e.style.borderBottomLeftRadius=e.style.borderBottomRightRadius=radius;}
-        private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var paint in _surfaces)paint.Dispose();_surfaces.Clear();_buttons.Clear();_cards.Clear();_heading.Clear();_message.Clear();_body.Clear();}
-        public void Hide(){if(!_visible)return;_visible=false;Clear();_state=null;_root.style.display=DisplayStyle.None;}
+        private void LoadVisiblePortraits()
+        {
+            // Prioritize the actual viewport over the prefetch margin.
+            for(int pass=0;pass<2;pass++)foreach(var portrait in _portraits){
+                if(portrait.image.sprite!=null||!NativeHudSurface.InViewport(portrait.image,pass==0?0:200))continue;
+                var art=NativeCharacterArtwork.ResolveAsync(portrait.id);if(art!=null)portrait.image.sprite=art.Sprite;
+            }
+        }
+        private void UpdateCards(State previous)
+        {
+            _heading.Q<Label>("character-gold").text=_state.Gold;
+            for(int i=0;i<_state.Characters.Count;i++){
+                if(NativeMenuRetainedState.Same(previous.Characters[i],_state.Characters[i]))continue;
+                var old=_cards[i];int index=_body.IndexOf(old);
+                // Glass and button lists share registration order. Detach the
+                // filter owners before disposing their source artwork.
+                for(int j=_buttons.Count-1;j>=0;j--)if(old.Contains(_buttons[j])){_glass[j].Dispose();_glass.RemoveAt(j);_buttons.RemoveAt(j);}
+                for(int j=_surfaces.Count-1;j>=0;j--)if(_surfaces[j].Host==old||old.Contains(_surfaces[j].Host)){_surfaces[j].Dispose();_surfaces.RemoveAt(j);}
+                for(int j=_portraits.Count-1;j>=0;j--)if(old.Contains(_portraits[j].image))_portraits.RemoveAt(j);
+                old.RemoveFromHierarchy();int firstButton=_buttons.Count;Card(_state.Characters[i]);
+                var replacement=_cards[_cards.Count-1];_cards.RemoveAt(_cards.Count-1);_cards[i]=replacement;_body.Insert(index,replacement);
+                for(int j=firstButton;j<_buttons.Count;j++)_glass.Add(new NativeMenuGlass(_buttons[j],8));
+            }
+            var buttons=new List<Button>();var glass=new List<NativeMenuGlass>();
+            void Visit(VisualElement node){
+                if(node.userData is SourceUiBackdrop.ClipTag||ReferenceEquals(node.userData,SourceUiBackdrop.ReplicaTag))return;
+                if(node is Button button){int index=_buttons.IndexOf(button);if(index>=0){buttons.Add(button);glass.Add(_glass[index]);}}
+                for(int i=0;i<node.hierarchy.childCount;i++)Visit(node.hierarchy[i]);
+            }
+            Visit(_root);_buttons.Clear();_buttons.AddRange(buttons);_glass.Clear();_glass.AddRange(glass);
+        }
+        private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var paint in _surfaces)paint.Dispose();_surfaces.Clear();_buttons.Clear();_cards.Clear();_portraits.Clear();_heading.Clear();_message.Clear();_body.Clear();}
+        public void Hide(){if(!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
         private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();if(_panel!=null)Destroy(_panel);}
     }
 }

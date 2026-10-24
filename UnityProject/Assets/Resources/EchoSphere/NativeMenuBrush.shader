@@ -12,6 +12,8 @@ Shader "EchoSphere/NativeMenuBrush"
         float4 _Colors[8];float _Stops[8];int _KernelRadius,_StopCount;
         float4 _ShadowInnerB;
         float _Outside,_Border,_Linear,_Sigma;
+        float4 _KernelWeights[128];int _KernelWeightCount;
+        float MaskSample(float2 uv){return any(uv<0)||any(uv>1)?_Outside:tex2Dlod(_MainTex,float4(uv,0,0)).r;}
         float2 Pixel(float2 uv,float2 size){return floor(float2(uv.x,1-uv.y)*size)+.5;}
         float Shape(float2 p,float2 size,float2 radius)
         {
@@ -34,6 +36,11 @@ Shader "EchoSphere/NativeMenuBrush"
         float blurFragment(v2f_img input):SV_Target
         {
             float value=0,total=0;
+            [branch]if(_KernelWeightCount>_KernelRadius){
+                float center=_KernelWeights[0].x;total=center;value=MaskSample(input.uv)*center;
+                [loop]for(int i=1;i<=_KernelRadius;i+=2){int j=min(i+1,_KernelRadius);float a=_KernelWeights[i>>2][i&3],b=i<_KernelRadius?_KernelWeights[j>>2][j&3]:0;float weight=a+b;if(weight>0){float offset=i+b/weight;total+=2*weight;value+=(MaskSample(input.uv+_Direction.xy*offset)+MaskSample(input.uv-_Direction.xy*offset))*weight;}}
+                return value/total;
+            }
             [loop]for(int i=-_KernelRadius;i<=_KernelRadius;i++){
                 float2 uv=input.uv+_Direction.xy*i;
                 float sampleValue=any(uv<0)||any(uv>1)?_Outside:tex2Dlod(_MainTex,float4(uv,0,0)).r;

@@ -13,6 +13,7 @@ namespace EchoSphere.Presentation
         private RenderTexture _prefixTexture,_scratch,_horizontal,_blurTexture;
         private SourceUiBackdrop _retainedPrefix;
         private Rect _area;private bool _disposed;
+        private ulong _paintVersion;private float _paintSigma=-1,_paintScale=-1;private Rect _paintBounds;private bool _prepared;
         internal int PrepareCount {get;private set;}
         internal RenderTexture Texture=>_blurTexture;
         internal bool UsesRetainedPrefix=>_retainedPrefix!=null;
@@ -37,8 +38,14 @@ namespace EchoSphere.Presentation
         {
             if(_disposed)throw new ObjectDisposedException(nameof(NativeMenuGlass));
             var box=_element.layout;var resolved=_element.resolvedStyle;
-            if(!float.IsFinite(box.width+box.height)||box.width<=0||box.height<=0||resolved.display==DisplayStyle.None){Visible(false);return;}
+            if(!float.IsFinite(box.width+box.height)||box.width<=0||box.height<=0||!NativeHudSurface.InViewport(_element,4*sigma)){Visible(false);return;}
             Visible(true);
+            var version=NativeMenuPaintVersion.Read(root);
+            if(_prepared&&version==_paintVersion&&sigma==_paintSigma&&scale==_paintScale&&_paintBounds==_element.worldBound){
+                if(_retainedPrefix!=null)_clip.style.display=DisplayStyle.None;
+                return;
+            }
+            _prepared=true;_paintVersion=version;_paintSigma=sigma;_paintScale=scale;_paintBounds=_element.worldBound;
             var area=_element.worldBound;float padding=Mathf.Ceil(4*sigma);area.xMin=Mathf.Floor(area.xMin-padding);area.yMin=Mathf.Floor(area.yMin-padding);area.xMax=Mathf.Ceil(area.xMax+padding);area.yMax=Mathf.Ceil(area.yMax+padding);
             int width=Mathf.CeilToInt(area.width*scale),height=Mathf.CeilToInt(area.height*scale);
             if(width>SystemInfo.maxTextureSize||height>SystemInfo.maxTextureSize)throw new InvalidOperationException("Native menu prefix exceeds texture limits");
@@ -104,7 +111,7 @@ namespace EchoSphere.Presentation
         }
         private static Action<MeshGenerationContext> NativePainter(VisualElement element)
             =>element is TextElement||element is Image?null:element.generateVisualContent;
-        internal void Visible(bool visible){_clip.style.display=visible?DisplayStyle.Flex:DisplayStyle.None;if(!visible&&_retainedPrefix!=null){_retainedPrefix.Dispose();_retainedPrefix=null;}}
+        internal void Visible(bool visible){_clip.style.display=visible&&_retainedPrefix==null?DisplayStyle.Flex:DisplayStyle.None;_retainedPrefix?.SetVisible(visible);if(!visible)_prepared=false;}
         public void Dispose()
         {
             if(_disposed)return;_disposed=true;_retainedPrefix?.Dispose();_retainedPrefix=null;_clip.RemoveFromHierarchy();UnityEngine.Object.Destroy(_prefixMaterial);

@@ -179,6 +179,7 @@ namespace EchoSphere.Runtime
             bool nativeRegions=TryDrawNativeRegions();
             bool nativeCharacters=TryDrawNativeCharacters();
             bool nativeArchive=TryDrawNativeArchive();
+            TraceNativeRoute("state");
             if(nativeHome||nativeProgression||nativeSettings||nativeRegions||nativeCharacters||nativeArchive)return;
             if(_worldSurface==null) {
                 _worldSurface=new GameObject("Native world compositor").AddComponent<NativeWorldSurface>();_worldSurface.Initialize();

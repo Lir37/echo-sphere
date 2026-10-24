@@ -9,10 +9,21 @@ namespace EchoSphere.Presentation
     {
         private readonly VisualElement _host;
         private readonly Image _image;
-        private readonly NativeMenuBrush _brush=new NativeMenuBrush();
+        private NativeMenuBrushCache.Entry _skin;
         private NativeMenuBrush.Paint _paint;
         private float _width=-1,_height=-1,_scale=-1;
         private bool _dirty=true,_visible=true;
+        internal static uint PaintVersion {get;private set;}
+        internal VisualElement Host=>_host;
+        internal static bool InViewport(VisualElement element,float margin=64)
+        {
+            var area=element.worldBound;area.xMin-=margin;area.yMin-=margin;area.xMax+=margin;area.yMax+=margin;
+            for(var parent=element;parent!=null;parent=parent.parent){
+                if(parent.resolvedStyle.display==DisplayStyle.None||parent.resolvedStyle.visibility==Visibility.Hidden)return false;
+                if(parent!=element&&(parent.style.overflow==Overflow.Hidden||parent.ClassListContains("unity-scroll-view__content-viewport"))&&!area.Overlaps(parent.worldBound))return false;
+            }
+            return element.panel!=null&&area.Overlaps(element.panel.visualTree.worldBound);
+        }
         internal NativeHudSurface(VisualElement host,NativeMenuBrush.Paint paint)
         {
             _host=host;_paint=paint;
@@ -24,15 +35,19 @@ namespace EchoSphere.Presentation
         internal void Prepare(float scale)
         {
             var w=_host.layout.width;var h=_host.layout.height;
-            if(!_visible||w<=0||h<=0||!float.IsFinite(w+h)||_host.resolvedStyle.display==DisplayStyle.None){_image.style.display=DisplayStyle.None;return;}
+            float margin=Mathf.Max(ShadowMargin(_paint.OuterA),ShadowMargin(_paint.OuterB));
+            if(!_visible||w<=0||h<=0||!float.IsFinite(w+h)||!InViewport(_host,margin)){_image.style.visibility=Visibility.Hidden;return;}
+            _image.style.visibility=Visibility.Visible;
             _image.style.display=DisplayStyle.Flex;
             if(!_dirty&&w==_width&&h==_height&&scale==_scale)return;
-            _brush.Render(w,h,scale,_paint);_width=w;_height=h;_scale=scale;_dirty=false;
-            _image.image=_brush.Texture;var b=_brush.Bounds;
+            var old=_skin;_skin=NativeMenuBrushCache.Acquire(w,h,scale,_paint);_width=w;_height=h;_scale=scale;_dirty=false;
+            PaintVersion++;
+            _image.image=_skin.Brush.Texture;var b=_skin.Brush.Bounds;NativeMenuBrushCache.Release(old);
             // An absolute child uses its parent's padding box origin (inside border).
             _image.style.left=b.x-_host.resolvedStyle.borderLeftWidth;_image.style.top=b.y-_host.resolvedStyle.borderTopWidth;
             _image.style.width=b.width;_image.style.height=b.height;_image.style.display=DisplayStyle.Flex;
         }
-        public void Dispose(){_image.RemoveFromHierarchy();_brush.Dispose();}
+        private static float ShadowMargin(NativeMenuBrush.Shadow? shadow)=>shadow.HasValue?shadow.Value.Blur*2+Mathf.Max(Mathf.Abs(shadow.Value.Offset.x),Mathf.Abs(shadow.Value.Offset.y))+Mathf.Max(0,shadow.Value.Spread):0;
+        public void Dispose(){_image.image=null;_image.RemoveFromHierarchy();NativeMenuBrushCache.Release(_skin);_skin=null;}
     }
 }

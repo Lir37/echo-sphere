@@ -43,8 +43,8 @@ namespace EchoSphere.Presentation
         }
         public void Show(State state,float scale,Action back,Action<string,string,string> start)
         {
-            Ensure();_back=back;_start=start;_panel.scale=scale;_visible=true;_root.style.display=DisplayStyle.Flex;
-            if(!ReferenceEquals(_state,state)){Clear();_state=state;Build();foreach(var button in _buttons)_glass.Add(new NativeMenuGlass(button,8));_geometryFrame=Time.frameCount;_content.style.opacity=0;}
+            Ensure();_back=back;_start=start;_panel.scale=scale;_visible=true;_root.style.display=DisplayStyle.Flex;NativeMenuRetainedState.Visible(_root,true);
+            if(!NativeMenuRetainedState.Same(_state,state)){Clear();_state=state;Build();foreach(var button in _buttons)_glass.Add(new NativeMenuGlass(button,8));_geometryFrame=Time.frameCount;_content.style.opacity=0;}
             bool narrow=Screen.width/scale<=560;
             if(_narrow!=narrow){_narrow=narrow;foreach(var card in _cards)Pad(card,narrow?10:12);foreach(var title in _titles)title.style.fontSize=narrow?12:15;_geometryFrame=Time.frameCount;}
             var safe=Screen.safeArea;_root.style.paddingTop=(Screen.height-safe.yMax)/scale;_root.style.paddingBottom=safe.yMin/scale;
@@ -117,7 +117,7 @@ namespace EchoSphere.Presentation
         private static void Pad(VisualElement e,float p){e.style.paddingLeft=e.style.paddingRight=e.style.paddingTop=e.style.paddingBottom=p;}
         private static void Border(VisualElement e,float radius){e.style.borderLeftWidth=e.style.borderRightWidth=e.style.borderTopWidth=e.style.borderBottomWidth=1;e.style.borderLeftColor=e.style.borderRightColor=e.style.borderTopColor=e.style.borderBottomColor=Color.clear;e.style.borderTopLeftRadius=e.style.borderTopRightRadius=e.style.borderBottomLeftRadius=e.style.borderBottomRightRadius=radius;}
         private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var surface in _surfaces)surface.Dispose();_surfaces.Clear();_cards.Clear();_titles.Clear();_buttons.Clear();_header.Clear();_content.Clear();}
-        public void Hide(){if(!_visible)return;_visible=false;Clear();_state=null;_root.style.display=DisplayStyle.None;}
+        public void Hide(){if(!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
         private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();if(_panel!=null)Destroy(_panel);}
     }
 }

@@ -65,9 +65,9 @@ namespace EchoSphere.Presentation
         public void Show(State state,float scale,Action back,Action<string> buy)
         {
             Ensure();_back=back;_buy=buy;_scale=scale;_panel.scale=scale;
-            bool rebuilt=!ReferenceEquals(_shown,state);
+            bool rebuilt=!NativeMenuRetainedState.Same(_shown,state);
             if(rebuilt){ClearContent();Build(state);_shown=state;_geometryFrame=Time.frameCount;_content.style.opacity=0;}
-            _document.enabled=true;_root.style.display=DisplayStyle.Flex;_visible=true;
+            _document.enabled=true;_root.style.display=DisplayStyle.Flex;NativeMenuRetainedState.Visible(_root,true);_visible=true;
             _content.style.maxWidth=state.Page==Page.Achievements?672:820;
             _content.style.paddingTop=Mathf.Max(32,(Screen.height-Screen.safeArea.yMax)/scale);
             _content.style.paddingBottom=Mathf.Max(32,Screen.safeArea.yMin/scale);
@@ -171,7 +171,7 @@ namespace EchoSphere.Presentation
         private static Button Button(VisualElement parent,string name,Action action){var button=new Button(action){name=name};button.AddToClassList("progression-button");parent.Add(button);return button;}
         private static VisualElement Icon(VisualElement parent,string name,float size,Color color){var e=Box(parent,"icon-"+name);e.style.width=e.style.height=size;e.style.backgroundImage=new StyleBackground(Resources.Load<VectorImage>("EchoSphere/NativeMenuIcons/"+name));e.style.unityBackgroundImageTintColor=color;return e;}
         private void ClearContent(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var surface in _surfaces)surface.Dispose();_surfaces.Clear();_shopRows.Clear();_content.Clear();}
-        public void Hide(){if(_document==null||!_visible)return;_visible=false;ClearContent();_shown=null;_root.style.display=DisplayStyle.None;}
+        public void Hide(){if(_document==null||!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
         private void OnDestroy(){if(_document!=null)ClearContent();_background?.Dispose();if(_panel!=null)Destroy(_panel);}
     }
 }

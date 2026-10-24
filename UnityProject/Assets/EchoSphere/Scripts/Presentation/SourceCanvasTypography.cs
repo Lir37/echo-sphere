@@ -60,6 +60,7 @@ namespace EchoSphere.Presentation
             generationExtents=Vector2.zero,alignByGeometry=false,resizeTextForBestFit=false,updateBounds=true
         };
         private static string Normalize(string text)=>Regex.Replace(text,@"[\t\n\f\r]"," ");
+        internal static void Prepare(Font font,string text,int size,FontStyle style){Generator.Invalidate();Generator.Populate(Normalize(text),Settings(font,size,style));}
         internal static UIVertex[] Vertices(Font font,string text,int size,FontStyle style)
         {Generator.Invalidate();Generator.Populate(Normalize(text),Settings(font,size,style));// Older TextGenerator versions appended an empty quad. Unity 6000.3
             // can return only actual glyph quads: never discard a visible final glyph.

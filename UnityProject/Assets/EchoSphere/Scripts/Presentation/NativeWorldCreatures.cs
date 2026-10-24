@@ -100,10 +100,17 @@ namespace EchoSphere.Presentation
         {if(_organicFaces){OrganicEye(m*T(x,y,look),r,color);return;}var local=m*T(x,y,look);Ellipse(local,r,r*.62,C(245,252,255,.94),color,Math.Max(.7,r*.16));Ellipse(local*T(r*.18),r*.20,r*.42,color);}
         private void Core(Matrix4x4 m,double x,double y,double r,Color color)
         {var local=m*T(x,y);Glow(local,r*2.2,color,.95,true);Ellipse(local,r,r,C(7,17,27),color,Math.Max(.7,r*.15));}
-        private void Segment(Matrix4x4 m,double x1,double y1,double x2,double y2,double w,Color color,double alpha)
+        private void Segment(Matrix4x4 m,double x1,double y1,double x2,double y2,double w,Color color,double alpha,double? fixedLength=null)
         {
-            double dx=x2-x1,dy=y2-y1,len=Math.Sqrt(dx*dx+dy*dy);if(_segmentUsed==_segments.Count)_segments.Add(new Art());var art=_segments[_segmentUsed++];
+            double dx=x2-x1,dy=y2-y1,len=fixedLength??Math.Sqrt(dx*dx+dy*dy);Art art;
             var ending=_surface.NativeStrokeEnding;var corner=_surface.NativeStrokeCorner;float miter=_surface.NativeStrokeMiter;
+            if(fixedLength.HasValue){
+                // Use the solver's actual invariant bone length, not a length
+                // reconstructed from its rounded Vector2 endpoints. No scaling
+                // of the stroke width and no quantization of animated paths.
+                var key=(901,len,w,Math.Max(.7,w*.09),ending,corner,miter);
+                if(!_art.TryGetValue(key,out art)){art=new Art();art.Build(Quadratic(P(0,-w*.34),true,P(len*.48,-w*.48),P(len,-w*.10),P(len*.62,w*.42),P(0,w*.30)),(float)key.Item4,ending,corner,miter,fill:false);art.Length=len;art.Width=w;art.Ending=ending;art.Corner=corner;art.Miter=miter;_art.Add(key,art);}
+            }else{if(_segmentUsed==_segments.Count)_segments.Add(new Art());art=_segments[_segmentUsed++];}
             if(art.Stroke==null||art.Length!=len||art.Width!=w||art.Ending!=ending||art.Corner!=corner||art.Miter!=miter){art.Build(Quadratic(P(0,-w*.34),true,P(len*.48,-w*.48),P(len,-w*.10),P(len*.62,w*.42),P(0,w*.30)),(float)Math.Max(.7,w*.09),ending,corner,miter,fill:false);art.Length=len;art.Width=w;art.Ending=ending;art.Corner=corner;art.Miter=miter;}
             // Every fill control X is proportional to length. Share a canonical
             // filled mesh and animate its X transform instead of retriangulating
@@ -111,7 +118,8 @@ namespace EchoSphere.Presentation
             // the original tessellation's absolute curve-error bound cannot grow.
             // Keep the stroke at the actual length: scaling it would distort width.
             double envelope=Math.Pow(2,Math.Ceiling(Math.Log(Math.Max(1,len),2)));
-            var fill=Get(900,envelope,w,0,()=>Quadratic(P(0,-w*.34),true,P(envelope*.48,-w*.48),P(envelope,-w*.10),P(envelope*.62,w*.42),P(0,w*.30)));
+            var fillKey=(900,envelope,w,0d,ending,corner,miter);
+            if(!_art.TryGetValue(fillKey,out var fill)){fill=new Art();fill.Build(Quadratic(P(0,-w*.34),true,P(envelope*.48,-w*.48),P(envelope,-w*.10),P(envelope*.62,w*.42),P(0,w*.30)),0,ending,corner,miter);_art.Add(fillKey,fill);}
             var root=m*T(x1,y1,Math.Atan2(dy,dx));
             _surface.DrawNativeMesh(fill.Fill,_solid,Properties(C(4,8,15,.98)),root*T(sx:len/envelope),inheritBlend:true,inheritShadow:true,opacity:(float)alpha);
             _surface.DrawNativeMesh(art.Stroke,_solid,Properties(color),root,inheritBlend:true,inheritShadow:true,opacity:(float)alpha);
@@ -125,9 +133,9 @@ namespace EchoSphere.Presentation
                 double wave=0;if(_poseVariant=="leech"){double q=(xs[i]+.62)/1.22;wave=Math.Sin(_poseTime*3.2+q*4.8)*r*.14*(_gaitActive?.2+.8*_gaitBlend:1);}
                 if(_poseVariant=="stalker")wave=Math.Sin(_poseTime*4)*r*.06;
                 var pose=SolveOrganicLeg(r,xs[i],side,bodySideY,len,spread,p,_gaitActive?_gaitBlend:1,wave,_airborneLegs);
-                Segment(m,pose.Hip.x,pose.Hip.y,pose.Knee.x,pose.Knee.y,Math.Max(1.4,r*.24*thick),color,.90);
+                Segment(m,pose.Hip.x,pose.Hip.y,pose.Knee.x,pose.Knee.y,Math.Max(1.4,r*.24*thick),color,.90,pose.UpperLength);
                 Joint(m,pose.Knee.x,pose.Knee.y,Math.Max(.6,r*.038),color);
-                Segment(m,pose.Knee.x,pose.Knee.y,pose.Foot.x,pose.Foot.y,Math.Max(1.1,r*.15*thick),color,.86);
+                Segment(m,pose.Knee.x,pose.Knee.y,pose.Foot.x,pose.Foot.y,Math.Max(1.1,r*.15*thick),color,.86,pose.LowerLength);
                 var toe=Get(230,r,side,Math.Max(.55,r*.024),()=>Quadratic(Vector2.zero,false,P(r*.08,side*r*.025),P(r*.13,-side*r*.025)),false);
                 Paint(toe,m*T(pose.Foot.x,pose.Foot.y),null,A(color,pose.Contact?.9:.65));
             }

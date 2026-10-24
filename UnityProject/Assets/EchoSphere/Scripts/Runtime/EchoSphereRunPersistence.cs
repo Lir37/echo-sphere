@@ -10,6 +10,17 @@ namespace EchoSphere.Runtime
     {
         private const string RunSnapshotKey = "echosphere_active_run_v1";
         private float _runSaveAccumulator;
+        private sealed class RunSaveBuffers
+        {
+            internal SnapshotValue Player,Runtime;
+            internal readonly List<EnemyAgent2D> LiveEnemies=new List<EnemyAgent2D>();
+            private readonly Dictionary<int,SnapshotValue> _states=new Dictionary<int,SnapshotValue>();
+            private readonly HashSet<int> _seen=new HashSet<int>();private readonly List<int> _stale=new List<int>();
+            internal void Begin(){LiveEnemies.Clear();_seen.Clear();}
+            internal SnapshotValue Capture(MonoBehaviour agent){int id=agent.GetInstanceID();_seen.Add(id);_states.TryGetValue(id,out var state);state=RunSnapshotCodec.CaptureRetained(agent,state);_states[id]=state;return state;}
+            internal void End(){_stale.Clear();foreach(var pair in _states)if(!_seen.Contains(pair.Key))_stale.Add(pair.Key);foreach(int id in _stale)_states.Remove(id);_stale.Clear();}
+        }
+        private readonly RunSaveBuffers _runSaveBuffers=new RunSaveBuffers();
         [Serializable] private sealed class SavedEntity
         {
             public string kind, name, variant;
@@ -31,6 +42,7 @@ namespace EchoSphere.Runtime
         }
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
+            "_runSaveBuffers",
             "_nativeProgressionScreen", "_nativeProgressionCatalog", "_nativeProgressionPage", "_nativeProgressionWasActive", "_nativeProgressionState",
             "_nativeRegionScreen", "_nativeRegionState", "_nativeRegionWasActive",
             "_nativeCharacterScreen", "_nativeCharacterState", "_nativeCharacterWasActive", "_nativeCharacterMessage",
@@ -79,8 +91,8 @@ namespace EchoSphere.Runtime
             _runSaveAccumulator = 0f;
             SaveCurrentRun();
         }
-        private void OnApplicationPause(bool paused) { if (paused) PauseAndSaveRun(); }
-        private void OnApplicationFocus(bool focused) { if (!focused) PauseAndSaveRun(); else InvalidateSourceDensity(); }
+        private void OnApplicationPause(bool paused) { TraceNativeRoute(paused?"application-pause":"application-resume");if (paused) PauseAndSaveRun(); }
+        private void OnApplicationFocus(bool focused) { TraceNativeRoute(focused?"application-focus":"application-blur");if (!focused) PauseAndSaveRun(); else InvalidateSourceDensity(); }
         private void OnApplicationQuit() { SaveCurrentRun(); }
         private void PauseAndSaveRun()
         {
@@ -106,10 +118,13 @@ namespace EchoSphere.Runtime
             if (_mainMenu || _gameOver || _tutorialStep >= 0 || _playerCore == null) return;
             try
             {
+                _runSaveBuffers.Begin();
+                _runSaveBuffers.Player=RunSnapshotCodec.CaptureRetained(_playerCore,_runSaveBuffers.Player);
+                _runSaveBuffers.Runtime=RunSnapshotCodec.CaptureRetained(this,_runSaveBuffers.Runtime,field=>!NonRunFields.Contains(field.Name));
                 var save = new SavedRun { savedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), time = _runTime,
-                    playerPosition = _player.position, player = RunSnapshotCodec.Capture(_playerCore),
-                    runtime = RunSnapshotCodec.Capture(this, field => !NonRunFields.Contains(field.Name)), regionPois = _regionFieldVisuals.CapturePoiState() };
-                var liveEnemies = new List<EnemyAgent2D>(); foreach (var enemy in _enemies) if (enemy != null && enemy.IsAlive) liveEnemies.Add(enemy);
+                    playerPosition = _player.position, player = _runSaveBuffers.Player,
+                    runtime = _runSaveBuffers.Runtime, regionPois = _regionFieldVisuals.CapturePoiState() };
+                var liveEnemies = _runSaveBuffers.LiveEnemies; foreach (var enemy in _enemies) if (enemy != null && enemy.IsAlive) liveEnemies.Add(enemy);
                 foreach (var agent in _simulationAgents)
                 {
                     if (agent == null || !agent.gameObject.activeInHierarchy) continue;
@@ -122,7 +137,7 @@ namespace EchoSphere.Runtime
                     var sprite = agent.GetComponentInChildren<SpriteRenderer>();
                     var entity = new SavedEntity { kind = type.Name, name = agent.name, position = agent.transform.position,
                         scale = agent.transform.localScale, color = sprite != null ? sprite.color : Color.white,
-                        state = RunSnapshotCodec.Capture(agent) };
+                        state = _runSaveBuffers.Capture(agent) };
                     if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner)
                     { entity.hasProjectileOwner = true; entity.projectileOwnerIndex = liveEnemies.IndexOf(bullet.SourceOwner); }
                     if (agent is EnemyAgent2D)
@@ -130,13 +145,14 @@ namespace EchoSphere.Runtime
                         var creature = agent.GetComponent<EnemyCreatureVisual2D>();
                         entity.variant = creature == null ? "wisp" : creature.SourceVariant;
                         var boss = agent.GetComponent<BossCombatAgent2D>();
-                        if (boss != null) entity.auxiliary = RunSnapshotCodec.Capture(boss);
+                        if (boss != null) entity.auxiliary = _runSaveBuffers.Capture(boss);
                     }
                     save.entities.Add(entity);
                 }
                 PlayerPrefs.SetString(RunSnapshotKey, JsonUtility.ToJson(save)); PlayerPrefs.Save();
             }
             catch (Exception error) { Debug.LogWarning("[ECHO SPHERE] Run save failed: " + error.Message); }
+            finally { _runSaveBuffers.End(); }
         }
         private void ContinueSavedRun()
         {

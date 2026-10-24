@@ -17,7 +17,8 @@ namespace EchoSphere.Presentation
             internal Matrix4x4 Matrix=Matrix4x4.identity;internal float Alpha=1,ShadowBlur,Miter=10;
             internal readonly float ShadowX=0,ShadowY=0,DashOffset=0;
             internal string Blend="source-over",Baseline="alphabetic";internal Color Shadow=Color.clear;
-            internal float[] Dash=Array.Empty<float>();internal State Copy()=>(State)MemberwiseClone();
+            internal float[] Dash=Array.Empty<float>();
+            internal void CopyFrom(State value){Matrix=value.Matrix;Alpha=value.Alpha;ShadowBlur=value.ShadowBlur;Miter=value.Miter;Blend=value.Blend;Baseline=value.Baseline;Shadow=value.Shadow;Dash=value.Dash;}
         }
         private sealed class Batch
         {
@@ -26,6 +27,13 @@ namespace EchoSphere.Presentation
             internal Action NativePrepareGlyphs,NativeEmitGlyphs;
         }
         private State _state=new State();private readonly Stack<State> _stack=new Stack<State>();private readonly List<Batch> _batches=new List<Batch>();
+        private readonly Stack<State> _freeStates=new Stack<State>();
+        private readonly List<Batch> _batchPool=new List<Batch>();private int _batchUsed;
+        internal long ShadowPixelCount {get;private set;}
+        internal int ShadowPassCount {get;private set;}
+#if UNITY_EDITOR
+        internal bool FullShadowViewportForValidation=false;
+#endif
         private CommandBuffer _commands;private Material _blurMaterial,_presentMaterial;private RenderTexture _target,_uiTarget;private Rect _viewport;private float _dpr=1;private Vector2 _logicalSize;
         internal Vector2 SourceOrigin;internal bool LocalizeCanvasText=true;internal Texture UiTexture=>_uiTarget;
         internal Vector2 LogicalSize=>_logicalSize;
@@ -38,6 +46,8 @@ namespace EchoSphere.Presentation
         private static readonly int ShadowColorId=Shader.PropertyToID("_SourceShadowColor");
         private static readonly int ShadowOffsetId=Shader.PropertyToID("_SourceShadowOffset");
         private static readonly int ShadowRectId=Shader.PropertyToID("_SourceShadowRect");
+        private static readonly int ShadowWeightsId=Shader.PropertyToID("_SourceShadowWeights");
+        private static readonly int ShadowWeightCountId=Shader.PropertyToID("_SourceShadowWeightCount");
         internal void Initialize()
         {_commands=new CommandBuffer {name="ECHO SPHERE native world"};_blurMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceCanvasShadow"));_presentMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceCanvasPresent"));}
         internal void SetViewport(float width,float height,float dpr)
@@ -49,9 +59,9 @@ namespace EchoSphere.Presentation
             _target=new RenderTexture(w,h,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear){name="Native world compositing",antiAliasing=4,filterMode=FilterMode.Bilinear};_target.Create();
             _uiTarget=new RenderTexture(w,h,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native world UI image",filterMode=FilterMode.Bilinear};_uiTarget.Create();
         }
-        internal void Begin(Vector2 origin){SourceOrigin=origin;_stack.Clear();_batches.Clear();}
-        internal void Save()=>_stack.Push(_state.Copy());
-        internal void Restore(){if(_stack.Count>0)_state=_stack.Pop();}
+        internal void Begin(Vector2 origin){SourceOrigin=origin;while(_stack.Count>0)_freeStates.Push(_stack.Pop());_batches.Clear();_batchUsed=0;}
+        internal void Save(){var copy=_freeStates.Count>0?_freeStates.Pop():new State();copy.CopyFrom(_state);_stack.Push(copy);}
+        internal void Restore(){if(_stack.Count>0){_freeStates.Push(_state);_state=_stack.Pop();}}
         internal void Translate(double x,double y)=>_state.Matrix*=Matrix4x4.Translate(new Vector3((float)x,(float)y,0));
         internal void ResetTransform()=>_state.Matrix=Matrix4x4.identity;
         internal void SetDash(float[] dash)=>_state.Dash=dash;
@@ -71,7 +81,8 @@ namespace EchoSphere.Presentation
             float unit=SpherePlacementRules.SourcePixelsToWorld;
             properties.SetFloat("_NativeOpacity",opacity??_state.Alpha);
             var matrix=Matrix4x4.Translate(new Vector3(-SourceOrigin.x*unit,SourceOrigin.y*unit,0))*Matrix4x4.Scale(new Vector3(unit,-unit,1))*_state.Matrix*(localTransform??Matrix4x4.identity);
-            _batches.Add(new Batch {NativeMesh=mesh,NativeMaterial=material,NativeMatrix=matrix,NativeProperties=properties,Blend=additive?"lighter":screen?"screen":inheritBlend?_state.Blend:"source-over",Shadow=inheritShadow?_state.Shadow:shadow??Color.clear,Blur=inheritShadow?_state.ShadowBlur:shadowBlur,X=inheritShadow||inheritShadowOffsets?_state.ShadowX:0,Y=inheritShadow||inheritShadowOffsets?_state.ShadowY:0});
+            if(_batchUsed==_batchPool.Count)_batchPool.Add(new Batch());var batch=_batchPool[_batchUsed++];
+            batch.NativeMesh=mesh;batch.NativeMaterial=material;batch.NativeMatrix=matrix;batch.NativeProperties=properties;batch.Blend=additive?"lighter":screen?"screen":inheritBlend?_state.Blend:"source-over";batch.Shadow=inheritShadow?_state.Shadow:shadow??Color.clear;batch.Blur=inheritShadow?_state.ShadowBlur:shadowBlur;batch.X=inheritShadow||inheritShadowOffsets?_state.ShadowX:0;batch.Y=inheritShadow||inheritShadowOffsets?_state.ShadowY:0;batch.NativePrepareGlyphs=null;batch.NativeEmitGlyphs=null;_batches.Add(batch);
         }
         internal Matrix4x4 NativePaintMatrix=>_state.Matrix;
         internal float NativeDashOffset=>_state.DashOffset;
@@ -85,6 +96,47 @@ namespace EchoSphere.Presentation
         internal float NativeTextRasterScale=>NativeTextRasterScaleFor(Matrix4x4.identity);
         internal void DrawNativeTextMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Action prepareGlyphs,Action emitGlyphs,Color? shadow=null,bool inheritShadowOffsets=false,Matrix4x4? localTransform=null,float shadowBlur=0,bool inheritBlend=false,bool additive=false,bool inheritShadow=false,float? opacity=null)
         {DrawNativeMesh(mesh,material,properties,localTransform,shadow:shadow,shadowBlur:shadowBlur,inheritShadowOffsets:inheritShadowOffsets,inheritBlend:inheritBlend,additive:additive,inheritShadow:inheritShadow,opacity:opacity);var batch=_batches[_batches.Count-1];batch.NativePrepareGlyphs=prepareGlyphs;batch.NativeEmitGlyphs=emitGlyphs;}
+        private RectInt ShadowArea(Batch batch)
+        {
+            int px=VisualCanvasShadowViewport.Padding(batch.Blur,batch.X),py=VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y);
+            var full=new RectInt(-px,-py,_target.width+px*2,_target.height+py*2);
+#if UNITY_EDITOR
+            if(FullShadowViewportForValidation)return full;
+#endif
+            // Unknown vertex deformation must retain the old full viewport.
+            string shader=batch.NativeMaterial.shader.name;
+            switch(shader){
+                case "EchoSphere/NativeWorldSolid":case "EchoSphere/NativeWorldLabel":case "EchoSphere/NativeWorldSprite":
+                case "EchoSphere/NativeWorldCreatureGlow":case "EchoSphere/NativeWorldFamilyGlow":case "EchoSphere/NativeWorldMutationGlow":
+                case "EchoSphere/NativeWorldPlayerCore":case "EchoSphere/NativeWorldStandardCore":case "EchoSphere/NativeWorldRegion":
+                case "EchoSphere/NativeWorldField":case "EchoSphere/NativeWorldFrameBackground":break;
+                default:return full;
+            }
+            var bounds=batch.NativeMesh.bounds;var offset=shader=="EchoSphere/NativeWorldLabel"?batch.NativeProperties.GetVector("_LabelOffset"):Vector4.zero;
+            float x0=float.PositiveInfinity,y0=float.PositiveInfinity,x1=float.NegativeInfinity,y1=float.NegativeInfinity;
+            for(int i=0;i<4;i++){
+                var point=batch.NativeMatrix.MultiplyPoint3x4(new Vector3((i%2==0?bounds.min.x:bounds.max.x)+offset.x,(i<2?bounds.min.y:bounds.max.y)+offset.y,bounds.center.z));
+                float x=(point.x-_viewport.xMin)/_viewport.width*_target.width,y=(point.y-_viewport.yMin)/_viewport.height*_target.height;
+                x0=Mathf.Min(x0,x);x1=Mathf.Max(x1,x);y0=Mathf.Min(y0,y);y1=Mathf.Max(y1,y);
+            }
+            if(!float.IsFinite(x0+y0+x1+y1))return full;
+            // Integer pixel origin keeps the MSAA/sample grid identical to the
+            // original target. Include the complete kernel and bilinear margin.
+            int left=Math.Max(full.xMin,Mathf.FloorToInt(x0)-px-1),bottom=Math.Max(full.yMin,Mathf.FloorToInt(y0)-py-1);
+            int right=Math.Min(full.xMax,Mathf.CeilToInt(x1)+px+1),top=Math.Min(full.yMax,Mathf.CeilToInt(y1)+py+1);
+            return new RectInt(left,bottom,Math.Max(0,right-left),Math.Max(0,top-bottom));
+        }
+        private void SetShadowKernel(float sigma)
+        {
+            _commands.SetGlobalFloat(ShadowSigmaId,sigma);
+            int radius=Mathf.CeilToInt(sigma*4);
+            bool cached=NativeGaussianWeights.TryGet(sigma,out var weights);
+#if UNITY_EDITOR
+            if(FullShadowViewportForValidation)cached=false;
+#endif
+            if(!cached){_commands.SetGlobalInt(ShadowWeightCountId,0);return;}
+            _commands.SetGlobalInt(ShadowWeightCountId,radius+1);_commands.SetGlobalVectorArray(ShadowWeightsId,weights);
+        }
         private void RenderMeshes()
         {
             if(_target==null)throw new InvalidOperationException("Native world viewport is not set");
@@ -94,33 +146,40 @@ namespace EchoSphere.Presentation
             var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),false);
             _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
             var mask=ShadowMaskId;var ping=ShadowPingId;var blur=ShadowBlurId;
-            var hasShadows=false;var paddingX=0;var paddingY=0;foreach(var batch in _batches)if(batch.NativeMesh!=null&&batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)){hasShadows=true;paddingX=Math.Max(paddingX,VisualCanvasShadowViewport.Padding(batch.Blur,batch.X));paddingY=Math.Max(paddingY,VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y));}
-            var shadowViewport=new VisualCanvasShadowViewport(_target.width,_target.height,paddingX,paddingY);
+            ShadowPixelCount=0;ShadowPassCount=0;
             var pixelX=_viewport.width/_target.width;var pixelY=_viewport.height/_target.height;
-            var shadowProjection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin-paddingX*pixelX,_viewport.xMax+paddingX*pixelX,_viewport.yMin-paddingY*pixelY,_viewport.yMax+paddingY*pixelY,-1f,1f),false);
-            if(hasShadows){_commands.GetTemporaryRT(mask,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear,4);
-            _commands.GetTemporaryRT(ping,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
-            _commands.GetTemporaryRT(blur,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);}
             for(var i=0;i<_batches.Count;i++) {
                 var batch=_batches[i];
                 if(batch.NativeMesh==null)continue;var props=batch.NativeProperties;
                 if(batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)) {
                     using var shadowSample=ShadowCommandsMarker.Auto();
+                    var area=ShadowArea(batch);
+                    if(area.width>0&&area.height>0){
+                    ShadowPixelCount+=(long)area.width*area.height;ShadowPassCount++;
+                    var shadowProjection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin+area.xMin*pixelX,_viewport.xMin+area.xMax*pixelX,_viewport.yMin+area.yMin*pixelY,_viewport.yMin+area.yMax*pixelY,-1f,1f),false);
+                    // Unity's temporary target pool reuses released sizes; no
+                    // permanent per-object textures are retained for moving FX.
+                    _commands.GetTemporaryRT(mask,area.width,area.height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear,4);
+                    _commands.GetTemporaryRT(ping,area.width,area.height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
+                    _commands.GetTemporaryRT(blur,area.width,area.height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
                     _commands.SetRenderTarget(mask);_commands.ClearRenderTarget(false,true,Color.clear);_commands.SetViewProjectionMatrices(Matrix4x4.identity,shadowProjection);
                     _commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,0,props);
-                    _commands.SetGlobalFloat(ShadowSigmaId,(float)VisualCanvasShadowViewport.Sigma(batch.Blur));
-                    _commands.SetGlobalVector(ShadowDirectionId,new Vector4(1f/shadowViewport.Width,0f,0f,0f));_commands.Blit(mask,ping,_blurMaterial,0);
-                    _commands.SetGlobalVector(ShadowDirectionId,new Vector4(0f,1f/shadowViewport.Height,0f,0f));_commands.Blit(ping,blur,_blurMaterial,0);
+                    SetShadowKernel((float)VisualCanvasShadowViewport.Sigma(batch.Blur));
+                    _commands.SetGlobalVector(ShadowDirectionId,new Vector4(1f/area.width,0f,0f,0f));_commands.Blit(mask,ping,_blurMaterial,0);
+                    _commands.SetGlobalVector(ShadowDirectionId,new Vector4(0f,1f/area.height,0f,0f));_commands.Blit(ping,blur,_blurMaterial,0);
                     _commands.SetGlobalColor(ShadowColorId,batch.Shadow);
-                    _commands.SetGlobalVector(ShadowOffsetId,new Vector4(batch.X/shadowViewport.Width,-batch.Y/shadowViewport.Height,0f,0f));
-                    _commands.SetGlobalVector(ShadowRectId,new Vector4((float)shadowViewport.U,(float)shadowViewport.V,(float)shadowViewport.UWidth,(float)shadowViewport.VHeight));
+                    _commands.SetGlobalVector(ShadowOffsetId,new Vector4(batch.X/area.width,-batch.Y/area.height,0f,0f));
+                    _commands.SetGlobalVector(ShadowRectId,new Vector4(-(float)area.x/area.width,-(float)area.y/area.height,(float)_target.width/area.width,(float)_target.height/area.height));
                     _commands.Blit(blur,_target,_blurMaterial,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1);
+                    _commands.ReleaseTemporaryRT(mask);_commands.ReleaseTemporaryRT(ping);_commands.ReleaseTemporaryRT(blur);
+                    }
                     _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
                 }
                 _commands.SetRenderTarget(_target);int pass=batch.Blend=="lighter"?1:batch.Blend=="screen"?2:0;_commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,pass,props);
             }
+            _commands.SetGlobalInt(ShadowWeightCountId,0); // Do not leak cached weights into Editor reference compositors.
             var previous=RenderTexture.active;var gamma=GL.sRGBWrite;
-            try{if(hasShadows){_commands.ReleaseTemporaryRT(mask);_commands.ReleaseTemporaryRT(ping);_commands.ReleaseTemporaryRT(blur);}_commands.SetRenderTarget(previous!=null?new RenderTargetIdentifier(previous):new RenderTargetIdentifier(BuiltinRenderTextureType.CameraTarget));using(ExecuteMarker.Auto())Graphics.ExecuteCommandBuffer(_commands);}
+            try{_commands.SetRenderTarget(previous!=null?new RenderTargetIdentifier(previous):new RenderTargetIdentifier(BuiltinRenderTextureType.CameraTarget));using(ExecuteMarker.Auto())Graphics.ExecuteCommandBuffer(_commands);}
             finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
         }
         private static void Release(ref RenderTexture target){if(target==null)return;target.Release();UnityEngine.Object.Destroy(target);target=null;}

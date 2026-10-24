@@ -1003,6 +1003,7 @@ namespace EchoSphere.Runtime
 
         private void Start()
         {
+            Application.lowMemory+=OnNativeLowMemory;TraceNativeRoute("runtime-start");
             Application.targetFrameRate = 60;
             SourceAudio2D.SetEnabled(PlayerPrefs.GetInt(SoundPreferenceKey, 1) != 0);
             EnsureShopSaveLoaded();
@@ -7006,11 +7007,13 @@ namespace EchoSphere.Runtime
             _resonanceGeometryCandidateKeys.AddRange(currentCandidateKeys);
         }
 
+        private EchoSphere.Presentation.NativeNetworkAnalysisCache _nativeNetworkAnalysis;
         private void RefreshNetworkState()
         {
             _abilityDrones.RemoveAll(drone => drone == null || !drone.IsNetworkNodeAlive);
             var includeDrones = GetAbilityLevel(RunUpgradeKind.Minion) >= 3;
-            var nodes = new List<SphereNetworkNode>(_spheres.Count + (includeDrones ? _abilityDrones.Count : 0));
+            if(_nativeNetworkAnalysis==null)_nativeNetworkAnalysis=new EchoSphere.Presentation.NativeNetworkAnalysisCache();
+            var nodes = _nativeNetworkAnalysis.Nodes;nodes.Clear();
             for (var i = 0; i < _spheres.Count; i++)
             {
                 var sphere = _spheres[i];
@@ -7033,7 +7036,7 @@ namespace EchoSphere.Runtime
                 }
 
             var previous = _preferredDominantFormation != SphereNetworkFormation.None ? _preferredDominantFormation : _previousDominantFormation;
-            _networkState = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance, previous);
+            _networkState = _nativeNetworkAnalysis.Analyze(_networkState,previous,_preferredDominantFormation,_preferredSecondaryFormation);
             if (_preferredDominantFormation != SphereNetworkFormation.None &&
                 !SphereNetworkRules.TrySetDominantFormation(_networkState, _preferredDominantFormation))
                 _preferredDominantFormation = SphereNetworkFormation.None;
@@ -7277,6 +7280,7 @@ namespace EchoSphere.Runtime
 
         private void OnDestroy()
         {
+            Application.lowMemory-=OnNativeLowMemory;TraceNativeRoute("runtime-destroy");
             DisposeNativePauseStatsIsland();
             DisposeNativePauseAbilitiesIsland();
             DisposeNativePauseArtifactsIsland();

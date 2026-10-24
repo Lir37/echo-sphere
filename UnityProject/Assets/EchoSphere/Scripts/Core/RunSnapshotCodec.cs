@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Runtime.CompilerServices;
 
 namespace EchoSphere.Core
 {
@@ -30,6 +31,22 @@ namespace EchoSphere.Core
     public static class RunSnapshotCodec
     {
         private const BindingFlags Fields = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+        private static readonly Dictionary<Type,FieldInfo[]> StoredFields = new Dictionary<Type,FieldInfo[]>();
+        private sealed class NodeStorage {internal List<SnapshotNode> Spare;}
+        private static readonly ConditionalWeakTable<SnapshotValue,NodeStorage> RetainedStorage=new ConditionalWeakTable<SnapshotValue,NodeStorage>();
+        private static FieldInfo[] FieldsFor(Type type)
+        {
+            lock (StoredFields)
+            {
+                if (StoredFields.TryGetValue(type, out var fields)) return fields;
+                var stored = new List<FieldInfo>();
+                foreach (var field in type.GetFields(Fields))
+                    if (!field.IsStatic && CanStore(field.FieldType)) stored.Add(field);
+                fields = stored.ToArray();
+                StoredFields.Add(type, fields);
+                return fields;
+            }
+        }
 
         public static bool IsEngineObject(Type type)
         {
@@ -52,12 +69,24 @@ namespace EchoSphere.Core
         public static SnapshotValue Capture(object value, Func<FieldInfo, bool> select = null)
         {
             var snapshot = new SnapshotValue();
-            snapshot.nodes.Add(new SnapshotNode { parentIndex = -1 });
+            AddNode(snapshot, -1, null);
             CaptureInto(snapshot, 0, value, select);
             return snapshot;
         }
 
-        private static void CaptureInto(SnapshotValue snapshot, int index, object value, Func<FieldInfo, bool> select)
+        // Only callers that have finished consuming/serializing the preceding
+        // snapshot may reuse it. The public Capture API keeps detached snapshots.
+        internal static SnapshotValue CaptureRetained(object value,SnapshotValue snapshot,Func<FieldInfo,bool> select=null)
+        {
+            if(snapshot==null)return Capture(value,select);
+            var storage=RetainedStorage.GetValue(snapshot,_=>new NodeStorage());
+            var previous=snapshot.nodes;
+            snapshot.nodes=storage.Spare??new List<SnapshotNode>(previous.Count);
+            storage.Spare=previous;snapshot.nodes.Clear();snapshot.rootIndex=0;
+            AddNode(snapshot,-1,null,previous);CaptureInto(snapshot,0,value,select,previous);return snapshot;
+        }
+
+        private static void CaptureInto(SnapshotValue snapshot, int index, object value, Func<FieldInfo, bool> select,List<SnapshotNode> reuse=null)
         {
             var node = snapshot.nodes[index];
             if (value == null) { node.kind = "null"; return; }
@@ -77,10 +106,10 @@ namespace EchoSphere.Core
                 node.kind = "map";
                 foreach (DictionaryEntry entry in map)
                 {
-                    var keyIndex = AddNode(snapshot, index, null);
-                    CaptureInto(snapshot, keyIndex, entry.Key, null);
-                    var valueIndex = AddNode(snapshot, index, null);
-                    CaptureInto(snapshot, valueIndex, entry.Value, null);
+                    var keyIndex = AddNode(snapshot, index, null,reuse);
+                    CaptureInto(snapshot, keyIndex, entry.Key, null,reuse);
+                    var valueIndex = AddNode(snapshot, index, null,reuse);
+                    CaptureInto(snapshot, valueIndex, entry.Value, null,reuse);
                 }
                 return;
             }
@@ -90,26 +119,27 @@ namespace EchoSphere.Core
                 node.kind = "list";
                 foreach (var item in sequence)
                 {
-                    var itemIndex = AddNode(snapshot, index, null);
-                    CaptureInto(snapshot, itemIndex, item, null);
+                    var itemIndex = AddNode(snapshot, index, null,reuse);
+                    CaptureInto(snapshot, itemIndex, item, null,reuse);
                 }
                 return;
             }
 
             node.kind = "object";
-            foreach (var field in type.GetFields(Fields))
+            foreach (var field in FieldsFor(type))
             {
-                if (field.IsStatic || !CanStore(field.FieldType) || (select != null && !select(field))) continue;
-                var childIndex = AddNode(snapshot, index, field.Name);
-                CaptureInto(snapshot, childIndex, field.GetValue(value), null);
+                if (select != null && !select(field)) continue;
+                var childIndex = AddNode(snapshot, index, field.Name,reuse);
+                CaptureInto(snapshot, childIndex, field.GetValue(value), null,reuse);
             }
         }
 
-        private static int AddNode(SnapshotValue snapshot, int parentIndex, string name)
+        private static int AddNode(SnapshotValue snapshot, int parentIndex, string name,List<SnapshotNode> reuse=null)
         {
             var index = snapshot.nodes.Count;
-            snapshot.nodes.Add(new SnapshotNode { name = name, parentIndex = parentIndex });
-            snapshot.nodes[parentIndex].children.Add(index);
+            var node=reuse!=null&&index<reuse.Count?reuse[index]:new SnapshotNode();
+            node.name=name;node.parentIndex=parentIndex;node.kind=null;node.text=null;node.children.Clear();snapshot.nodes.Add(node);
+            if(parentIndex>=0)snapshot.nodes[parentIndex].children.Add(index);
             return index;
         }
 
