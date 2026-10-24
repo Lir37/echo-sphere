@@ -2,8 +2,8 @@ using System;
 
 namespace EchoSphere.Presentation
 {
-    // Storage/date compatibility for retained catalogue/read-model functions.
-    // This is plain data: no GameObject, DOM, timers, hooks, layout or renderer.
+    // Native retained-UI invalidation state. Editor-only storage/date
+    // bindings support reference checks; the player owns only the dirty flag.
     internal sealed class NativeUiDataContext
     {
         internal bool Dirty=true;

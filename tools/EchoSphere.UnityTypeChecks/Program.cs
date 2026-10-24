@@ -65,6 +65,15 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
     }
     var compilation = CSharpCompilation.Create(editorAssembly ? "Assembly-CSharp-Editor" : "Assembly-CSharp", trees, references,
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release, warningLevel: 4, allowUnsafe: false));
+    if(configuration=="Android player")
+    {
+        foreach(var name in new[]{"V","VisualJs","VisualJson","IVisualHost","IVisualCallable","SourceCanvasImage","NativeRunSnapshotDefaults","SourceUiDocument","SourceCanvasSurface"})
+            if(compilation.GetTypeByMetadataName("EchoSphere.Presentation."+name)!=null)throw new InvalidOperationException("Retired presentation compatibility type leaked into Android player: "+name);
+        var runtime=compilation.GetTypeByMetadataName("EchoSphere.Runtime.EchoSphereRuntime");
+        foreach(var name in new[]{"_sourceRenderState","_sourceRenderEntities","UpdateSourceRenderState","UpdateSourceUiState","ApplySourceUiWrites"})
+            if(runtime?.GetMembers(name).Length>0)throw new InvalidOperationException("Retired scene snapshot member leaked into Android player: "+name);
+        Console.WriteLine("Native presentation retirement: PASS (value emulator, old UI/canvas and scene snapshot absent from Android player).");
+    }
     using var output = new MemoryStream();
     var diagnostics = compilation.Emit(output).Diagnostics.Concat(NativeInitializers(compilation)).Where(d => d.Severity == DiagnosticSeverity.Error || d.Severity == DiagnosticSeverity.Warning).OrderBy(d => d.Location.SourceTree?.FilePath).ThenBy(d => d.Location.SourceSpan.Start).ToArray();
     var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);

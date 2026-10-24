@@ -40,7 +40,7 @@ namespace EchoSphere.Runtime
         private static double NativeMobileMaxCooldown(string ability)
         {switch(ability){case "blast":case "minion":case "darkritual":return 30;case "shield":case "lightning":return 20;case "teleport":return 15;case "firetrail":return 25;case "timestop":return 40;default:return 1;}}
         private string NativeMobileDashLabel(double cooldown,bool russian)
-        {return cooldown>0?NativeMobileText("dashOnCooldown").Replace("{sec}",VisualJs.NumberText(Math.Ceiling(cooldown))):russian?"Рывок":"Dash";}
+        {return cooldown>0?NativeMobileText("dashOnCooldown").Replace("{sec}",NativePresentationMath.NumberText(Math.Ceiling(cooldown))):russian?"Рывок":"Dash";}
         private void ReadNativeMobileState()
         {
             bool follow=_follow,locked=_sphereMovementLocked;
@@ -51,15 +51,15 @@ namespace EchoSphere.Runtime
             foreach(var pair in _activeAbilityHotkeys){
                 string ability=SourceAbilityId(pair.Key),key=pair.Value.ToString().Replace("Alpha","").ToLowerInvariant();double cd=GetActiveAbilityCooldown(pair.Key),max=NativeMobileMaxCooldown(ability);
                 string label=NativeMobileAbilityName(pair.Key,IsRussianUi);
-                state.Controls.Add(new NativeMobileControlsView.Control {Id="ability:"+key+"-"+ability,Name=label,Detail=cd>0?VisualJs.NumberText(Math.Ceiling(cd))+"s":NativeMobileText("ready"),Cooldown=cd>0?(float)Math.Min(100,cd/max*100):0,Disabled=follow&&ability=="teleport"});
+                state.Controls.Add(new NativeMobileControlsView.Control {Id="ability:"+key+"-"+ability,Name=label,Detail=cd>0?NativePresentationMath.NumberText(Math.Ceiling(cd))+"s":NativeMobileText("ready"),Cooldown=cd>0?(float)Math.Min(100,cd/max*100):0,Disabled=follow&&ability=="teleport"});
             }
-            if(follow)state.Strain=(IsRussianUi?"НАГРУЗКА СЕТИ":"NETWORK STRAIN")+" "+VisualJs.NumberText(Math.Floor((double)_formationStrain+.5))+"%";
+            if(follow)state.Strain=(IsRussianUi?"НАГРУЗКА СЕТИ":"NETWORK STRAIN")+" "+NativePresentationMath.NumberText(Math.Floor((double)_formationStrain+.5))+"%";
             state.Controls.Add(new NativeMobileControlsView.Control {Id="dash",Icon="Zap",Name=NativeMobileDashLabel(_playerCore.DashCooldown,IsRussianUi),Disabled=follow});
             var definitions=NativeRunCatalog.Instance.Spheres;var selected=NativeRunCatalog.Instance.GetSphere(_selectedSphereType.ToString().ToLowerInvariant());state.Name=selected.Name(IsRussianUi);state.Description=selected.Description(IsRussianUi);
             foreach(var sphere in definitions)state.Controls.Add(new NativeMobileControlsView.Control {Id="sphere:"+sphere.Id,Color=sphere.Color});
             _nativeMobileDockState=state;
             _nativeJoystickState=_nativeMobileJoystickId.HasValue?new NativeMobileFeedbackView.State {Joystick=true,KnobX=34+(float)_nativeMobileDx,KnobY=34+(float)_nativeMobileDy,Active=_nativeMobileJoystickActive}:null;
-            _nativePlacementState=_nativeMobilePlacementColor!=null?new NativeMobileFeedbackView.State {Id=VisualJs.NumberText(_nativeMobilePlacementAt),Color=_nativeMobilePlacementColor}:null;
+            _nativePlacementState=_nativeMobilePlacementColor!=null?new NativeMobileFeedbackView.State {Id=NativePresentationMath.NumberText(_nativeMobilePlacementAt),Color=_nativeMobilePlacementColor}:null;
             ReadNativeMobileNetworkState();
         }
         private string NativeMobileAbilityName(EchoSphere.Core.RunUpgradeKind kind,bool ru)=>NativeLiveAbilityName(kind,ru);

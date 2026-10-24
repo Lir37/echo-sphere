@@ -1,5 +1,30 @@
 # ECHO SPHERE — native visual modernization
 
+## Current implementation boundary — 2026-10-24
+
+The active visual/UI migration is implemented end to end: retained UI Toolkit
+screens, typed native run models/controllers, Unity meshes/materials/CommandBuffer
+world composition and GPU effects. No production consumer uses translated
+renderer/UI functions, dynamic V scene data, JS callables, DOM/CSS cascade,
+reconciliation or SourceCanvasSurface. Android compilation now explicitly rejects
+those types and snapshot members. Editor references remain for regression checks.
+
+| Subsystem | Native implementation | Decision / implementation status |
+| --- | --- | --- |
+| Home and all menu destinations | Retained UI Toolkit, VectorImage, native font assets and materials | MIGRATE / implemented |
+| HUD, pause, upgrade/reward, tutorial and results | Retained UI Toolkit and typed runtime models/actions | MIGRATE / implemented |
+| Mobile controls, gestures and Ghost Snap | UI Toolkit pointer events, native components and Core graph data | MIGRATE / implemented |
+| Player, spheres, enemies/bosses and pickups | Typed component views, Unity mesh/material composition | MIGRATE / implemented |
+| Links, particles, combat feedback and region world | Native meshes/shaders/component state, authored order and curves | MIGRATE / implemented |
+| Shadows, blur, gradients and depth | Unity materials, render targets and ordered passes | KEEP / native fidelity mechanisms |
+| Procedural geometry and exact scalar formatting | Authored C# emitting Unity geometry, original numeric order | KEEP / no duplicated UI engine |
+| Legacy translated render/UI and V snapshots | Editor-only reference code, absent from Android player | MIGRATE / runtime retirement implemented |
+| Final visual/control/device and performance acceptance | Actual Editor/device verification | OPEN / no broad parity or FPS claim |
+
+Implementation completion does not mark P1/P2 acceptance DONE. No APK has been
+built. Keep new-desing protected; preserve local project/quality/recovery changes.
+Later historical entries describe earlier intermediate states.
+
 2026-10-23: Native world resources and localization no longer initialize or call
 the translated renderer/i18n/canvasLocale/orbitalGeometry modules. Added actual
 Unity ScriptableObject catalogs: 17 existing Sprite references with source natural
@@ -1213,7 +1238,7 @@ plus exact damage/delay/DPS equality for every placed sphere, all ten characters
 mastery thresholds, artifact loadouts, branches/finals, timed buffs and cached
 formation conditions. Temporary native state restored. Independent original
 PausePlanner checks: abilities 56 cases/5944 checks; stats 18/1760; synergies
-64/41440 PASS. Android player/editor C# compile 20 assemblies, 0 errors/warnings;
+64/41440 PASS. Android player/editor C# typechecks, 0 errors/warnings;
 272 Node tests and project/provenance guards PASS. CI #829 on previous
 adfbc56a7861b4dde3cad08e7a8bcaa1a944eeca SUCCESS.
 
@@ -1224,3 +1249,52 @@ Real Editor activation/layout smoke: all four pause tabs individually Ready=true
 with native chrome after 12 stepped frames each (48 total); original pause/menu/
 tab/autosave fields restored, Play Mode stopped. Current Console 0 errors and
 0 warnings. This does not establish complete visual/control/device acceptance.
+
+
+### Production compatibility retirement (2026-10-24)
+
+Native sphere pointer handles replace V dictionary identities. Captured positions
+retain the old inactive/destroyed-pointer behavior, including the position refresh
+performed by a move validity lookup. Hit radii, strict boundary comparisons,
+placement/reposition gates, haptics and tutorial restrictions are unchanged.
+HUD slot swaps preserve the last presented native formation types. Tutorial gates
+and all native command refreshes read native state. Native POIs still refresh at
+the same presentation boundary, without constructing duplicate generic dictionaries.
+
+LateUpdate and native actions no longer call UpdateSourceRenderState or
+UpdateSourceUiState, including in the real Editor. Those methods, generic object
+projection, source snapshot defaults, image/JSON compatibility and the complete
+V/VisualJs host/callable implementation now compile only under UNITY_EDITOR.
+NativePresentationMath retains the exact number formatting and shared cosmetic
+random stream; persistent interface-scale parsing uses the equivalent direct
+invariant numeric conversion. The Android C# semantic guard proves absence of
+V, VisualJs, VisualJson, IVisualHost/IVisualCallable, SourceCanvasImage,
+NativeRunSnapshotDefaults, SourceUiDocument/SourceCanvasSurface and all five
+snapshot/update/writeback members from the compiled player.
+
+Verification: Editor compile 0 errors/warnings; Android player/editor runtime/editor
+assembly typechecks 0 errors/warnings, retirement guard PASS; 272 Node tests,
+project/provenance/asset metadata guards PASS. Full portable visual/source contract
+suite PASS, including 38694 poses, 1580 shear cases, 5000 matrices, 934 clipped
+brushes, 1230 SVGs and 68 original React-event frames. Native gesture lifetime/hit
+check: 60 checks PASS, no gameplay command/save invoked; temporary actors restored.
+
+Actual Editor after retirement: 12 stepped frames for each of the four pause tabs,
+all respective native views and chrome Ready=true, legacy documents=0 and the
+Editor reference snapshot remained Undefined throughout all 48 frames. Real Game
+View menu and native world/HUD PNG captures inspected at 1260x542, with no panel
+redirection in the successful captures. Native menu Ready=true. World capture used
+the existing scene with paused simulation, not a combat stress or device test.
+Menu/pause/tab/autosave/background fields restored; Play Mode stopped. Captures are
+local diagnostic files under UnityProject/Library/native-*-screen-review.png, not
+an assertion of all-effect visual parity. Current Console checked separately.
+An earlier offscreen-panel diagnostic produced an empty target after UIDocument
+root recreation; it was discarded, its temporary target destroyed, and the Editor
+Play session restarted before the successful Game View captures. No production
+render-target workaround was added.
+
+Previous implementation 9d9ae8b0cd45d66d5d2f1c671ab0f99d6253357d: CI #830 SUCCESS.
+Containing-commit CI must be checked separately. Remaining work is final broad
+visual/control/device acceptance and measured performance; no remaining active
+V/DOM/Canvas compatibility migration task was found. No APK, no gameplay/RNG/
+balance/quality changes; new-desing remains unchanged.

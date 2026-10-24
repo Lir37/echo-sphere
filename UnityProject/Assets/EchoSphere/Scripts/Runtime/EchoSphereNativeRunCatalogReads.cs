@@ -6,8 +6,8 @@ namespace EchoSphere.Runtime
 {
  public sealed partial class EchoSphereRuntime
  {
-  internal static V NativeLocalizedName(NativeRunCatalog.Text text)=>VisualJs.Obj("ru",text.NameRu,"en",text.NameEn);
 #if UNITY_EDITOR
+  internal static V NativeLocalizedName(NativeRunCatalog.Text text)=>VisualJs.Obj("ru",text.NameRu,"en",text.NameEn);
   internal static V NativeEvolutionChoices(V scene,string id,bool ability,int stage)
   {
    var result=new List<V>();

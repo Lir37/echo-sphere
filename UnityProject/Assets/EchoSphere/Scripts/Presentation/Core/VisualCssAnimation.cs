@@ -32,7 +32,7 @@ namespace EchoSphere.Presentation
                 var declaration=transitionDefaults[index%transitionDefaults.Count];
                 var words=Words(declaration);var property=words.FirstOrDefault(word=>!IsTime(word)&&!IsTiming(word))??"all";
                 var times=words.Where(IsTime).Select(Seconds).ToArray();var duration=times.Length>0?times[0]:0d;var delay=times.Length>1?times[1]:0d;var timing=words.FirstOrDefault(IsTiming)??"ease";
-                property=transitionProperties[index].Trim();duration=Seconds(Entry("transition-duration",index,VisualJs.NumberText(duration)+"s"));delay=Seconds(Entry("transition-delay",index,VisualJs.NumberText(delay)+"s"));timing=Entry("transition-timing-function",index,timing);
+                property=transitionProperties[index].Trim();duration=Seconds(Entry("transition-duration",index,NativePresentationMath.NumberText(duration)+"s"));delay=Seconds(Entry("transition-delay",index,NativePresentationMath.NumberText(delay)+"s"));timing=Entry("transition-timing-function",index,timing);
                 if(duration<=0d||property=="none")continue;
                 foreach(var pair in style.ToArray())if(Animatable(pair.Key)&&(property=="all"||property==pair.Key||property=="background"&&pair.Key.StartsWith("background-",StringComparison.Ordinal)||property=="border-color"&&pair.Key.StartsWith("border-",StringComparison.Ordinal)&&pair.Key.EndsWith("-color",StringComparison.Ordinal))&&_previous.TryGetValue(pair.Key,out var before)&&before!=pair.Value) {
                     var active=_transitions.LastOrDefault(motion=>motion.Property==pair.Key);var from=active==null?before:Sample(active,now);
@@ -52,8 +52,8 @@ namespace EchoSphere.Presentation
                 if(name==null)continue;
                 var times=words.Where(IsTime).Select(Seconds).ToArray();
                 string Override(string property,string fallback){var entries=VisualCss.Split(sheet.Get(node,property,fallback),',');return entries[index%entries.Count].Trim();}
-                var duration=Seconds(Override("animation-duration",times.Length>0?VisualJs.NumberText(times[0])+"s":"0s"));
-                var delay=Seconds(Override("animation-delay",times.Length>1?VisualJs.NumberText(times[1])+"s":"0s"));
+                var duration=Seconds(Override("animation-duration",times.Length>0?NativePresentationMath.NumberText(times[0])+"s":"0s"));
+                var delay=Seconds(Override("animation-delay",times.Length>1?NativePresentationMath.NumberText(times[1])+"s":"0s"));
                 var timing=Override("animation-timing-function",words.FirstOrDefault(IsTiming)??"ease");
                 var direction=Override("animation-direction",words.FirstOrDefault(word=>new[]{"reverse","alternate","alternate-reverse","normal"}.Contains(word))??"normal");
                 var fill=Override("animation-fill-mode",words.FirstOrDefault(word=>new[]{"both","backwards","forwards"}.Contains(word))??"none");
@@ -126,7 +126,7 @@ namespace EchoSphere.Presentation
                 if(prefixA!=to.Substring(previousB,second.Index-previousB))return t<.5d?from:to;
                 result+=prefixA;
                 if(first.Value.StartsWith("#",StringComparison.Ordinal)||first.Value.StartsWith("rgb",StringComparison.Ordinal)||first.Value.StartsWith("color(",StringComparison.Ordinal))result+=VisualCssColor.Lerp(VisualCssColor.Parse(first.Value),VisualCssColor.Parse(second.Value),t).Canvas;
-                else {var x=Regex.Match(first.Value,@"^([-+\d.e]+)(.*)$");var y=Regex.Match(second.Value,@"^([-+\d.e]+)(.*)$");if(x.Groups[2].Value!=y.Groups[2].Value&&Parse(x.Groups[1].Value)!=0d&&Parse(y.Groups[1].Value)!=0d)return t<.5d?from:to;result+=VisualJs.NumberText(Parse(x.Groups[1].Value)+(Parse(y.Groups[1].Value)-Parse(x.Groups[1].Value))*t)+(y.Groups[2].Value.Length>0?y.Groups[2].Value:x.Groups[2].Value);}
+                else {var x=Regex.Match(first.Value,@"^([-+\d.e]+)(.*)$");var y=Regex.Match(second.Value,@"^([-+\d.e]+)(.*)$");if(x.Groups[2].Value!=y.Groups[2].Value&&Parse(x.Groups[1].Value)!=0d&&Parse(y.Groups[1].Value)!=0d)return t<.5d?from:to;result+=NativePresentationMath.NumberText(Parse(x.Groups[1].Value)+(Parse(y.Groups[1].Value)-Parse(x.Groups[1].Value))*t)+(y.Groups[2].Value.Length>0?y.Groups[2].Value:x.Groups[2].Value);}
                 cursor=first.Index+first.Length;
             }
             return result+from.Substring(cursor);

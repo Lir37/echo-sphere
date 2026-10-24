@@ -22,8 +22,8 @@ namespace EchoSphere.Runtime
             }else{if(_nativeMobileMounted)ResetNativeMobileGestures(true);_nativeMobileDockState=null;_nativeJoystickState=_nativePlacementState=null;_nativeGhostNetworkState=_nativeFormationMemoryState=null;}
             _nativeRunDocument.Begin(_worldSurface.UiTexture,SourceDevicePixelRatio,update,active,
                 NativePauseChromeRequested,!string.IsNullOrEmpty(_pauseArtifactSetId),upgrade,reward,NativeTutorialRequested,
-                _combo,_comboTimer,NativeText("combo",IsRussianUi)+" x"+VisualJs.NumberText(_combo),
-                NativeText("comboMultiplier",IsRussianUi).Replace("{mult}",VisualJs.NumberText(_comboMultiplier)));
+                _combo,_comboTimer,NativeText("combo",IsRussianUi)+" x"+NativePresentationMath.NumberText(_combo),
+                NativeText("comboMultiplier",IsRussianUi).Replace("{mult}",NativePresentationMath.NumberText(_comboMultiplier)));
             _nativeRunField=_nativeRunDocument.Field;
             var anchors=_nativeRunDocument.Anchors;anchors.TutorialTarget=ReadNativeRunTutorialTarget;
             if(active){

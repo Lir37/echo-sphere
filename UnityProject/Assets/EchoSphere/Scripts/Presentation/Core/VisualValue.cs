@@ -5,8 +5,28 @@ using System.Linq;
 
 namespace EchoSphere.Presentation
 {
-    // Explicit values for mechanically translated rendering expressions. No dynamic binder,
-    // JavaScript runtime, reflection-generated code or browser is needed on IL2CPP.
+    // Scalar formatting and cosmetic randomness used by native Unity views.
+    // This contains no emulated objects, callables, DOM or generated execution.
+    public static class NativePresentationMath
+    {
+        private static readonly Random CosmeticRandom=new Random();
+        internal static double NextCosmeticValue()=>CosmeticRandom.NextDouble();
+        public static string NumberText(double number)
+        {
+            if(double.IsNaN(number))return "NaN";if(double.IsPositiveInfinity(number))return "Infinity";if(double.IsNegativeInfinity(number))return "-Infinity";if(number==0d)return "0";
+            var text=number.ToString("R",CultureInfo.InvariantCulture);var index=text.IndexOf('E');if(index<0)return text;
+            var power=int.Parse(text.Substring(index+1),CultureInfo.InvariantCulture);var sign=number<0?"-":"";var coefficient=text.Substring(sign.Length,index-sign.Length);
+            if(Math.Abs(number)>=1e-6d&&Math.Abs(number)<1e21d)
+            {
+                var dot=coefficient.IndexOf('.');var position=(dot<0?coefficient.Length:dot)+power;var digits=coefficient.Replace(".","");
+                return sign+(position<=0?"0."+new string('0',-position)+digits:position>=digits.Length?digits+new string('0',position-digits.Length):digits.Insert(position,"."));
+            }
+            return text.Substring(0,index)+"e"+(power>=0?"+":"")+power.ToString(CultureInfo.InvariantCulture);
+        }
+    }
+#if UNITY_EDITOR
+    // Editor-only value model for mechanically translated reference expressions.
+    // The Android player does not compile these types or their callable objects.
     public readonly struct V : IEquatable<V>
     {
         public readonly object Raw;
@@ -75,8 +95,7 @@ namespace EchoSphere.Presentation
         public static readonly object NullToken=new object();
         public static readonly V Null=new V(NullToken);
         private static readonly System.Diagnostics.Stopwatch Clock=System.Diagnostics.Stopwatch.StartNew();
-        private static readonly Random CosmeticRandom=new Random();
-        internal static double NextCosmeticValue()=>CosmeticRandom.NextDouble();
+        internal static double NextCosmeticValue()=>NativePresentationMath.NextCosmeticValue();
         public static readonly V PerformanceObject=Obj("now",Fn(a=>Clock.Elapsed.TotalMilliseconds));
         public static readonly V ConsoleObject=Obj("info",Fn(a=>default));
         private static readonly Dictionary<string,SourceRegex> Regexes=new Dictionary<string,SourceRegex>();
@@ -104,24 +123,13 @@ namespace EchoSphere.Presentation
         { if(op!="=") { var old=target[key];value=op=="+="?old+value:op=="-="?old-value:op=="*="?old*value:old/value; }target[key]=value;return value; }
         public static int Int32(double number)=>double.IsNaN(number)||double.IsInfinity(number)?0:unchecked((int)(long)Math.Truncate(number));
         internal static bool IsIndex(V key,out int index) { var n=key.Number; index=(int)n; return !double.IsNaN(n)&&n>=0&&n==index; }
-        public static string NumberText(double number)
-        {
-            if(double.IsNaN(number))return "NaN";if(double.IsPositiveInfinity(number))return "Infinity";if(double.IsNegativeInfinity(number))return "-Infinity";if(number==0d)return "0";
-            var text=number.ToString("R",CultureInfo.InvariantCulture);var index=text.IndexOf('E');if(index<0)return text;
-            var power=int.Parse(text.Substring(index+1),CultureInfo.InvariantCulture);var sign=number<0?"-":"";var coefficient=text.Substring(sign.Length,index-sign.Length);
-            if(Math.Abs(number)>=1e-6d&&Math.Abs(number)<1e21d)
-            {
-                var dot=coefficient.IndexOf('.');var position=(dot<0?coefficient.Length:dot)+power;var digits=coefficient.Replace(".","");
-                return sign+(position<=0?"0."+new string('0',-position)+digits:position>=digits.Length?digits+new string('0',position-digits.Length):digits.Insert(position,"."));
-            }
-            return text.Substring(0,index)+"e"+(power>=0?"+":"")+power.ToString(CultureInfo.InvariantCulture);
-        }
+        public static string NumberText(double number)=>NativePresentationMath.NumberText(number);
         public static V MathObject=Obj("PI",Math.PI,"E",Math.E,
             "sin",Fn(a=>Math.Sin(Arg(a,0).Number)),"cos",Fn(a=>Math.Cos(Arg(a,0).Number)),"tan",Fn(a=>Math.Tan(Arg(a,0).Number)),
             "atan2",Fn(a=>Math.Atan2(Arg(a,0).Number,Arg(a,1).Number)),"sqrt",Fn(a=>Math.Sqrt(Arg(a,0).Number)),"abs",Fn(a=>Math.Abs(Arg(a,0).Number)),
             "floor",Fn(a=>Math.Floor(Arg(a,0).Number)),"ceil",Fn(a=>Math.Ceiling(Arg(a,0).Number)),"round",Fn(a=>Math.Floor(Arg(a,0).Number+.5d)),
             "min",Fn(a=>a.Length==0?double.PositiveInfinity:a.Min(x=>x.Number)),"max",Fn(a=>a.Length==0?double.NegativeInfinity:a.Max(x=>x.Number)),
-            "pow",Fn(a=>Math.Pow(Arg(a,0).Number,Arg(a,1).Number)),"exp",Fn(a=>Math.Exp(Arg(a,0).Number)),"hypot",Fn(a=>Math.Sqrt(a.Sum(x=>x.Number*x.Number))),"random",Fn(a=>CosmeticRandom.NextDouble()));
+            "pow",Fn(a=>Math.Pow(Arg(a,0).Number,Arg(a,1).Number)),"exp",Fn(a=>Math.Exp(Arg(a,0).Number)),"hypot",Fn(a=>Math.Sqrt(a.Sum(x=>x.Number*x.Number))),"random",Fn(a=>NativePresentationMath.NextCosmeticValue()));
         public static V NumberObject=Obj("isFinite",Fn(a=>Arg(a,0).Raw is double d&&!double.IsInfinity(d)&&!double.IsNaN(d)),
             "isInteger",Fn(a=>Arg(a,0).Raw is double d&&!double.IsInfinity(d)&&!double.IsNaN(d)&&d==Math.Truncate(d)),
             "parseInt",Fn(a=> { try { return new V((double)Convert.ToInt64(Arg(a,0).Text,a.Length>1?(int)a[1].Number:10)); } catch { return new V(double.NaN); } }));
@@ -201,4 +209,6 @@ namespace EchoSphere.Presentation
             public void Set(string name,V value)=>throw new InvalidOperationException("Cannot set map property");
         }
     }
+#endif
+
 }

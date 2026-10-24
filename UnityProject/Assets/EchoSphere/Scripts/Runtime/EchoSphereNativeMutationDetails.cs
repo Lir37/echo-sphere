@@ -6,10 +6,12 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private static Color NativeMutationColor(string text){var c=VisualCssColor.Parse(text);return new Color(Mathf.Clamp01((float)c.R),Mathf.Clamp01((float)c.G),Mathf.Clamp01((float)c.B),Mathf.Clamp01((float)c.A));}
+#if UNITY_EDITOR
         private static double NativeMutationFinal(V player,string family)
         {
             foreach(var evolution in player["evolutions"].Items){if(!evolution.Text.StartsWith("sphere:"+family+":7:",System.StringComparison.Ordinal))continue;var parts=evolution.Text.Split(':');double n=VisualJs.Number(parts[parts.Length-1]).Number;return double.IsNaN(n)||double.IsInfinity(n)?-1:n;}return -1;
         }
+#endif
         private void DrawNativeSphereMutation(NativeSphereVisual sphere,double time,double scale)
         {
             string branch=sphere.Branch;if(string.IsNullOrEmpty(branch))return;double rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,finite=double.IsInfinity(rotation)?0:rotation;

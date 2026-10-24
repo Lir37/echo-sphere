@@ -41,14 +41,14 @@ namespace EchoSphere.Runtime
         {
             var lang=ru?"ru":"en";
             string T(string key)=>NativeText(key,lang=="ru");
-            string Round(double value)=>VisualJs.NumberText(Math.Floor(value+.5d));
-            string Ceil(double value)=>VisualJs.NumberText(Math.Ceiling(value));
+            string Round(double value)=>NativePresentationMath.NumberText(Math.Floor(value+.5d));
+            string Ceil(double value)=>NativePresentationMath.NumberText(Math.Ceiling(value));
             string Percent(double value)=>Round(value*100)+"%";
             var character=EchoSphere.Core.CharacterRules.Get(_sphereCharacterId);
             var result=new NativePauseStatsState {
                 Russian=ru,Kicker=ru?"Билд забега":"Run Build",
                 Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),
-                Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+VisualJs.NumberText(_level)+" · "+T("wave")+" "+VisualJs.NumberText(_wave),
+                Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+NativePresentationMath.NumberText(_level)+" · "+T("wave")+" "+NativePresentationMath.NumberText(_wave),
                 CharacterHeading=ru?"Персонаж":"Character",SpheresHeading=ru?"Сферы":"Spheres",Resume=T("resume"),Return=T("return"),
                 Stats=new[] {
                     new NativePauseStatsState.Stat("HP",Ceil(_playerCore.CurrentHp)+" / "+Ceil(_playerCore.MaxHp)),
@@ -56,8 +56,8 @@ namespace EchoSphere.Runtime
                     new NativePauseStatsState.Stat(ru?"Крит":"Crit",Percent(NativeLivePlannerCritChance())),
                     new NativePauseStatsState.Stat(ru?"Уклонение":"Dodge",Percent(NativeLivePlannerDodgeChance())),
                     new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(NativeLivePlannerVampire())),
-                    new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",VisualJs.NumberText(_spheres.Count(s=>s!=null&&s.gameObject.activeInHierarchy))+" / "+VisualJs.NumberText(NativeMobileMaximum)),
-                    new NativePauseStatsState.Stat(ru?"Убийства":"Kills",VisualJs.NumberText(_kills)),
+                    new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",NativePresentationMath.NumberText(_spheres.Count(s=>s!=null&&s.gameObject.activeInHierarchy))+" / "+NativePresentationMath.NumberText(NativeMobileMaximum)),
+                    new NativePauseStatsState.Stat(ru?"Убийства":"Kills",NativePresentationMath.NumberText(_kills)),
                     new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(NativeLiveXpPlannerMultiplier()))
                 }
             };
@@ -78,7 +78,7 @@ namespace EchoSphere.Runtime
                 }
                 var card=new NativePauseStatsState.Sphere {
                     Id=type,Color=definition.Color,Name=definition.Name(ru),
-                    Level=(ru?"ур. ":"lvl ")+VisualJs.NumberText(NativeLiveSphereLevel(type)),
+                    Level=(ru?"ур. ":"lvl ")+NativePresentationMath.NumberText(NativeLiveSphereLevel(type)),
                     OnField=live!=null,Placement=placed.Count>0?(ru?"на поле ×":"field ×")+placed.Count:(ru?"не установлена":"not placed"),
                     Description=live!=null?null:definition.Description(ru),
                     HasBranch=!string.IsNullOrEmpty(branch),BranchLabel=ru?"Ветка:":"Branch:",BranchName=branchChoice!=null?branchChoice.Name(ru):"",
@@ -99,8 +99,8 @@ namespace EchoSphere.Runtime
         {
             var lang=ru?"ru":"en";var player=scene["player"];
             string T(string key)=>NativeText(key,lang=="ru");
-            string Round(V value)=>VisualJs.NumberText(Math.Floor(value.Number+.5d));
-            string Ceil(V value)=>VisualJs.NumberText(Math.Ceiling(value.Number));
+            string Round(V value)=>NativePresentationMath.NumberText(Math.Floor(value.Number+.5d));
+            string Ceil(V value)=>NativePresentationMath.NumberText(Math.Ceiling(value.Number));
             string Percent(V value)=>Round(value*new V(100))+"%";
             EchoSphere.Core.CharacterRules.TryParseSourceId(player["characterId"].Text,out var characterId);var character=EchoSphere.Core.CharacterRules.Get(characterId);
             var result=new NativePauseStatsState {
@@ -114,7 +114,7 @@ namespace EchoSphere.Runtime
                     new NativePauseStatsState.Stat(ru?"Крит":"Crit",Percent(new V(NativePlannerCritChance(scene)))),
                     new NativePauseStatsState.Stat(ru?"Уклонение":"Dodge",Percent(new V(NativePlannerDodgeChance(scene)))),
                     new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(new V(NativePlannerVampire(scene)))),
-                    new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",scene["spheres"]["length"].Text+" / "+VisualJs.NumberText(NativeMaximumSphereCount(scene))),
+                    new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",scene["spheres"]["length"].Text+" / "+NativePresentationMath.NumberText(NativeMaximumSphereCount(scene))),
                     new NativePauseStatsState.Stat(ru?"Убийства":"Kills",player["kills"].Text),
                     new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(new V(NativeXpPlannerMultiplier(scene))))
                 }
@@ -139,7 +139,7 @@ namespace EchoSphere.Runtime
                 }
                 var card=new NativePauseStatsState.Sphere {
                     Id=type.Text,Color=definition.Color,Name=definition.Name(ru),
-                    Level=(ru?"ур. ":"lvl ")+VisualJs.NumberText(NativeSphereLevel(scene,type.Text)),
+                    Level=(ru?"ур. ":"lvl ")+NativePresentationMath.NumberText(NativeSphereLevel(scene,type.Text)),
                     OnField=live.Truth,Placement=placed.Count>0?(ru?"на поле ×":"field ×")+placed.Count:(ru?"не установлена":"not placed"),
                     Description=live.Truth?null:definition.Description(ru),
                     HasBranch=branch.Truth,BranchLabel=ru?"Ветка:":"Branch:",BranchName=branchChoice!=null?branchChoice.Name(ru):"",

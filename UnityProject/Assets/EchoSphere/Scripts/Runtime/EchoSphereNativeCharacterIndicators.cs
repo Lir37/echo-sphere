@@ -10,8 +10,10 @@ namespace EchoSphere.Runtime
         private NativeWorldCharacterIndicators _nativeWorldCharacterIndicators;
         private const double NativePlayerRadiusPixels=16;
         private string NativeCharacterCanvasText(string text)=>_worldSurface.LocalizeCanvasText?NativeLocalizationCatalog.Instance.CanvasText(text,IsRussianUi):text;
+#if UNITY_EDITOR
         private static string NativeCharacterWorldId(V scene)
         {var raw=scene["player"]["characterId"];return raw.Truth&&CharacterRules.TryParseSourceId(raw.Text,out _)?raw.Text:"spherist";}
+#endif
         private NativeWorldCharacterIndicators.Point[] NativeAliveSpherePoints()
         {
             var points=new List<NativeWorldCharacterIndicators.Point>();foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy){var point=NativeSourcePixels(sphere.transform.position);points.Add(new NativeWorldCharacterIndicators.Point {X=point.x,Y=point.y});}return points.ToArray();
@@ -40,7 +42,7 @@ namespace EchoSphere.Runtime
         private void DrawNativePlayerShield()
         {
             var point=NativeSourcePixels(PlayerPosition);double count=_playerCore.ShieldCharges;
-            _nativeWorldCharacterIndicators.DrawShield(_worldSurface,new NativeWorldCharacterIndicators.Shield {X=point.x,Y=point.y,PlayerRadius=NativePlayerRadiusPixels,Charges=count,Timer=System.Math.Max(0,(double)_shieldTimer),Pulse=_shieldVisualPulse,Time=_runTime,Spherist=_sphereCharacterId==SphereCharacterId.Spherist,Label=NativeCharacterCanvasText(VisualJs.NumberText(count))},_nativeWorldSprites,ResolveNativePlayerArt);
+            _nativeWorldCharacterIndicators.DrawShield(_worldSurface,new NativeWorldCharacterIndicators.Shield {X=point.x,Y=point.y,PlayerRadius=NativePlayerRadiusPixels,Charges=count,Timer=System.Math.Max(0,(double)_shieldTimer),Pulse=_shieldVisualPulse,Time=_runTime,Spherist=_sphereCharacterId==SphereCharacterId.Spherist,Label=NativeCharacterCanvasText(NativePresentationMath.NumberText(count))},_nativeWorldSprites,ResolveNativePlayerArt);
         }
     }
 }

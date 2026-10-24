@@ -11,8 +11,21 @@ namespace EchoSphere.Runtime
     {
         private sealed class NativeMobilePointer
         {
-            internal double X,Y;internal bool Moved,Joystick,Placing,Repositioned,Locked;internal V Sphere;
+            internal double X,Y;internal bool Moved,Joystick,Placing,Repositioned,Locked;internal NativeMobileSphereHandle Sphere;
         }
+        // Captured pointer identity remains valid after deactivation/destruction,
+        // as the former retained view did. Its last projected position is kept.
+        private sealed class NativeMobileSphereHandle
+        {
+            internal SphereAttackAgent Agent;internal double X,Y;internal string Family;
+        }
+        private NativeMobileSphereHandle NativeMobileHandle(SphereAttackAgent agent)
+        {if(agent==null)return null;var point=NativeSourcePixels(agent.transform.position);return new NativeMobileSphereHandle {Agent=agent,X=point.x,Y=point.y,Family=agent.Type.ToString().ToLowerInvariant()};}
+        private void RefreshNativeMobileSphereHandles()
+        {foreach(var pointer in _nativeMobilePointers.Values){var handle=pointer.Sphere;if(handle==null||handle.Agent==null||!handle.Agent.gameObject.activeInHierarchy||!_spheres.Contains(handle.Agent))continue;var point=NativeSourcePixels(handle.Agent.transform.position);handle.X=point.x;handle.Y=point.y;handle.Family=handle.Agent.Type.ToString().ToLowerInvariant();}}
+        private int NativeMobileSphereCount=>_spheres.Count(s=>s!=null&&s.gameObject.activeInHierarchy);
+        private SphereAttackAgent NativeMobileNear(double x,double y,double radius)
+        {foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy){var point=NativeSourcePixels(sphere.transform.position);if(NativeMobileDistance(point.x-x,point.y-y)<radius)return sphere;}return null;}
         private sealed class NativeMobileGhost
         {
             internal int Index;internal double X,Y;internal bool Valid;internal EchoSphere.Core.SphereNetworkState Network;internal EchoSphere.Core.SphereNetworkShape Formation;
@@ -29,7 +42,6 @@ namespace EchoSphere.Runtime
         private string _nativeMobilePlacementColor;
         private Vector2 _nativeMobilePlacement;
         private VisualElement _nativeMobileGestureRoot;
-        private V NativeMobileScene=>_sourceRenderState;
         private void NativeMobileHaptic(int duration)
         {
             // The existing navigator adapter also ignored duration and invoked
@@ -55,10 +67,12 @@ namespace EchoSphere.Runtime
             var camera=NativeSourcePixels((Vector2)(_camera.transform.position-_lastHunterScreenShakeOffset));wx=x-(double)rect.xMin-(double)rect.width/2+camera.x;wy=y-(double)rect.yMin-(double)rect.height/2+camera.y;return true;
         }
         private static double NativeMobileDistance(double x,double y)=>Math.Sqrt(x*x+y*y);
+#if UNITY_EDITOR
         private static double NativeMobileDistance(V pos,double x,double y)=>NativeMobileDistance(pos["x"].Number-x,pos["y"].Number-y);
+#endif
         // Preview and commit share the existing native placement gate.
         private bool NativeMobileCanPlace(double x,double y)=>CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,null);
-        private bool NativeMobileCanMove(V sphere,double x,double y){var agent=NativeSphereForView(sphere);return agent!=null&&CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,agent);}
+        private bool NativeMobileCanMove(NativeMobileSphereHandle sphere,double x,double y){var agent=sphere?.Agent;if(agent==null||!_spheres.Contains(agent))return false;var point=NativeSourcePixels(agent.transform.position);sphere.X=point.x;sphere.Y=point.y;return CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,agent);}
         private int NativeMobileMaximum=>Math.Min(5+GetAbilityLevel(EchoSphere.Core.RunUpgradeKind.MaxSpheres)+GetShopUpgradeLevel("spheres"),8);
         internal struct NativeMobileNode {internal double X,Y,DisabledTimer;internal bool Alive;}
         private List<NativeMobileNode> ProjectNativeMobileNodes()
@@ -92,13 +106,13 @@ namespace EchoSphere.Runtime
         private void NativeMobileTap(double x,double y)
         {
             if(!NativeMobileAllowed||_levelUp||_stellaRewardPending||!NativeMobileWorld(x,y,out double wx,out double wy))return;
-            var spheres=NativeMobileScene["spheres"];V near=spheres.Items.FirstOrDefault(s=>s["alive"].Truth&&NativeMobileDistance(s["pos"],wx,wy)<26);
-            if(_tutorialStep==2&&near.Truth)return;
-            if(near.Truth){NativeMobileCaptureMemory(NativeMobileNetwork());int before=(int)spheres["length"].Number;NativePlaceOrRemoveSphere(wx,wy);if(NativeMobileScene["spheres"]["length"].Number<before)NativeMobileHaptic(10);return;}
-            if(spheres["length"].Number>=NativeMobileMaximum)return;
+            var near=NativeMobileNear(wx,wy,26);
+            if(_tutorialStep==2&&near!=null)return;
+            if(near!=null){NativeMobileCaptureMemory(NativeMobileNetwork());int before=NativeMobileSphereCount;NativePlaceOrRemoveSphere(wx,wy);if(NativeMobileSphereCount<before)NativeMobileHaptic(10);return;}
+            if(NativeMobileSphereCount>=NativeMobileMaximum)return;
             if(!NativeMobileCanPlace(wx,wy)){NativeMobileFlash("Путь перекрыт","Path blocked",.8,"#ff4d5d");NativeMobileHaptic(35);return;}
-            int count=(int)spheres["length"].Number;NativePlaceOrRemoveSphere(wx,wy);
-            if(NativeMobileScene["spheres"]["length"].Number>count){NativeMobileHaptic(8);_nativeMobilePlacement=new Vector2((float)x,(float)y);_nativeMobilePlacementAt=Time.unscaledTimeAsDouble;_nativeMobilePlacementColor=NativeRunCatalog.Instance.GetSphere(NativeMobileScene["selectedSphereType"].Text).Color;}
+            int count=NativeMobileSphereCount;NativePlaceOrRemoveSphere(wx,wy);
+            if(NativeMobileSphereCount>count){NativeMobileHaptic(8);_nativeMobilePlacement=new Vector2((float)x,(float)y);_nativeMobilePlacementAt=Time.unscaledTimeAsDouble;_nativeMobilePlacementColor=NativeRunCatalog.Instance.GetSphere(_selectedSphereType.ToString().ToLowerInvariant()).Color;}
         }
 #if UNITY_EDITOR
         internal static V NativeMobilePreviewNetwork(V spheres,double x,double y,int movingIndex,out int candidateIndex)
@@ -110,12 +124,12 @@ namespace EchoSphere.Runtime
             return RenderNativeNetworkSnapshot(NativeAnalyzeSphereNetwork(VisualJs.Arr(nodes.ToArray())));
         }
 #endif
-        private NativeMobileGhost NativeMobilePreview(V sphere,double x,double y)
+        private NativeMobileGhost NativeMobilePreview(NativeMobileSphereHandle sphere,double x,double y)
         {
-            var spheres=NativeMobileScene["spheres"];int index=sphere.Truth?spheres.Items.ToList().IndexOf(sphere):-1;
+            int index=-1,current=0;foreach(var candidate in _spheres)if(candidate!=null&&candidate.gameObject.activeInHierarchy){if(sphere!=null&&ReferenceEquals(candidate,sphere.Agent))index=current;current++;}
             var preview=NativeMobilePreviewGraph(ProjectNativeMobileNodes(),x,y,index,out int candidateIndex);
-            if(!sphere.Truth&&preview==null)return null;var network=preview??NativeMobileNetwork();
-            return new NativeMobileGhost {Index=sphere.Truth?index:candidateIndex,X=x,Y=y,Valid=sphere.Truth?NativeMobileCanMove(sphere,x,y):NativeMobileCanPlace(x,y),Network=network,Formation=preview!=null?NativeMobileFormation(network):null};
+            if(sphere==null&&preview==null)return null;var network=preview??NativeMobileNetwork();
+            return new NativeMobileGhost {Index=sphere!=null?index:candidateIndex,X=x,Y=y,Valid=sphere!=null?NativeMobileCanMove(sphere,x,y):NativeMobileCanPlace(x,y),Network=network,Formation=preview!=null?NativeMobileFormation(network):null};
         }
         private void NativeMobileDown(PointerDownEvent e)
         {
@@ -123,16 +137,16 @@ namespace EchoSphere.Runtime
             if(!NativeMobileAllowed)return;_nativeMobileGestureRoot.CapturePointer(e.pointerId);
             double x=e.position.x,y=e.position.y;var p=new NativeMobilePointer {X=x,Y=y};
             if(NativeMobileWorld(x,y,out double wx,out double wy)){
-                V sphere=NativeMobileScene["spheres"].Items.FirstOrDefault(s=>s["alive"].Truth&&NativeMobileDistance(s["pos"],wx,wy)<34);
-                if(sphere.Truth&&_tutorialStep!=1&&_tutorialStep!=2){if(NativeMobileScene["player"]["sphereMovementLocked"].Truth)p.Locked=true;else p.Sphere=sphere;}
-                else {double width=Screen.width/SourceDevicePixelRatio;bool zone=IsLeftHanded?x>=0&&x<width*.5:x>=width*.5&&x<width;p.Joystick=_tutorialStep!=2&&!_nativeMobileJoystickId.HasValue&&zone;p.Placing=(_tutorialStep==2||_tutorialStep!=1&&!p.Joystick)&&NativeMobileScene["spheres"]["length"].Number<NativeMobileMaximum;}
+                var sphere=NativeMobileHandle(NativeMobileNear(wx,wy,34));
+                if(sphere!=null&&_tutorialStep!=1&&_tutorialStep!=2){if(_sphereMovementLocked)p.Locked=true;else p.Sphere=sphere;}
+                else {double width=Screen.width/SourceDevicePixelRatio;bool zone=IsLeftHanded?x>=0&&x<width*.5:x>=width*.5&&x<width;p.Joystick=_tutorialStep!=2&&!_nativeMobileJoystickId.HasValue&&zone;p.Placing=(_tutorialStep==2||_tutorialStep!=1&&!p.Joystick)&&NativeMobileSphereCount<NativeMobileMaximum;}
             }
             _nativeMobilePointers[e.pointerId]=p;if(p.Joystick){_nativeMobileJoystickId=e.pointerId;_nativeMobileJoystickX=x;_nativeMobileJoystickY=y;_nativeMobileDx=_nativeMobileDy=0;_nativeMobileJoystickActive=false;}NativeMobileEventCompleted();
         }
         private void NativeMobileMove(PointerMoveEvent e)
         {
             if(!_nativeMobilePointers.TryGetValue(e.pointerId,out var p))return;double dx=e.position.x-p.X,dy=e.position.y-p.Y,distance=NativeMobileDistance(dx,dy);if(p.Locked)return;
-            if(p.Sphere.Truth||p.Placing){if(distance>12){p.Moved=true;if(NativeMobileWorld(e.position.x,e.position.y,out double x,out double y)){var preview=NativeMobilePreview(p.Sphere,x,y);if(preview!=null){p.Repositioned=preview.Valid;_nativeMobileGhost=preview;}}}NativeMobileEventCompleted();return;}
+            if(p.Sphere!=null||p.Placing){if(distance>12){p.Moved=true;if(NativeMobileWorld(e.position.x,e.position.y,out double x,out double y)){var preview=NativeMobilePreview(p.Sphere,x,y);if(preview!=null){p.Repositioned=preview.Valid;_nativeMobileGhost=preview;}}}NativeMobileEventCompleted();return;}
             if(distance>12)p.Moved=true;
             if(_nativeMobileJoystickId==e.pointerId){_nativeMobileJoystickActive=distance>12;double length=distance==0?1:distance,scale=Math.Min(1,Math.Max(0,length/58));_nativeMobileDx=dx/length*58*scale;_nativeMobileDy=dy/length*58*scale;
                 if(distance<12)NativeMobileClearKeys();else{_nativeMobileLastX=dx/distance;_nativeMobileLastY=dy/distance;NativeMobileSetDirection(_nativeMobileLastX,_nativeMobileLastY);}}
@@ -141,14 +155,14 @@ namespace EchoSphere.Runtime
         private void NativeMobileEnd(int id,double x,double y)
         {
             _nativeMobilePointers.TryGetValue(id,out var p);_nativeMobilePointers.Remove(id);
-            if(p!=null&&p.Sphere.Truth){
-                if(!p.Moved){NativePlaceOrRemoveSphere(p.Sphere["pos"]["x"].Number,p.Sphere["pos"]["y"].Number);_nativeMobileGhost=null;NativeMobileHaptic(10);}
-                else if(p.Repositioned){var old=NativeMobileNetwork();if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanMove(p.Sphere,wx,wy)){NativeRepositionSphere(NativeSphereForView(p.Sphere),wx,wy);NativeMobileRememberChange(old);NativeMobileFlash("Сфера перемещена","Sphere moved",.8,NativeRunCatalog.Instance.GetSphere(p.Sphere["type"].Text).Color);}_nativeMobileGhost=null;NativeMobileHaptic(12);}
+            if(p!=null&&p.Sphere!=null){
+                if(!p.Moved){NativePlaceOrRemoveSphere(p.Sphere.X,p.Sphere.Y);_nativeMobileGhost=null;NativeMobileHaptic(10);}
+                else if(p.Repositioned){var old=NativeMobileNetwork();if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanMove(p.Sphere,wx,wy)){NativeRepositionSphere(p.Sphere.Agent,wx,wy);NativeMobileRememberChange(old);NativeMobileFlash("Сфера перемещена","Sphere moved",.8,NativeRunCatalog.Instance.GetSphere(p.Sphere.Family).Color);}_nativeMobileGhost=null;NativeMobileHaptic(12);}
                 else {NativeMobileFlash("Недоступная позиция","Invalid position",.65,"#ff4d5d");_nativeMobileGhost=null;NativeMobileHaptic(22);}return;
             }
             if(p!=null&&p.Placing){
                 if(!p.Moved){NativeMobileTap(x,y);_nativeMobileGhost=null;return;}
-                if(p.Repositioned){if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanPlace(wx,wy)){var old=NativeMobileNetwork();int before=(int)NativeMobileScene["spheres"]["length"].Number;NativePlaceOrRemoveSphere(wx,wy);if(NativeMobileScene["spheres"]["length"].Number>before){NativeMobileRememberChange(old);NativeMobileHaptic(8);}}_nativeMobileGhost=null;return;}
+                if(p.Repositioned){if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanPlace(wx,wy)){var old=NativeMobileNetwork();int before=NativeMobileSphereCount;NativePlaceOrRemoveSphere(wx,wy);if(NativeMobileSphereCount>before){NativeMobileRememberChange(old);NativeMobileHaptic(8);}}_nativeMobileGhost=null;return;}
                 NativeMobileFlash("Недоступная позиция","Invalid position",.65,"#ff4d5d");_nativeMobileGhost=null;NativeMobileHaptic(22);return;
             }
             if(_nativeMobileJoystickId==id){_nativeMobileJoystickId=null;NativeMobileClearKeys();if(p!=null&&!p.Moved)NativeMobileTap(x,y);}else if(p!=null&&!p.Moved)NativeMobileTap(x,y);

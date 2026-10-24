@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -44,10 +45,12 @@ namespace EchoSphere.Presentation
         private static void Write(V value,StringBuilder result,bool sorted)
         {
             if(value.Null||value.Undefined){result.Append("null");return;}if(value.Raw is string text){Quote(text,result);return;}if(value.Raw is bool boolean){result.Append(boolean?"true":"false");return;}
-            if(value.Raw is double number){result.Append(double.IsNaN(number)||double.IsInfinity(number)?"null":VisualJs.NumberText(number));return;}
+            if(value.Raw is double number){result.Append(double.IsNaN(number)||double.IsInfinity(number)?"null":NativePresentationMath.NumberText(number));return;}
             if(value.Raw is List<V> list){result.Append('[');for(var i=0;i<list.Count;i++){if(i>0)result.Append(',');Write(list[i],result,sorted);}result.Append(']');return;}
             if(value.Raw is Dictionary<string,V> map){var keys=new List<string>(map.Keys);if(sorted)keys.Sort(StringComparer.Ordinal);result.Append('{');var first=true;foreach(var key in keys){if(map[key].Undefined||map[key].Raw is Func<V[],V>)continue;if(!first)result.Append(',');first=false;Quote(key,result);result.Append(':');Write(map[key],result,sorted);}result.Append('}');return;}
             throw new InvalidOperationException("Unsupported source JSON value: "+value.Raw.GetType().Name);
         }
     }
 }
+
+#endif

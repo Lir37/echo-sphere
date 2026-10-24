@@ -41,7 +41,7 @@ namespace EchoSphere.Runtime
             double load=frame.EnemyCount+_nativeProjectileCount*.55+_nativeParticleCount*.28+_damageNumbers.Count*.42+_sourceLightningVisuals.Count*.75;
             int fxStride=load>220?3:load>150?2:1,damageStride=_damageNumbers.Count>36?2:1,lightningStride=_sourceLightningVisuals.Count>18?2:1;
             double shakeX=0,shakeY=0;_worldSurface.Save();
-            if(frame.Shake>0){shakeX=(VisualJs.NextCosmeticValue()-.5)*frame.Shake*20;shakeY=(VisualJs.NextCosmeticValue()-.5)*frame.Shake*20;}
+            if(frame.Shake>0){shakeX=(NativePresentationMath.NextCosmeticValue()-.5)*frame.Shake*20;shakeY=(NativePresentationMath.NextCosmeticValue()-.5)*frame.Shake*20;}
             NativeWorldTranslate(w/2-frame.CameraX+shakeX,h/2-frame.CameraY+shakeY);
             DrawNativeViewVoidField(frame.WorldWidth,frame.WorldHeight,-frame.WorldWidth/2,-frame.WorldHeight/2,frame.PlayerX,frame.PlayerY);DrawNativeViewRegionLayer();
             _worldSurface.Shadow=NativeWorldBorderShadow;_worldSurface.ShadowBlur=0;_worldSurface.SetDash(new[]{10f,8f});
@@ -71,7 +71,7 @@ namespace EchoSphere.Runtime
         {
             bool crit=number.critical;string element=number.element,color=crit?"#ffd166":element=="fire"?"#ff5a36":element=="freeze"?"#69d6ff":element=="poison"?"#72f08e":"#e8f6ff";var point=NativeSourcePixels(number.position);
             _worldSurface.SetOpacity(Math.Min(1,(double)number.life/number.maxLife*1.5));_worldSurface.Shadow=NativeFrameColor(crit?"#b8860b":color);_worldSurface.ShadowBlur=0;
-            _nativeWorldFeedback.Text(NativeCharacterCanvasText(VisualJs.NumberText(number.value)),point.x,point.y,NativeMutationColor(color),crit?20:14);
+            _nativeWorldFeedback.Text(NativeCharacterCanvasText(NativePresentationMath.NumberText(number.value)),point.x,point.y,NativeMutationColor(color),crit?20:14);
         }
         private void DrawNativeFrameOverlay(NativeFrameInputs frame,double w,double h,double shakeX,double shakeY)
         {

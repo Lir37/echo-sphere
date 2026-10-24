@@ -9,7 +9,7 @@ namespace EchoSphere.Presentation
     {
         public readonly double R,G,B,A;
         public VisualCssColor(double r,double g,double b,double a=1d){R=r;G=g;B=b;A=a;}
-        public string Canvas=>"rgba("+VisualJs.NumberText(R*255d)+","+VisualJs.NumberText(G*255d)+","+VisualJs.NumberText(B*255d)+","+VisualJs.NumberText(A)+")";
+        public string Canvas=>"rgba("+NativePresentationMath.NumberText(R*255d)+","+NativePresentationMath.NumberText(G*255d)+","+NativePresentationMath.NumberText(B*255d)+","+NativePresentationMath.NumberText(A)+")";
         public static VisualCssColor Lerp(VisualCssColor a,VisualCssColor b,double t)
         {var alpha=a.A*(1d-t)+b.A*t;if(alpha<=0d)return new VisualCssColor(0d,0d,0d,0d);return new VisualCssColor((a.R*a.A*(1d-t)+b.R*b.A*t)/alpha,(a.G*a.A*(1d-t)+b.G*b.A*t)/alpha,(a.B*a.A*(1d-t)+b.B*b.A*t)/alpha,alpha);}
         public static VisualCssColor Parse(string text,string current="#000000")

@@ -54,7 +54,7 @@ namespace EchoSphere.Runtime
                 artifacts.Add(new NativePauseArtifactsState.Artifact {Id=id,Name=definition.Name(ru),Description=definition.Description(ru),Rarity=rarity,
                     RarityLabel=catalog.RarityLabel(rarity,ru),BorderColor=border,GlyphColor=glyphColor,Glyph=glyphs[sum%glyphs.Length],Sets=sets});
             }
-            return new NativePauseArtifactsState {Heading=(ru?"Собрано: ":"Owned: ")+VisualJs.NumberText(owned.Count),Empty=ru?"Артефактов пока нет.":"No artifacts yet.",Artifacts=artifacts};
+            return new NativePauseArtifactsState {Heading=(ru?"Собрано: ":"Owned: ")+NativePresentationMath.NumberText(owned.Count),Empty=ru?"Артефактов пока нет.":"No artifacts yet.",Artifacts=artifacts};
         }
     }
 }

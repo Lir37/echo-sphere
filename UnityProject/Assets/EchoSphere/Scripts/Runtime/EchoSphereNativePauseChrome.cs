@@ -51,7 +51,7 @@ namespace EchoSphere.Runtime
         private NativePauseChromeState ProjectNativeLivePauseChrome(bool ru,int tab)
         {
             var character=EchoSphere.Core.CharacterRules.Get(_sphereCharacterId);string T(string key)=>NativeText(key,ru);
-            return new NativePauseChromeState {Eyebrow=ru?"Билд забега":"Run Build",Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+VisualJs.NumberText(_level)+" · "+T("wave")+" "+VisualJs.NumberText(_wave),Tabs=ru?new[]{"Показатели","Способности","Артефакты","Синергии"}:new[]{"Stats","Abilities","Artifacts","Synergies"},Resume=T("resume"),Return=T("return"),SelectedTab=tab};
+            return new NativePauseChromeState {Eyebrow=ru?"Билд забега":"Run Build",Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+NativePresentationMath.NumberText(_level)+" · "+T("wave")+" "+NativePresentationMath.NumberText(_wave),Tabs=ru?new[]{"Показатели","Способности","Артефакты","Синергии"}:new[]{"Stats","Abilities","Artifacts","Synergies"},Resume=T("resume"),Return=T("return"),SelectedTab=tab};
         }
 #if UNITY_EDITOR
         internal static NativePauseChromeState ProjectNativePauseChromeState(V scene, bool ru, int tab)

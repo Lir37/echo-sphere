@@ -28,12 +28,13 @@ namespace EchoSphere.Runtime
                 #endif
             }
             if(_sourceUiWasPaused!=_userPaused){_sourceUiWasPaused=_userPaused;_sourceUi.Dirty=true;}
-            UpdateSourceUiState();
+            EnsureShopSaveLoaded();
             if(!_mainMenu){TickNativeMobileTransients();DrawNativeRunDocument();return;}
             // Every production menu has its own retained native screen. There
             // is no generated JSX/DOM fallback in the active runtime anymore.
 
         }
+#if UNITY_EDITOR
         private void UpdateSourceUiState()
         {
             EnsureShopSaveLoaded();var scene=_sourceRenderState;
@@ -62,6 +63,7 @@ namespace EchoSphere.Runtime
             scene["levelUpLockChoiceKey"]=_levelUpLockChoiceKey==null?VisualJs.Null:new V(_levelUpLockChoiceKey);scene["oracleForecastKeys"]=RenderValue(_oracleForecastKeys);
             #endif
         }
+#endif
         #if UNITY_EDITOR
         private V SourceUiBinding(string module,string name)
         {

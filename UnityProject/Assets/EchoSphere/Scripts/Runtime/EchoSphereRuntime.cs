@@ -7734,7 +7734,10 @@ namespace EchoSphere.Runtime
             _userPaused = false;
             _messageTimer = 0f;
             _runTime = 0f;
+#if UNITY_EDITOR
             _sourceRenderState=default;_sourceRenderEntities.Clear();
+#endif
+            _nativePresentedDominant=_nativePresentedSecondary=null;
             _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
             _sourceLightningVisuals.Clear(); _mutationStage = 0; _chaosOrbTimer = _chaosOrbBuffTimer = _buffTimer = _deathTimer = 0f; _chaosOrbBuff = null;
             ClearRunSnapshot();

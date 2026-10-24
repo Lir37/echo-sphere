@@ -11,13 +11,16 @@ namespace EchoSphere.Runtime
     {
         private NativeWorldSurface _worldSurface;
         public bool UsesSourcePresentation=>true;
+#if UNITY_EDITOR
         private V _sourceRenderState;
+#endif
         [Serializable] private sealed class SourceLightningVisual {public Vector2 from,to;public float life;public string sphereType;}
         private readonly List<SourceLightningVisual> _sourceLightningVisuals=new List<SourceLightningVisual>();
         private void AddSourceLightningVisual(Vector2 from,Vector2 to,float life,SphereId? type=null)
         {_sourceLightningVisuals.Add(new SourceLightningVisual {from=from,to=to,life=life,sphereType=type.HasValue?type.Value.ToString().ToLowerInvariant():null});}
         private void TickSourceLightningVisuals(float dt)
         {for(var i=_sourceLightningVisuals.Count-1;i>=0;i--){_sourceLightningVisuals[i].life-=dt;if(_sourceLightningVisuals[i].life<=0f)_sourceLightningVisuals.RemoveAt(i);}if(_sourceLightningVisuals.Count>36)_sourceLightningVisuals.RemoveRange(0,_sourceLightningVisuals.Count-36);}
+#if UNITY_EDITOR
         private readonly Dictionary<MonoBehaviour,V> _sourceRenderEntities=new Dictionary<MonoBehaviour,V>();
         private static V SourcePoint(Vector2 world)=>VisualJs.Obj("x",world.x/SpherePlacementRules.SourcePixelsToWorld,"y",-world.y/SpherePlacementRules.SourcePixelsToWorld);
         private static V SourcePoint(Vec2 world)=>VisualJs.Obj("x",world.X/SpherePlacementRules.SourcePixelsToWorld,"y",-world.Y/SpherePlacementRules.SourcePixelsToWorld);
@@ -162,6 +165,7 @@ namespace EchoSphere.Runtime
             scene["nativeNetwork"]=RenderNetwork();
             foreach(var entity in new List<MonoBehaviour>(_sourceRenderEntities.Keys))if(entity==null)_sourceRenderEntities.Remove(entity);
         }
+#endif
         private void LateUpdate()
         {
             if(_playerCore==null||_camera==null)return;
@@ -178,24 +182,24 @@ namespace EchoSphere.Runtime
             if(nativeHome||nativeProgression||nativeSettings||nativeRegions||nativeCharacters||nativeArchive)return;
             if(_worldSurface==null) {
                 _worldSurface=new GameObject("Native world compositor").AddComponent<NativeWorldSurface>();_worldSurface.Initialize();
-                // The game Canvas is consumed as a UI texture. Culling the
+                // The native world is consumed as a UI texture. Culling the
                 // unused scene presentation avoids scanning every Renderer on
                 // every frame and also covers newly spawned legacy objects.
                 _camera.cullingMask=0;
             }
             var dpr=SourceDevicePixelRatio;var width=Mathf.Max(1f,Mathf.Floor(Mathf.Min(1280f,Screen.width/dpr)+.5f));var height=Mathf.Max(1f,Mathf.Floor(Mathf.Min(800f,Screen.height/dpr)+.5f));
             _camera.orthographicSize=Screen.height/dpr*SpherePlacementRules.SourcePixelsToWorld*.5f;
-            UpdateSourceRenderState();
-            // Menu screens have no game Canvas. Keep their authored CSS
-            // animation running, without drawing an unused world texture.
+            RefreshNativePresentedState();
+            // Retained menu screens own their rendering; only a run needs
+            // the native world texture.
             if(!_mainMenu){
             _worldSurface.SetViewport(width,height,dpr);
             _worldSurface.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
             _worldSurface.Begin(new Vector2(width*.5f,height*.5f));
             RenderNativeWorldFrame(width,height);_worldSurface.End();
             }
-            // The canvas is an authored DOM element, underneath the original
-            // HUD and overlays. Its CSS filter is applied by that element.
+            // The retained UI Toolkit document composites the native world
+            // texture beneath the HUD and authored material/filter treatments.
             DrawSourceDocument();
         }
         private static float SourceDevicePixelRatio

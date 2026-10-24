@@ -34,9 +34,9 @@ namespace EchoSphere.Runtime
         private bool CanAdvanceNativeTutorial()
         {
             if(_tutorialStep==0||_tutorialStep==3||_tutorialStep==5)return true;
-            if(_tutorialStep==2)return _sourceRenderState["spheres"]["length"].Number>=2;
+            if(_tutorialStep==2)return NativeMobileSphereCount>=2;
             if(_tutorialStep!=1)return false;
-            var player=_sourceRenderState["player"]["pos"];var start=SourcePoint((Vector2)_tutorialStartPosition);double dx=player["x"].Number-start["x"].Number,dy=player["y"].Number-start["y"].Number;return Math.Sqrt(dx*dx+dy*dy)>=72;
+            var player=NativeSourcePixels(PlayerPosition);var start=NativeSourcePixels((Vector2)_tutorialStartPosition);double dx=player.x-start.x,dy=player.y-start.y;return Math.Sqrt(dx*dx+dy*dy)>=72;
         }
         private NativeTutorialView.State ReadNativeTutorialState()
         {

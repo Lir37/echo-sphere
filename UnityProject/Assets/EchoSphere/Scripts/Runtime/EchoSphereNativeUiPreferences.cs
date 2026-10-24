@@ -11,7 +11,7 @@ namespace EchoSphere.Runtime
         // clamping and non-finite -> 1. No DOM/global-storage adapter is needed.
         private static double NativeInterfaceScale
         {
-            get {double raw=VisualJs.Number(new V(PlayerPrefs.GetString("echosphere_interface_scale",""))).Number;
+            get {string text=PlayerPrefs.GetString("echosphere_interface_scale","");double raw=text.Trim().Length==0?0:double.TryParse(text,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double number)?number:double.NaN;
                 return double.IsFinite(raw)?Math.Min(1.25,Math.Max(.75,raw)):1;}
         }
         private void NativeResetAllProgress()

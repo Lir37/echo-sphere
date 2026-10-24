@@ -5293,3 +5293,26 @@ portable core/visual checks and 272 Node tests PASS. Settings event navigation
 exercised. See GPT/UNITY_REPLICA_STYLE_DIAGNOSTICS_2026-10-17.md for captures,
 limits and Console diagnostics. P1/P2 remain PARTIAL: menu performance and
 z-index/flex-order bug still open. No APK. Check resulting commit CI separately.
+
+## 2026-10-24 — Native presentation implementation boundary
+
+The visual/UI implementation now runs end to end on retained UI Toolkit,
+typed runtime/component models and Unity mesh/material/CommandBuffer composition.
+All active consumers of generated render/UI functions and V scene snapshots have
+been replaced. The Android C# build guard rejects V/VisualJs/VisualJson, old
+DOM/Canvas documents, source snapshot defaults and the runtime snapshot/update/
+writeback members. Editor reference code remains available for regression checks.
+See UNITY_NATIVE_MODERNIZATION_PROGRESS.md, Current implementation boundary and
+Production compatibility retirement, for current subsystem status and evidence.
+
+Actual Editor compile succeeded with zero errors/warnings. Four native pause tabs
+ran for 12 stepped frames each without creating the Editor source snapshot;
+native chrome/tab views Ready=true and legacy documents=0. Actual menu and frozen
+world/HUD Game View captures inspected at 1260x542. Android player/editor typechecks,
+272 Node tests and portable visual contracts passed. Previous implementation
+9d9ae8b0cd45d66d5d2f1c671ab0f99d6253357d CI #830 SUCCESS; check containing commit CI.
+
+Implementation migration is complete as an active-code boundary; P1/P2 final
+visual/control/device/performance acceptance remains OPEN. This does not establish
+all-effect parity, FPS/GC improvement or Android device behavior. No APK was built,
+no gameplay/balance/RNG/quality changes, protected new-desing baseline unchanged.

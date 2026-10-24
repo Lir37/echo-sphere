@@ -282,7 +282,7 @@ namespace EchoSphere.Presentation
             element.RegisterCallback<FocusInEvent>(evt=>{entry.Node.Focused=true;Dirty=true;entry.Host.Send("onFocus",evt);});element.RegisterCallback<FocusOutEvent>(evt=>{entry.Node.Focused=false;Dirty=true;entry.Host.Send("onBlur",evt);});
             element.RegisterCallback<WheelEvent>(evt=>Environment.Dispatch("scroll"));
             if(element is TextField input)input.RegisterValueChangedCallback(evt=>{entry.Node.Properties["value"]=evt.newValue;entry.Host.Change(evt.newValue);});
-            if(element is Slider slider)slider.RegisterValueChangedCallback(evt=>{var step=entry.Node.Properties["step"].Number;var value=step>0d?slider.lowValue+Math.Round((evt.newValue-slider.lowValue)/step)*step:evt.newValue;slider.SetValueWithoutNotify((float)value);entry.Node.Properties["value"]=value;entry.Host.Change(VisualJs.NumberText(value));});
+            if(element is Slider slider)slider.RegisterValueChangedCallback(evt=>{var step=entry.Node.Properties["step"].Number;var value=step>0d?slider.lowValue+Math.Round((evt.newValue-slider.lowValue)/step)*step:evt.newValue;slider.SetValueWithoutNotify((float)value);entry.Node.Properties["value"]=value;entry.Host.Change(NativePresentationMath.NumberText(value));});
         }
         private void BeginActivePointer(VisualElement target,int pointer)
         {for(var current=target;current!=null;current=current.parent)if(_elementEntries.TryGetValue(current,out var entry)){entry.ActivePointers.Add(pointer);entry.Node.Active=true;Dirty=true;}}
