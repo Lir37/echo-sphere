@@ -26,6 +26,34 @@ built. Keep new-desing protected; preserve local project/quality/recovery change
 Later historical entries describe earlier intermediate states.
 
 
+2026-10-24 production game-document pointer acceptance: replaced the remaining
+routing assumption with actual NativeRunDocument panel.Pick targets and its own
+registered callbacks (no temporary UIDocument, no manual handler registration).
+47 checks PASS at each actual Game View size: 1260x542, 1280x720 and 2400x1080
+(141 checks total). Unobstructed field picks native-mobile-layout; Down/Move/Up
+starts, updates and releases the real handed joystick. All ten authored Sphere
+selector buttons are actually picked, select their matching SphereId and do not
+leak into placement/joystick gestures. The retained pause overlay intercepts field
+picking without starting gameplay input. Actual tutorial step 1 permits the same
+routed joystick through its movement spotlight. Simulation remains paused;
+tutorial allowance is set only during synchronous dispatch except the final
+actual tutorial layout stage. Run/knowledge save accumulators are suppressed,
+selected Sphere and gesture state/flags restored; exact run RNG did not advance.
+Each run started/ended with zero Console errors. No new product defect reproduced;
+no gameplay, graphics or input policy was changed to manufacture an optimization.
+Reusable scripts/check-unity-native-production-pointer.cs records dimensions,
+picked elements and Console counts. Temporary fixed Game View preset was removed
+and the user's prior Game View selection restored; Play stopped. User project,
+quality and recovery changes preserved. Actual Editor compile up-to-date with zero
+errors/warnings; Android player/editor C# semantic checks PASS (324 runtime files,
+0 errors/warnings), native initialization/retirement, preflight, provenance and
+export checks PASS. This is Editor mouse-pointer routing across landscape layouts,
+not physical Android touch/multitouch, continuous live combat, FPS/GC measurement
+or final P1/P2 acceptance. No APK. Remaining implementation boundary unchanged:
+native migration implemented; full visual/control/device/performance acceptance
+OPEN. Previous e4c6bf590c84243cd762d5e3015f4577ee3d4a18 passed CI #840 SUCCESS;
+the containing documentation/check commit must also pass CI.
+
 2026-10-24 pointer dispatch and Follow actor lifecycle: exercised actual Unity
 UI Toolkit PointerDown/Move/Up/Cancel events on a temporary laid-out UIDocument,
 through the production native gesture handlers and BindNativeMobileInput. 22
