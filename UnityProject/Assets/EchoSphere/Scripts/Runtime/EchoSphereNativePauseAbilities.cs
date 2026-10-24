@@ -44,9 +44,9 @@ namespace EchoSphere.Runtime
         private NativePauseAbilitiesState ProjectNativeLivePauseAbilities(bool ru)
         {
             var active=new List<NativePauseAbilitiesState.Ability>();var passive=new List<NativePauseAbilitiesState.Ability>();
-            foreach(var definition in NativeRunCatalog.Instance.Abilities){bool known=Enum.TryParse<EchoSphere.Core.RunUpgradeKind>(definition.Id,true,out var kind);int level=known?GetAbilityLevel(kind):0;
+            foreach(var definition in NativeRunCatalog.Instance.Abilities){var kind=PlannerAbility(definition.Id);int level=GetAbilityLevel(kind);
                 if(definition.Category=="active"){
-                    var branch=known?NativeLiveAbilityChoice(kind,definition,4):null;var final=known?NativeLiveAbilityChoice(kind,definition,7):null;string Names(IEnumerable<NativeRunCatalog.Definition> choices)=>string.Join(" · ",choices.Select(choice=>choice.Name(ru)));
+                    var branch=NativeLiveAbilityChoice(kind,definition,4);var final=NativeLiveAbilityChoice(kind,definition,7);string Names(IEnumerable<NativeRunCatalog.Definition> choices)=>string.Join(" · ",choices.Select(choice=>choice.Name(ru)));
                     active.Add(new NativePauseAbilitiesState.Ability {Id=definition.Id,Acquired=level!=0,Level=NativePresentationMath.NumberText(level)+"/7",Name=level!=0?NativeLiveAbilityName(kind,ru):definition.Name(ru),Description=level!=0?NativeLiveAbilityDescription(kind,definition,ru):NativeBaseAbilityDescription(definition,1,ru),HasProgression=definition.HasProgression,Branch=definition.HasProgression?(branch!=null?branch.Name(ru):Names(definition.Branches)):null,Final=definition.HasProgression?(final!=null?final.Name(ru):Names(definition.FallbackFinals)):null});
                 }else if(definition.Category=="passive"&&level>0)passive.Add(new NativePauseAbilitiesState.Ability {Id=definition.Id,Acquired=true,Level=NativePresentationMath.NumberText(level)+"/7",Name=definition.Name(ru),Description=NativeBaseAbilityDescription(definition,level,ru)});
             }

@@ -8,7 +8,7 @@ namespace EchoSphere.Runtime
  {
   private double NativeLiveMastery=>_characterMasteryLevel!=0?_characterMasteryLevel:1;
   private static double NativeLiveLogicalDistance(UnityEngine.Component a,UnityEngine.Component b){var pa=NativeSourcePixels(a.transform.position);var pb=NativeSourcePixels(b.transform.position);return NativeMobileDistance(pa.x-pb.x,pa.y-pb.y);}
-  private string NativeLiveAbilityMarker(string id,int stage){if(!Enum.TryParse<EchoSphere.Core.RunUpgradeKind>(id,true,out var kind))return null;return stage==4?GetAbilityBranch(kind):GetAbilityFinal(kind);}
+  private string NativeLiveAbilityMarker(string id,int stage){var kind=PlannerAbility(id);return stage==4?GetAbilityBranch(kind):GetAbilityFinal(kind);}
   private double NativeLiveFormationBonus(string kind,SphereAttackAgent sphere){int index=0,found=-1;foreach(var candidate in _spheres)if(candidate!=null&&candidate.gameObject.activeInHierarchy){if(candidate==sphere){found=index;break;}index++;}double efficiency=Math.Max(0,Math.Min(1,(double)(_networkState?.FormationEfficiency??1f)));bool Includes(EchoSphere.Core.SphereNetworkShape shape)=>shape!=null&&(found<0||shape.NodeIndexes.Contains(found));var dominant=_networkState?.DominantFormation;if(dominant!=null&&dominant.Active&&dominant.Type.ToString().ToLowerInvariant()==kind&&Includes(dominant))return efficiency;var secondary=_networkState?.SecondaryFormation;return secondary!=null&&secondary.Type.ToString().ToLowerInvariant()==kind&&Includes(secondary)?.5*efficiency:0;}
   private string NativeLiveCharacterFormationKind()
   {

@@ -13,7 +13,7 @@ namespace EchoSphere.Runtime
    public NativeProtocolState(ArtifactProtocolDefinition definition,bool discovered,bool active){Definition=definition;Discovered=discovered;Active=active;}
   }
   internal sealed class NativeDiagnosticRow {public string Id;public List<string> Signals;}
-  private int NativeLiveAbilityLevel(string id)=>Enum.TryParse<RunUpgradeKind>(id,true,out var kind)?GetAbilityLevel(kind):0;
+  private int NativeLiveAbilityLevel(string id)=>GetAbilityLevel(PlannerAbility(id));
   private int NativeLiveSphereLevel(string id)=>Enum.TryParse<SphereId>(id,true,out var type)&&_sphereLevels.TryGetValue(type,out int level)?level:0;
   private string NativeLiveSphereBranch(string id)=>Enum.TryParse<SphereId>(id,true,out var type)?GetSphereBranch(type):null;
   private IReadOnlyList<NativeDiagnosticRow> NativeLiveBuildDiagnostics(bool ru)
@@ -30,7 +30,7 @@ namespace EchoSphere.Runtime
    Add("network",new List<string>{(ru?"Типов сфер: ":"Sphere types: ")+typeCount,(ru?"Связей: ":"Links: ")+network.Links.Count.ToString(System.Globalization.CultureInfo.InvariantCulture),geometrySignal});
    Add("resonance",new List<string>{(ru?"Резонанс: ":"Resonance: ")+NativePresentationMath.NumberText(Math.Floor(_resonanceCharge))+"/100",geometrySignal});
    var completed=NativeLiveCompletedSets();var synergy=catalog.Sets.Where(set=>completed.Contains(set.Id)).Select(set=>set.Name(ru)).ToList();synergy.AddRange(NativeLiveProtocols().Where(row=>row.Active).Select(row=>ru?row.Definition.NameRussian:row.Definition.NameEnglish));
-   int count=catalog.SphereAbilityLinks.Count(link=>NativeLiveSphereLevel(link.Sphere)>=7&&NativeLiveSphereBranch(link.Sphere)==link.Branch&&NativeLiveAbilityLevel(link.Ability)>=7&&NativeLiveAbilityChoice((RunUpgradeKind)Enum.Parse(typeof(RunUpgradeKind),link.Ability,true),catalog.GetAbility(link.Ability),7)?.Id==link.AbilityFinal);
+   int count=catalog.SphereAbilityLinks.Count(link=>NativeLiveSphereLevel(link.Sphere)>=7&&NativeLiveSphereBranch(link.Sphere)==link.Branch&&NativeLiveAbilityLevel(link.Ability)>=7&&NativeLiveAbilityChoice(PlannerAbility(link.Ability),catalog.GetAbility(link.Ability),7)?.Id==link.AbilityFinal);
    if(count>0)synergy.Add((ru?"Активных синергий сфер: ":"Active Sphere synergies: ")+count);Add("synergy",synergy);return rows;
   }
   private HashSet<string> NativeLiveCompletedSets()

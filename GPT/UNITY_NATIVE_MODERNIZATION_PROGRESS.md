@@ -1340,3 +1340,20 @@ manifest and all eight .cjs fixture/exporter path consumers; reference payloads 
 image hashes are unchanged. Re-ran every command in the exact failed CI visual/
 styles/artwork/provenance step locally: all eight checks PASS. A fresh HEAD CI is
 required; no browser/reference artwork regeneration was performed.
+
+### Complete source ability-ID coverage correction (2026-10-24)
+
+The final identifier audit found a real typed-model mismatch: source proj_speed
+maps to RunUpgradeKind.ProjectileSpeed, so generic Enum.TryParse skipped it in the
+pause ability list. Native readers now reuse the existing PlannerAbility inverse
+of SourceAbilityId (also used by the original planner), including branch/final
+lookups. No projectile-speed formula, upgrade rule or gameplay state was changed.
+
+The earlier native comparison fixtures had the same generic enum filter and thus
+omitted this alias. They now resolve every source ID independently through the
+forward SourceAbilityId mapping and fail if any catalog ID has no unique native
+kind. Actual Editor comparisons re-run with all 30 ability IDs: abilities 60 full
+models, stats 2160 full models plus exact sphere metrics, synergies 216 full models
+PASS. Temporary state restored, Play stopped, Console 0 errors/warnings. Android
+player/editor typechecks and 272 Node tests PASS. Prior d14c6f6b8a1a3936b85cd10e9423e6ffd8007f33
+CI #834 SUCCESS; check the containing correction commit's CI separately.
