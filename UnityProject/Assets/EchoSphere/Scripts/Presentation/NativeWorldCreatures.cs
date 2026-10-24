@@ -6,7 +6,8 @@ using UnityEngine;
 namespace EchoSphere.Presentation
 {
     // Typed presentation of enemyVisual.ts. Unity Vector Graphics owns curve
-    // tessellation; authored anatomy and animation values remain source-derived.
+    // tessellation. Source identities/palette remain; user-approved organic
+    // facial details and stance/recovery articulation refine presentation.
     internal sealed partial class NativeWorldCreatures : IDisposable
     {
         private sealed class Art : IDisposable
@@ -96,7 +97,7 @@ namespace EchoSphere.Presentation
         }
         private void Joint(Matrix4x4 m,double x,double y,double r,Color color)=>Ellipse(m*T(x,y),r,r,C(4,8,14,.98),color,Math.Max(.7,r*.18));
         private void Eye(Matrix4x4 m,double x,double y,double r,Color color,double look=0)
-        {var local=m*T(x,y,look);Ellipse(local,r,r*.62,C(245,252,255,.94),color,Math.Max(.7,r*.16));Ellipse(local*T(r*.18),r*.20,r*.42,color);}
+        {if(_organicFaces){OrganicEye(m*T(x,y,look),r,color);return;}var local=m*T(x,y,look);Ellipse(local,r,r*.62,C(245,252,255,.94),color,Math.Max(.7,r*.16));Ellipse(local*T(r*.18),r*.20,r*.42,color);}
         private void Core(Matrix4x4 m,double x,double y,double r,Color color)
         {var local=m*T(x,y);Glow(local,r*2.2,color,.95,true);Ellipse(local,r,r,C(7,17,27),color,Math.Max(.7,r*.15));}
         private void Segment(Matrix4x4 m,double x1,double y1,double x2,double y2,double w,Color color,double alpha)
@@ -117,16 +118,27 @@ namespace EchoSphere.Presentation
         }
         private void Legs(Matrix4x4 m,double r,double[] xs,double bodySideY,double len,double phase,Color color,double thick)
         {
-            for(int i=0;i<xs.Length;i++)for(int side=-1;side<=1;side+=2){double x=xs[i]*r,y=side*bodySideY*r,l=len*r,p=phase+i*1.05+(side>0?0:Math.PI),stride=Math.Sin(p)*l*.30,lift=Math.Max(0,Math.Cos(p))*l*.12,kx=x+stride*.46+l*.05,ky=y+side*(l*.34-lift),ax=x+stride,ay=y+side*(l*.76-lift*.45);
-                Segment(m,x,y,kx,ky,thick*5.8,color,.94);Joint(m,kx,ky,thick*3.5,color);Segment(m,kx,ky,ax,ay,thick*4,color,.90);Joint(m,ax,ay,thick*1.9,color);Segment(m,ax,ay,ax+l*.15,ay+side*l*.035,thick*1.45,color,.92);}
+            double cycle=_gaitActive?_gaitTravel*(.64/(2*Math.Min(.30,len*.60)))*Math.PI*2:phase;
+            for(int i=0;i<xs.Length;i++)for(int side=-1;side<=1;side+=2){
+                double offset=xs.Length==4?i*Math.PI*.5:(i%2)*Math.PI;
+                double p=(_airborneLegs?_poseTime*(_poseVariant=="moth"?8:5):cycle)+offset+(side<0?Math.PI:0),spread=(i-(xs.Length-1)*.5)*.17;
+                double wave=0;if(_poseVariant=="leech"){double q=(xs[i]+.62)/1.22;wave=Math.Sin(_poseTime*3.2+q*4.8)*r*.14*(_gaitActive?.2+.8*_gaitBlend:1);}
+                if(_poseVariant=="stalker")wave=Math.Sin(_poseTime*4)*r*.06;
+                var pose=SolveOrganicLeg(r,xs[i],side,bodySideY,len,spread,p,_gaitActive?_gaitBlend:1,wave,_airborneLegs);
+                Segment(m,pose.Hip.x,pose.Hip.y,pose.Knee.x,pose.Knee.y,Math.Max(1.4,r*.24*thick),color,.90);
+                Joint(m,pose.Knee.x,pose.Knee.y,Math.Max(.6,r*.038),color);
+                Segment(m,pose.Knee.x,pose.Knee.y,pose.Foot.x,pose.Foot.y,Math.Max(1.1,r*.15*thick),color,.86);
+                var toe=Get(230,r,side,Math.Max(.55,r*.024),()=>Quadratic(Vector2.zero,false,P(r*.08,side*r*.025),P(r*.13,-side*r*.025)),false);
+                Paint(toe,m*T(pose.Foot.x,pose.Foot.y),null,A(color,pose.Contact?.9:.65));
+            }
         }
         private void Tail(Matrix4x4 m,double sx,double sy,double len,Color color,double t,int count=7,double amp=.18)
         {
-            double px=sx,py=sy;for(int i=0;i<count;i++){double q=(i+1)/(double)count,x=sx-len*q,y=sy+Math.Sin(t*3-q*4.2)*len*amp*(.30+.70*q),w=len*(.14-.009*i);Segment(m,px,py,x,y,w,color,.82-.025*i);if(i<count-1)Joint(m,x,y,Math.Max(.9,w*.22),color);px=x;py=y;}
+            if(_gaitActive)amp*=.25+.75*_gaitBlend;double px=sx,py=sy;for(int i=0;i<count;i++){double q=(i+1)/(double)count,x=sx-len*q,y=sy+Math.Sin(t*3-q*4.2)*len*amp*(.30+.70*q),w=len*(.14-.009*i);Segment(m,px,py,x,y,w,color,.82-.025*i);if(i<count-1)Joint(m,x,y,Math.Max(.9,w*.22),color);px=x;py=y;}
         }
         private void Wing(Matrix4x4 m,double x,double y,double len,double w,double angle,Color color,double flap)
         {
-            var local=m*T(x,y,angle+Math.Sin(flap)*.14);var art=Get(2,len,w,Math.Max(.8,w*.07),()=>Quadratic(Vector2.zero,true,P(len*.35,-w*.85),P(len,-w*.18),P(len*.68,w*.55),P(len*.12,w*.36)));Paint(art,local,C(4,9,17,.96),color);
+            double side=y<0?-1:1;var local=m*T(x,y,angle+side*Math.Sin(flap)*.18,sy:-side*(Math.Cos(angle)<0?-1:1)*(.94+.06*Math.Cos(flap)));var art=Get(2,len,w,Math.Max(.8,w*.07),()=>Quadratic(Vector2.zero,true,P(len*.35,-w*.85),P(len,-w*.18),P(len*.68,w*.55),P(len*.12,w*.36)));Paint(art,local,C(4,9,17,.96),color);
             for(int i=1;i<4;i++){int index=i;var vein=Get(10+i,len,w,Math.Max(.5,w*.025),()=>{var start=P(len*.08,0);var end=P(len*(.24+index*.18),-w*(.42-index*.08));return Quadratic(start,false,(start+end)*.5f,end);},false);Paint(vein,local,null,C(235,249,255,.25));}
         }
         private void Frame(Matrix4x4 m,double r,Color color,double t)
@@ -134,7 +146,9 @@ namespace EchoSphere.Presentation
         internal void Draw(NativeWorldSurface surface,double radius,Color color,double time,string variant,bool boss,Matrix4x4? parent=null)
         {
             _surface=surface;var root=parent??Matrix4x4.identity;Glow(root,radius*(boss?2.55:2.15),color,boss?.085:.065);
-            if(boss)Boss(root,radius,color,time,variant);else Creature(root,radius,color,time,variant);
+            _poseTime=time;_poseVariant=variant;_airborneLegs=!boss&&(variant=="wisp"||variant=="moth");_organicFaces=true;
+            try{if(boss)Boss(root,radius,color,time,variant);else Creature(root,radius,color,time,variant);}
+            finally{_gaitActive=false;_airborneLegs=false;_organicFaces=false;}
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}

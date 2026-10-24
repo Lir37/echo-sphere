@@ -1,0 +1,16 @@
+// Actual native motion lifecycle and mirrored wing matrices; Play owns transient cleanup.
+if(!UnityEditor.EditorApplication.isPlaying)throw new System.Exception("Play required");
+var a=typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly;var f=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Public;var type=a.GetType("EchoSphere.Presentation.NativeWorldCreatures");var owner=System.Activator.CreateInstance(type,true);int checks=0;
+void Require(bool ok,string why){checks++;if(!ok)throw new System.Exception(why);}
+var stateType=a.GetType("EchoSphere.Presentation.NativeWorldCreatures+EnemyView");var state=System.Activator.CreateInstance(stateType);var id=new object();void Set(string n,object v)=>stateType.GetField(n,f).SetValue(state,v);Set("Identity",id);Set("Radius",19d);Set("HasRotation",true);Set("Rotation",0d);
+var facing=type.GetMethod("FacingAngle",f);void Tick(double x,double t,bool frozen=false){Set("X",x);Set("Freeze",frozen);facing.Invoke(owner,new object[]{state,t});}
+var table=type.GetField("_facing",f).GetValue(owner);object Motion(){var args=new object[]{id,null};table.GetType().GetMethod("TryGetValue").Invoke(table,args);return args[1];}double Read(string n){var m=Motion();return (double)m.GetType().GetField(n,f).GetValue(m);}
+Tick(0,0);Tick(19,.2);Require(Math.Abs(Read("Travel")-1)<1e-9,"Gait advances by distance / radius");double phase=Read("Travel");Tick(19,1);Require(Read("Travel")==phase,"Idle does not advance gait");Require(Read("Motion")<.001,"Motion settles after stop");double clock=Read("AnatomyTime");Tick(19,1.5,true);Require(Read("AnatomyTime")==clock&&Read("Travel")==phase,"Frozen anatomy and gait hold");Tick(19,1.6);Require(Math.Abs(Read("AnatomyTime")-(clock+.1))<1e-9,"Unfreeze resumes without catching up frozen time");
+var go=new UnityEngine.GameObject("Organic wing symmetry check"){hideFlags=UnityEngine.HideFlags.DontSave};var surface=go.AddComponent(a.GetType("EchoSphere.Presentation.NativeWorldSurface"));type.GetField("_surface",f).SetValue(owner,surface);var wing=type.GetMethod("Wing",f);var batchesField=surface.GetType().GetField("_batches",f);var begin=surface.GetType().GetMethod("Begin",f);
+foreach(double angle in new[]{.72,1.15,2.72})foreach(double flap in new[]{0,.7,1.4,3.0,5.2}){
+ begin.Invoke(surface,new object[]{UnityEngine.Vector2.zero});type.GetMethod("BeginFrame",f).Invoke(owner,null);
+ wing.Invoke(owner,new object[]{UnityEngine.Matrix4x4.identity,0d,-8d,30d,18d,-angle,UnityEngine.Color.cyan,flap});wing.Invoke(owner,new object[]{UnityEngine.Matrix4x4.identity,0d,8d,30d,18d,angle,UnityEngine.Color.cyan,flap});
+ var batches=(System.Collections.IList)batchesField.GetValue(surface);Require(batches.Count==10,"Paired wing draw batches");UnityEngine.Matrix4x4 Matrix(int i)=>(UnityEngine.Matrix4x4)batches[i].GetType().GetField("NativeMatrix",f).GetValue(batches[i]);var top=Matrix(0);var bottom=Matrix(5);
+ for(int col=0;col<4;col++){Require(Math.Abs(top[0,col]-bottom[0,col])<.00001,"Wing X mirror consistency");Require(Math.Abs(top[1,col]+bottom[1,col])<.00001,"Wing Y reflection around attachment");}
+}
+((System.IDisposable)owner).Dispose();UnityEngine.Object.Destroy(go);return new {status="PASS",checks,scope="Distance-driven gait, stop/freeze/resume, actual paired wing submission symmetry"};

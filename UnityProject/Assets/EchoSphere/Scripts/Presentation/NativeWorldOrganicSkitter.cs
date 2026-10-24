@@ -5,21 +5,13 @@ namespace EchoSphere.Presentation
 {
     internal sealed partial class NativeWorldCreatures
     {
-        // Organic trial for the existing skitter only. Same curved path renderer,
-        // palette and animation clock; no faceted geometry or new combat state.
+        // Accepted organic skitter silhouette. Shared stance/recovery gait keeps
+        // its limbs attached; contours and palette use the existing renderer.
+        private static readonly double[] OrganicSkitterHips={-.42,-.08,.26};
         private void OrganicSkitter(Matrix4x4 root,double r,Color color,double t)
         {
             double phase=t*7;
-            // Two alternating tripods: all limbs stay on their anatomical side.
-            for(int i=0;i<3;i++)for(int side=-1;side<=1;side+=2){
-                double p=phase+(i%2)*Math.PI+(side<0?Math.PI:0),stride=Math.Sin(p)*r*.15,lift=Math.Max(0,Math.Cos(p))*r*.075;
-                double hx=(-.42+i*.34)*r,hy=side*r*.24,spread=(i-1)*r*.17;
-                double kx=hx+spread+stride*.45,ky=side*(r*.53-lift),fx=hx+spread*1.55+stride,fy=side*(r*.83-lift*.45);
-                Segment(root,hx,hy,kx,ky,r*.24,color,.88);Segment(root,kx,ky,fx,fy,r*.15,color,.84);
-                Joint(root,kx,ky,r*.038,color);
-                var claw=Get(120,r,side,Math.Max(.6,r*.027),()=>Quadratic(Vector2.zero,false,P(r*.10,side*r*.035),P(r*.15,-side*r*.035)),false);
-                Paint(claw,root*T(fx,fy),null,A(color,.90));
-            }
+            Legs(root,r,OrganicSkitterHips,.24,.78,phase,color,.85);
             // Smooth overlapping abdominal segments, not a hard surface chassis.
             for(int i=0;i<3;i++){
                 double x=(-.38+i*.28)*r,rr=r*(.65-i*.045);

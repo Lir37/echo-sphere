@@ -1700,3 +1700,50 @@ settings/URP/quality/volume/recovery edits and protected branch preserved. No AP
 User acceptance of this single in-game organic skitter is PENDING. Do not expand
 to other enemies without feedback. P1/P2, device/performance and remaining combat
 visual acceptance remain OPEN. Check containing implementation commit CI.
+
+### Organic roster expansion and natural limb motion (2026-10-24)
+
+User accepted the organic skitter and explicitly authorized extending the style,
+with more natural limb movement. Expanded organic sensory slits and hooked jaws
+across all 10 existing normal silhouette variants. Four boss silhouettes keep their
+body identities, health bars, signals and attacks; their shared face/limb helpers
+receive the same organic details and articulation. No new enemy IDs or roles.
+
+Shared visual gait now uses two fixed-length links and a solved knee. A 64% stance
+phase and eased swing replace continuously oscillating/stretching limbs. Phase is
+driven by actual traveled distance, normalized to radius/stride; movement eases out
+after stopping. The planted phase compensates straight body translation in the
+local forward frame; existing actor turns/pulse remain presentation transforms.
+Flying variants trail their limbs instead of performing a grounded walking cycle.
+A visual pose clock holds during freeze and resumes without catching up frozen
+elapsed time. No simulation movement or attack timers were changed.
+
+Mirrored wing transforms now move around their attachment points, including the
+rearward-facing Moth wing geometry. Moth thorax/head face forward along the source
+movement axis. Leech/Serpent heads follow their body wave; Leech hips follow that
+same wave while feet recover/plant. Hound tail origin is moved into the actual rear
+body silhouette, closing the prior visible gap. Tail/axial motion quietens at idle.
+Stalker head and hip motion now follow its body bob. All use the same curved path
+renderer, existing family palettes and source entity radii. No faceted chassis,
+new 3D rig, shaders, texture replacement, hitbox, balance, RNG or gameplay change.
+
+Actual Editor verification: 8064 numeric checks for bone lengths, anatomical sides
+and stance translation compensation PASS; 140 checks of distance-driven motion,
+stop/freeze/resume and actual mirrored wing draw matrices PASS. GPU sheet rendered
+10 normal variants, four bosses and four radius-19 samples through DrawEnemy across
+48 movement/stop frames. A separate 64-frame native walk over a fixed grid records
+stance and settling. Evidence: GPT/organic-enemy-trial/roster-native.* and
+walk-stop-native.gif. Export cadence is 25fps; this is NOT measured gameplay FPS.
+These are controlled native renderer fixtures, not live-combat/device acceptance.
+
+Editor compile and final Play Console: 0 errors / 0 warnings. Routed production
+pointer regression 47 checks PASS with frozen simulation. Android player/editor
+C# checks: 327 runtime files, 0 errors/warnings. 272 Node tests, preflight, provenance
+and export guards PASS. Play stopped, all 10 original preference keys restored and
+verified, user settings/URP/quality/volume/recovery changes preserved. No APK and no
+protected branch changes. Prior baseline 6fff8ded30daf031c404b0cf2b4a9ba1fc4f30a5
+passed CI #846 SUCCESS; containing implementation commit CI must pass separately.
+
+Elite/tier/status/hit/death and projectile effects retain their pre-faceted-trial
+implementation. They remain a separate visual follow-up, alongside actual crowded
+combat/device performance and user acceptance. P1/P2 are not marked DONE.

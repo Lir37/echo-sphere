@@ -17,7 +17,7 @@ namespace EchoSphere.Presentation
             internal Color Color;
             internal BossSignal Signal;
         }
-        private sealed class Facing {internal double X,Y,Angle;}
+        private sealed class Facing {internal double X,Y,Angle,Travel,Time,AnatomyTime,Motion;}
         private readonly ConditionalWeakTable<object,Facing> _facing=new ConditionalWeakTable<object,Facing>();
         private readonly List<NativeWorldLabel> _bossLabels=new List<NativeWorldLabel>();
         private int _labelUsed;
@@ -31,11 +31,18 @@ namespace EchoSphere.Presentation
         {
             var segments=new BezierPathSegment[points.Length];for(int i=0;i<points.Length;i++){var a=points[i];var b=points[Math.Min(i+1,points.Length-1)];segments[i]=new BezierPathSegment {P0=a,P1=Vector2.Lerp(a,b,1f/3),P2=Vector2.Lerp(a,b,2f/3)};}return new BezierContour {Segments=segments,Closed=false};
         }
-        private double FacingAngle(EnemyView e)
+        private double FacingAngle(EnemyView e,double time)
         {
-            if(!_facing.TryGetValue(e.Identity,out var previous)){previous=new Facing {Angle=e.HasRotation?e.Rotation:0};_facing.Add(e.Identity,previous);}
-            else{double dx=e.X-previous.X,dy=e.Y-previous.Y;if(dx*dx+dy*dy>.04)previous.Angle=Math.Atan2(dy,dx);}
-            previous.X=e.X;previous.Y=e.Y;return previous.Angle;
+            if(!_facing.TryGetValue(e.Identity,out var previous)){
+                previous=new Facing {Angle=e.HasRotation?e.Rotation:0,Time=time,AnatomyTime=time,X=e.X,Y=e.Y};_facing.Add(e.Identity,previous);
+            }else{
+                double dx=e.X-previous.X,dy=e.Y-previous.Y,distance=Math.Sqrt(dx*dx+dy*dy),dt=Math.Max(0,time-previous.Time);
+                if(distance>.2)previous.Angle=Math.Atan2(dy,dx);
+                if(!e.Freeze&&dt>0){previous.Travel+=distance/Math.Max(1,e.Radius);previous.AnatomyTime+=dt;double speed=distance>.00001?1:0;previous.Motion+=(speed-previous.Motion)*(1-Math.Exp(-dt*14));}
+            }
+            previous.X=e.X;previous.Y=e.Y;previous.Time=time;
+            _gaitTravel=previous.Travel;_gaitBlend=previous.Motion;_gaitActive=true;
+            return previous.Angle;
         }
         private void LinkBreaker(Matrix4x4 root,EnemyView e,double t)
         {
@@ -53,11 +60,11 @@ namespace EchoSphere.Presentation
         }
         internal void DrawEnemy(NativeWorldSurface surface,EnemyView e,double t)
         {
-            _surface=surface;double facing=FacingAngle(e),hit=Clamp(e.HitFlash/.15),pulse=1+Math.Sin(t*5+e.X*.01)*.025,scale=pulse+hit*.05;var root=T(e.X,e.Y,facing,scale,scale);var statusColor=e.Freeze?C(105,214,255):e.Color;
+            _surface=surface;double facing=FacingAngle(e,t),poseTime=_facing.GetOrCreateValue(e.Identity).AnatomyTime,hit=Clamp(e.HitFlash/.15),pulse=1+Math.Sin(poseTime*5+e.X*.01)*.025,scale=pulse+hit*.05;var root=T(e.X,e.Y,facing,scale,scale);var statusColor=e.Freeze?C(105,214,255):e.Color;
             DrawOuterGlow(surface,e.Radius*(e.Boss?1.65:1.15),statusColor,e.Boss?.21:.10,root);
-            if(e.Boss){DrawBossSignal(surface,e.Signal,t,root);Draw(surface,e.Radius,e.Color,t,e.Variant,true,root);}
+            if(e.Boss){DrawBossSignal(surface,e.Signal,t,root);Draw(surface,e.Radius,e.Color,poseTime,e.Variant,true,root);}
             else{
-                Draw(surface,e.Radius,e.Color,t,e.Variant,false,root);if(e.Elite)DrawElite(surface,e.Radius,e.Color,t,root);
+                Draw(surface,e.Radius,e.Color,poseTime,e.Variant,false,root);if(e.Elite)DrawElite(surface,e.Radius,e.Color,t,root);
                 if(e.Tier>0){double n=Math.Min(3,e.Tier);var local=root*T(0,-e.Radius*1.55,t*.35);var ray=Get(44,e.Radius,0,1.2,()=>Straight(P(e.Radius*.10,0),P(e.Radius*.38,0)),false);for(int i=0;i<n;i++)Paint(ray,local*T(angle:i*Math.PI*2/n),null,A(statusColor,.46));}
                 LinkBreaker(root,e,t);if(e.Fire||e.Poison||e.Freeze)DrawStatus(surface,e.Radius,t,e.Fire,e.Poison,e.Freeze,root);
                 if(hit>0){var cross=Multi(45,e.Radius,2,()=>new[]{Straight(P(-e.Radius*.8,-e.Radius*.8),P(e.Radius*.8,e.Radius*.8)),Straight(P(e.Radius*.8,-e.Radius*.8),P(-e.Radius*.8,e.Radius*.8))});Paint(cross,root,null,C(255,255,255,hit*.75));}
