@@ -6411,6 +6411,10 @@ namespace EchoSphere.Runtime
                 case RunUpgradeKind.SphereBoost:
                 case RunUpgradeKind.Cooldown:
                 case RunUpgradeKind.Momentum:
+                case RunUpgradeKind.Resonance:
+                case RunUpgradeKind.CritPower:
+                case RunUpgradeKind.ProjectileSpeed:
+                case RunUpgradeKind.Fortune:
                     _abilityLevels[choice.Kind] = choice.NextLevel;
 
                     break;

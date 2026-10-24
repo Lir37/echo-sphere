@@ -5381,3 +5381,30 @@ provenance guards PASS. Added populated-modal and real reward-set-detail Editor
 checks; containing-commit CI must be green. Remaining: actual upgrade/reward/
 lock/reroll outcomes, complete live combat/effect/control and device/performance
 acceptance. No current FPS/GC before/after samples, no APK; P1/P2 acceptance OPEN.
+
+2026-10-24 command application acceptance: found a source-proven handler gap.
+Native cards can represent Resonance, CritPower, ProjectileSpeed (proj_speed)
+and Fortune, but ChooseUpgrade consumed those choices without assigning their
+level. src/engineProgression.ts applyUpgrade stores the level for any ability.
+Actual PickNativeUpgrade reproduced 28/28 missing increments (levels 0->1 through
+6->7 for all four kinds). Added only the four missing passive switch labels;
+the same 28 actual Editor command cases now PASS, with dictionaries/flags restored.
+Routine Level-Up deliberately excludes passivePool in both original and Unity.
+This change does not add passive offers, alter RNG/pool weights or implement
+bonus formulas merely promised by metadata. In particular no projectile-speed,
+critical-power or Fortune effect was invented; existing source behavior remains.
+Actual native command transaction also passed 33 checks: active Blast acquisition
+and hotkey; Sphere IV -> existing branch decision and mutation count; Lock token
+and locked identity; Reroll token and preserved lock; denied reroll consumes no
+RNG; common crystal_speed reward acquisition/consumption; duplicate and unknown
+reward rejection. No simulation frame advanced. Scalars, mutable collections and
+exact run RNG state restored in finally. Common-reward fixture was checked not
+to complete any protocol, so no discovery/preference save was invoked. These are
+actual production native command calls, not full pointer/combat/device acceptance.
+Unity 6000.3.24f1 compile and Android player/editor semantic typechecks:
+0 errors/warnings; Unity LogEntries after commands 0 errors/0 warnings; 272 Node
+tests and preflight/provenance PASS. Added reusable upgrade/application command
+checks. Play stopped, user project/quality/recovery edits preserved. Containing-
+commit CI must pass. Remaining acceptance: complete live combat/control/effect
+flows and character/evolution combinations, plus Android/device performance.
+No measured FPS/GC changes, no APK; P1/P2 acceptance remains OPEN.
