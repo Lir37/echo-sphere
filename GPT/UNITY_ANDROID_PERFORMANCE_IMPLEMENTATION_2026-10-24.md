@@ -334,3 +334,13 @@ The Java Intent.removeExtra signature was checked against local android.jar
 (void) and the diagnostic call corrected before the next attempt. Additional
 opt-in telemetry covers texture images, panel scale and backdrop sigma/density;
 the replay holds screen-on only while active and restores its prior timeout.
+
+## Follow-up: actual replay and native scene rebuild
+
+The corrected de16e653 replay subsequently ran on Xiaomi 11T/Vulkan: stage 0
+6 frames / 23.316 s and stage 1 4 frames / 21.443 s, with large live UI filter
+targets. Kernel weight caching did not resolve the stall. No unsolicited region
+route transition was captured. User chose a parallel native presentation rebuild
+and Android Emulator workflow. The current architecture, exact GPU fixtures,
+scene-owned bindings and separate emulator results are tracked in
+UNITY_NATIVE_REBUILD_2026-10-25.md. Neither performance nor P1/P2 is marked DONE.

@@ -17,6 +17,7 @@ namespace EchoSphere.Presentation
         internal static bool Active {get;private set;}
         private int _phase,_startFrame,_sleepTimeout;private double _started,_stageStarted;
         private long _gcTotal,_gcPeak;private int _samples;
+        private long _brushStart,_blurReadsStart;
         private ProfilerRecorder _gc,_textures,_textureBytes,_draws;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void StartRequestedReplay()
@@ -25,10 +26,12 @@ namespace EchoSphere.Presentation
             using var player=new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             using var activity=player.GetStatic<AndroidJavaObject>("currentActivity");
             using var intent=activity.Call<AndroidJavaObject>("getIntent");
-            if(intent.Call<string>("getStringExtra","echo_diagnostic_replay")!="tutorial")return;
+            string request=intent.Call<string>("getStringExtra","echo_diagnostic_replay");
+            if(request!="tutorial"&&request!="tutorial-baseline")return;
             intent.Call("removeExtra","echo_diagnostic_replay");
             if(PlayerPrefs.HasKey("echosphere_active_run_v1")){Debug.Log("[EchoSphere.Replay] blocked: existing saved run");return;}
             if(PlayerPrefs.GetInt("echosphere_tutorial_completed_v1",0)!=0){Debug.Log("[EchoSphere.Replay] blocked: tutorial already completed");return;}
+            NativeBattleSceneRoot.PrototypeForDiagnosticReplay=request=="tutorial-baseline";
             var owner=new GameObject("Explicit native device replay");DontDestroyOnLoad(owner);owner.AddComponent<NativeDeviceReplay>();
         }
         private void Awake()
@@ -39,7 +42,7 @@ namespace EchoSphere.Presentation
             var handles=new List<ProfilerRecorderHandle>();ProfilerRecorderHandle.GetAvailable(handles);
             _gc=Counter(handles,"GC Allocated In Frame");_textures=Counter(handles,"Render Textures Count");
             _textureBytes=Counter(handles,"Render Textures Bytes");_draws=Counter(handles,"Draw Calls Count");
-            Debug.Log("[EchoSphere.Replay] start api="+SystemInfo.graphicsDeviceType+" version="+SystemInfo.graphicsDeviceVersion);
+            Debug.Log("[EchoSphere.Replay] start route="+(NativeBattleSceneRoot.PrototypeForDiagnosticReplay?"prototype":"native-scene")+" api="+SystemInfo.graphicsDeviceType+" version="+SystemInfo.graphicsDeviceVersion);
         }
         private static ProfilerRecorder Counter(List<ProfilerRecorderHandle> handles,string name)
         {
@@ -59,13 +62,13 @@ namespace EchoSphere.Presentation
             if(_phase==3&&Submit("tutorial-next")){BeginStage(now);_phase=4;return;}
             Finish("complete");
         }
-        private void BeginStage(double now){_stageStarted=now;_startFrame=Time.frameCount;_gcTotal=0;_gcPeak=0;_samples=0;}
+        private void BeginStage(double now){_stageStarted=now;_startFrame=Time.frameCount;_gcTotal=0;_gcPeak=0;_samples=0;_brushStart=NativeMenuBrush.DiagnosticRenders;_blurReadsStart=NativeMenuBrush.DiagnosticBlurReads;}
         private void Report(string stage,double now)
         {
             double elapsed=now-_stageStarted;
             Debug.Log("[EchoSphere.Replay] stage="+stage+" frames="+(Time.frameCount-_startFrame)+" elapsed="+elapsed.ToString("F3",CultureInfo.InvariantCulture)+
                 " gcCounter="+_gc.Valid+" gcMean="+(_samples==0?0:_gcTotal/_samples)+" gcPeak="+_gcPeak+
-                " rtCounter="+_textures.Valid+" rtCount="+(_textures.Valid?_textures.LastValue:-1)+" rtBytes="+(_textureBytes.Valid?_textureBytes.LastValue:-1)+" draws="+(_draws.Valid?_draws.LastValue:-1));
+                " rtCounter="+_textures.Valid+" rtCount="+(_textures.Valid?_textures.LastValue:-1)+" rtBytes="+(_textureBytes.Valid?_textureBytes.LastValue:-1)+" draws="+(_draws.Valid?_draws.LastValue:-1)+" brushRenders="+(NativeMenuBrush.DiagnosticRenders-_brushStart)+" brushBlurReads="+(NativeMenuBrush.DiagnosticBlurReads-_blurReadsStart));
             DumpTextures(stage);
         }
         private static void DumpTextures(string stage)

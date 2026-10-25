@@ -20,18 +20,20 @@ namespace EchoSphere.Presentation
         private readonly Func<VisualElement,Action<MeshGenerationContext>> _paint;
         private readonly SourceUiReplicaSnapshotCache _snapshots;
         private bool _disposed;
-        private readonly bool _retainLayout;private ulong _revision;
+        private readonly bool _retainLayout,_boundReplica;private ulong _revision;
         internal int LayoutPrepareCount {get;private set;}
         internal int DynamicRepaintCount {get;private set;}
 #if UNITY_EDITOR
         internal bool DisableLayoutCacheForValidation=false;
 #endif
         internal NativeUiBackdropRegistry(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,bool retainLayout=false)
-        {_paint=paint;_snapshots=snapshots;_retainLayout=retainLayout;}
+            :this(paint,snapshots,retainLayout,false){}
+        internal NativeUiBackdropRegistry(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,bool retainLayout,bool boundReplica)
+        {_paint=paint;_snapshots=snapshots;_retainLayout=retainLayout;_boundReplica=boundReplica;}
         public IDisposable RegisterNativeBackdrop(VisualElement element,float sigma)
         {
             if(_disposed)throw new ObjectDisposedException(nameof(NativeUiBackdropRegistry));if(_bindings.ContainsKey(element))throw new InvalidOperationException("Native backdrop already registered");
-            var binding=new Binding {Owner=this,Element=element,Sigma=sigma,Backdrop=new SourceUiBackdrop(element,context=>{},_paint,_snapshots)};_bindings.Add(element,binding);_revision++;return binding;
+            var binding=new Binding {Owner=this,Element=element,Sigma=sigma,Backdrop=new SourceUiBackdrop(element,context=>{},_paint,_snapshots,_boundReplica)};_bindings.Add(element,binding);_revision++;return binding;
         }
         internal bool Contains(VisualElement element)=>_bindings.ContainsKey(element);
         internal void Prepare(VisualElement element,VisualElement prefixRoot,float scale=1)

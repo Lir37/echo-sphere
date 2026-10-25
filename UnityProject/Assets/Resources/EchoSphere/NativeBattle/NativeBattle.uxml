@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="NativeBattle.uss" />
+    <ui:VisualElement name="native-run-root" class="native-battle-root" picking-mode="Ignore">
+        <ui:Image name="native-world-field" picking-mode="Ignore" />
+        <ui:VisualElement name="native-field-vignette" picking-mode="Ignore" />
+        <ui:VisualElement name="native-hud-left-anchor" picking-mode="Ignore" />
+        <ui:VisualElement name="native-hud-right-anchor" picking-mode="Ignore" />
+        <ui:VisualElement name="native-combo" picking-mode="Ignore" />
+        <ui:VisualElement name="native-pause-overlay" />
+        <ui:VisualElement name="native-result-host" />
+        <ui:VisualElement name="native-upgrade-host" />
+        <ui:VisualElement name="native-rewards-host" />
+        <ui:VisualElement name="native-tutorial-host" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

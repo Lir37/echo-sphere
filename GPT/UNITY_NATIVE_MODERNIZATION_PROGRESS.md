@@ -1836,3 +1836,11 @@ Replay build completed (CLI timeout was recorded separately from successful
 native build); phone was Dozing and paused before first render. No metrics yet.
 Corrected the verified void Android Intent API call; expanded opt-in texture/
 panel/kernel telemetry and temporary screen-on with timeout restoration.
+
+2026-10-25 architecture decision: user approved a parallel native Unity
+presentation rebuild while retaining the verified game core. The de16e653
+phone replay did run: tutorial remained at multi-second frames; CPU Gaussian
+weight reuse did not resolve the stalls. See UNITY_NATIVE_REBUILD_2026-10-25.md
+for actual phone counters, new scene/UXML/scene-owned presentation bindings,
+bounded bitmap/flat-background filter geometry and emulator evidence.
+Prototype/default entry remains available. No full migration or 60 FPS claim.

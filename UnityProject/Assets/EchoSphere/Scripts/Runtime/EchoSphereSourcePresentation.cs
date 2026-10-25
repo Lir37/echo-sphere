@@ -182,7 +182,8 @@ namespace EchoSphere.Runtime
             TraceNativeRoute("state");
             if(nativeHome||nativeProgression||nativeSettings||nativeRegions||nativeCharacters||nativeArchive)return;
             if(_worldSurface==null) {
-                _worldSurface=new GameObject("Native world compositor").AddComponent<NativeWorldSurface>();_worldSurface.Initialize();
+                var nativeScene=NativeBattleSceneRoot.Find(gameObject.scene);
+                _worldSurface=nativeScene!=null?nativeScene.World:new GameObject("Native world compositor").AddComponent<NativeWorldSurface>();_worldSurface.Initialize();
                 // The native world is consumed as a UI texture. Culling the
                 // unused scene presentation avoids scanning every Renderer on
                 // every frame and also covers newly spawned legacy objects.

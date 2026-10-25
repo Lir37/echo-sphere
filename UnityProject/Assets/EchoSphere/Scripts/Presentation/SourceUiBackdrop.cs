@@ -29,7 +29,7 @@ namespace EchoSphere.Presentation
         internal VisualElement Foreground=>_foreground;
         internal void SetVisible(bool visible){_clip.style.visibility=visible?Visibility.Visible:Visibility.Hidden;_foreground.style.visibility=visible?Visibility.Visible:Visibility.Hidden;}
         internal void RepaintDynamic(){if(_normalPaint!=null)_foreground.MarkDirtyRepaint();_replica.RepaintDynamic();}
-        internal SourceUiBackdrop(VisualElement original,Action<MeshGenerationContext> paint,Func<VisualElement,Action<MeshGenerationContext>> replicaPaint,SourceUiReplicaSnapshotCache snapshots)
+        internal SourceUiBackdrop(VisualElement original,Action<MeshGenerationContext> paint,Func<VisualElement,Action<MeshGenerationContext>> replicaPaint,SourceUiReplicaSnapshotCache snapshots,bool boundReplica=false)
         {
             _original=original;_normalPaint=original.generateVisualContent;
             _clip=Box();_clip.name="Source backdrop border clip";_clip.userData=new ClipTag {Owner=original};_clip.style.overflow=Overflow.Hidden;
@@ -44,7 +44,7 @@ namespace EchoSphere.Presentation
             // filter group. Absolute helper children never participate in Yoga.
             original.generateVisualContent=null;
             original.hierarchy.Insert(0,_clip);original.hierarchy.Insert(1,_foreground);
-            _replica=new SourceUiReplica(replicaPaint,snapshots);
+            _replica=new SourceUiReplica(replicaPaint,snapshots,boundReplica);
             _material=new Material(Resources.Load<Shader>("EchoSphere/SourceUiBackdrop"));
             _definition=ScriptableObject.CreateInstance<FilterFunctionDefinition>();_definition.name=_definition.filterName="source-backdrop-blur";
             _definition.parameters=new[]{new FilterParameterDeclaration {name="sigma",interpolationDefaultValue=new FilterParameter(0f)}};

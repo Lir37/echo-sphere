@@ -7,7 +7,7 @@ namespace EchoSphere.Presentation
 {
     // Retained run hierarchy. The simulation and existing native presenters own
     // state/actions; this document owns geometry, paint order and blur prefixes.
-    public sealed class NativeRunDocument : MonoBehaviour, INativeUiBackdrops
+    public class NativeRunDocument : MonoBehaviour, INativeUiBackdrops
     {
         private UIDocument _document; private PanelSettings _panel;
         private readonly SourceUiReplicaSnapshotCache _snapshots = new SourceUiReplicaSnapshotCache();
@@ -23,9 +23,11 @@ namespace EchoSphere.Presentation
         internal VisualElement ControlsParent => _root;
         internal VisualElement ControlsPredecessor {get;private set;}
         internal VisualElement Field => _field;
+        protected virtual VisualTreeAsset SceneLayout => null;
+        protected virtual bool BoundBackdropGeometry => false;
         private static Color C(string s){ColorUtility.TryParseHtmlString(s,out var c);return c;}
         private static VisualElement Box(VisualElement p,string name,bool fill=false)
-        {var e=new VisualElement {name=name,pickingMode=PickingMode.Ignore};p.Add(e);if(fill)Fill(e);return e;}
+        {VisualElement e=null;for(int i=0;i<p.hierarchy.childCount;i++)if(p.hierarchy[i].name==name){e=p.hierarchy[i];break;}if(e==null){e=new VisualElement {name=name};p.Add(e);}e.pickingMode=PickingMode.Ignore;if(fill)Fill(e);return e;}
         private static void Fill(VisualElement e){e.style.position=Position.Absolute;e.style.left=e.style.right=e.style.top=e.style.bottom=0;}
         private void Paint(VisualElement e,NativeMenuBrush.Paint p)=>_paint.Add(new NativeHudSurface(e,p));
         public void Initialize(Action invalidate,Action closeDetail)
@@ -33,13 +35,17 @@ namespace EchoSphere.Presentation
             _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Native run panel";_panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.sortingOrder=1000;_panel.forceGammaRendering=true;
             _panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
             _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;
-            _root=_document.rootVisualElement;Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.style.backgroundColor=C("#02060d");
+            var layout=SceneLayout;if(layout!=null)_document.visualTreeAsset=layout;
+            _root=layout==null?_document.rootVisualElement:_document.rootVisualElement.Q<VisualElement>("native-run-root");
+            if(_root==null)throw new InvalidOperationException("Native battle layout is missing native-run-root");
+            Fill(_document.rootVisualElement);Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.style.backgroundColor=C("#02060d");
             _root.RegisterCallback<GeometryChangedEvent>(_=>invalidate());
             _root.style.color=C("#dcecff");_root.style.fontSize=16;
-            _backdrops=new NativeUiBackdropRegistry(ReplicaPaint,_snapshots,true);
-            _field=new Image {name="native-world-field",pickingMode=PickingMode.Ignore,scaleMode=ScaleMode.StretchToFill};
+            _backdrops=new NativeUiBackdropRegistry(ReplicaPaint,_snapshots,true,BoundBackdropGeometry);
+            _field=_root.Q<Image>("native-world-field")??new Image {name="native-world-field"};
+            _field.pickingMode=PickingMode.Ignore;_field.scaleMode=ScaleMode.StretchToFill;
             _field.style.width=Length.Percent(100);_field.style.height=Length.Percent(100);_field.style.maxWidth=1280;_field.style.maxHeight=800;_field.style.flexShrink=0;
-            _root.style.alignItems=Align.Center;_root.style.justifyContent=Justify.Center;_root.Add(_field);
+            _root.style.alignItems=Align.Center;_root.style.justifyContent=Justify.Center;if(_field.parent==null)_root.Add(_field);
             // Field color treatment is baked by NativeWorldSurface, outside UI filter targets.
             var vignette=Box(_root,"native-field-vignette",true);
             Paint(vignette,new NativeMenuBrush.Paint {Origin=new Vector2(.5f,.48f),Colors=new[]{Color.clear,new Color(0,0,0,.06f),new Color(0,0,0,.24f)},Stops=new[]{.48f,.72f,1f}});
@@ -112,6 +118,6 @@ namespace EchoSphere.Presentation
         }
         public IDisposable RegisterNativeBackdrop(VisualElement e,float sigma)=>_backdrops.RegisterNativeBackdrop(e,sigma);
         private static Action<MeshGenerationContext> ReplicaPaint(VisualElement source)=>source.userData is SourceUiReplica.PaintTag tag?tag.Paint:source is Image||source is TextElement?null:source.generateVisualContent;
-        private void OnDestroy(){foreach(var r in _registrations)r.Dispose();_backdrops?.Dispose();foreach(var p in _paint)p.Dispose();if(_panel!=null)Destroy(_panel);}
+        protected virtual void OnDestroy(){foreach(var r in _registrations)r.Dispose();_backdrops?.Dispose();foreach(var p in _paint)p.Dispose();if(_panel!=null)Destroy(_panel);}
     }
 }
