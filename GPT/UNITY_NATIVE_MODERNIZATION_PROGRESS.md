@@ -1858,3 +1858,8 @@ when opted in. It still uses a retained prefix bridge. Serialized scene flag is
 OFF pending GPU/alpha/order checks. Windows locked during attempted Editor test;
 user asked to unlock. Static checks pass; no new live performance claim.
 See UNITY_NATIVE_EFFECT_LAYERS_2026-10-25.md for scope and exact next validation.
+
+Checkpoint 9286cee102be83ca4ddea65d4744bd5f9f0c762e: CI #860 SUCCESS.
+339 runtime / 6 Editor C# files, all API configurations 0 errors / 0 warnings.
+Live GPU, Editor Play and Android acceptance for the new backend remain pending;
+the off-by-default gate is intentional until desktop unlock and visual validation.

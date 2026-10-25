@@ -39,7 +39,9 @@ Profiler markers: EchoSphere.UI.NativeEffectCapture / NativeEffectBlur.
 Static verification: game core 1383 assertions / 47389 TS-C# comparisons PASS;
 Node 272 PASS; project preflight PASS. Android player/editor API typechecks:
 339 runtime C# files and 6 Editor files, zero errors/warnings before final review;
-latest checkpoint typecheck result is recorded at cycle closure.
+final checkpoint typecheck also passed all three configurations with zero errors
+and zero warnings. Implementation 9286cee102be83ca4ddea65d4744bd5f9f0c762e:
+CI #860 SUCCESS, https://github.com/Lir37/echo-sphere/actions/runs/40222782599.
 All five original user render/Android settings file hashes remain unchanged.
 
 ## Blocking live verification
@@ -56,3 +58,8 @@ and translucent=true. Diagnose any gamma/alpha/pixel-phase discrepancy before
 enabling the scene flag. Verify dynamic text, ordered overlapping glass and
 resize/disposal, then actual battle/tutorial in Editor and the GLES emulator.
 Prior same-emulator ~0.8-0.9 FPS remains the baseline, not a new measurement.
+
+Short continuation: read the three GPT documents and this report. Native ROI
+capture/blur backend is implemented, flag OFF; code/API/contracts/CI pass.
+After unlocking Windows, finish Editor pixel/alpha/order validation, enable the
+experimental scene flag only on success, then test the same APK in the emulator.
