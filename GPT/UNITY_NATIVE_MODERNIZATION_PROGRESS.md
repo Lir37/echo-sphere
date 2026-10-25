@@ -1865,3 +1865,5 @@ Live GPU, Editor Play and Android acceptance for the new backend remain pending;
 the off-by-default gate is intentional until desktop unlock and visual validation.
 
 2026-10-26: scene-owned UIDocuments/panel templates for all seven screens; authored battle/settings and other menu shells; NativeWorldPresentation owns 16 world-view resource groups. Actual Editor pixel comparisons (density 1/2.75) exact for battle/settings fixtures; all menu transitions/picking and continued saved run pass. No performance work/claim. Full migration remains open: prefix/replica effect bridge and primary-entry retirement. See UNITY_NATIVE_SCENE_OWNERSHIP_2026-10-26.md.
+
+Ownership commit 734e2776bb123c271ca60fee810f763435f0cb52 passed CI #862. Authored tutorial UXML/USS also passes exact Editor pixel/layout comparisons, focus/choice-step Next lifecycle and both input actions. Separate Unity version decision pending for native backdropFilter; current engine remains 6000.3.24f1, capture bridge OFF, full migration NOT DONE.

@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="NativeTutorial.uss" />
+    <ui:VisualElement name="native-tutorial" class="tutorial-box tutorial-root" picking-mode="Ignore">
+        <ui:VisualElement name="tutorial-focus-glow" class="tutorial-box tutorial-focus" picking-mode="Ignore" />
+        <ui:Image name="tutorial-shade" class="tutorial-fill" picking-mode="Ignore" />
+        <ui:VisualElement name="tutorial-focus" class="tutorial-box tutorial-focus" picking-mode="Ignore" />
+        <ui:VisualElement name="tutorial-pulse-ring" class="tutorial-box tutorial-focus" picking-mode="Ignore" />
+        <ui:VisualElement name="tutorial-card" class="tutorial-box tutorial-card">
+            <ui:Label name="tutorial-step" class="tutorial-label tutorial-step" picking-mode="Ignore" enable-rich-text="false" />
+            <ui:Label name="tutorial-title" class="tutorial-label tutorial-title" picking-mode="Ignore" enable-rich-text="false" />
+            <ui:Label name="tutorial-body" class="tutorial-label tutorial-body" picking-mode="Ignore" enable-rich-text="false" />
+            <ui:VisualElement name="tutorial-status" class="tutorial-box tutorial-status" picking-mode="Ignore">
+                <ui:Label name="tutorial-status-text" class="tutorial-label tutorial-status-text" picking-mode="Ignore" enable-rich-text="false" />
+            </ui:VisualElement>
+            <ui:VisualElement name="tutorial-footer" class="tutorial-box tutorial-footer" picking-mode="Ignore">
+                <ui:Button name="tutorial-skip" class="tutorial-button tutorial-skip">
+                    <ui:Label name="tutorial-skip-text" class="tutorial-label tutorial-skip-text" picking-mode="Ignore" enable-rich-text="false" />
+                </ui:Button>
+                <ui:Button name="tutorial-next" class="tutorial-button tutorial-next">
+                    <ui:Label name="tutorial-next-text" class="tutorial-label tutorial-next-text" picking-mode="Ignore" enable-rich-text="false" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

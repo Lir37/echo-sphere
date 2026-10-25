@@ -27,25 +27,25 @@ namespace EchoSphere.Presentation
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         public NativeTutorialView(VisualElement parent,INativeUiBackdrops document,Action next,Action skip)
         {
-            _document=document;Root=Box(parent,"native-tutorial");Fill(Root);Root.style.opacity=0;
-            // CSS lists the huge black shadow above the cyan glow, then paints
-            // the border. Keep that order instead of brightening the glow.
-            _glow=Box(Root,"tutorial-focus-glow");_glow.style.position=Position.Absolute;_glowPaint=new NativeHudSurface(_glow,new NativeMenuBrush.Paint {Radius=12,OuterA=new NativeMenuBrush.Shadow(24,Vector2.zero,C("#39d8ff4d"))});
-            _shade=new Image {name="tutorial-shade",pickingMode=PickingMode.Ignore,scaleMode=ScaleMode.StretchToFill};Fill(_shade);Root.Add(_shade);
+            _document=document;
+            var layout=Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeTutorial")??throw new InvalidOperationException("Native tutorial UXML is missing");
+            layout.CloneTree(parent);Root=parent.Q<VisualElement>("native-tutorial");
+            T Require<T>(string name) where T:VisualElement=>Root.Q<T>(name)??throw new InvalidOperationException("Native tutorial layout is missing "+name);
+            _glow=Require<VisualElement>("tutorial-focus-glow");_glowPaint=new NativeHudSurface(_glow,new NativeMenuBrush.Paint {Radius=12,OuterA=new NativeMenuBrush.Shadow(24,Vector2.zero,C("#39d8ff4d"))});
+            _shade=Require<Image>("tutorial-shade");_shade.scaleMode=ScaleMode.StretchToFill;
             _shadeMaterial=new Material(Resources.Load<Shader>("EchoSphere/NativeTutorialShade")){name="Native tutorial spotlight",hideFlags=HideFlags.DontSave};
-            _focus=Box(Root,"tutorial-focus");_focus.style.position=Position.Absolute;
-            _focusPaint=new NativeHudSurface(_focus,new NativeMenuBrush.Paint {Radius=12,Border=2,BorderColor=C("#63e6ff")});
-            _ring=Box(Root,"tutorial-pulse-ring");_ring.style.position=Position.Absolute;_ringPaint=new NativeHudSurface(_ring,new NativeMenuBrush.Paint {Radius=12,Border=1,BorderColor=C("#dcecff4d")});
-            _card=Box(Root,"tutorial-card");_card.pickingMode=PickingMode.Position;_card.style.position=Position.Absolute;_card.style.paddingLeft=_card.style.paddingRight=_card.style.paddingTop=_card.style.paddingBottom=16;Border(_card,16,1);
-            _cardPaint=new NativeHudSurface(_card,new NativeMenuBrush.Paint {Radius=16,Border=1,BorderColor=C("#63e6ff4d"),Fill=C("#030a14f2"),OuterA=new NativeMenuBrush.Shadow(50,new Vector2(0,16),new Color(0,0,0,.55f))});
-            _kicker=Text(_card,"tutorial-step",9,"#63e6ff","900");_kicker.style.letterSpacing=22;
-            _title=Text(_card,"tutorial-title",18,"#dcecff","700",true,28d/18);_title.style.marginTop=4;
-            _body=Text(_card,"tutorial-body",12,"#a9c0d2","400",true,1.625);_body.style.marginTop=8;
-            _status=Box(_card,"tutorial-status");_status.style.marginTop=12;_status.style.paddingLeft=_status.style.paddingRight=12;_status.style.paddingTop=_status.style.paddingBottom=8;Border(_status,8,1);
-            _waiting=new NativeMenuBrush.Paint {Radius=8,Border=1,BorderColor=C("#243b55"),Fill=C("#09121f")};_success=new NativeMenuBrush.Paint {Radius=8,Border=1,BorderColor=C("#55e6c166"),Fill=C("#55e6c11a")};_upgrade=new NativeMenuBrush.Paint {Radius=8,Border=1,BorderColor=C("#b68cff4d"),Fill=C("#b68cff1a")};_statusPaint=new NativeHudSurface(_status,_waiting);_statusText=Text(_status,"tutorial-status-text",10,"#7089a0","700",true);
-            _footer=Box(_card,"tutorial-footer",true);_footer.style.justifyContent=Justify.SpaceBetween;_footer.style.alignItems=Align.Center;_footer.style.marginTop=16;
-            _skip=new Button(skip){name="tutorial-skip"};ButtonReset(_skip);_skip.style.paddingLeft=_skip.style.paddingRight=_skip.style.paddingTop=_skip.style.paddingBottom=8;_skip.style.borderTopLeftRadius=_skip.style.borderTopRightRadius=_skip.style.borderBottomLeftRadius=_skip.style.borderBottomRightRadius=8;_footer.Add(_skip);_skipText=Text(_skip,"tutorial-skip-text",9,"#718aa1","700");_skipText.style.letterSpacing=5;
-            _next=new Button(next){name="tutorial-next"};ButtonReset(_next);_next.style.marginLeft=8;_next.style.paddingLeft=_next.style.paddingRight=16;_next.style.paddingTop=_next.style.paddingBottom=10;Border(_next,12,1);_footer.Add(_next);_nextPaint=new NativeHudSurface(_next,new NativeMenuBrush.Paint {Radius=12,Border=1,BorderColor=C("#63e6ff66"),Fill=C("#63e6ff1a")});_nextText=Text(_next,"tutorial-next-text",10,"#dffaff","900");_nextText.style.letterSpacing=5;
+            _focus=Require<VisualElement>("tutorial-focus");_focusPaint=new NativeHudSurface(_focus,new NativeMenuBrush.Paint {Radius=12,Border=2,BorderColor=C("#63e6ff")});
+            _ring=Require<VisualElement>("tutorial-pulse-ring");_ringPaint=new NativeHudSurface(_ring,new NativeMenuBrush.Paint {Radius=12,Border=1,BorderColor=C("#dcecff4d")});
+            _card=Require<VisualElement>("tutorial-card");_cardPaint=new NativeHudSurface(_card,new NativeMenuBrush.Paint {Radius=16,Border=1,BorderColor=C("#63e6ff4d"),Fill=C("#030a14f2"),OuterA=new NativeMenuBrush.Shadow(50,new Vector2(0,16),new Color(0,0,0,.55f))});
+            _kicker=Require<Label>("tutorial-step");_title=Require<Label>("tutorial-title");_body=Require<Label>("tutorial-body");
+            NativePauseStatsView.ConfigureFont(_kicker,"900",1.5);NativePauseStatsView.ConfigureFont(_title,"700",28d/18);NativePauseStatsView.ConfigureFont(_body,"400",1.625);
+            _status=Require<VisualElement>("tutorial-status");
+            _waiting=new NativeMenuBrush.Paint {Radius=8,Border=1,BorderColor=C("#243b55"),Fill=C("#09121f")};_success=new NativeMenuBrush.Paint {Radius=8,Border=1,BorderColor=C("#55e6c166"),Fill=C("#55e6c11a")};_upgrade=new NativeMenuBrush.Paint {Radius=8,Border=1,BorderColor=C("#b68cff4d"),Fill=C("#b68cff1a")};_statusPaint=new NativeHudSurface(_status,_waiting);
+            _statusText=Require<Label>("tutorial-status-text");NativePauseStatsView.ConfigureFont(_statusText,"700",1.5);
+            _footer=Require<VisualElement>("tutorial-footer");_skip=Require<Button>("tutorial-skip");_next=Require<Button>("tutorial-next");_skip.clicked+=skip;_next.clicked+=next;
+            _skipText=Require<Label>("tutorial-skip-text");_nextText=Require<Label>("tutorial-next-text");
+            NativePauseStatsView.ConfigureFont(_skipText,"700",1.5);NativePauseStatsView.ConfigureFont(_nextText,"900",1.5);
+            _nextPaint=new NativeHudSurface(_next,new NativeMenuBrush.Paint {Radius=12,Border=1,BorderColor=C("#63e6ff66"),Fill=C("#63e6ff1a")});
             _backdrops.Add(document.RegisterNativeBackdrop(_skip,8));_nextBackdrop=document.RegisterNativeBackdrop(_next,8);
             var a=new Keyframe(0,0,0,0,1f/3,.4f){weightedMode=WeightedMode.Out};var b=new Keyframe(1,1,0,0,.4f,1f/3){weightedMode=WeightedMode.In};_pulse=new AnimationCurve(a,b);_createdFrame=Time.frameCount;
         }
@@ -86,12 +86,7 @@ namespace EchoSphere.Presentation
         }
         private void ReleaseShade(){if(_shadeTarget==null)return;_shade.image=null;_shadeTarget.Release();UnityEngine.Object.Destroy(_shadeTarget);_shadeTarget=null;}
         private static void Place(VisualElement e,Rect r){e.style.left=r.x;e.style.top=r.y;e.style.width=r.width;e.style.height=r.height;}
-        private static void Fill(VisualElement e){e.style.position=Position.Absolute;e.style.left=e.style.right=e.style.top=e.style.bottom=0;}
-        private static VisualElement Box(VisualElement parent,string name,bool row=false)=>NativePauseStatsView.Box(parent,name,row);
-        private static Label Text(VisualElement parent,string name,float size,string color,string weight="400",bool wrap=false,double line=1.5)=>NativePauseStatsView.Text(parent,name,size,color,weight,line,.192f,wrap);
         private static void Set(Label label,string value)=>NativePauseStatsView.Set(label,value);
-        private static void ButtonReset(Button b){b.style.marginLeft=b.style.marginRight=b.style.marginTop=b.style.marginBottom=0;b.style.backgroundColor=Color.clear;b.style.borderLeftWidth=b.style.borderRightWidth=b.style.borderTopWidth=b.style.borderBottomWidth=0;}
-        private static void Border(VisualElement e,float radius,float width){e.style.borderLeftWidth=e.style.borderRightWidth=e.style.borderTopWidth=e.style.borderBottomWidth=width;e.style.borderLeftColor=e.style.borderRightColor=e.style.borderTopColor=e.style.borderBottomColor=Color.clear;e.style.borderTopLeftRadius=e.style.borderTopRightRadius=e.style.borderBottomLeftRadius=e.style.borderBottomRightRadius=radius;}
         public void Dispose(){if(_disposed)return;_disposed=true;_nextBackdrop?.Dispose();foreach(var backdrop in _backdrops)backdrop.Dispose();_cardPaint.Dispose();_glowPaint.Dispose();_focusPaint.Dispose();_ringPaint.Dispose();_statusPaint.Dispose();_nextPaint.Dispose();ReleaseShade();UnityEngine.Object.Destroy(_shadeMaterial);Root.RemoveFromHierarchy();}
     }
 }

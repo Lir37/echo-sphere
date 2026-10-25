@@ -67,3 +67,29 @@ version, retaining visual/input behavior. Separate optimization stays deferred.
 Continue: finish replica-free producer/effect ownership and remaining modal/view
 authoring, validate behavior, then switch the primary entry and retire the bridge.
 P1/P2/full migration remain NOT DONE. CI result is recorded after publication.
+
+## Ownership checkpoint and authored tutorial
+
+Ownership implementation 734e2776bb123c271ca60fee810f763435f0cb52:
+CI #862 SUCCESS, https://github.com/Lir37/echo-sphere/actions/runs/40236238165.
+
+Tutorial fixed hierarchy, label geometry, footer and button styling now live in
+NativeTutorial.uxml/.uss. The existing state/actions, spotlight shader, animation
+curve, paint parameters and backdrop registrations remain unchanged. CloneTree
+loads directly into the authored host, preserving the stylesheet scope; no second
+control tree or input forwarding layer is introduced.
+
+Actual Editor paired-reference checks: density 1 without focus, density 2.75 with
+spotlight and step 4, then step 4 -> 0 restoring Next. Full nonempty render targets
+match at 0/255 with no named-node geometry differences. Next/Skip native picking
+and submissions both pass. Final Console 0 errors / 0 warnings; ten preferences
+restored and verified after Play; temporary reference/probe classes removed.
+These are presentation correctness checks, not performance measurements.
+
+A change of engine version is a separate user decision: current 6000.3.24f1 lacks
+backdropFilter; Unity 6000.6 documents a native URP screen-space implementation:
+https://docs.unity.com/en-us/engine/6000.6/manual/uitoolkits/uielements/uie-uss/uss-filter/backdrop-filter
+The user was asked whether to evaluate 6000.6.1f1 in a separate project copy.
+No engine upgrade, installation or change to ProjectVersion/packages was made.
+Without that decision, do not silently choose a new engine or declare the existing
+replica-based glass pipeline retired. The experimental camera bridge stays OFF.

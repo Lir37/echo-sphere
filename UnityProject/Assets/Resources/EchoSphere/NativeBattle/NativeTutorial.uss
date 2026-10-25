@@ -1,0 +1,17 @@
+.tutorial-box { flex-shrink: 0; min-width: 0; }
+.tutorial-fill, .tutorial-root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+.tutorial-root { opacity: 0; }
+.tutorial-focus { position: absolute; }
+.tutorial-card { position: absolute; padding: 16px; border-width: 1px; border-color: transparent; border-radius: 16px; }
+.tutorial-label { margin: 0; padding: 0; flex-shrink: 0; min-width: 0; white-space: nowrap; -unity-font-style: normal; }
+.tutorial-step { font-size: 9px; color: #63e6ff; letter-spacing: 22px; height: 13.5px; }
+.tutorial-title { font-size: 18px; color: #dcecff; letter-spacing: 1.0666667px; white-space: normal; margin-top: 4px; }
+.tutorial-body { font-size: 12px; color: #a9c0d2; letter-spacing: 1.6px; white-space: normal; margin-top: 8px; }
+.tutorial-status { margin-top: 12px; padding: 8px 12px; border-width: 1px; border-color: transparent; border-radius: 8px; }
+.tutorial-status-text { font-size: 10px; color: #7089a0; letter-spacing: 1.92px; white-space: normal; }
+.tutorial-footer { flex-direction: row; justify-content: space-between; align-items: center; margin-top: 16px; }
+.tutorial-button { margin: 0; background-color: transparent; border-width: 0; }
+.tutorial-skip { padding: 8px; border-radius: 8px; }
+.tutorial-skip-text { font-size: 9px; color: #718aa1; letter-spacing: 5px; height: 13.5px; }
+.tutorial-next { margin-left: 8px; padding: 10px 16px; border-width: 1px; border-color: transparent; border-radius: 12px; }
+.tutorial-next-text { font-size: 10px; color: #dffaff; letter-spacing: 5px; height: 15px; }

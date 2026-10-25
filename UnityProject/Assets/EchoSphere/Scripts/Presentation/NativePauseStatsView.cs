@@ -53,6 +53,10 @@ namespace EchoSphere.Presentation
             label.style.fontSize=size;label.style.color=C(color);label.style.letterSpacing=spacing*100/size;
             label.style.flexShrink=0;label.style.minWidth=0;label.style.whiteSpace=wrap?WhiteSpace.Normal:WhiteSpace.NoWrap;
             if(!wrap)label.style.height=(float)(size*line);
+            ConfigureFont(label,weight,line);
+        }
+        internal static void ConfigureFont(Label label,string weight,double line)
+        {
             var font=SourceUiTypography.Resolve(Family,weight,false,line);if(font!=null)label.style.unityFontDefinition=FontDefinition.FromSDFFont(font);label.style.unityFontStyleAndWeight=FontStyle.Normal;
         }
         internal static void Set(Label label,string value)
