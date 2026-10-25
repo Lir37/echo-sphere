@@ -93,3 +93,21 @@ The user was asked whether to evaluate 6000.6.1f1 in a separate project copy.
 No engine upgrade, installation or change to ProjectVersion/packages was made.
 Without that decision, do not silently choose a new engine or declare the existing
 replica-based glass pipeline retired. The experimental camera bridge stays OFF.
+
+## Published verification closure
+
+Tutorial implementation b556824f92ebfed20abafc1e406abb1b75f8871d:
+CI #863 SUCCESS, https://github.com/Lir37/echo-sphere/actions/runs/40236864927.
+Final retained C# sources: 342 runtime / 6 Editor; all three API configurations
+0 errors / 0 warnings. Editor recompile and Console ground truth clean; Play
+stopped. Original five user settings/render hashes match; protected new-desing
+remains 737ef2af4a877e0995db5f92331d536d2f29a934. Four earlier capture-candidate
+files remain uncommitted/off and were excluded from these published changes.
+
+Short continuation: unity-migration, implementation b556824f92ebfed20abafc1e406abb1b75f8871d,
+CI #863 SUCCESS. Read the three required GPT documents, this report and progress.
+Seven scene-owned documents/panel templates, 16 world-view resource groups and
+battle/menu/tutorial authored layouts are in place; Editor correctness passed.
+Finish replica-free glass and primary-entry retirement before separate performance
+work. Resolve the pending separate-copy Unity 6.6 evaluation decision; do not change
+the fixed 6.3 engine silently. Preserve user settings, saves, gameplay and quality.
