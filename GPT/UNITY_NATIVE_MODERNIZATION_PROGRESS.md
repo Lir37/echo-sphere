@@ -1844,3 +1844,10 @@ weight reuse did not resolve the stalls. See UNITY_NATIVE_REBUILD_2026-10-25.md
 for actual phone counters, new scene/UXML/scene-owned presentation bindings,
 bounded bitmap/flat-background filter geometry and emulator evidence.
 Prototype/default entry remains available. No full migration or 60 FPS claim.
+
+Implementation d0987c5d876a68b05c9c7ff87f28adb0c2b7fda6 passed CI #858 SUCCESS:
+https://github.com/Lir37/echo-sphere/actions/runs/40218102634
+Same-emulator final native/prototype replays both remain ~0.8-0.9 FPS. Scene
+ownership/UXML foundation is implemented, but the effect architecture/world
+submission still need replacement. The bounded-prefix candidate is not accepted
+as the stall fix. Final evidence and concise continuation are in the rebuild report.

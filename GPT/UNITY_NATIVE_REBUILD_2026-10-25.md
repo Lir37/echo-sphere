@@ -130,4 +130,12 @@ or the prefix-based filter architecture. Next substantial implementation:
 explicitly owned native capture/effect layers replacing per-button prefix/filter
 composition, then the remaining view groups. Preserve existing rendering as the
 reference until the replacement passes actual visual and interaction checks.
-CI for this implementation commit is pending publication/check below.
+Implementation d0987c5d876a68b05c9c7ff87f28adb0c2b7fda6: CI #858 SUCCESS.
+https://github.com/Lir37/echo-sphere/actions/runs/40218102634
+
+Continuation: unity-migration; read the three mandatory GPT documents, this
+report and UNITY_NATIVE_MODERNIZATION_PROGRESS.md. Parallel scene/UXML and
+serialized presentation bindings exist, prototype stays default. Same-emulator
+replay still ~0.8-0.9 FPS: the bounded-prefix candidate is not the stall fix.
+Continue with explicit native capture/effect-layer architecture, then world
+submission and remaining views; preserve core, saves, design and user settings.
