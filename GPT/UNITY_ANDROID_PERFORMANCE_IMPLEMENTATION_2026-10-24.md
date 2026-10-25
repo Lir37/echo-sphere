@@ -185,3 +185,41 @@ portrait loading and retained controls present, Console 0 errors / 0 warnings.
 Play stopped. Only pre-existing user settings/SVG metadata/recovery files remain
 uncommitted. The following documentation commit records this closure and requires
 its own CI; it does not add a device acceptance result.
+
+## First USB baseline and authorized diagnostic APK — 2026-10-25
+
+Xiaomi 11T / Android 14 connected through authorized ADB. Previous installed
+0.1.0 release IL2CPP ARM64 build predates this implementation. Its SurfaceFlinger
+presentation history contained 126 valid frames over 49.595 seconds, including
+menu/run transitions: 2.52 presented frames/s, p95 interval 1.720 s, maximum
+4.282 s. This is not a steady-combat Unity Profiler measurement. At the symptom
+capture, process PSS was 881,905 KiB, graphics accounting 559,896 KiB; a later
+sample fell to 740,842 / 409,888 KiB. No process restart was observed; the still
+capture showed combat, not the intermittent region overlay. The old build has
+no route journal. Missing Noto Color Emoji font warnings are present; they do
+not establish the cause of the stalls or region overlay.
+
+The user then explicitly authorized a new diagnostic APK and an in-place update.
+Built source HEAD: `f6bbafc6f91fb5e6d70fad0b4bea7872181be5f3` (CI #851 SUCCESS).
+Actual Editor BuildPipeline: Development, IL2CPP, existing ARM64 + ARMv7 targets;
+7m42s, SUCCESS, 0 errors / 4 warnings. APK size 104,368,757 bytes, SHA256:
+`7828532254235fd83fbd6de4bfee7719225158837d9d94e36d5f0cb6ef1e11cc`.
+Warnings: Pipeline runtime config absent (remote command pipeline disabled in
+Player), and SourceUiSurfaceFilters Blur potentially uninitialized on d3d11,
+gles3 and Vulkan. The shader already initializes its result; no speculative
+shader rewrite or suppression was made. Investigate with actual frame evidence.
+
+APK certificate matches the installed app and local debug key. `adb install -r`
+succeeded; no uninstall/data clear was performed. Original APK is retained on
+the laptop. Launch log confirms Development / ARM64 and actual EchoSphere.Route
+events. Unity Profiler connected through the observed app's ADB socket and
+received a 300-frame rolling capture; initial capture saved locally. Development
+profiling overhead prevents treating its FPS as release acceptance. Device logs,
+APK and profile are in the local temporary echo-device-build-f6bbafc6 directory;
+raw device telemetry is not published to GitHub.
+
+All five user render/settings files retained their pre-build SHA256. No gameplay,
+visual-quality or source changes were required for this build. Next: reproduce
+the same menu/tutorial symptoms on this installed build, correlate route events
+with CPU Timeline / GC / rendering evidence. No new-build FPS, GC or intermittent
+region cause is confirmed yet. P1/P2/device acceptance remain open.

@@ -1795,3 +1795,11 @@ Desktop implementation e91dfe377a44aeeac3246ab5ebc50b198b2c1f76:
 CI #850 SUCCESS (https://github.com/Lir37/echo-sphere/actions/runs/40137812178).
 Final GPU checks and fresh menu/character/mastery/back Play session: Console 0/0.
 Play stopped; no APK. Device/region-overlay acceptance remains open.
+
+2026-10-25 USB follow-up: user authorized diagnostic APK after the old release
+showed severe presentation stalls. Source f6bbafc6f91fb5e6d70fad0b4bea7872181be5f3
+built successfully (Development IL2CPP, 0 errors / 4 recorded warnings) and was
+installed with matching certificate via adb install -r. No data clear. Route
+events confirmed on the phone; Unity Profiler receives actual player frames.
+Settings hashes unchanged. New-build performance and region diagnosis remain
+pending reproduction. Details and APK hash are in the Android implementation report.
