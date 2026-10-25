@@ -1810,3 +1810,11 @@ route stayed false after the expected launch; intermittent graphics ghost is
 not proven. Safe background/save confirmed, temporary same-APK -force-gles
 comparison launched; awaiting user Continue/resume result. No project/API or
 quality setting was changed. Detailed timings/limits are in the Android report.
+
+GLES combat also stalled (typical sampled 1.45-1.78 s, peaks ~3 s); API switching
+does not resolve the issue. Captured video showed combat, not a region chooser.
+Implemented exact CPU kernel-weight reuse for the still-analytic native UI
+backdrop shader. Actual native UIR comparisons, sigma 2/6/12, had 0/255 pixel
+differences against the original branch; Android C# and gameplay checks passed.
+This is a shader-work reduction candidate, not phone acceptance. Installed
+f6bbafc6 APK predates it. See report; region cause and severe stalls remain open.

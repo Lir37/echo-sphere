@@ -252,3 +252,29 @@ No project graphics API list, effects, resolution or quality settings changed.
 Profiler reconnected and receives frames; user was asked to Continue/resume the
 same saved combat. GLES combat result is pending. Raw logs/profile/preferences
 remain local; no telemetry/preferences are committed.
+
+### GLES symptom captured and exact backdrop kernel reuse
+
+The symptom starts immediately on combat launch according to the user. GLES
+also stalled: most of the last 41 sampled main-thread frames took 1.45-1.78 s,
+with peaks ~3.02 s. WaitForPresent dominates; an async profiler screenshot
+readback added 1.465 s on one render-thread frame. This instrumentation overhead
+is not attributed to gameplay. A 12-second device recording had four presented
+images, all showing combat, with no region chooser visually captured. No repeated
+region route appeared after launch. API switching is not a fix. Captures saved;
+Frame Debugger disabled after inspection.
+
+Confirmed expensive code path: SourceUiBackdrop computed Gaussian exp() weights
+inside every pixel/tap. It now uses the existing bounded NativeGaussianWeights
+CPU cache for supported kernels (radius <512), uploaded in native filter
+property blocks. All taps, radius, normalization, mirror boundaries and color
+conversion remain unchanged. Unsupported kernels keep the analytic shader path.
+This reduces shader work; phone stalls/region symptom are NOT claimed fixed.
+
+Actual native UIR GPU probes, sigma 2/6/12, compared cached weights with the
+original analytic shader branch: seven phases each passed; full 140x80 filtered
+panel patches had 0/255 channel difference. Covered live textures, text/style/
+clip edits, off-region animation and owner removal. Shader messages: none.
+Android player/runtime/editor typechecks: 0 errors/warnings; gameplay contracts:
+1,383 assertions / 47,389 comparisons; Node: 272 passed. The installed f6bbafc6
+APK predates this candidate; an updated APK is needed for phone verification.

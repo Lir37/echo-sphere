@@ -20,6 +20,9 @@ namespace EchoSphere.Presentation
         private Rect _area;
         private Matrix4x4 _toPanel,_toScreen;
         private Vector2 _panelSize;
+#if UNITY_EDITOR
+        internal static bool DisableKernelCacheForValidation=false;
+#endif
         internal VisualElement Foreground=>_foreground;
         internal void SetVisible(bool visible){_clip.style.visibility=visible?Visibility.Visible:Visibility.Hidden;_foreground.style.visibility=visible?Visibility.Visible:Visibility.Hidden;}
         internal void RepaintDynamic(){if(_normalPaint!=null)_foreground.MarkDirtyRepaint();_replica.RepaintDynamic();}
@@ -81,7 +84,13 @@ namespace EchoSphere.Presentation
         {
             // Unity 6.3 does NOT apply parameterBindings when this callback is
             // present. Set sigma explicitly as well as the color/DPI context.
-            properties.SetFloat("_Sigma",context.filterFunction.GetParameter(0).floatValue);properties.SetFloat("_CssDpr",context.scaledPixelsPerPoint);properties.SetFloat("_CssReadsGamma",context.readsGamma?1f:0f);
+            float sigma=context.filterFunction.GetParameter(0).floatValue,density=context.scaledPixelsPerPoint;
+            properties.SetFloat("_Sigma",sigma);properties.SetFloat("_CssDpr",density);properties.SetFloat("_CssReadsGamma",context.readsGamma?1f:0f);
+            float kernelSigma=Mathf.Max(0,sigma*density);bool cached=NativeGaussianWeights.TryGet(kernelSigma,out var weights);
+#if UNITY_EDITOR
+            if(DisableKernelCacheForValidation)cached=false;
+#endif
+            properties.SetInt("_BackdropWeightCount",cached?Mathf.CeilToInt(4*kernelSigma)+1:0);if(cached)properties.SetVectorArray("_BackdropWeights",weights);
             properties.SetVector("_Roi",new Vector4(_area.x,_area.y,_area.width,_area.height));properties.SetVector("_PanelSize",new Vector4(_panelSize.x,_panelSize.y,0,0));
             properties.SetVector("_ToPanelX",new Vector4(_toPanel.m00,_toPanel.m01,_toPanel.m03,0));properties.SetVector("_ToPanelY",new Vector4(_toPanel.m10,_toPanel.m11,_toPanel.m13,0));
             properties.SetVector("_ToScreenX",new Vector4(_toScreen.m00,_toScreen.m01,_toScreen.m03,0));properties.SetVector("_ToScreenY",new Vector4(_toScreen.m10,_toScreen.m11,_toScreen.m13,0));

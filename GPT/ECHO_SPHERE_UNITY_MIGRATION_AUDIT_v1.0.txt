@@ -5768,3 +5768,10 @@ Vulkan Present waits and Native run panel UIElements.UpdateRenderData; not yet
 a fully isolated cause. Route state remains menu=False/region=False in combat.
 Same-APK transient GLES launch after verified background/save is awaiting user
 resume comparison. No project graphics API/effect/quality change; see report.
+
+GLES ALSO STALLS; API SWITCH IS NOT A FIX. Sampled combat frames ~1.5-3 s;
+screen recording shows combat, no repeated logical region route is observed.
+SourceUiBackdrop now reuses bounded CPU Gaussian weights instead of per-pixel
+exp() for supported kernels, preserving all taps/mirroring/color handling.
+Native UIR GPU sigma 2/6/12 tests match analytic reference at 0/255 channel error.
+C# and gameplay checks pass. Needs new-APK phone verification; not marked fixed.

@@ -7,6 +7,7 @@ Shader "EchoSphere/SourceUiBackdrop"
   #include "UnityCG.cginc"
   #include "UnityUIEFilter.cginc"
   sampler2D _MainTex;float4 _MainTex_ST,_MainTex_TexelSize;float _Sigma,_CssDpr,_CssReadsGamma;
+  float4 _BackdropWeights[128];int _BackdropWeightCount;
   float4 _Roi,_PanelSize,_ToPanelX,_ToPanelY,_ToScreenX,_ToScreenY;
   struct effectOutput {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;nointerpolation uint rectIndex:TEXCOORD1;float2 css:TEXCOORD2;};
   effectOutput effectVertex(FilterVertexInput v){effectOutput o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=TRANSFORM_TEX(v.uv,_MainTex);o.rectIndex=GetFilterRectIndex(v);o.css=_Roi.xy+v.vertex.xy;return o;}
@@ -35,7 +36,7 @@ Shader "EchoSphere/SourceUiBackdrop"
    else {
     int radius=(int)ceil(4*sigma);float normalization=1;result=Read(i.uv,rect,mirror,i.css);
     [loop]for(int offset=1;offset<=radius;offset++){
-     float weight=exp(-offset*(float)offset/(2*sigma*sigma));
+     float weight=_BackdropWeightCount>radius?_BackdropWeights[offset>>2][offset&3]:exp(-offset*(float)offset/(2*sigma*sigma));
      float2 delta=axis*_MainTex_TexelSize.xy*offset;
      float2 step=float2(axis.x,-axis.y)*offset/_CssDpr;
      result+=(Read(i.uv+delta,rect,mirror,i.css+step)+Read(i.uv-delta,rect,mirror,i.css-step))*weight;normalization+=2*weight;
