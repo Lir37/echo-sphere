@@ -5786,3 +5786,7 @@ Added explicit development-only Android replay instrumentation (one-shot intent,
 existing UI submit events, guards for saved run/tutorial completion). Reports
 timings/counters/live RTs for remaining stall isolation without manual repeats.
 No ordinary/release behavior, quality or gameplay rule changed; results pending.
+
+First replay build succeeded despite CLI wait timeout; Android Dozing prevented
+first rendering, so no device result yet. Diagnostic JNI void call corrected;
+expanded opt-in resource telemetry and scoped screen-on/restore for next replay.

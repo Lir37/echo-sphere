@@ -1831,3 +1831,8 @@ remaining stall isolation: existing UI submit events, no saved-run overwrite or
 tutorial reset, one-shot Android intent. Reports API/frame timing/GC/render
 counters and live RT sizes. Normal and release launches are unaffected. Actual
 phone execution results pending; details in Android implementation report.
+
+Replay build completed (CLI timeout was recorded separately from successful
+native build); phone was Dozing and paused before first render. No metrics yet.
+Corrected the verified void Android Intent API call; expanded opt-in texture/
+panel/kernel telemetry and temporary screen-on with timeout restoration.

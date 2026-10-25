@@ -20,6 +20,9 @@ namespace EchoSphere.Presentation
         private Rect _area;
         private Matrix4x4 _toPanel,_toScreen;
         private Vector2 _panelSize;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private Vector4 _reportedKernel=new Vector4(-1,-1,-1,-1);
+#endif
 #if UNITY_EDITOR
         internal static bool DisableKernelCacheForValidation=false;
 #endif
@@ -91,6 +94,10 @@ namespace EchoSphere.Presentation
             if(DisableKernelCacheForValidation)cached=false;
 #endif
             properties.SetInt("_BackdropWeightCount",cached?Mathf.CeilToInt(4*kernelSigma)+1:0);if(cached)properties.SetVectorArray("_BackdropWeights",weights);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var diagnostic=new Vector4(sigma,density,_area.width,_area.height);
+            if(NativeDeviceReplay.Active&&_reportedKernel!=diagnostic){_reportedKernel=diagnostic;Debug.Log("[EchoSphere.Replay] backdrop="+_original.name+" sigma="+sigma+" density="+density+" area="+_area.width+"x"+_area.height+" cached="+cached);}
+#endif
             properties.SetVector("_Roi",new Vector4(_area.x,_area.y,_area.width,_area.height));properties.SetVector("_PanelSize",new Vector4(_panelSize.x,_panelSize.y,0,0));
             properties.SetVector("_ToPanelX",new Vector4(_toPanel.m00,_toPanel.m01,_toPanel.m03,0));properties.SetVector("_ToPanelY",new Vector4(_toPanel.m10,_toPanel.m11,_toPanel.m13,0));
             properties.SetVector("_ToScreenX",new Vector4(_toScreen.m00,_toScreen.m01,_toScreen.m03,0));properties.SetVector("_ToScreenY",new Vector4(_toScreen.m10,_toScreen.m11,_toScreen.m13,0));

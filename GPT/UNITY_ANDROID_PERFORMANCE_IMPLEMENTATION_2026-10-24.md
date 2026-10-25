@@ -323,3 +323,14 @@ time/frames, available GC/render counters and largest live RenderTextures. It
 does not inject OS input, disable graphics or alter simulation. The purpose is
 to isolate the captured stalls without requesting more manual user replays.
 Phone execution/results will be recorded separately after the diagnostic build.
+
+Replay build 4a455e70: Editor reports Succeeded after 6m58s. Its single recorded
+error is the CLI request timing out at 300000ms while native compilation kept
+running; the warning is the missing optional Pipeline runtime config. APK
+signature verified; install -r preserved preferences byte-for-byte. Launch was
+immediately paused by Android because the phone was Dozing: no first render
+surface and no replay metrics. No performance result is inferred from that run.
+The Java Intent.removeExtra signature was checked against local android.jar
+(void) and the diagnostic call corrected before the next attempt. Additional
+opt-in telemetry covers texture images, panel scale and backdrop sigma/density;
+the replay holds screen-on only while active and restores its prior timeout.

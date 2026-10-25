@@ -14,7 +14,8 @@ namespace EchoSphere.Presentation
     // launch, release player, saved run or tutorial-completion flag is changed.
     public sealed class NativeDeviceReplay : MonoBehaviour
     {
-        private int _phase,_startFrame;private double _started,_stageStarted;
+        internal static bool Active {get;private set;}
+        private int _phase,_startFrame,_sleepTimeout;private double _started,_stageStarted;
         private long _gcTotal,_gcPeak;private int _samples;
         private ProfilerRecorder _gc,_textures,_textureBytes,_draws;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -25,13 +26,15 @@ namespace EchoSphere.Presentation
             using var activity=player.GetStatic<AndroidJavaObject>("currentActivity");
             using var intent=activity.Call<AndroidJavaObject>("getIntent");
             if(intent.Call<string>("getStringExtra","echo_diagnostic_replay")!="tutorial")return;
-            using(var consumed=intent.Call<AndroidJavaObject>("removeExtra","echo_diagnostic_replay")){}
+            intent.Call("removeExtra","echo_diagnostic_replay");
             if(PlayerPrefs.HasKey("echosphere_active_run_v1")){Debug.Log("[EchoSphere.Replay] blocked: existing saved run");return;}
             if(PlayerPrefs.GetInt("echosphere_tutorial_completed_v1",0)!=0){Debug.Log("[EchoSphere.Replay] blocked: tutorial already completed");return;}
             var owner=new GameObject("Explicit native device replay");DontDestroyOnLoad(owner);owner.AddComponent<NativeDeviceReplay>();
         }
         private void Awake()
         {
+            Active=true;
+            _sleepTimeout=Screen.sleepTimeout;Screen.sleepTimeout=SleepTimeout.NeverSleep;
             _started=Time.realtimeSinceStartupAsDouble;
             var handles=new List<ProfilerRecorderHandle>();ProfilerRecorderHandle.GetAvailable(handles);
             _gc=Counter(handles,"GC Allocated In Frame");_textures=Counter(handles,"Render Textures Count");
@@ -69,6 +72,9 @@ namespace EchoSphere.Presentation
         {
             var textures=Resources.FindObjectsOfTypeAll<RenderTexture>().Where(t=>t.IsCreated()).Select(t=>new {t.name,t.width,t.height,bytes=UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(t)}).OrderByDescending(t=>t.bytes).ToArray();
             Debug.Log("[EchoSphere.Replay] textures="+stage+" count="+textures.Length+" bytes="+textures.Sum(t=>t.bytes)+" largest=["+string.Join(";",textures.Take(12).Select(t=>t.name+":"+t.width+"x"+t.height+":"+t.bytes))+"]");
+            var images=Resources.FindObjectsOfTypeAll<Texture2D>().Select(t=>new {t.name,t.width,t.height,bytes=UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(t)}).OrderByDescending(t=>t.bytes).ToArray();
+            Debug.Log("[EchoSphere.Replay] images="+stage+" count="+images.Length+" bytes="+images.Sum(t=>t.bytes)+" largest=["+string.Join(";",images.Take(8).Select(t=>t.name+":"+t.width+"x"+t.height+":"+t.bytes))+"]");
+            foreach(var d in UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None))if(d.rootVisualElement.style.visibility!=Visibility.Hidden&&d.rootVisualElement.style.opacity.value>0)Debug.Log("[EchoSphere.Replay] panel="+d.name+" scale="+d.panelSettings.scale+" bounds="+d.rootVisualElement.worldBound);
         }
         private static Button Find(string name)
         {
@@ -89,7 +95,8 @@ namespace EchoSphere.Presentation
             Debug.Log("[EchoSphere.Replay] submit="+name+" frame="+Time.frameCount);return true;
         }
         private void Finish(string reason){Debug.Log("[EchoSphere.Replay] "+reason);Destroy(gameObject);}
-        private void OnDestroy(){_gc.Dispose();_textures.Dispose();_textureBytes.Dispose();_draws.Dispose();}
+        private void OnApplicationPause(bool paused){if(paused)Finish("backgrounded");}
+        private void OnDestroy(){Active=false;Screen.sleepTimeout=_sleepTimeout;_gc.Dispose();_textures.Dispose();_textureBytes.Dispose();_draws.Dispose();}
     }
 }
 #endif
