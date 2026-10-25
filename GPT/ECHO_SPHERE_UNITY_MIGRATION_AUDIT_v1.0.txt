@@ -5781,3 +5781,8 @@ Updated diagnostic APK built SUCCESS and installed after the user's complete
 startup recording. Prefs byte-identical across install; settings unchanged.
 Prior f6bbafc6 startup video/log confirms tutorial stalls (10 frames / 34.145 s);
 no repeated region chooser in recorded combat. Candidate performance unverified.
+
+Added explicit development-only Android replay instrumentation (one-shot intent,
+existing UI submit events, guards for saved run/tutorial completion). Reports
+timings/counters/live RTs for remaining stall isolation without manual repeats.
+No ordinary/release behavior, quality or gameplay rule changed; results pending.

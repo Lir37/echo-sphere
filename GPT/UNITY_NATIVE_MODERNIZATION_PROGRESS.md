@@ -1825,3 +1825,9 @@ Prefs before/after update are byte-identical; render settings hashes unchanged.
 Full startup video/log of the prior installed f6bbafc6 captured severe tutorial
 stalls (10 frames / 34.145 s); recorded combat did not show the region chooser.
 No candidate phone improvement is claimed; no additional replay requested.
+
+Development-only, opt-in device replay instrumentation added for
+remaining stall isolation: existing UI submit events, no saved-run overwrite or
+tutorial reset, one-shot Android intent. Reports API/frame timing/GC/render
+counters and live RT sizes. Normal and release launches are unaffected. Actual
+phone execution results pending; details in Android implementation report.

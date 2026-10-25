@@ -310,3 +310,16 @@ requested or performed, and no candidate phone performance improvement is
 claimed. Installed app now contains 1db832f1; pending phone acceptance must not
 be confused with the preceding f6bbafc6 recordings. No permanent GLES setting
 was introduced. Raw logs, video, profiles and preference backups remain local.
+
+## Explicit development replay for further isolation
+
+Added NativeDeviceReplay, compiled only for Editor/development and activated on
+Android only by the one-shot intent extra echo_diagnostic_replay=tutorial.
+Ordinary launches remain unchanged. It refuses an existing saved run or already
+completed tutorial, and never resets progress/completion flags. It submits the
+same existing NavigationSubmit events as the Editor checks: map, stabilization,
+then one tutorial Next after a timed observation. It reports actual API, wall
+time/frames, available GC/render counters and largest live RenderTextures. It
+does not inject OS input, disable graphics or alter simulation. The purpose is
+to isolate the captured stalls without requesting more manual user replays.
+Phone execution/results will be recorded separately after the diagnostic build.
