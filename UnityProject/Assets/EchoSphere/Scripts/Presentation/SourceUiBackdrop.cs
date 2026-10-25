@@ -116,7 +116,7 @@ namespace EchoSphere.Presentation
             style.minWidth=0;style.minHeight=0;style.maxWidth=StyleKeyword.None;style.maxHeight=StyleKeyword.None;style.aspectRatio=StyleKeyword.Auto;style.flexShrink=0;
             style.marginLeft=style.marginRight=style.marginTop=style.marginBottom=0;
         }
-        private static void SetMatrix(VisualElement first,VisualElement second,Matrix4x4 matrix)
+        internal static void SetMatrix(VisualElement first,VisualElement second,Matrix4x4 matrix)
         {
             var parts=VisualBackdrop.Decompose(matrix.m00,matrix.m10,matrix.m01,matrix.m11);
             first.style.translate=new Translate(matrix.m03,matrix.m13);first.style.transformOrigin=new TransformOrigin(0,0);first.style.rotate=new Rotate((float)(parts.First*Mathf.Rad2Deg));first.style.scale=new Scale(new Vector3((float)parts.X,(float)parts.Y,1));

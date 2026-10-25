@@ -25,6 +25,7 @@ namespace EchoSphere.Presentation
         internal VisualElement Field => _field;
         protected virtual VisualTreeAsset SceneLayout => null;
         protected virtual bool BoundBackdropGeometry => false;
+        protected virtual bool ExplicitBackdropLayers => false;
         private static Color C(string s){ColorUtility.TryParseHtmlString(s,out var c);return c;}
         private static VisualElement Box(VisualElement p,string name,bool fill=false)
         {VisualElement e=null;for(int i=0;i<p.hierarchy.childCount;i++)if(p.hierarchy[i].name==name){e=p.hierarchy[i];break;}if(e==null){e=new VisualElement {name=name};p.Add(e);}e.pickingMode=PickingMode.Ignore;if(fill)Fill(e);return e;}
@@ -41,7 +42,7 @@ namespace EchoSphere.Presentation
             Fill(_document.rootVisualElement);Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.style.backgroundColor=C("#02060d");
             _root.RegisterCallback<GeometryChangedEvent>(_=>invalidate());
             _root.style.color=C("#dcecff");_root.style.fontSize=16;
-            _backdrops=new NativeUiBackdropRegistry(ReplicaPaint,_snapshots,true,BoundBackdropGeometry);
+            _backdrops=new NativeUiBackdropRegistry(ReplicaPaint,_snapshots,true,BoundBackdropGeometry,ExplicitBackdropLayers,transform);
             _field=_root.Q<Image>("native-world-field")??new Image {name="native-world-field"};
             _field.pickingMode=PickingMode.Ignore;_field.scaleMode=ScaleMode.StretchToFill;
             _field.style.width=Length.Percent(100);_field.style.height=Length.Percent(100);_field.style.maxWidth=1280;_field.style.maxHeight=800;_field.style.flexShrink=0;
@@ -102,6 +103,7 @@ namespace EchoSphere.Presentation
         }
         internal void End(float dpr)
         {
+            _backdrops.BeginFrame();
             foreach(var p in _paint)p.Prepare(dpr);
             void Visit(VisualElement e){if(e.style.visibility==Visibility.Hidden||e.resolvedStyle.display==DisplayStyle.None)return;if(_backdrops.Contains(e)){var prefix=_root;for(var p=e.parent;p!=null;p=p.parent)if(p==_pause||p==_rewards){prefix=p;break;}_backdrops.Prepare(e,prefix,dpr);}for(int i=0;i<e.hierarchy.childCount;i++){var c=e.hierarchy[i];if(c.userData==SourceUiBackdrop.ReplicaTag||c.userData is SourceUiBackdrop.ClipTag)continue;Visit(c);}}
             _snapshots.Begin();try{Visit(_root);}finally{_snapshots.End();}
@@ -110,7 +112,7 @@ namespace EchoSphere.Presentation
         {if(content.parent==_shell)content.PlaceInFront(_highlight);}
         internal void Hide()
         {
-            if(!_visible)return;_visible=false;
+            if(!_visible)return;_visible=false;_backdrops.BeginFrame();
             // Retain filter target ownership across menu/run transitions, as for
             // modal hosts. display:none invalidates Unity 6.3 filter texture IDs
             // still referenced by the retained render chain after a resize.

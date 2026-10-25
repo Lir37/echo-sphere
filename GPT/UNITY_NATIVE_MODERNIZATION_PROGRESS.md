@@ -1851,3 +1851,10 @@ Same-emulator final native/prototype replays both remain ~0.8-0.9 FPS. Scene
 ownership/UXML foundation is implemented, but the effect architecture/world
 submission still need replacement. The bounded-prefix candidate is not accepted
 as the stall fix. Final evidence and concise continuation are in the rebuild report.
+
+2026-10-25 next implementation: explicit native ROI capture/blur backend prepared,
+with ordered submission and owned buffers, replacing custom UIR filter passes
+when opted in. It still uses a retained prefix bridge. Serialized scene flag is
+OFF pending GPU/alpha/order checks. Windows locked during attempted Editor test;
+user asked to unlock. Static checks pass; no new live performance claim.
+See UNITY_NATIVE_EFFECT_LAYERS_2026-10-25.md for scope and exact next validation.

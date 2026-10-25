@@ -5806,3 +5806,10 @@ Fewer draws do NOT establish a frame-time fix. Prefix/filter architecture and
 world submission still require substantial work; P1/P2/rebuild NOT DONE.
 Details, separate counters, warnings and next stage:
 GPT/UNITY_NATIVE_REBUILD_2026-10-25.md.
+
+Next slice: explicit native ROI capture/blur backend implemented behind an OFF
+serialized scene flag. Owned capture/stencil/color targets and ordered native
+submission replace UIR custom filter passes when enabled; prefix replication is
+still a transitional bridge. Static checks pass. Windows locked during live
+verification; no accepted graphics result, new emulator timing or stall fix.
+Continue from GPT/UNITY_NATIVE_EFFECT_LAYERS_2026-10-25.md after desktop unlock.

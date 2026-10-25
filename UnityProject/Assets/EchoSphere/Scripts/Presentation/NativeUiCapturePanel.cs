@@ -15,7 +15,7 @@ namespace EchoSphere.Presentation
         private readonly PanelSettings _settings;
         private readonly UIDocument _document;
         private readonly Camera _camera;
-        private readonly Vector2 _size;
+        private Vector2 _size;
         private UIRenderer _renderer;
         private bool _disposed;
         public VisualElement Root => _document.rootVisualElement;
@@ -66,6 +66,13 @@ namespace EchoSphere.Presentation
                 if (_cameraOwner != null) _cameraOwner.SetActive(false);
                 UnityEngine.Object.Destroy(_owner); UnityEngine.Object.Destroy(_cameraOwner); UnityEngine.Object.Destroy(_settings); throw;
             }
+        }
+        public void Resize(Vector2 logicalSize)
+        {
+            if(_disposed)throw new ObjectDisposedException(nameof(NativeUiCapturePanel));
+            if(!float.IsFinite(logicalSize.x+logicalSize.y)||logicalSize.x<=0||logicalSize.y<=0)throw new ArgumentOutOfRangeException(nameof(logicalSize));
+            if(_size==logicalSize)return;_size=logicalSize;_document.worldSpaceSize=logicalSize;
+            Root.style.width=logicalSize.x;Root.style.height=logicalSize.y;
         }
         // Invoke after native text preparation, outside the URP render loop.
         // The tested compositor uses Application.onBeforeRender. Rectangular
