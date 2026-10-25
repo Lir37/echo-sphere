@@ -1803,3 +1803,10 @@ installed with matching certificate via adb install -r. No data clear. Route
 events confirmed on the phone; Unity Profiler receives actual player frames.
 Settings hashes unchanged. New-build performance and region diagnosis remain
 pending reproduction. Details and APK hash are in the Android implementation report.
+
+New diagnostic-build symptom reproduced: actual phone frames 2-5.4 s, Vulkan
+Present waits and UIElements.UpdateRenderData dominate sampled stalls. Region
+route stayed false after the expected launch; intermittent graphics ghost is
+not proven. Safe background/save confirmed, temporary same-APK -force-gles
+comparison launched; awaiting user Continue/resume result. No project/API or
+quality setting was changed. Detailed timings/limits are in the Android report.

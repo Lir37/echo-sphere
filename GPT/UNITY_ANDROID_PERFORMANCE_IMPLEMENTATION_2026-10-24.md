@@ -223,3 +223,32 @@ visual-quality or source changes were required for this build. Next: reproduce
 the same menu/tutorial symptoms on this installed build, correlate route events
 with CPU Timeline / GC / rendering evidence. No new-build FPS, GC or intermittent
 region cause is confirmed yet. P1/P2/device acceptance remain open.
+
+### New-build symptom captured, Vulkan comparison pending
+
+The user reproduced the symptom on the installed diagnostic APK. Actual phone
+Profiler samples were saved locally (symptom-phone.data, slow-frames.txt).
+Main-thread frames 1898-1905 ranged 2.001-5.423 seconds. In frame 1903,
+Gfx.WaitForPresentOnGfxThread was 5.394 s; the render thread had Vulkan Present
+3.359 s (pipeline threading means these durations must not be added). In frame
+1899, Native run panel / UIElements.UpdateRenderData was 4.292 s, with GC.Collect
+7.32 ms. These locate severe stalls in UI/render/presentation, not evidence that
+gameplay simulation or GC explains the multi-second frames. Direct GPU timing
+was unavailable (zero field means unavailable, not zero GPU cost).
+
+At capture, PSS 1,279,128 KiB and graphics accounting 882,436 KiB. This is a
+Development/profiling sample, not comparable release acceptance. After the
+expected one-time region launch/scene reload, route records remained menu=False,
+region=False on the same runtime/scene through the reported combat symptom;
+pause commands were observed. A still capture showed combat, not the region
+window. No repeated logical region transition is demonstrated in this capture;
+an intermittent graphics artifact remains a hypothesis, not a proven cause.
+
+For a same-APK API comparison, the app was backgrounded through the Home intent.
+Actual application-pause/blur events and an updated preference file confirmed
+the existing pause/save path; a local preference backup was taken. Then the app
+was relaunched with Unity's supported `unity=-force-gles` intent argument.
+No project graphics API list, effects, resolution or quality settings changed.
+Profiler reconnected and receives frames; user was asked to Continue/resume the
+same saved combat. GLES combat result is pending. Raw logs/profile/preferences
+remain local; no telemetry/preferences are committed.

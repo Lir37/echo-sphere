@@ -5762,3 +5762,9 @@ matching signature, adb install -r SUCCESS, no data clear. Route journal emits
 on phone; Unity Profiler receives frames over ADB. User settings hashes retained.
 Old release baseline had severe stalls; no new-build performance acceptance yet.
 Warnings, evidence limits and APK SHA256: Android implementation report.
+
+NEW-BUILD PHONE CAPTURE: severe 2-5.4 s frames observed. Sampled stalls contain
+Vulkan Present waits and Native run panel UIElements.UpdateRenderData; not yet
+a fully isolated cause. Route state remains menu=False/region=False in combat.
+Same-APK transient GLES launch after verified background/save is awaiting user
+resume comparison. No project graphics API/effect/quality change; see report.
