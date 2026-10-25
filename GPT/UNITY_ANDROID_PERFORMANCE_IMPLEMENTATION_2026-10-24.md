@@ -278,3 +278,35 @@ clip edits, off-region animation and owner removal. Shader messages: none.
 Android player/runtime/editor typechecks: 0 errors/warnings; gameplay contracts:
 1,383 assertions / 47,389 comparisons; Node: 272 passed. The installed f6bbafc6
 APK predates this candidate; an updated APK is needed for phone verification.
+
+### Full startup recording and candidate installation closure
+
+The user closed the app and performed a fresh launch/settings/tutorial reset,
+region launch and tutorial reproduction while screen video and a fresh Unity
+log were recorded. The user then said the recording was sufficient and that
+the tutorial itself was severely slow. Both files were saved locally. This full
+startup run was video/log capture, not a new full-session Profiler trace; earlier
+Vulkan/GLES profiler captures remain the measured CPU evidence.
+
+Route timestamps: tutorial state 0 at 10:05:15.089, frame 369; state 1 at
+10:05:49.234, frame 379. Thus only ten frames advanced during 34.145 seconds.
+The video confirms multi-second held frames and delayed card/control layout.
+Examined all recorded combat images from 62.07 through 162.80 seconds: tutorial
+steps 1/6 and 2/6 are visible, with no repeated full region chooser. Region=true
+occurs only before the expected launch/scene reload; combat retains menu=false,
+region=false. The earlier intermittent overlay is not declared fixed or fully
+diagnosed, but it was not reproduced visually in this complete recording.
+
+Kernel-cache implementation `1db832f1e930ee359ecea6248a0eaca0c96f87c7` passed
+Unity Migration Contracts **#854 SUCCESS**:
+https://github.com/Lir37/echo-sphere/actions/runs/40171347711
+Incremental Android Development build: SUCCESS, 1m42s, 0 errors / 4 known warnings.
+Candidate APK: 122,872,268 bytes; SHA256:
+`d86cb3765b84b0beb92c18daed066c844e4934d6f9e09cfefbbfd28d5b185192`.
+After the user's capture finished, signature was verified and adb install -r
+succeeded. Preference XML before/after update is byte-identical; all five user
+render/settings files retain their original hashes. No new combat replay was
+requested or performed, and no candidate phone performance improvement is
+claimed. Installed app now contains 1db832f1; pending phone acceptance must not
+be confused with the preceding f6bbafc6 recordings. No permanent GLES setting
+was introduced. Raw logs, video, profiles and preference backups remain local.

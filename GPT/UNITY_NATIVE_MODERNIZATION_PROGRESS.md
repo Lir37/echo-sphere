@@ -1818,3 +1818,10 @@ backdrop shader. Actual native UIR comparisons, sigma 2/6/12, had 0/255 pixel
 differences against the original branch; Android C# and gameplay checks passed.
 This is a shader-work reduction candidate, not phone acceptance. Installed
 f6bbafc6 APK predates it. See report; region cause and severe stalls remain open.
+
+Closure: 1db832f1e930ee359ecea6248a0eaca0c96f87c7 passed CI #854 SUCCESS;
+incremental diagnostic APK built and installed after the full user recording.
+Prefs before/after update are byte-identical; render settings hashes unchanged.
+Full startup video/log of the prior installed f6bbafc6 captured severe tutorial
+stalls (10 frames / 34.145 s); recorded combat did not show the region chooser.
+No candidate phone improvement is claimed; no additional replay requested.

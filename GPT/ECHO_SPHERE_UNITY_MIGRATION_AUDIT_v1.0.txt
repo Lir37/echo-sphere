@@ -5775,3 +5775,9 @@ SourceUiBackdrop now reuses bounded CPU Gaussian weights instead of per-pixel
 exp() for supported kernels, preserving all taps/mirroring/color handling.
 Native UIR GPU sigma 2/6/12 tests match analytic reference at 0/255 channel error.
 C# and gameplay checks pass. Needs new-APK phone verification; not marked fixed.
+
+Closure: source 1db832f1e930ee359ecea6248a0eaca0c96f87c7, CI #854 SUCCESS.
+Updated diagnostic APK built SUCCESS and installed after the user's complete
+startup recording. Prefs byte-identical across install; settings unchanged.
+Prior f6bbafc6 startup video/log confirms tutorial stalls (10 frames / 34.145 s);
+no repeated region chooser in recorded combat. Candidate performance unverified.
