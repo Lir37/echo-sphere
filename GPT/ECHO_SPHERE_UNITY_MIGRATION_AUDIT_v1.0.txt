@@ -5790,3 +5790,19 @@ No ordinary/release behavior, quality or gameplay rule changed; results pending.
 First replay build succeeded despite CLI wait timeout; Android Dozing prevented
 first rendering, so no device result yet. Diagnostic JNI void call corrected;
 expanded opt-in resource telemetry and scoped screen-on/restore for next replay.
+
+2026-10-25: corrected replay DID run on Xiaomi 11T/Vulkan at de16e653:
+tutorial-0 6 frames / 23.316 s; tutorial-1 4 frames / 21.443 s. CPU blur-weight
+caching did not resolve the stalls. No unsolicited region route was captured.
+
+User approved parallel native presentation rebuild retaining core/formulas/RNG,
+saves and visual design. Implementation d0987c5d876a68b05c9c7ff87f28adb0c2b7fda6
+passed CI #858 SUCCESS. New native battle scene has serialized world/UI bindings
+and UXML hosts; prototype remains default. Editor compile/continued-run Play and
+exact GPU fixtures passed. Original user preferences/settings preserved.
+Android 14 x86_64/WHPX emulator configured and final diagnostic APK checked:
+same-APK prototype/native tutorial replays both remain about 0.8-0.9 FPS.
+Fewer draws do NOT establish a frame-time fix. Prefix/filter architecture and
+world submission still require substantial work; P1/P2/rebuild NOT DONE.
+Details, separate counters, warnings and next stage:
+GPT/UNITY_NATIVE_REBUILD_2026-10-25.md.
