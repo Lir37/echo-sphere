@@ -1,15 +1,33 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <Style src="NativeBattle.uss" />
     <ui:VisualElement name="native-run-root" class="native-battle-root" picking-mode="Ignore">
-        <ui:Image name="native-world-field" picking-mode="Ignore" />
-        <ui:VisualElement name="native-field-vignette" picking-mode="Ignore" />
-        <ui:VisualElement name="native-hud-left-anchor" picking-mode="Ignore" />
-        <ui:VisualElement name="native-hud-right-anchor" picking-mode="Ignore" />
-        <ui:VisualElement name="native-combo" picking-mode="Ignore" />
-        <ui:VisualElement name="native-pause-overlay" />
-        <ui:VisualElement name="native-result-host" />
-        <ui:VisualElement name="native-upgrade-host" />
-        <ui:VisualElement name="native-rewards-host" />
-        <ui:VisualElement name="native-tutorial-host" picking-mode="Ignore" />
+        <ui:Image name="native-world-field" class="native-world-field" picking-mode="Ignore" />
+        <ui:VisualElement name="native-field-vignette" class="native-fill" picking-mode="Ignore" />
+        <ui:VisualElement name="native-hud-left-anchor" class="native-hud-anchor" picking-mode="Ignore" />
+        <ui:VisualElement name="native-hud-right-anchor" class="native-hud-anchor" picking-mode="Ignore" />
+        <ui:VisualElement name="native-combo" class="native-combo" picking-mode="Ignore">
+            <ui:Label name="combo-title" class="combo-title" picking-mode="Ignore" />
+            <ui:Label name="combo-multiplier" picking-mode="Ignore" />
+            <ui:VisualElement name="combo-track" class="combo-track" picking-mode="Ignore">
+                <ui:VisualElement name="combo-progress" class="combo-progress" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="native-pause-overlay" class="native-fill native-pause-overlay">
+            <ui:VisualElement name="native-pause-overlay-shade" class="native-fill pause-shade" picking-mode="Ignore" />
+            <ui:VisualElement name="native-pause-shell" class="native-pause-shell" picking-mode="Ignore">
+                <ui:VisualElement name="pause-shell-highlight" class="native-fill" picking-mode="Ignore" />
+                <ui:VisualElement name="native-pause-detail-host" class="native-fill native-pause-detail" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="native-result-host" class="native-fill">
+            <ui:VisualElement name="native-result-host-shade" class="native-fill result-shade" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="native-upgrade-host" class="native-fill">
+            <ui:VisualElement name="native-upgrade-host-shade" class="native-fill reward-shade" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="native-rewards-host" class="native-fill">
+            <ui:VisualElement name="native-rewards-host-shade" class="native-fill reward-shade" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="native-tutorial-host" class="native-fill" picking-mode="Ignore" />
     </ui:VisualElement>
 </ui:UXML>

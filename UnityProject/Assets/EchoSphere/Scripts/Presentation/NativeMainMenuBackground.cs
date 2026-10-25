@@ -29,7 +29,7 @@ namespace EchoSphere.Presentation
             _material=new Material(shader){name="Native menu background",hideFlags=HideFlags.DontSave};
             _image=new Image {name="native-menu-background-image",pickingMode=PickingMode.Ignore,scaleMode=ScaleMode.StretchToFill};
             _image.style.position=Position.Absolute;_image.style.left=_image.style.top=0;
-            parent.Add(_image);
+            parent.Insert(0,_image);
         }
 
         public void SetViewport(float width,float height,float dpr)

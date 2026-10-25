@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="NativeScreenShells.uss" />
+<ui:VisualElement name="native-character-page" class="screen-box character-page" picking-mode="Ignore">
+    <ui:VisualElement name="character-heading" class="screen-box character-heading" picking-mode="Ignore" />
+    <ui:VisualElement name="character-message" class="screen-box character-message" picking-mode="Ignore" />
+    <ui:ScrollView name="character-scroll" class="character-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden" />
+</ui:VisualElement>
+</ui:UXML>

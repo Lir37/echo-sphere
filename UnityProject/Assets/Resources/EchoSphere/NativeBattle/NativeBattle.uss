@@ -1,9 +1,55 @@
-.native-battle-root {
+.native-fill, .native-battle-root {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
+}
+.native-battle-root {
     margin: 0;
     padding: 0;
+    background-color: #02060d;
+    color: #dcecff;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
 }
+.native-world-field {
+    width: 100%;
+    height: 100%;
+    max-width: 1280px;
+    max-height: 800px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+.native-hud-anchor { position: absolute; }
+.native-combo {
+    position: absolute;
+    top: 64px;
+    left: 50%;
+    translate: -50% 0;
+    align-items: center;
+}
+.combo-title { -unity-text-align: middle-center; }
+.combo-track {
+    width: 96px;
+    height: 4px;
+    margin-top: 4px;
+    background-color: #243b55;
+    overflow: hidden;
+    border-radius: 999px;
+}
+.combo-progress { height: 100%; background-color: #ffb84d; }
+.native-pause-overlay { align-items: center; justify-content: center; }
+.pause-shade { background-color: rgba(1, 4, 10, 0.82); }
+.result-shade { background-color: rgba(0, 0, 0, 0.8); }
+.reward-shade { background-color: rgba(0, 0, 0, 0.7); }
+.native-pause-shell {
+    position: relative;
+    flex-shrink: 1;
+    overflow: hidden;
+    border-width: 1px;
+    border-color: transparent;
+    border-radius: 3px;
+}
+.native-pause-detail { background-color: rgba(0, 0, 0, 0.75); padding: 16px; }

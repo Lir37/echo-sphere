@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="NativeScreenShells.uss" />
+<ui:Template name="main-menu" src="../NativeMainMenu.uxml" />
+<Style src="../NativeMainMenu.uss" />
+<ui:Instance name="native-main-menu" template="main-menu" class="menu-host" />
+</ui:UXML>

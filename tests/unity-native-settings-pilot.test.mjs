@@ -9,20 +9,24 @@ test('Settings uses native UI Toolkit controls and existing runtime callbacks', 
   const screen = read('UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceSettingsToolkitScreen.cs');
   const bridge = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceUiBridge.cs');
   const owner = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSettings.cs');
-  assert.match(screen, /AddComponent<UIDocument>/);
-  assert.match(screen, /new Button/);
-  assert.match(screen, /new Slider\(/);
-  assert.match(screen, /new ScrollView/);
+  const layout = read('UnityProject/Assets/Resources/EchoSphere/NativeBattle/NativeSettings.uxml');
+  const styles = read('UnityProject/Assets/Resources/EchoSphere/NativeBattle/NativeSettings.uss');
+  const panels = read('UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePanelLease.cs');
+  assert.match(screen, /NativePanelLease/);
+  assert.match(panels, /GetComponent<UIDocument>/);
+  assert.match(layout, /<ui:Button name="back"/);
+  assert.match(layout, /<ui:Slider[^>]+low-value="0.75" high-value="1.25"/);
+  assert.match(layout, /<ui:ScrollView/);
   assert.doesNotMatch(bridge, /_sourceUi\.gameObject\.SetActive\(false\)/);
   assert.doesNotMatch(bridge, /SetSourceScreenHidden/);
-  assert.match(screen, /_root\.style\.backgroundColor=Hex\("#02050d"\)/);
+  assert.match(styles, /background-color: #02050d/);
   assert.match(owner, /NativeResetAllProgress\(\)/);
   const commands = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeUiPreferences.cs');
   assert.match(commands, /ClearRunSnapshot\(\);PlayerPrefs\.Save\(\)/);
   assert.match(bridge, /case "resetAll":NativeResetAllProgress\(\);return default/);
   assert.match(owner, /_nativeSettingsScreen\.Show\(SourceDevicePixelRatio\*scale/);
 
-  assert.match(screen, /_confirmation\.Add\(row\)/);
-  assert.match(screen, /_content\.Add\(language\);_activeRow=null/);
+  assert.match(layout, /name="settings-confirmation"[\s\S]*name="cancel"[\s\S]*name="ok"/);
+  assert.match(layout, /class="settings-pair"><ui:Button name="ru"[^\n]+name="en"/);
 
 });

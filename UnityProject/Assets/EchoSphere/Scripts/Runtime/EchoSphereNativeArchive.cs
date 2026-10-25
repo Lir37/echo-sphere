@@ -18,7 +18,7 @@ namespace EchoSphere.Runtime
                 return false;
             }
             if(!_nativeArchiveWasActive){
-                if(_nativeArchiveScreen==null)_nativeArchiveScreen=new GameObject("Native Echo Archive UI Toolkit").AddComponent<NativeArchiveScreen>();
+                if(_nativeArchiveScreen==null)_nativeArchiveScreen=AcquireNativeScreen<NativeArchiveScreen>("Native Echo Archive UI Toolkit");
                 _knowledgeSection="basics";_knowledgeQuery="";_nativeArchiveState=ReadNativeArchiveState();_nativeArchiveWasActive=true;
                 _camera.cullingMask=0;
             }

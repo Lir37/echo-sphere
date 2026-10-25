@@ -20,7 +20,7 @@ namespace EchoSphere.Runtime
                 return false;
             }
             if(!_nativeRegionWasActive){
-                if(_nativeRegionScreen==null)_nativeRegionScreen=new GameObject("Native Region Selection UI Toolkit").AddComponent<NativeRegionScreen>();
+                if(_nativeRegionScreen==null)_nativeRegionScreen=AcquireNativeScreen<NativeRegionScreen>("Native Region Selection UI Toolkit");
                 _nativeRegionState=ReadNativeRegionState();_nativeRegionWasActive=true;
                 _camera.cullingMask=0;
             }

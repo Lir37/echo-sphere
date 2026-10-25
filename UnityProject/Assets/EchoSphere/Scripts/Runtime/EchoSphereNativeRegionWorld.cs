@@ -6,12 +6,10 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private NativeWorldRegion _nativeWorldRegion;
         private readonly System.Collections.Generic.List<RegionFieldVisuals.PresentationPoi> _nativeRegionPois=new System.Collections.Generic.List<RegionFieldVisuals.PresentationPoi>();
         internal static int NativeRegionPhaseIndex(double time)=>time<300?0:time<600?1:time<900?2:time<1500?3:time<1620?4:5;
         private void DrawNativeRegionWorld()
         {
-            if(_nativeWorldRegion==null)_nativeWorldRegion=new NativeWorldRegion();
             var state=new NativeWorldRegion.State {Time=_runTime,Active=_regionHudPocketId};
             // renderer.ts deliberately consumes REGION_POCKETS (the existing
             // alias), not a new region-specific visual rule chosen here.

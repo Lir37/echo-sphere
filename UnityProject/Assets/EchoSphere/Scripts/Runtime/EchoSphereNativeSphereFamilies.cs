@@ -5,7 +5,6 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private NativeWorldSphereFamilies _nativeWorldSphereFamilies;
         private void DrawNativeOrbitalSphere(NativeSphereVisual sphere,double time,double scale,double radiusScale,bool attackers)
         {
             bool disabled=sphere.DisabledTimer>0||!sphere.Alive;if(attackers&&disabled)return;

@@ -5,34 +5,34 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private NativeWorldField _nativeWorldField;
-        private NativeWorldAmbient _nativeWorldAmbient;
-        private NativeWorldPickups _nativeWorldPickups;
-        private NativeWorldMinions _nativeWorldMinions;
-        private NativeWorldEnergyBolts _nativeWorldEnergyBolts;
-        private NativeWorldSprites _nativeWorldSprites;
-        private NativeWorldProjectiles _nativeWorldProjectiles;
-        private NativeWorldCreatures _nativeWorldCreatures;
-        private NativeWorldStandardSphere _nativeWorldStandardSphere;
-        private NativeWorldPickableViews _nativeWorldPickableViews;
-        private NativeWorldPlayer _nativeWorldPlayer;
+        private NativeWorldPresentation _nativeWorldPresentation;
+        private NativeWorldPresentation WorldPresentation
+        {
+            get{
+                if(_nativeWorldPresentation!=null)return _nativeWorldPresentation;
+                var scene=NativeBattleSceneRoot.Find(gameObject.scene);
+                return _nativeWorldPresentation=scene!=null?scene.Presentation:_worldSurface.GetComponent<NativeWorldPresentation>()??_worldSurface.gameObject.AddComponent<NativeWorldPresentation>();
+            }
+        }
+        private NativeWorldCharacterIndicators _nativeWorldCharacterIndicators=>WorldPresentation.CharacterIndicators;
+        private NativeWorldFeedback _nativeWorldFeedback=>WorldPresentation.Feedback;
+        private NativeWorldNetwork _nativeWorldNetwork=>WorldPresentation.Network;
+        private NativeWorldRegion _nativeWorldRegion=>WorldPresentation.Region;
+        private NativeWorldSphereFamilies _nativeWorldSphereFamilies=>WorldPresentation.SphereFamilies;
+        private NativeWorldField _nativeWorldField=>WorldPresentation.Field;
+        private NativeWorldAmbient _nativeWorldAmbient=>WorldPresentation.Ambient;
+        private NativeWorldPickups _nativeWorldPickups=>WorldPresentation.Pickups;
+        private NativeWorldMinions _nativeWorldMinions=>WorldPresentation.Minions;
+        private NativeWorldEnergyBolts _nativeWorldEnergyBolts=>WorldPresentation.EnergyBolts;
+        private NativeWorldSprites _nativeWorldSprites=>WorldPresentation.Sprites;
+        private NativeWorldProjectiles _nativeWorldProjectiles=>WorldPresentation.Projectiles;
+        private NativeWorldCreatures _nativeWorldCreatures=>WorldPresentation.Creatures;
+        private NativeWorldStandardSphere _nativeWorldStandardSphere=>WorldPresentation.StandardSphere;
+        private NativeWorldPickableViews _nativeWorldPickableViews=>WorldPresentation.PickableViews;
+        private NativeWorldPlayer _nativeWorldPlayer=>WorldPresentation.Player;
         private void RenderNativeWorldFrame(float width,float height)
         {
-            if(_nativeWorldFeedback==null)_nativeWorldFeedback=new NativeWorldFeedback();_nativeWorldFeedback.BeginFrame(_worldSurface);
-            if(_nativeWorldField==null)_nativeWorldField=new NativeWorldField();
-            if(_nativeWorldAmbient==null)_nativeWorldAmbient=new NativeWorldAmbient();
-            if(_nativeWorldPickups==null)_nativeWorldPickups=new NativeWorldPickups();_nativeWorldPickups.BeginFrame();
-            if(_nativeWorldMinions==null)_nativeWorldMinions=new NativeWorldMinions();_nativeWorldMinions.BeginFrame();
-            if(_nativeWorldEnergyBolts==null)_nativeWorldEnergyBolts=new NativeWorldEnergyBolts();_nativeWorldEnergyBolts.BeginFrame();
-            if(_nativeWorldSprites==null)_nativeWorldSprites=new NativeWorldSprites();_nativeWorldSprites.BeginFrame();
-            if(_nativeWorldProjectiles==null)_nativeWorldProjectiles=new NativeWorldProjectiles();_nativeWorldProjectiles.BeginFrame();
-            if(_nativeWorldCreatures==null)_nativeWorldCreatures=new NativeWorldCreatures();_nativeWorldCreatures.BeginFrame();
-            if(_nativeWorldStandardSphere==null)_nativeWorldStandardSphere=new NativeWorldStandardSphere();_nativeWorldStandardSphere.BeginFrame();
-            if(_nativeWorldPickableViews==null)_nativeWorldPickableViews=new NativeWorldPickableViews();_nativeWorldPickableViews.BeginFrame();
-            if(_nativeWorldPlayer==null)_nativeWorldPlayer=new NativeWorldPlayer();_nativeWorldPlayer.BeginFrame();
-            if(_nativeWorldSphereFamilies==null)_nativeWorldSphereFamilies=new NativeWorldSphereFamilies();_nativeWorldSphereFamilies.BeginFrame();
-            if(_nativeWorldCharacterIndicators==null)_nativeWorldCharacterIndicators=new NativeWorldCharacterIndicators();_nativeWorldCharacterIndicators.BeginFrame();
-            if(_nativeWorldNetwork==null)_nativeWorldNetwork=new NativeWorldNetwork();_nativeWorldNetwork.BeginFrame();
+            WorldPresentation.BeginFrame(_worldSurface);
             RenderNativeFrameContents(width,height);
         }
         private bool DrawNativeStandardAssembly(NativeSphereVisual sphere,double radius,double time)
@@ -85,6 +85,6 @@ namespace EchoSphere.Runtime
             return new NativeWorldCreatures.EnemyView {Identity=e.Raw,X=e["pos"]["x"].Number,Y=e["pos"]["y"].Number,Radius=e["radius"].Number,HasRotation=e["rotation"].Raw is double,Rotation=e["rotation"].Number,HitFlash=e["hitFlash"].Number,Tier=e["tier"].Number,Hp=e["hp"].Number,MaxHp=e["maxHp"].Number,Boss=boss,Elite=e["isElite"].Truth,Fire=e["fireTimer"].Number>0,Poison=e["poisonTimer"].Number>0,Freeze=e["freezeTimer"].Number>0,Variant=boss?type:e["visualVariant"].Truth?e["visualVariant"].Text:"wisp",BossName=name,Color=color,Signal=NativeBossSignal(e,player),LinkTarget=target.Truth,LinkTimer=timer.Truth?timer.Number:0,LinkX=target["pos"]["x"].Number,LinkY=target["pos"]["y"].Number,LinkWindow=Visual_eliteBalance.Scope["LINK_BREAKER_TELEGRAPH_SECONDS"].Number};
         }
 #endif
-        private void DisposeNativeWorld(){ClearNativeEntityFrame();_nativeWorldFeedback?.Dispose();_nativeWorldFeedback=null;_nativeWorldNetwork?.Dispose();_nativeWorldNetwork=null;_nativeWorldField?.Dispose();_nativeWorldField=null;_nativeWorldAmbient?.Dispose();_nativeWorldAmbient=null;_nativeWorldRegion?.Dispose();_nativeWorldRegion=null;_nativeWorldPickups?.Dispose();_nativeWorldPickups=null;_nativeWorldMinions?.Dispose();_nativeWorldMinions=null;_nativeWorldEnergyBolts?.Dispose();_nativeWorldEnergyBolts=null;_nativeWorldSprites?.Dispose();_nativeWorldSprites=null;_nativeWorldProjectiles?.Dispose();_nativeWorldProjectiles=null;_nativeWorldCreatures?.Dispose();_nativeWorldCreatures=null;_nativeWorldStandardSphere?.Dispose();_nativeWorldStandardSphere=null;_nativeWorldPickableViews?.Dispose();_nativeWorldPickableViews=null;_nativeWorldPlayer?.Dispose();_nativeWorldPlayer=null;_nativeWorldSphereFamilies?.Dispose();_nativeWorldSphereFamilies=null;_nativeWorldCharacterIndicators?.Dispose();_nativeWorldCharacterIndicators=null;}
+        private void DisposeNativeWorld(){ClearNativeEntityFrame();_nativeWorldPresentation?.ReleaseResources();_nativeWorldPresentation=null;}
     }
 }

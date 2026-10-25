@@ -6,6 +6,7 @@ namespace EchoSphere.Presentation
 {
     public sealed class NativeMainMenuScreen : MonoBehaviour
     {
+        private NativePanelLease _panelLease;
         private UIDocument _document;
         private PanelSettings _panel;
         private NativeMainMenuView _view;
@@ -19,10 +20,8 @@ namespace EchoSphere.Presentation
         public void Initialize(Func<VisualElement,NativeMainMenuView> create)
         {
             if(_document!=null)return;
-            _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Echo Sphere Native Main Menu Panel";
-            _panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.sortingOrder=1001;_panel.forceGammaRendering=true;
-            _panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
-            _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;
+            _panelLease=new NativePanelLease(gameObject,"Echo Sphere Native Main Menu Panel",1001,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeMainMenuDocument")??throw new InvalidOperationException("Native menu document is missing"));
+            _document=_panelLease.Document;_panel=_panelLease.Panel;
             var root=_document.rootVisualElement;root.style.position=Position.Absolute;root.style.left=root.style.right=root.style.top=root.style.bottom=0;root.style.opacity=0;root.pickingMode=PickingMode.Ignore;
             _view=create(root);_composition=new NativeMainMenuComposition(_view);
         }
@@ -39,6 +38,6 @@ namespace EchoSphere.Presentation
             if(_settled>=2&&!Ready){Ready=true;_document.rootVisualElement.style.opacity=1;}
         }
         public void Hide(){if(_view==null)return;_view.Hide();_composition.SetVisible(false);_visible=false;Ready=false;_document.rootVisualElement.style.opacity=0;}
-        private void OnDestroy(){_composition?.Dispose();_view?.Dispose();if(_panel!=null)Destroy(_panel);}
+        private void OnDestroy(){_composition?.Dispose();_view?.Dispose();_panelLease?.Dispose();}
     }
 }

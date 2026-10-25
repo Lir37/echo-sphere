@@ -7,7 +7,6 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private NativeWorldCharacterIndicators _nativeWorldCharacterIndicators;
         private const double NativePlayerRadiusPixels=16;
         private string NativeCharacterCanvasText(string text)=>_worldSurface.LocalizeCanvasText?NativeLocalizationCatalog.Instance.CanvasText(text,IsRussianUi):text;
 #if UNITY_EDITOR

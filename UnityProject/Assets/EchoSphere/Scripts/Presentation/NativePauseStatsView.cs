@@ -43,14 +43,17 @@ namespace EchoSphere.Presentation
         }
         internal static Label Text(VisualElement parent,string name,float size,string color,string weight="400",double line=1.5,float spacing=.192f,bool wrap=false)
         {
-            var label=new Label {name=name,pickingMode=PickingMode.Ignore,enableRichText=false};
+            var label=new Label {name=name};ConfigureText(label,size,color,weight,line,spacing,wrap);parent.Add(label);return label;
+        }
+        internal static void ConfigureText(Label label,float size,string color,string weight="400",double line=1.5,float spacing=.192f,bool wrap=false)
+        {
+            label.pickingMode=PickingMode.Ignore;label.enableRichText=false;
             label.style.marginLeft=label.style.marginRight=label.style.marginTop=label.style.marginBottom=0;
             label.style.paddingLeft=label.style.paddingRight=label.style.paddingTop=label.style.paddingBottom=0;
             label.style.fontSize=size;label.style.color=C(color);label.style.letterSpacing=spacing*100/size;
             label.style.flexShrink=0;label.style.minWidth=0;label.style.whiteSpace=wrap?WhiteSpace.Normal:WhiteSpace.NoWrap;
             if(!wrap)label.style.height=(float)(size*line);
             var font=SourceUiTypography.Resolve(Family,weight,false,line);if(font!=null)label.style.unityFontDefinition=FontDefinition.FromSDFFont(font);label.style.unityFontStyleAndWeight=FontStyle.Normal;
-            parent.Add(label);return label;
         }
         internal static void Set(Label label,string value)
         {

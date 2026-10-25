@@ -5,9 +5,10 @@ using UnityEngine.UIElements;
 
 namespace EchoSphere.Presentation
 {
-    /// <summary>Native UI Toolkit pilot for the existing Settings screen.</summary>
+    /// <summary>Authored UI Toolkit settings; existing runtime callbacks own all changes.</summary>
     public sealed class SourceSettingsToolkitScreen : MonoBehaviour
     {
+        private NativePanelLease _panelLease;
         private UIDocument _document;
         private PanelSettings _panel;
         private VisualElement _root, _content, _confirmation;
@@ -23,7 +24,7 @@ namespace EchoSphere.Presentation
         private Action _back, _replay, _reset, _cancel, _confirm;
         private bool _built, _initialized, _russian, _sound, _left, _resetPending;
         private float _shownScale=1f, _scaleValueNow=1f;
-        private static readonly Color Main=Hex("#dcecff"), Muted=Hex("#7f9bb8"), Panel=Hex("#0d1726"), Border=Hex("#243b55"), Cyan=Hex("#39d8ff"), Red=Hex("#ff4d5d");
+        private static readonly Color Main=Hex("#dcecff"), Muted=Hex("#7f9bb8"), Panel=Hex("#0d1726"), Border=Hex("#243b55"), Cyan=Hex("#39d8ff");
 
         public void Show(float dpr,bool russian,bool sound,bool left,float scale,bool resetPending,Func<string,string> translate,
             Action<string> setLanguage,Action<bool> setSound,Action<bool> setHandedness,Action<float> setScale,
@@ -51,59 +52,28 @@ namespace EchoSphere.Presentation
         private void EnsureDocument()
         {
             if(_document!=null)return;
-            _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Echo Sphere Native Settings Panel";
-            _panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.sortingOrder=1001;_panel.forceGammaRendering=true;
-            _panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
-            _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;
+            var layout=Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeSettings")??throw new InvalidOperationException("Native settings UXML is missing");
+            _panelLease=new NativePanelLease(gameObject,"Echo Sphere Native Settings Panel",1001,layout);
+            _document=_panelLease.Document;_panel=_panelLease.Panel;
             var panelRoot=_document.rootVisualElement;panelRoot.style.position=Position.Absolute;panelRoot.style.left=0;panelRoot.style.right=0;panelRoot.style.top=0;panelRoot.style.bottom=0;panelRoot.pickingMode=PickingMode.Ignore;
-            _root=new VisualElement();_root.name="native-settings-root";_root.pickingMode=PickingMode.Ignore;
-            _root.style.position=Position.Absolute;_root.style.left=0;_root.style.right=0;_root.style.top=0;_root.style.bottom=0;_root.style.backgroundColor=Hex("#02050d");_root.style.display=DisplayStyle.None;
-            panelRoot.Add(_root);
+            _root=Require<VisualElement>("native-settings-root");
         }
-
+        private T Require<T>(string name) where T:VisualElement=>_document.rootVisualElement.Q<T>(name)??throw new InvalidOperationException("Native settings layout is missing "+name);
         private void Build()
         {
-            _scroll=new ScrollView(ScrollViewMode.Vertical);_scroll.style.position=Position.Absolute;_scroll.style.left=0;_scroll.style.right=0;_scroll.style.top=0;_scroll.style.bottom=0;
-            _scroll.style.backgroundColor=Color.clear;_scroll.contentContainer.style.alignItems=Align.Center;_root.Add(_scroll);
-            _content=new VisualElement();_content.style.flexDirection=FlexDirection.Column;_content.style.flexShrink=0;_content.style.maxWidth=448;_content.style.width=448;
-            _content.style.paddingLeft=24;_content.style.paddingRight=24;_content.style.paddingTop=28;_content.style.paddingBottom=32;_scroll.Add(_content);
-
-            AddButton("back",()=>_back?.Invoke(),"← ");var title=AddLabel("settingsTitle",24,Main,true);title.style.unityTextAlign=TextAnchor.MiddleCenter;title.style.marginTop=12;title.style.marginBottom=24;
-            AddSection("language");var language=Pair();AddButton("ru",()=>_setLanguage?.Invoke("ru"));AddButton("en",()=>_setLanguage?.Invoke("en"));_content.Add(language);_activeRow=null; // Buttons are attached by AddButton to the current row below.
-            AddSection("sound");var sound=Pair();AddButton("soundOn",()=>_setSound?.Invoke(true));AddButton("soundOff",()=>_setSound?.Invoke(false));_content.Add(sound);_activeRow=null;
-            AddSection("handedness");var hand=Pair();AddButton("rightHanded",()=>_setHandedness?.Invoke(false));AddButton("leftHanded",()=>_setHandedness?.Invoke(true));_content.Add(hand);_activeRow=null;
-            AddSection("interfaceScale");var scaleRow=Pair();var low=new Label("75%");low.style.color=Muted;scaleRow.Add(low);
-            _scale=new Slider(.75f,1.25f);_scale.style.flexGrow=1;_scale.style.marginLeft=10;_scale.style.marginRight=10;scaleRow.Add(_scale);
-            var high=new Label("125%");high.style.color=Muted;scaleRow.Add(high);_content.Add(scaleRow);_activeRow=null;
-            _scaleValue=new Label();_scaleValue.style.color=Main;_scaleValue.style.unityTextAlign=TextAnchor.MiddleCenter;_scaleValue.style.marginBottom=20;_content.Add(_scaleValue);
+            _scroll=Require<ScrollView>("settings-scroll");_scroll.contentContainer.style.alignItems=Align.Center;
+            _content=Require<VisualElement>("settings-content");_scale=Require<Slider>("interface-scale");
+            _scaleValue=Require<Label>("settings-scale-value");_confirmation=Require<VisualElement>("settings-confirmation");_resetPrompt=Require<Label>("settings-reset-prompt");
+            foreach(var key in new[]{"settingsTitle","language","sound","handedness","interfaceScale","controls","moveControls","placeSphere","activeAbilities","dashAbility"})_labels[key]=Require<Label>(key);
+            void Bind(string key,Action action){var button=Require<Button>(key);button.clicked+=action;_buttons[key]=button;}
+            Bind("back",()=>_back?.Invoke());Bind("ru",()=>_setLanguage?.Invoke("ru"));Bind("en",()=>_setLanguage?.Invoke("en"));
+            Bind("soundOn",()=>_setSound?.Invoke(true));Bind("soundOff",()=>_setSound?.Invoke(false));
+            Bind("rightHanded",()=>_setHandedness?.Invoke(false));Bind("leftHanded",()=>_setHandedness?.Invoke(true));
+            Bind("replayTutorial",()=>_replay?.Invoke());Bind("reset",()=>_reset?.Invoke());Bind("cancel",()=>_cancel?.Invoke());Bind("ok",()=>_confirm?.Invoke());
             _scale.RegisterValueChangedCallback(evt=>{_scaleValueNow=evt.newValue;_scaleValue.text=Mathf.RoundToInt(evt.newValue*100f)+"%";_setScale?.Invoke(evt.newValue);});
-            AddSection("controls");var card=new VisualElement();card.style.flexDirection=FlexDirection.Column;card.style.backgroundColor=Panel;
-            SetBorder(card,Border);card.style.borderTopLeftRadius=12;card.style.borderTopRightRadius=12;card.style.borderBottomLeftRadius=12;card.style.borderBottomRightRadius=12;
-            card.style.paddingLeft=16;card.style.paddingRight=16;card.style.paddingTop=16;card.style.paddingBottom=8;card.style.marginBottom=24;
-            foreach(var key in new[]{"moveControls","placeSphere","activeAbilities","dashAbility"}){var line=new Label();line.style.color=Muted;line.style.fontSize=12;line.style.whiteSpace=WhiteSpace.Normal;line.style.marginBottom=8;_labels[key]=line;card.Add(line);}_content.Add(card);
-            AddButton("replayTutorial",()=>_replay?.Invoke(),"▷ ");AddButton("reset",()=>_reset?.Invoke());
-            _confirmation=new VisualElement();_confirmation.style.flexDirection=FlexDirection.Column;_confirmation.style.marginTop=16;_confirmation.style.paddingTop=12;_confirmation.style.paddingBottom=12;
-            _resetPrompt=new Label();_resetPrompt.style.color=Main;_resetPrompt.style.whiteSpace=WhiteSpace.Normal;_resetPrompt.style.marginBottom=12;_confirmation.Add(_resetPrompt);
-            var row=Pair();AddButton("cancel",()=>_cancel?.Invoke());AddButton("ok",()=>_confirm?.Invoke());_confirmation.Add(row);_activeRow=null;_content.Add(_confirmation);_built=true;
+            _built=true;
         }
 
-        private VisualElement _activeRow;
-        private void AddSection(string key){var label=AddLabel(key,11,Muted,false);label.style.marginBottom=8;}
-        private Label AddLabel(string key,float size,Color color,bool bold)
-        {var label=new Label();label.style.fontSize=size;label.style.color=color;label.style.unityFontStyleAndWeight=bold?FontStyle.Bold:FontStyle.Normal;_labels[key]=label;_content.Add(label);return label;}
-        private void AddButton(string key,Action action,string prefix="")
-        {
-            var button=new Button();button.style.flexGrow=1;button.style.minHeight=42;button.style.paddingLeft=10;button.style.paddingRight=10;button.style.paddingTop=10;button.style.paddingBottom=10;
-            button.style.marginRight=8;button.style.fontSize=13;button.style.color=Main;button.style.backgroundColor=Panel;SetBorder(button,Border);
-            button.style.borderTopLeftRadius=12;button.style.borderTopRightRadius=12;button.style.borderBottomLeftRadius=12;button.style.borderBottomRightRadius=12;
-            button.clicked+=action;_buttons[key]=button;
-            if(key=="back"){button.style.backgroundColor=Color.clear;button.style.borderLeftWidth=button.style.borderRightWidth=button.style.borderTopWidth=button.style.borderBottomWidth=0;button.style.color=Muted;button.style.alignSelf=Align.FlexStart;button.style.paddingLeft=0;}
-            else if(key=="replayTutorial"){button.style.backgroundColor=new Color(Cyan.r,Cyan.g,Cyan.b,.05f);SetBorder(button,new Color(Cyan.r,Cyan.g,Cyan.b,.3f));button.style.color=Hex("#9fefff");button.style.marginBottom=12;}
-            else if(key=="reset"){button.style.backgroundColor=new Color(Red.r,Red.g,Red.b,.10f);SetBorder(button,new Color(Red.r,Red.g,Red.b,.3f));button.style.color=Red;}
-            if(_activeRow!=null)_activeRow.Add(button);else _content.Add(button);
-        }
-        private VisualElement Pair()
-        {var row=new VisualElement();row.style.flexDirection=FlexDirection.Row;row.style.width=Length.Percent(100);row.style.marginBottom=24;_activeRow=row;return row;}
         private void RefreshLabelsAndState()
         {
             string T(string key)=>_t==null?key:_t(key);
@@ -124,6 +94,6 @@ namespace EchoSphere.Presentation
         private void Select(string key,bool selected){var button=_buttons[key];button.style.backgroundColor=selected?new Color(Cyan.r,Cyan.g,Cyan.b,.2f):Panel;SetBorder(button,selected?new Color(Cyan.r,Cyan.g,Cyan.b,.4f):Border);button.style.color=selected?Main:Muted;}
         private static void SetBorder(VisualElement element,Color color){element.style.borderLeftWidth=element.style.borderRightWidth=element.style.borderTopWidth=element.style.borderBottomWidth=1;element.style.borderLeftColor=element.style.borderRightColor=element.style.borderTopColor=element.style.borderBottomColor=color;}
         private static Color Hex(string value){ColorUtility.TryParseHtmlString(value,out var color);return color;}
-        private void OnDestroy(){if(_panel!=null)Destroy(_panel);}
+        private void OnDestroy(){_panelLease?.Dispose();}
     }
 }

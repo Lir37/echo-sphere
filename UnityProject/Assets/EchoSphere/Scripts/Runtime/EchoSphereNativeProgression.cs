@@ -19,7 +19,7 @@ namespace EchoSphere.Runtime
             bool selected=_mainMenu&&!_regionSelect&&(_mainMenuPage==MainMenuPage.Shop||_mainMenuPage==MainMenuPage.Leaderboard||_mainMenuPage==MainMenuPage.Achievements);
             if(!selected){if(_nativeProgressionWasActive){_nativeProgressionScreen.Hide();_nativeProgressionWasActive=false;if(_sourceUi!=null){_sourceUi.Dirty=true;}}return false;}
             if(!_nativeProgressionWasActive||_nativeProgressionPage!=_mainMenuPage){
-                if(_nativeProgressionScreen==null)_nativeProgressionScreen=new GameObject("Native Progression UI Toolkit").AddComponent<NativeProgressionScreen>();
+                if(_nativeProgressionScreen==null)_nativeProgressionScreen=AcquireNativeScreen<NativeProgressionScreen>("Native Progression UI Toolkit");
                 _nativeProgressionPage=_mainMenuPage;_nativeProgressionState=ReadNativeProgressionState();_nativeProgressionWasActive=true;
                 if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
 

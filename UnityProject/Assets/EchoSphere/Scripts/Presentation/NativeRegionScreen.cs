@@ -11,6 +11,7 @@ namespace EchoSphere.Presentation
         public sealed class Challenge { public string Id,Name,Description,Accent; public bool Completed; }
         public sealed class Region { public string Id,Name,Subtitle,Accent; public bool Available,Stable,Endless; public IReadOnlyList<Challenge> Challenges; public int Completed; }
         public sealed class State { public bool Russian; public IReadOnlyList<Region> Regions; }
+        private NativePanelLease _panelLease;
         private UIDocument _document;
         private PanelSettings _panel;
         private VisualElement _root,_header,_content;
@@ -30,15 +31,12 @@ namespace EchoSphere.Presentation
         private void Ensure()
         {
             if(_document!=null)return;
-            _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Native region selection panel";_panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.forceGammaRendering=true;_panel.sortingOrder=1001;_panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
-            _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;_root=_document.rootVisualElement;Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.name="native-region-root";
+            _panelLease=new NativePanelLease(gameObject,"Native region selection panel",1001,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeRegions")??throw new InvalidOperationException("Native screen UXML is missing: NativeRegions"));
+            _document=_panelLease.Document;_panel=_panelLease.Panel;_root=_document.rootVisualElement;Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.name="native-region-root";
             _root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));
             _background=new NativeMainMenuBackground(_root,"EchoSphere/NativeRegionBackground");
-            _header=Box(_root,"region-header",true);_header.style.height=58;_header.style.alignItems=Align.Center;_header.style.justifyContent=Justify.Center;
-            _header.style.borderBottomWidth=1;_header.style.borderBottomColor=A(88,177,226,.10f);
-            _scroll=new ScrollView(ScrollViewMode.Vertical);_scroll.style.flexGrow=1;_scroll.style.minHeight=0;_scroll.horizontalScrollerVisibility=_scroll.verticalScrollerVisibility=ScrollerVisibility.Hidden;_root.Add(_scroll);
-            _scroll.contentContainer.style.alignItems=Align.Center;
-            _content=Box(_scroll,"region-content");_content.style.width=Length.Percent(100);_content.style.maxWidth=720;
+            _header=_root.Q<VisualElement>("region-header");_scroll=_root.Q<ScrollView>("region-scroll");
+            _scroll.contentContainer.style.alignItems=Align.Center;_content=_root.Q<VisualElement>("region-content");
             _content.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
         }
         public void Show(State state,float scale,Action back,Action<string,string,string> start)
@@ -118,6 +116,6 @@ namespace EchoSphere.Presentation
         private static void Border(VisualElement e,float radius){e.style.borderLeftWidth=e.style.borderRightWidth=e.style.borderTopWidth=e.style.borderBottomWidth=1;e.style.borderLeftColor=e.style.borderRightColor=e.style.borderTopColor=e.style.borderBottomColor=Color.clear;e.style.borderTopLeftRadius=e.style.borderTopRightRadius=e.style.borderBottomLeftRadius=e.style.borderBottomRightRadius=radius;}
         private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var surface in _surfaces)surface.Dispose();_surfaces.Clear();_cards.Clear();_titles.Clear();_buttons.Clear();_header.Clear();_content.Clear();}
         public void Hide(){if(!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
-        private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();if(_panel!=null)Destroy(_panel);}
+        private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();_panelLease?.Dispose();}
     }
 }

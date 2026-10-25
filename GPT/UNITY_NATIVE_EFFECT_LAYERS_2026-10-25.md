@@ -63,3 +63,6 @@ Short continuation: read the three GPT documents and this report. Native ROI
 capture/blur backend is implemented, flag OFF; code/API/contracts/CI pass.
 After unlocking Windows, finish Editor pixel/alpha/order validation, enable the
 experimental scene flag only on success, then test the same APK in the emulator.
+
+## Live follow-up 2026-10-26
+Windows unlocked and Editor recovered. Capture candidate has been exercised on actual D3D12; strict fractional-density comparison still differs by up to 3/255. Complex clips and producer-edge support need compatibility handling. Stock filter color targets observed as RGBA8 plus depth/stencil. Flag stays OFF; temporary relaxed checks are not acceptance. Candidate source remains a separate unfinished change. Current work prioritizes full architecture migration, with scene/document ownership covered in UNITY_NATIVE_SCENE_OWNERSHIP_2026-10-26.md. No new performance acceptance.

@@ -6,7 +6,6 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private NativeWorldNetwork _nativeWorldNetwork;
         #if UNITY_EDITOR
         private static NativeWorldNetwork.Node NativeNetworkPoint(V position)=>new NativeWorldNetwork.Node {X=position["x"].Number,Y=position["y"].Number};
         #endif

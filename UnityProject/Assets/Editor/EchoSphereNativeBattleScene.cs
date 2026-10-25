@@ -6,10 +6,47 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public static class EchoSphereNativeBattleScene
 {
     public const string Path="Assets/Scenes/EchoSphere_NativeBattleSlice.unity";
+    private const string PanelFolder="Assets/Resources/EchoSphere/NativeBattle/";
+    // Idempotent authoring; existing panel settings are never overwritten.
+    [MenuItem("Echo Sphere/Native Battle/Author scene documents")]
+    public static void AuthorDocuments()
+    {
+        if(EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("Stop Play Mode before authoring documents");
+        var scene=SceneManager.GetSceneByPath(Path);bool opened=!scene.isLoaded;
+        if(opened)scene=EditorSceneManager.OpenScene(Path,OpenSceneMode.Additive);
+        try{
+            var root=NativeBattleSceneRoot.Find(scene)??throw new InvalidOperationException("Native scene root is missing");
+            root.AuthorPresentation();
+            PanelSettings Panel(string name,int order){
+                var path=PanelFolder+name+".asset";var panel=AssetDatabase.LoadAssetAtPath<PanelSettings>(path);
+                if(panel!=null)return panel;
+                panel=ScriptableObject.CreateInstance<PanelSettings>();panel.name=name;panel.scaleMode=PanelScaleMode.ConstantPixelSize;
+                panel.sortingOrder=order;panel.forceGammaRendering=true;panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
+                AssetDatabase.CreateAsset(panel,path);return panel;
+            }
+            var runPanel=Panel("NativeBattlePanel",1000);var menuPanel=Panel("NativeMenuPanel",1001);
+            void Bind(Component owner,PanelSettings panel,VisualTreeAsset layout=null){
+                var doc=owner.GetComponent<UIDocument>()??owner.gameObject.AddComponent<UIDocument>();
+                doc.enabled=false;doc.panelSettings=panel;if(layout!=null)doc.visualTreeAsset=layout;EditorUtility.SetDirty(doc);
+            }
+            foreach(var owner in root.GetComponentsInChildren<MonoBehaviour>(true)){
+                if(owner is NativeBattleDocument)Bind(owner,runPanel,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeBattle"));
+                else if(owner is SourceSettingsToolkitScreen)Bind(owner,menuPanel,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeSettings"));
+                else if(owner is NativeMainMenuScreen)Bind(owner,menuPanel,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeMainMenuDocument"));
+                else if(owner is NativeCharacterScreen)Bind(owner,menuPanel,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeCharacters"));
+                else if(owner is NativeRegionScreen)Bind(owner,menuPanel,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeRegions"));
+                else if(owner is NativeProgressionScreen)Bind(owner,menuPanel,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeProgressionShell"));
+                else if(owner is NativeArchiveScreen)Bind(owner,menuPanel,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeArchiveShell"));
+            }
+            EditorUtility.SetDirty(root);EditorSceneManager.MarkSceneDirty(scene);
+            if(!EditorSceneManager.SaveScene(scene))throw new InvalidOperationException("Could not save authored native documents");AssetDatabase.SaveAssets();
+        }finally{if(opened)EditorSceneManager.CloseScene(scene,true);}
+    }
     [MenuItem("Echo Sphere/Native Battle/Create parallel scene")]
     public static void Create()
     {
@@ -33,6 +70,7 @@ public static class EchoSphereNativeBattleScene
         }
         var scenes=new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
         if(!scenes.Exists(s=>s.path==Path)){scenes.Add(new EditorBuildSettingsScene(Path,true));EditorBuildSettings.scenes=scenes.ToArray();}
+        AuthorDocuments();
     }
     // The emulator's ABI is a scoped build choice, never the release project
     // configuration. A scene reload still works because this scene is index 0.

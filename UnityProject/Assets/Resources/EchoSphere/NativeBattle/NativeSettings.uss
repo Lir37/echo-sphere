@@ -1,0 +1,18 @@
+.settings-root, .settings-scroll { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+.settings-root { background-color: #02050d; display: none; }
+.settings-scroll { background-color: transparent; }
+.settings-content { flex-direction: column; flex-shrink: 0; max-width: 448px; width: 448px; padding: 28px 24px 32px; }
+.settings-title { font-size: 24px; color: #dcecff; -unity-font-style: bold; -unity-text-align: middle-center; margin-top: 12px; margin-bottom: 24px; }
+.settings-section { font-size: 11px; color: #7f9bb8; -unity-font-style: normal; margin-bottom: 8px; }
+.settings-pair { flex-direction: row; width: 100%; margin-bottom: 24px; }
+.settings-button { flex-grow: 1; min-height: 42px; padding: 10px; margin-right: 8px; font-size: 13px; color: #dcecff; background-color: #0d1726; border-width: 1px; border-color: #243b55; border-radius: 12px; }
+.settings-back { background-color: transparent; border-width: 0; color: #7f9bb8; align-self: flex-start; padding-left: 0; }
+.settings-replay { background-color: rgba(57,216,255,0.05); border-color: rgba(57,216,255,0.3); color: #9fefff; margin-bottom: 12px; }
+.settings-reset { background-color: rgba(255,77,93,0.1); border-color: rgba(255,77,93,0.3); color: #ff4d5d; }
+.settings-scale-limit { color: #7f9bb8; }
+.settings-slider { flex-grow: 1; margin-left: 10px; margin-right: 10px; }
+.settings-scale-value { color: #dcecff; -unity-text-align: middle-center; margin-bottom: 20px; }
+.settings-controls { flex-direction: column; background-color: #0d1726; border-width: 1px; border-color: #243b55; border-radius: 12px; padding: 16px 16px 8px; margin-bottom: 24px; }
+.settings-control-line { color: #7f9bb8; font-size: 12px; white-space: normal; margin-bottom: 8px; }
+.settings-confirmation { flex-direction: column; margin-top: 16px; padding-top: 12px; padding-bottom: 12px; }
+.settings-reset-prompt { color: #dcecff; white-space: normal; margin-bottom: 12px; }

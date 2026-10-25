@@ -70,7 +70,7 @@ namespace EchoSphere.Presentation
             var tree=Resources.Load<VisualTreeAsset>("EchoSphere/NativeMainMenu");
             var styles=Resources.Load<StyleSheet>("EchoSphere/NativeMainMenu");
             if(tree==null||styles==null)throw new InvalidOperationException("Native main menu authoring assets missing");
-            _root=tree.CloneTree();_root.name="native-main-menu";_root.styleSheets.Add(styles);
+            _root=parent.Q<VisualElement>("native-main-menu")??tree.CloneTree();_root.name="native-main-menu";_root.styleSheets.Add(styles);
             _root.AddToClassList("menu-host");
             var icons=new[]{"UserRound","Store","Trophy","Award","BookOpen","Settings"};
             for(int i=0;i<icons.Length;i++){
@@ -96,7 +96,7 @@ namespace EchoSphere.Presentation
                 _difficultyLabels[i]=label;button.Add(label);
                 button.clicked+=()=>_setDifficulty(id);
             }
-            _parent.Add(_root);_parent.RegisterCallback<GeometryChangedEvent>(ViewportChanged);
+            if(_root.parent==null)_parent.Add(_root);_parent.RegisterCallback<GeometryChangedEvent>(ViewportChanged);
             Resize(_parent.contentRect.width,_parent.contentRect.height);
             // Never expose an unbound first-frame control tree.
             _root.style.display=DisplayStyle.None;

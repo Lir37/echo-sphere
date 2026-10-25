@@ -31,7 +31,7 @@ namespace EchoSphere.Runtime
                     // Menu's original mount effect persists its loaded name.
                     PlayerPrefs.SetString(NamePreferenceKey,_playerName);PlayerPrefs.Save();
                 }
-                if(_nativeMainMenuScreen==null){_nativeMainMenuScreen=new GameObject("Native Main Menu UI Toolkit").AddComponent<NativeMainMenuScreen>();_nativeMainMenuScreen.Initialize(CreateNativeMainMenuView);}
+                if(_nativeMainMenuScreen==null){_nativeMainMenuScreen=AcquireNativeScreen<NativeMainMenuScreen>("Native Main Menu UI Toolkit");_nativeMainMenuScreen.Initialize(CreateNativeMainMenuView);}
                 _nativeMenuState=ReadNativeMainMenuState();_nativeMenuShownVersion=_nativeMenuModelVersion;
                 ColorUtility.TryParseHtmlString(CharacterRules.Get(_sphereCharacterId).ColorHex,out _nativeMenuCharacterColor);
                 _nativeMainMenuWasActive=true;_camera.cullingMask=0;

@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="NativeScreenShells.uss" />
+<ui:ScrollView name="progression-scroll" class="progression-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden">
+    <ui:VisualElement name="progression-content" class="screen-box progression-content" picking-mode="Ignore" />
+</ui:ScrollView>
+</ui:UXML>

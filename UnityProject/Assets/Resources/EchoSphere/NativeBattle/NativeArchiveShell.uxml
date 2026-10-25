@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="NativeScreenShells.uss" />
+<ui:VisualElement name="native-archive-page" class="screen-box archive-page" picking-mode="Ignore" />
+</ui:UXML>

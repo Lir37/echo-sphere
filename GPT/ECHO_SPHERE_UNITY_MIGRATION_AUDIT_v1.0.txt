@@ -5815,3 +5815,5 @@ verification; no accepted graphics result, new emulator timing or stall fix.
 Continue from GPT/UNITY_NATIVE_EFFECT_LAYERS_2026-10-25.md after desktop unlock.
 Implementation 9286cee102be83ca4ddea65d4744bd5f9f0c762e passed CI #860 SUCCESS;
 all C# API checks 0 errors/warnings. This is not GPU/Editor/Android acceptance.
+
+2026-10-26 native architecture: authored seven scene documents, runtime-isolated panel templates, battle/settings UXML/USS, menu shells and scene-owned 16 world-view groups. Editor compilation, exact battle/settings fixtures at DPI 1/2.75, 14 actual menu submissions/picking, saved-run scene bindings pass; original preferences/settings restored. Separate performance work deferred by user. Prefix/replica effects and default-entry retirement remain, full migration NOT DONE. Details: GPT/UNITY_NATIVE_SCENE_OWNERSHIP_2026-10-26.md.

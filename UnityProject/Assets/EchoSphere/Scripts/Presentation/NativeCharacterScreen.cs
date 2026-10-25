@@ -17,6 +17,7 @@ namespace EchoSphere.Presentation
             public IReadOnlyList<Affinity> Affinities;public IReadOnlyList<Mastery> Masteries;
         }
         public sealed class State { public bool Russian; public string Gold,Message;public IReadOnlyList<Character> Characters; }
+        private NativePanelLease _panelLease;
         private UIDocument _document;private PanelSettings _panel;
         private VisualElement _root,_page,_heading,_message,_body;private ScrollView _scroll;
         private NativeMainMenuBackground _background;
@@ -33,13 +34,11 @@ namespace EchoSphere.Presentation
         private void Ensure()
         {
             if(_document!=null)return;
-            _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Native character panel";_panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.sortingOrder=1001;_panel.forceGammaRendering=true;_panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
-            _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;_root=_document.rootVisualElement;Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.style.alignItems=Align.Center;
+            _panelLease=new NativePanelLease(gameObject,"Native character panel",1001,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeCharacters")??throw new InvalidOperationException("Native screen UXML is missing: NativeCharacters"));
+            _document=_panelLease.Document;_panel=_panelLease.Panel;_root=_document.rootVisualElement;Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.style.alignItems=Align.Center;
             _root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));_background=new NativeMainMenuBackground(_root,"EchoSphere/NativeAppBackground");
-            _page=Box(_root,"native-character-page");_page.style.width=Length.Percent(100);_page.style.maxWidth=760;_page.style.height=Length.Percent(100);
-            _heading=Box(_page,"character-heading");_heading.style.marginBottom=16;
-            _message=Box(_page,"character-message");_message.style.marginBottom=12;_message.style.paddingLeft=_message.style.paddingRight=12;_message.style.paddingTop=_message.style.paddingBottom=8;Border(_message,12);
-            _scroll=new ScrollView(ScrollViewMode.Vertical);_scroll.style.minHeight=0;_scroll.style.flexGrow=1;_scroll.horizontalScrollerVisibility=ScrollerVisibility.Hidden;_scroll.style.paddingBottom=16;_page.Add(_scroll);
+            _page=_root.Q<VisualElement>("native-character-page");_heading=_root.Q<VisualElement>("character-heading");_message=_root.Q<VisualElement>("character-message");
+            _scroll=_root.Q<ScrollView>("character-scroll");
             _body=_scroll.contentContainer;
             _page.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
         }
@@ -163,6 +162,6 @@ namespace EchoSphere.Presentation
         }
         private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var paint in _surfaces)paint.Dispose();_surfaces.Clear();_buttons.Clear();_cards.Clear();_portraits.Clear();_heading.Clear();_message.Clear();_body.Clear();}
         public void Hide(){if(!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
-        private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();if(_panel!=null)Destroy(_panel);}
+        private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();_panelLease?.Dispose();}
     }
 }

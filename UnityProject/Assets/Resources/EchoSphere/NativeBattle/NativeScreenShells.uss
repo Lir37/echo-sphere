@@ -1,0 +1,11 @@
+.screen-box { flex-shrink: 0; min-width: 0; }
+.character-page { width: 100%; max-width: 760px; height: 100%; }
+.character-heading { margin-bottom: 16px; }
+.character-message { margin-bottom: 12px; padding: 8px 12px; border-width: 1px; border-color: transparent; border-radius: 12px; }
+.character-scroll { min-height: 0; flex-grow: 1; padding-bottom: 16px; }
+.region-header { flex-direction: row; height: 58px; align-items: center; justify-content: center; border-bottom-width: 1px; border-bottom-color: rgba(88,177,226,0.1); }
+.region-scroll { flex-grow: 1; min-height: 0; }
+.region-content { width: 100%; max-width: 720px; }
+.progression-scroll { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+.progression-content { width: 100%; padding: 32px 24px; }
+.archive-page { width: 100%; max-width: 820px; height: 100%; }

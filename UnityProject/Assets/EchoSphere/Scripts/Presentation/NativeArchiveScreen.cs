@@ -15,6 +15,7 @@ namespace EchoSphere.Presentation
         private static readonly string[] LabelsEn={"Core","Spheres","Monsters","Bosses","Abilities","Artifacts","Evolutions"};
         private static readonly string[] SubRu={"Как работает забег","Узлы боевой сети","Противники","Главные угрозы","Активные и пассивные","Редкие усиления","Ветки и финалы"};
         private static readonly string[] SubEn={"How a run works","Combat network nodes","Enemies","Major threats","Active and passive","Rare upgrades","Branches and finals"};
+        private NativePanelLease _panelLease;
         private UIDocument _document;private PanelSettings _panel;private NativeMainMenuBackground _background;
         private VisualElement _root,_page,_header,_layout,_nav,_main,_searchBox,_cards,_known;
         private ScrollView _navigation,_scroll;private TextField _search;private Label _count,_title;
@@ -32,10 +33,10 @@ namespace EchoSphere.Presentation
         private void Ensure()
         {
             if(_document!=null)return;
-            _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Native archive panel";_panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.sortingOrder=1001;_panel.forceGammaRendering=true;_panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
-            _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;_root=_document.rootVisualElement;Fill(_root);_root.style.alignItems=Align.Center;_root.pickingMode=PickingMode.Ignore;_root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));
+            _panelLease=new NativePanelLease(gameObject,"Native archive panel",1001,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeArchiveShell")??throw new InvalidOperationException("Native screen UXML is missing: NativeArchiveShell"));
+            _document=_panelLease.Document;_panel=_panelLease.Panel;_root=_document.rootVisualElement;Fill(_root);_root.style.alignItems=Align.Center;_root.pickingMode=PickingMode.Ignore;_root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));
             _background=new NativeMainMenuBackground(_root,"EchoSphere/NativeAppBackground");
-            _page=Box(_root,"native-archive-page");_page.style.width=Length.Percent(100);_page.style.maxWidth=820;_page.style.height=Length.Percent(100);_page.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
+            _page=_root.Q<VisualElement>("native-archive-page");_page.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
         }
         public void Show(State state,float scale,Action back,Action<string> select,Action<string> query)
         {
@@ -113,6 +114,6 @@ namespace EchoSphere.Presentation
         private static void Pad(VisualElement e,float p){e.style.paddingLeft=e.style.paddingRight=e.style.paddingTop=e.style.paddingBottom=p;}
         private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var p in _chrome)p.Dispose();_chrome.Clear();foreach(var p in _cardPaint)p.Dispose();_cardPaint.Clear();_buttons.Clear();_tabs.Clear();_tabLabels.Clear();_subtitles.Clear();_columns.Clear();_conceptColumns.Clear();_page.Clear();}
         public void Hide(){if(!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
-        private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();if(_panel!=null)Destroy(_panel);}
+        private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();_panelLease?.Dispose();}
     }
 }

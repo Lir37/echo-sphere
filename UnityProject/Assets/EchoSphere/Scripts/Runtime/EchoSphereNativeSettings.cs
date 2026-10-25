@@ -15,7 +15,7 @@ namespace EchoSphere.Runtime
                     if(_sourceUi!=null&&!UsesNativeMainMenu&&!_nativeProgressionWasActive){_sourceUi.Dirty=true;}}
                 return false;
             }
-            if(_nativeSettingsScreen==null)_nativeSettingsScreen=new GameObject("Native Settings UI Toolkit").AddComponent<SourceSettingsToolkitScreen>();
+            if(_nativeSettingsScreen==null)_nativeSettingsScreen=AcquireNativeScreen<SourceSettingsToolkitScreen>("Native Settings UI Toolkit");
 
             _nativeSettingsWasActive=true;_camera.cullingMask=0;
             string lang=IsRussianUi?"ru":"en";

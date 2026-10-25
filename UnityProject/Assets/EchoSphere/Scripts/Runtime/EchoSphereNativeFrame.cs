@@ -8,7 +8,6 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private NativeWorldFeedback _nativeWorldFeedback;
         private static readonly Unity.Profiling.ProfilerMarker NativeWorldFrameMarker=new Unity.Profiling.ProfilerMarker("EchoSphere.World.BuildFrame");
         private static readonly UnityEngine.Color NativeWorldBackground=new UnityEngine.Color(7/255f,16/255f,29/255f,1);
         private static readonly UnityEngine.Color NativeWorldDarkBackground=new UnityEngine.Color(4/255f,9/255f,18/255f,1);

@@ -19,7 +19,7 @@ namespace EchoSphere.Runtime
                 return false;
             }
             if(!_nativeCharacterWasActive){
-                if(_nativeCharacterScreen==null)_nativeCharacterScreen=new GameObject("Native Character Selection UI Toolkit").AddComponent<NativeCharacterScreen>();
+                if(_nativeCharacterScreen==null)_nativeCharacterScreen=AcquireNativeScreen<NativeCharacterScreen>("Native Character Selection UI Toolkit");
                 _expandedCharacterId=CharacterRules.ToSourceId(_sphereCharacterId);_nativeCharacterMessage="";
                 _nativeCharacterState=ReadNativeCharacterState();_nativeCharacterWasActive=true;
                 _camera.cullingMask=0;

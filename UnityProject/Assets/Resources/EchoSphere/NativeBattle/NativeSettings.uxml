@@ -1,0 +1,37 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="NativeSettings.uss" />
+    <ui:VisualElement name="native-settings-root" class="settings-root" picking-mode="Ignore">
+        <ui:ScrollView name="settings-scroll" class="settings-scroll" mode="Vertical">
+            <ui:VisualElement name="settings-content" class="settings-content">
+                <ui:Button name="back" class="settings-button settings-back" />
+                <ui:Label name="settingsTitle" class="settings-title" />
+                <ui:Label name="language" class="settings-section" />
+                <ui:VisualElement class="settings-pair"><ui:Button name="ru" class="settings-button" /><ui:Button name="en" class="settings-button" /></ui:VisualElement>
+                <ui:Label name="sound" class="settings-section" />
+                <ui:VisualElement class="settings-pair"><ui:Button name="soundOn" class="settings-button" /><ui:Button name="soundOff" class="settings-button" /></ui:VisualElement>
+                <ui:Label name="handedness" class="settings-section" />
+                <ui:VisualElement class="settings-pair"><ui:Button name="rightHanded" class="settings-button" /><ui:Button name="leftHanded" class="settings-button" /></ui:VisualElement>
+                <ui:Label name="interfaceScale" class="settings-section" />
+                <ui:VisualElement class="settings-pair">
+                    <ui:Label text="75%" class="settings-scale-limit" />
+                    <ui:Slider name="interface-scale" class="settings-slider" low-value="0.75" high-value="1.25" />
+                    <ui:Label text="125%" class="settings-scale-limit" />
+                </ui:VisualElement>
+                <ui:Label name="settings-scale-value" class="settings-scale-value" />
+                <ui:Label name="controls" class="settings-section" />
+                <ui:VisualElement class="settings-controls">
+                    <ui:Label name="moveControls" class="settings-control-line" />
+                    <ui:Label name="placeSphere" class="settings-control-line" />
+                    <ui:Label name="activeAbilities" class="settings-control-line" />
+                    <ui:Label name="dashAbility" class="settings-control-line" />
+                </ui:VisualElement>
+                <ui:Button name="replayTutorial" class="settings-button settings-replay" />
+                <ui:Button name="reset" class="settings-button settings-reset" />
+                <ui:VisualElement name="settings-confirmation" class="settings-confirmation">
+                    <ui:Label name="settings-reset-prompt" class="settings-reset-prompt" />
+                    <ui:VisualElement class="settings-pair"><ui:Button name="cancel" class="settings-button" /><ui:Button name="ok" class="settings-button" /></ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

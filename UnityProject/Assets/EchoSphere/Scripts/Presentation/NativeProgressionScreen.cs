@@ -21,6 +21,7 @@ namespace EchoSphere.Presentation
             public IReadOnlyList<Score> Scores=Array.Empty<Score>();
             public IReadOnlyList<Achievement> Achievements=Array.Empty<Achievement>();
         }
+        private NativePanelLease _panelLease;
         private UIDocument _document;
         private PanelSettings _panel;
         private VisualElement _root,_content,_body;
@@ -49,17 +50,14 @@ namespace EchoSphere.Presentation
         private void Ensure()
         {
             if(_document!=null)return;
-            _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Native progression panel";
-            _panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.sortingOrder=1001;_panel.forceGammaRendering=true;
-            _panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
-            _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;
+            _panelLease=new NativePanelLease(gameObject,"Native progression panel",1001,Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeProgressionShell")??throw new InvalidOperationException("Native screen UXML is missing: NativeProgressionShell"));
+            _document=_panelLease.Document;_panel=_panelLease.Panel;
             _root=_document.rootVisualElement;_root.name="native-progression-root";Fill(_root);_root.pickingMode=PickingMode.Ignore;
             _root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));
             _background=new NativeMainMenuBackground(_root,"EchoSphere/NativeAppBackground");
-            _scroll=new ScrollView(ScrollViewMode.Vertical);Fill(_scroll);_scroll.horizontalScrollerVisibility=ScrollerVisibility.Hidden;
-            _scroll.contentContainer.style.alignItems=Align.Center;_scroll.contentContainer.style.minHeight=Length.Percent(100);_scroll.contentContainer.style.justifyContent=Justify.Center;_root.Add(_scroll);
-            _content=Box(_scroll,"progression-content");_content.style.width=Length.Percent(100);_content.style.flexShrink=0;
-            _content.style.paddingLeft=_content.style.paddingRight=24;_content.style.paddingTop=_content.style.paddingBottom=32;
+            _scroll=_root.Q<ScrollView>("progression-scroll");
+            _scroll.contentContainer.style.alignItems=Align.Center;_scroll.contentContainer.style.minHeight=Length.Percent(100);_scroll.contentContainer.style.justifyContent=Justify.Center;
+            _content=_root.Q<VisualElement>("progression-content");
             _content.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
         }
         public void Show(State state,float scale,Action back,Action<string> buy)
@@ -172,6 +170,6 @@ namespace EchoSphere.Presentation
         private static VisualElement Icon(VisualElement parent,string name,float size,Color color){var e=Box(parent,"icon-"+name);e.style.width=e.style.height=size;e.style.backgroundImage=new StyleBackground(Resources.Load<VectorImage>("EchoSphere/NativeMenuIcons/"+name));e.style.unityBackgroundImageTintColor=color;return e;}
         private void ClearContent(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var surface in _surfaces)surface.Dispose();_surfaces.Clear();_shopRows.Clear();_content.Clear();}
         public void Hide(){if(_document==null||!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
-        private void OnDestroy(){if(_document!=null)ClearContent();_background?.Dispose();if(_panel!=null)Destroy(_panel);}
+        private void OnDestroy(){if(_document!=null)ClearContent();_background?.Dispose();_panelLease?.Dispose();}
     }
 }
