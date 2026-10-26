@@ -7,11 +7,13 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private static string NativeText(string key,bool russian)=>NativeLocalizationCatalog.Instance.Translate(key,russian);
-        // Preserve JS Number conversion, including absent/empty -> zero before
-        // clamping and non-finite -> 1. No DOM/global-storage adapter is needed.
+        // Preserve JS Number conversion for native string preferences. The older
+        // IMGUI settings screen wrote this same key with SetFloat; read that
+        // existing representation without rewriting the user's preference.
         private static double NativeInterfaceScale
         {
-            get {string text=PlayerPrefs.GetString("echosphere_interface_scale","");double raw=text.Trim().Length==0?0:double.TryParse(text,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double number)?number:double.NaN;
+            get {const string key="echosphere_interface_scale",missing="\u0001";string text=PlayerPrefs.GetString(key,missing);
+                double raw=text==missing?(PlayerPrefs.HasKey(key)?PlayerPrefs.GetFloat(key,float.NaN):0):text.Trim().Length==0?0:double.TryParse(text,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double number)?number:double.NaN;
                 return double.IsFinite(raw)?Math.Min(1.25,Math.Max(.75,raw)):1;}
         }
         private void NativeResetAllProgress()

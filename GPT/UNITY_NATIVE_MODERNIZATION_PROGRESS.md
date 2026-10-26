@@ -1,6 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
-## Latest checkpoint — approved Unity 6.6 promotion, 2026-10-26
+## Latest checkpoint — Unity 6.6 Editor acceptance, 2026-10-26
+
+Actual Editor tutorial-to-run-to-result/region/home flow passes, including Up/Down,
+exact tap/drag commit, generated upgrade/reward, duplicate-input guard and pause.
+Nine populated modal stages, six handedness/scale pointer cases and public Touch
+packets pass. Fixed confirmed legacy float scale 125% being read as 75%; native
+string behavior and storage remain unchanged. Typed diagnostic preference backup
+fixed; original ten keys restored. No Android performance or hardware-touch claim.
+Details: GPT/UNITY_NATIVE_66_EDITOR_ACCEPTANCE_2026-10-26.md.
+
+## Promotion checkpoint — 2026-10-26
 
 User approved promotion. Main UnityProject now uses Unity 6000.6.1f1 / URP 17.6.0,
 native backdropFilter and authored native entry index 0. Production UI replicas,

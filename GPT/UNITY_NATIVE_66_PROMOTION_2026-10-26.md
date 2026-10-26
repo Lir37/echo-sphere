@@ -68,6 +68,11 @@ UNITY_NATIVE_66_EVALUATION_2026-10-26.md. Those results are not phone measuremen
 
 ## Remaining acceptance
 
+Later Editor checkpoint covers the full tutorial, run/reward/result transitions,
+populated modals and handedness/scale controls; it also fixes legacy scale storage.
+See UNITY_NATIVE_66_EDITOR_ACCEPTANCE_2026-10-26.md. Device/performance acceptance
+is still open; the original promotion-stage list below is historical.
+
 Replica-free glass and native entry are now promoted implementation, not pending
 architecture work. Do not restart the transfer or rewrite working Unity mesh,
 material, shader or procedural-geometry code merely because it is authored C#.
