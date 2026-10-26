@@ -204,6 +204,9 @@ namespace EchoSphere.Runtime
             // The retained UI Toolkit document composites the native world
             // texture beneath the HUD and authored material/filter treatments.
             DrawSourceDocument();
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+            if(!_mainMenu)_nativeRunDocument?.TraceFrame(_camera,_worldSurface,dpr);
+#endif
             }finally{NativeEngineBackdrop.RefreshAllVisibility();}
         }
         private static float SourceDevicePixelRatio

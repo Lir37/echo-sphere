@@ -18,6 +18,10 @@ namespace EchoSphere.Presentation
         private VisualElement _root,_left,_right,_pause,_shell,_detail,_result,_upgrade,_rewards,_tutorial,_combo,_comboBar;
         private Label _comboTitle,_comboMultiplier;
         private int _version; private bool _visible;
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+        private readonly NativeBattleFrameJournal _frameJournal=new NativeBattleFrameJournal();
+        internal void TraceFrame(Camera camera,NativeWorldSurface world,float density)=>_frameJournal.Submitted(_root,_field,_panel,camera,world,density);
+#endif
         internal NativeRunUiAnchors Anchors {get;} = new NativeRunUiAnchors();
         internal VisualElement ControlsParent => _root;
         internal VisualElement ControlsPredecessor {get;private set;}
@@ -32,7 +36,12 @@ namespace EchoSphere.Presentation
             _document=_panelLease.Document;_panel=_panelLease.Panel;
             T Require<T>(string name) where T:VisualElement=>_document.rootVisualElement.Q<T>(name)??throw new InvalidOperationException("Native battle layout is missing "+name);
             _root=Require<VisualElement>("native-run-root");
-            _root.RegisterCallback<GeometryChangedEvent>(_=>invalidate());
+            _root.RegisterCallback<GeometryChangedEvent>(_=>{
+                invalidate();
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+                _frameJournal.Layout(_root,_field,_panel);
+#endif
+            });
             _backdrops=new NativeUiBackdropRegistry();
             _field=Require<Image>("native-world-field");
             _field.scaleMode=ScaleMode.StretchToFill;

@@ -5851,3 +5851,14 @@ inner-loop exp. Added bounded cached weights and atlas-safe bilinear tap pairing
 8 actual Editor GPU cases differ at most 1/255, 0 new errors; C# and visual contract
 checks pass. New kernel Android build/device result pending. No quality/gameplay
 change; P1/P2 not DONE. See UNITY_NATIVE_66_ANDROID_RETEST_2026-10-26.md.
+
+2026-10-26 CANDIDATE WITHDRAWN: 8e90ec6f passed CI #871, but phone battle remained
+0.683 FPS and text became displaced on two cold launches. Preserved readable APK
+003fb912... restored with current saves intact; four shadow-kernel edits withdrawn
+from active code, exact typography cause not isolated. User disconnected phone and
+reports battle starting as a narrow compressed strip before expanding. Priority is
+now complete viewport/world-texture/UI submission audit. Editor actual one camera,
+one NativeWorldSurface, mask=0, no SourceCanvasSurface; legacy SourceRegionVisual2D
+still updates a culled mesh. Twenty startup frames show correct texture then settled
+UI layout; device strip not reproduced. Added bounded development-only dimension/owner
+trace, no quality/gameplay/save change. See UNITY_BATTLE_RENDER_PATH_AUDIT_2026-10-26.md.

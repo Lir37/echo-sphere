@@ -1,16 +1,21 @@
 # ECHO SPHERE — native visual modernization
 
-## Latest Android retest — 2026-10-26
+## Current priority — battle frame pipeline, 2026-10-26
 
-Phone reconnected. Corrected APK 003fb912... installed successfully as an update;
-real completed tutorial and saved run preserved. USB Profiler: home 7.445 FPS,
-continued pause 0.530 FPS, early battle 0.582 FPS. Hidden-backdrop fix alone did
-not solve device stalls. Remaining glyph/radar alpha-shadow pass evaluated a
-full 2D Gaussian including inner-loop exponentials (24025 evaluations/pixel for
-sigma 7 at density 2.75). Cached weights plus atlas-safe bilinear pairing are
-implemented; actual Editor GPU 8-case comparisons differ at most 1/255, no new
-errors. Android device result of this new kernel is pending the build. No quality,
-resolution, gameplay or save changes. See UNITY_NATIVE_66_ANDROID_RETEST_2026-10-26.md.
+USB retest confirms severe stalls after hidden-backdrop corrections. A cached/pair
+shadow experiment passed Editor pixels and CI #871, but actual phone battle remained
+~0.68 FPS and text became corrupted; candidate withdrawn, preserved readable baseline
+APK restored without rolling back saves. Phone then disconnected by user.
+
+New user observation: battle starts as a narrow compressed strip, then expands after
+seconds. Audit the complete world compositor -> texture -> UI Toolkit geometry and
+startup ordering before more isolated optimizations. Editor confirms one camera,
+one native world, cullingMask=0, no SourceCanvasSurface; legacy region flash still
+updates a culled mesh. A 20-frame Editor probe has valid texture dimensions immediately
+and UI layout on the next frame; phone strip is NOT reproduced/proven fixed. Bounded
+development-only frame/layout/owner trace added, no render or save behavior changed.
+Details: UNITY_BATTLE_RENDER_PATH_AUDIT_2026-10-26.md and
+UNITY_NATIVE_66_ANDROID_RETEST_2026-10-26.md. P1/P2 and device acceptance remain OPEN.
 
 ## Android build checkpoint — 2026-10-26
 

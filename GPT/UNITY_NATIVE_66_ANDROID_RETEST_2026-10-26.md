@@ -59,14 +59,46 @@ Actual Editor GPU comparison against the original two-dimensional pass:
 8 cases (density 1 / 1.25 / 2.75, sigma 7 / 4 / 0.01, nested glows, forced point
 fallback and actual rotated radar arrow), all PASS, maximum channel error 1/255,
 0 new Console errors. Texture declaration conversion alone matched 0/255 in four
-reference cases. Repeatable check: scripts/check-unity-native-alpha-shadow-kernel.cs.
+reference cases. Candidate check at commit 8e90ec6f: scripts/check-unity-native-alpha-shadow-kernel.cs (withdrawn with the unaccepted candidate).
 It owns offscreen panels and textures, issues no game/save command, and requires
 diagnostic preference backup before Play. Original Windows preferences restored.
 Actual Editor recompilation PASS; pinned Unity 6.6 API C# checks PASS for Android
 runtime, Editor runtime and separate Editor sources: 0 errors / 0 warnings.
 
-Device acceptance of this new kernel is pending the in-progress Android build.
-Full tutorial, dense battle, prolonged play and stable 60 FPS are not accepted.
+## Physical-device result: candidate NOT ACCEPTED
+
+Candidate 8e90ec6f built Succeeded, 781.38 seconds. BuildReport counts 11 warnings
+and 1 logged error: the error is our Pipeline status query timing out while the
+main thread was building, not a C#/Gradle compiler failure. Shader warnings include
+loop derivatives / possible uninitialized accumulator. Signature verification PASS.
+APK 232106170 bytes, SHA-256:
+657e72ad5a8631b7528988f43a521bd3292ff73c07f15799666310d9e7ce5f46.
+Installed as an update with data retained.
+
+Confirmed actual Android PlayerLoop captures (20 valid frames per state):
+
+| State | Mean frame ms | FPS | Mean GC bytes/frame |
+|---|---:|---:|---:|
+| Continued pause | 1557.97 | 0.642 | 157610 |
+| Early battle | 1463.57 | 0.683 | 247803 |
+
+These remain unusably slow and are not full controlled A/B acceptance. Text was
+severely displaced/overlapped throughout both menu and run, reproducible on a second
+cold launch. The exact cause is unresolved: shader delta, player build/cache and
+text initialization have not been isolated. Do not claim the kernel caused or fixed
+this typography defect. Replacing the APK with the preserved 003fb912... baseline
+restored readable menu text on the same phone and data. That baseline remains on
+the phone when the user disconnects it; saves were NOT rolled back.
+
+The initial kernel-menu-profiler.json capture was stale EditorLoop data during
+failed USB reconnection; it is INVALID as a device measurement. No menu speedup
+claim. The later pause/battle captures contain actual Android PlayerLoop samples.
+
+The four kernel implementation edits and their candidate-only script are withdrawn
+from the active branch after failed device acceptance. Historical commit 8e90ec6f
+and local evidence preserve the experiment. Its CI #871 SUCCESS does not override
+the failed physical-device result. Full tutorial, dense battle, prolonged play and
+stable 60 FPS are not accepted.
 
 ## Evidence and continuation
 
@@ -74,7 +106,8 @@ Local evidence (private saves excluded from Git):
 C:\Users\toxik\Documents\UnityEvaluations\ECHO-SPHERE-retest-20261026T124823Z
 Includes baseline profiler JSON, raw capture, app-only Unity logs, screenshots,
 installed baseline APK and shader comparison output. Preserve the current saved
-run. Install the new signed candidate as an update, then repeat pause and early
-battle measurements; inspect remaining visible filters/rendering if stalls persist.
+run. Do NOT reinstall candidate 657e72ad... as an accepted version. The user's newer
+report of a compressed battle strip takes priority: investigate the entire viewport,
+world-texture and UI submission chain. See UNITY_BATTLE_RENDER_PATH_AUDIT_2026-10-26.md.
 P1/P2 are not DONE. CI, Editor, GPU fixtures and physical-device acceptance remain
 separate results.
