@@ -2,6 +2,9 @@
 
 User explicitly approved promotion after the separate-copy evaluation.
 Starting unity-migration HEAD: c929033a88000654044af960a59c0b3c5fffcb6a.
+Published implementation: 4ad3c803ef46934ec1db92a4f695c4aca2c00043,
+CI #866 SUCCESS:
+https://github.com/Lir37/echo-sphere/actions/runs/40280175581
 Main UnityProject now targets 6000.6.1f1 (7efac9f6c10e), URP 17.6.0,
 Android minimum SDK 26, ARMv7 + ARM64. Original company/product/application
 identity retained; the evaluation product/save namespace was not promoted.
@@ -28,6 +31,10 @@ Project/package/URP serialization was upgraded; existing artwork postprocessor
 reapplied its already-authored sprite settings. Its import policy was not changed.
 No effects, authored artwork, animation, resolution or quality were deliberately
 reduced. Remaining visual acceptance is listed below.
+
+The two generated 6.6 project settings (empty PhysicsCore 2D binding and default
+Editor ProjectAuditor settings) are tracked in the closing checkpoint. Existing
+Physics2DSettings/physics simulation parameters are unchanged.
 
 ## Preservation and verification
 
@@ -71,8 +78,9 @@ not received universal parity acceptance. Performance work remains a separate
 stage: no current FPS/GC/device GPU or long-combat result is asserted here.
 P1/P2/full visual and device acceptance remain NOT DONE. new-desing is protected.
 
-Continuation: read the three mandatory GPT documents, modernization progress and
-this report; verify actual HEAD/CI. Main is on Unity 6.6 with native glass and
+Continuation baseline: implementation 4ad3c803ef46934ec1db92a4f695c4aca2c00043,
+CI #866 SUCCESS. Read the three mandatory GPT documents, modernization progress
+and this report; verify actual HEAD/CI. Main is on Unity 6.6 with native glass and
 entry promoted. Finish remaining visual/control/device acceptance, then address
 measured Android bottlenecks. Preserve user settings/saves; do not build an APK
 without the agreed final-stage decision.

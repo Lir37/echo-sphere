@@ -12,6 +12,9 @@ Architecture implementation of glass/entry is promoted; full visual/control/devi
 acceptance and measured Android performance remain OPEN. See
 GPT/UNITY_NATIVE_66_PROMOTION_2026-10-26.md. Earlier copy-only statements are history.
 
+Published implementation 4ad3c803ef46934ec1db92a4f695c4aca2c00043:
+CI #866 SUCCESS, https://github.com/Lir37/echo-sphere/actions/runs/40280175581.
+
 ## Separate-copy checkpoint — 2026-10-26
 
 User approved a separate copy. Installed 6000.6.1f1 / URP 17.6.0 and Android
