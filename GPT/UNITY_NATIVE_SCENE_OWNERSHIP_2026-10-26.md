@@ -1,5 +1,11 @@
 # Native presentation ownership — 2026-10-26
 
+Latest update: user approved separate-copy Unity 6.6 evaluation. Native engine
+backdropFilter replaces production replicas in that copy, authored entry is index
+0, actual Editor menu/battle/pause checks pass. Main stays on 6.3; no promotion
+decision yet. Earlier pending/unauthorized evaluation statements below are history.
+Exact results/limitations: GPT/UNITY_NATIVE_66_EVALUATION_2026-10-26.md.
+
 Branch unity-migration; starting HEAD 568aefb49395ea902549875a9774f1956b0727df.
 User priority: complete presentation migration before separate performance work.
 

@@ -1,5 +1,17 @@
 # ECHO SPHERE — native visual modernization
 
+## Latest checkpoint — separate Unity 6.6 evaluation, 2026-10-26
+
+User approved a separate copy. Installed 6000.6.1f1 / URP 17.6.0 and Android
+support. Candidate uses native backdropFilter without production UI replicas or
+capture cameras; authored native scene is entry 0 in the copy. Real menu images
+at DPI 1/2.75 differ by at most 2/255. Fourteen menu transitions, region launch,
+tutorial Skip and pause tabs/resume pass in Editor. Transparent rounded fixture
+still differs at edge AA; no universal pixel parity or device performance claim.
+Android x86 emulator is unsupported by 6.6; minimum SDK 26. Main stays 6.3, local
+user settings intact. Full migration/P1/P2 NOT DONE. Exact results and promotion
+boundary: GPT/UNITY_NATIVE_66_EVALUATION_2026-10-26.md.
+
 ## Current implementation boundary — 2026-10-24
 
 The active visual/UI migration is implemented end to end: retained UI Toolkit
