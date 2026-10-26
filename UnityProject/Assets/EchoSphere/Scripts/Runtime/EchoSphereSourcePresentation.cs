@@ -168,6 +168,7 @@ namespace EchoSphere.Runtime
 #endif
         private void LateUpdate()
         {
+            try{
             if(_playerCore==null||_camera==null)return;
             #if UNITY_EDITOR
             VisualBindings.Locale=IsRussianUi?"ru":"en";
@@ -203,6 +204,7 @@ namespace EchoSphere.Runtime
             // The retained UI Toolkit document composites the native world
             // texture beneath the HUD and authored material/filter treatments.
             DrawSourceDocument();
+            }finally{NativeEngineBackdrop.RefreshAllVisibility();}
         }
         private static float SourceDevicePixelRatio
         {

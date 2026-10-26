@@ -22,7 +22,7 @@ namespace EchoSphere.Presentation
         private readonly Material _shadeMaterial;
         private RenderTexture _shadeTarget;
         private readonly AnimationCurve _pulse;
-        private Rect _cut;private float _scale=-1,_width=-1,_height=-1,_pulseStart;
+        private Rect _cut;private Rect? _cardTarget;private float _scale=-1,_width=-1,_height=-1,_pulseStart;
         private bool _hasCut,_disposed;private readonly int _createdFrame;private State _state;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         public NativeTutorialView(VisualElement parent,INativeUiBackdrops document,Action next,Action skip)
@@ -37,6 +37,9 @@ namespace EchoSphere.Presentation
             _focus=Require<VisualElement>("tutorial-focus");_focusPaint=new NativeHudSurface(_focus,new NativeMenuBrush.Paint {Radius=12,Border=2,BorderColor=C("#63e6ff")});
             _ring=Require<VisualElement>("tutorial-pulse-ring");_ringPaint=new NativeHudSurface(_ring,new NativeMenuBrush.Paint {Radius=12,Border=1,BorderColor=C("#dcecff4d")});
             _card=Require<VisualElement>("tutorial-card");_cardPaint=new NativeHudSurface(_card,new NativeMenuBrush.Paint {Radius=16,Border=1,BorderColor=C("#63e6ff4d"),Fill=C("#030a14f2"),OuterA=new NativeMenuBrush.Shadow(50,new Vector2(0,16),new Color(0,0,0,.55f))});
+            _card.RegisterCallback<GeometryChangedEvent>(evt=>{
+                if(evt.newRect.size!=evt.oldRect.size&&_width>0&&_height>0)PositionCard();
+            });
             _kicker=Require<Label>("tutorial-step");_title=Require<Label>("tutorial-title");_body=Require<Label>("tutorial-body");
             NativePauseStatsView.ConfigureFont(_kicker,"900",1.5);NativePauseStatsView.ConfigureFont(_title,"700",28d/18);NativePauseStatsView.ConfigureFont(_body,"400",1.625);
             _status=Require<VisualElement>("tutorial-status");
@@ -63,19 +66,30 @@ namespace EchoSphere.Presentation
         public void Prepare(float width,float height,float scale,Rect? target)
         {
             if(_disposed)throw new ObjectDisposedException(nameof(NativeTutorialView));if(_state==null)return;Root.BringToFront();
-            float cardWidth=Mathf.Min(340,width-24);_card.style.width=cardWidth;
+            bool viewportChanged=width!=_width||height!=_height||scale!=_scale;
+            _width=width;_height=height;_cardTarget=target;PositionCard();
             if(target.HasValue){
-                var rect=target.Value;float top=rect.y>height*.48f?rect.y-170:rect.yMax+14;
-                _card.style.left=Mathf.Min(width-cardWidth-12,Mathf.Max(12,rect.center.x-cardWidth*.5f));_card.style.top=Mathf.Min(height-188,Mathf.Max(12,top));_card.style.translate=new Translate(0,0,0);
+                var rect=target.Value;
                 var cut=new Rect(Mathf.Max(4,rect.x-8),Mathf.Max(4,rect.y-8),rect.width+16,rect.height+16);
                 Place(_glow,cut);Place(_focus,cut);Place(_ring,new Rect(cut.x-3,cut.y-3,cut.width+6,cut.height+6));
                 if(!_hasCut)_pulseStart=Time.unscaledTime;
-                if(!_hasCut||cut!=_cut||width!=_width||height!=_height||scale!=_scale)RenderShade(width,height,scale,cut);
+                if(!_hasCut||cut!=_cut||viewportChanged)RenderShade(width,height,scale,cut);
                 _hasCut=true;_cut=cut;float phase=Mathf.Repeat(Time.unscaledTime-_pulseStart,2);_ring.style.opacity=phase<1?Mathf.Lerp(1,.5f,_pulse.Evaluate(phase)):Mathf.Lerp(.5f,1,_pulse.Evaluate(phase-1));
-            }else{_hasCut=false;_card.style.left=Mathf.Max(12,(width-cardWidth)*.5f);_card.style.top=height*.5f;_card.style.translate=new Translate(0,Length.Percent(-50),0);}
+            }else{_hasCut=false;}
             _width=width;_height=height;_scale=scale;_shade.style.display=_glow.style.display=_focus.style.display=_ring.style.display=_hasCut?DisplayStyle.Flex:DisplayStyle.None;
             if(_card.layout.width<=0||Time.frameCount-_createdFrame<2)return;
             _cardPaint.Prepare(scale);if(_hasCut){_glowPaint.Prepare(scale);_focusPaint.Prepare(scale);_ringPaint.Prepare(scale);}_statusPaint.Prepare(scale);_nextPaint.Prepare(scale);Ready=true;Root.style.opacity=1;
+        }
+        private void PositionCard()
+        {
+            float width=Mathf.Min(340,_width-24);_card.style.width=width;
+            if(!_cardTarget.HasValue){_card.style.left=Mathf.Max(12,(_width-width)*.5f);_card.style.top=_height*.5f;_card.style.translate=new Translate(0,Length.Percent(-50),0);return;}
+            var target=_cardTarget.Value;float top=target.y>_height*.48f?target.y-170:target.yMax+14;
+            // Wrapped text and action/status rows determine the actual height.
+            // Re-clamp during layout too, before the newly sized card is painted.
+            float height=_card.layout.height;if(!float.IsFinite(height)||height<=0)height=188;
+            _card.style.left=Mathf.Min(_width-width-12,Mathf.Max(12,target.center.x-width*.5f));
+            _card.style.top=Mathf.Min(Mathf.Max(12,_height-height-12),Mathf.Max(12,top));_card.style.translate=new Translate(0,0,0);
         }
         private void RenderShade(float width,float height,float scale,Rect cut)
         {

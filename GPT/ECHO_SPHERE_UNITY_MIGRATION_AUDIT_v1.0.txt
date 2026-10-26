@@ -6,6 +6,19 @@ Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 Baseline CI: Android APK #1845 — SUCCESS
 
+Latest device/correction addendum (2026-10-26, unity-migration):
+The main Unity 6000.6.1f1 native ARM64 build was installed on Xiaomi 11T.
+Actual first tutorial stages measured ~0.61 FPS; USB Profiler found dominant
+graphics/Present waits. No unsolicited region screen appeared in this run.
+After disconnection, hidden retained fullscreen backdrop passes were confirmed
+in Editor and gated by hierarchy visibility; visible effects still resume.
+Measured-height tutorial positioning fixes a confirmed phone viewport overflow.
+Six actual visibility cases, 18 viewport cases/93 checks and nine populated modal
+stages/420 checks pass without new Console errors. Gameplay and quality unchanged.
+Post-fix phone performance, full tutorial/combat and P1/P2 completion remain OPEN.
+Measurements, build identity and next acceptance steps:
+GPT/UNITY_NATIVE_66_ANDROID_DEVICE_2026-10-26.md
+
 ======================================================================
 0. PURPOSE
 ======================================================================
