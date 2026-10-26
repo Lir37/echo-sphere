@@ -1,5 +1,24 @@
 # ECHO SPHERE — native visual modernization
 
+## Latest correction — native battle UI shadows, 2026-10-26
+
+Controlled main Editor isolation at 1080x2400 / panel density 2.75: full native
+world+UI 343.18 -> 21.46 ms; GPU completion wait 290.33 -> 8.46 ms. Removing the
+world before the correction still cost 338.37 ms; alpha-shadow exclusion cost
+16.48 ms. These include Editor/readback overhead, not Android FPS or GPU timestamps.
+
+Replaced the quadratic mobile glyph/radar Gaussian with native horizontal/vertical
+alpha passes and a separate sharp-content layer; colors, support, effects and
+resolution preserved. Original intrinsic chain sizing retained. Duplicate culled
+SourceRegionVisual2D mesh preparation retired; gameplay region/POIs untouched.
+49 real GPU glyph/arrow cases max delta 3/255; production pointer 53 checks and
+populated modals 420 checks PASS, no new runtime errors. Android Vulkan/GLES3 direct
+shader compiler: 12 linked programs PASS, 0 messages. C#/VisualChecks PASS.
+Original ten preferences restored, owned shadow materials 0 after Stop.
+
+No new APK/device measurement. Compressed startup strip, Android GC/FPS, dense
+battle and menu latency remain OPEN. See UNITY_BATTLE_UI_SHADOW_REWORK_2026-10-26.md.
+
 ## Current priority — battle frame pipeline, 2026-10-26
 
 USB retest confirms severe stalls after hidden-backdrop corrections. A cached/pair

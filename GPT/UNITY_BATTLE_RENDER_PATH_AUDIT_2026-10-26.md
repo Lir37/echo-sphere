@@ -4,6 +4,18 @@ Latest user observation: Android battle initially appears as a narrow compressed
 strip and expands after several seconds. Phone disconnected. This audit does NOT
 claim to have reproduced or fixed that symptom on Android.
 
+## Follow-up correction
+
+Controlled Editor isolation identified UI alpha-shadow filters as the dominant
+cost: full frame 343.18 ms, UI without world 338.37 ms, alpha shadows excluded
+16.48 ms. Native layered separable shadow implementation reduces the full fixture
+to 21.46 ms while retaining all effects. 49 GPU fixtures and Android shader compiler
+pass. The old region-flash mesh is now gated off in the native route. Startup strip
+and physical-device performance remain unaccepted. Details and limits:
+UNITY_BATTLE_UI_SHADOW_REWORK_2026-10-26.md.
+
+The sections below preserve the initial findings at 826d0e57.
+
 ## Actual active pipeline
 
 1. EchoSphereSourcePresentation.LateUpdate reads Screen dimensions and Android

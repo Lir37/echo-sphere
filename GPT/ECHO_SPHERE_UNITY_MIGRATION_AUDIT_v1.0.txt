@@ -5862,3 +5862,16 @@ one NativeWorldSurface, mask=0, no SourceCanvasSurface; legacy SourceRegionVisua
 still updates a culled mesh. Twenty startup frames show correct texture then settled
 UI layout; device strip not reproduced. Added bounded development-only dimension/owner
 trace, no quality/gameplay/save change. See UNITY_BATTLE_RENDER_PATH_AUDIT_2026-10-26.md.
+
+2026-10-26 BATTLE UI SHADOW PIPELINE CORRECTION: actual controlled Editor layer
+isolation at panel density 2.75 follows UI alpha filters, not native world draw:
+full 343.18 ms / UI without world 338.37 ms / shadows excluded 16.48 ms. Replaced
+quadratic glyph/radar Gaussian with native separable alpha passes plus sharp
+content. Full fixture now 21.46 ms, completion wait 290.33 -> 8.46 ms; these include
+Editor/readback overhead, NOT Android FPS. Same Gaussian support/colors/resolution,
+no disabled production effects. Intrinsic chain geometry retained; duplicate culled
+region-flash mesh prep gated, POI gameplay intact. 49 GPU cases max 3/255, pointer
+53 and modal 420 checks PASS, 0 new runtime errors. Actual Android shader compiler
+12 Vulkan/GLES3 linked programs PASS, 0 messages; C#/VisualChecks PASS. Ten original
+prefs restored, owned materials 0 after Stop. No new APK; device FPS/GC/menu and
+compressed-strip acceptance still OPEN. Details: UNITY_BATTLE_UI_SHADOW_REWORK_2026-10-26.md.

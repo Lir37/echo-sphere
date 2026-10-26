@@ -30,9 +30,7 @@ namespace EchoSphere.Presentation
         private readonly Dot[] _enemies=new Dot[40],_pois=new Dot[12];
         private readonly NativeMenuBrush.Paint[] _enemyPaint=new NativeMenuBrush.Paint[3],_poiPaint=new NativeMenuBrush.Paint[3];
         private readonly Color[] _poiColors={C("#55e6c1"),C("#ff6b6b"),C("#ffb84d")};
-        private readonly List<FilterFunction>[] _arrowFilters=new List<FilterFunction>[3];
-        private readonly FilterFunctionDefinition[] _shadowDefinitions=new FilterFunctionDefinition[3];
-        private readonly Material _shadowMaterial;
+        private readonly NativeUiAlphaShadow[] _arrowShadows=new NativeUiAlphaShadow[3];
         private bool _disposed;
         public VisualElement Root=>_root;
         public int VisibleEnemies {get;private set;}
@@ -58,12 +56,9 @@ namespace EchoSphere.Presentation
             var horizontal=Absolute("radar-cross-h");horizontal.style.left=horizontal.style.right=Length.Percent(8);horizontal.style.top=Length.Percent(50);horizontal.style.height=1;horizontal.style.backgroundColor=new Color(113/255f,218/255f,1,.11f);
             var vertical=Absolute("radar-cross-v");vertical.style.top=vertical.style.bottom=Length.Percent(8);vertical.style.left=Length.Percent(50);vertical.style.width=1;vertical.style.backgroundColor=new Color(113/255f,218/255f,1,.11f);
             _enemyPaint[0]=Glow(C("#6be9ff"),5,.7f);_enemyPaint[1]=Glow(C("#e66cff"),7,.72f);_enemyPaint[2]=Glow(C("#ff6a5f"),10,.78f);
-            _shadowMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceUiFilters"));
             for(int i=0;i<3;i++){
                 var color=_poiColors[i];_poiPaint[i]=Glow(color,7,1,false);
-                var definition=ScriptableObject.CreateInstance<FilterFunctionDefinition>();definition.name="Native radar arrow shadow "+i;definition.filterName="native-radar-shadow-"+i;definition.parameters=Array.Empty<FilterParameterDeclaration>();
-                definition.passes=new[]{new PostProcessingPass {material=_shadowMaterial,passIndex=2,computeRequiredReadMarginsCallback=f=>new PostProcessingMargins {left=16,right=16,top=16,bottom=16},computeRequiredWriteMarginsCallback=f=>new PostProcessingMargins {left=16,right=16,top=16,bottom=16},applySettingsCallback=(properties,context)=>{properties.SetFloat("_CssDpr",context.scaledPixelsPerPoint);properties.SetFloat("_CssReadsGamma",context.readsGamma?1:0);properties.SetFloat("_OffsetX",0);properties.SetFloat("_OffsetY",0);properties.SetFloat("_Sigma",4);properties.SetVector("_CssColor",color);}}};
-                _shadowDefinitions[i]=definition;_arrowFilters[i]=new List<FilterFunction>{new FilterFunction(definition)};
+                _arrowShadows[i]=new NativeUiAlphaShadow(4,color);
             }
             for(int i=0;i<_enemies.Length;i++)_enemies[i]=CreateDot("radar-enemy-"+i,_enemyPaint[0]);
             for(int i=0;i<_pois.Length;i++){var dot=CreateDot("radar-poi-"+i,_poiPaint[0]);dot.Arrow=new NativeHudPoiArrow();dot.Element.Add(dot.Arrow);_pois[i]=dot;}
@@ -92,12 +87,11 @@ namespace EchoSphere.Presentation
             for(int i=0;i<pois.Count&&cursor<12;i++){
                 var poi=pois[i];if(!poi.Alive)continue;var dx=poi.X-playerX;var dy=poi.Y-playerY;var distance=Math.Sqrt(dx*dx+dy*dy);var angle=Math.Atan2(dy,dx);var outside=distance>900;var radius=outside?42:Math.Min(25,distance/900*25);
                 int color=poi.Type=="boss_trace"?2:poi.Type=="elite_nest"||poi.Type=="rupture"?1:0;
-                var dot=_pois[cursor++];dot.Surface.SetPaint(_poiPaint[color]);dot.Surface.SetVisible(!outside);dot.Arrow.style.display=outside?DisplayStyle.Flex:DisplayStyle.None;if(outside)dot.Arrow.Set(_poiColors[color],_arrowFilters[color]);Place(dot,50+Math.Cos(angle)*radius,50+Math.Sin(angle)*radius,outside?10:7,(float)(outside?angle+Math.PI/2:Math.PI/4));
+                var dot=_pois[cursor++];dot.Surface.SetPaint(_poiPaint[color]);dot.Surface.SetVisible(!outside);dot.Arrow.style.display=outside?DisplayStyle.Flex:DisplayStyle.None;if(outside)dot.Arrow.Set(_poiColors[color],_arrowShadows[color]);Place(dot,50+Math.Cos(angle)*radius,50+Math.Sin(angle)*radius,outside?10:7,(float)(outside?angle+Math.PI/2:Math.PI/4));
             }
             VisiblePois=cursor;while(cursor<12)_pois[cursor++].Element.style.display=DisplayStyle.None;
         }
         public void Prepare(float scale){foreach(var surface in _surfaces)surface.Prepare(scale);}
-        public void Dispose(){if(_disposed)return;_disposed=true;_root.RemoveFromHierarchy();foreach(var surface in _surfaces)surface.Dispose();foreach(var definition in _shadowDefinitions)DestroyOwned(definition);DestroyOwned(_shadowMaterial);}
-        private static void DestroyOwned(UnityEngine.Object value){if(Application.isPlaying)UnityEngine.Object.Destroy(value);else UnityEngine.Object.DestroyImmediate(value);}
+        public void Dispose(){if(_disposed)return;_disposed=true;_root.RemoveFromHierarchy();foreach(var dot in _pois)dot.Arrow.Dispose();foreach(var surface in _surfaces)surface.Dispose();foreach(var shadow in _arrowShadows)shadow.Dispose();}
     }
 }

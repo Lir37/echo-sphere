@@ -12,6 +12,9 @@ namespace EchoSphere.Runtime
         private Material _material;
         public void Initialize(EchoSphereRuntime runtime)
         {
+            // The native frame already owns boundary flash/shards. Retain the
+            // gameplay region owner, but do not build/upload a second visual mesh.
+            if(runtime!=null&&runtime.UsesSourcePresentation){enabled=false;return;}
             _runtime = runtime; _mesh = new Mesh { name = "Source Region Seams" }; _mesh.MarkDynamic();
             gameObject.AddComponent<MeshFilter>().sharedMesh = _mesh;
             _material = new Material(Shader.Find("Sprites/Default"));
