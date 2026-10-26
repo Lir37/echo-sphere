@@ -6,6 +6,10 @@ https://github.com/Lir37/echo-sphere/actions/runs/40285243448.
 User explicitly authorized building, installing and testing on the USB phone.
 This supersedes the previous no-APK boundary for this acceptance cycle.
 
+Published correction implementation: bf6d09f6adb82b385d723ddcef238b715b560e42.
+CI #869 SUCCESS: https://github.com/Lir37/echo-sphere/actions/runs/40323432979.
+This is separate from baseline phone measurements and pending post-fix acceptance.
+
 ## Measured baseline Android build
 
 - Main UnityProject, Unity 6000.6.1f1, original ECHO SPHERE identity,

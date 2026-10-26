@@ -18,6 +18,8 @@ stages/420 checks pass without new Console errors. Gameplay and quality unchange
 Post-fix phone performance, full tutorial/combat and P1/P2 completion remain OPEN.
 Measurements, build identity and next acceptance steps:
 GPT/UNITY_NATIVE_66_ANDROID_DEVICE_2026-10-26.md
+Correction implementation: bf6d09f6adb82b385d723ddcef238b715b560e42.
+CI #869 SUCCESS; corrected Android build/signature checks PASS. Device retest OPEN.
 
 ======================================================================
 0. PURPOSE

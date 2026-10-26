@@ -14,6 +14,10 @@ Six visibility cases, 18 viewport cases / 93 checks, nine populated modals / 420
 checks pass. Post-fix Android performance remains unmeasured. See
 UNITY_NATIVE_66_ANDROID_DEVICE_2026-10-26.md for measurements and acceptance limits.
 
+Correction implementation bf6d09f6adb82b385d723ddcef238b715b560e42 passed
+CI #869 SUCCESS: https://github.com/Lir37/echo-sphere/actions/runs/40323432979.
+Corrected signed APK is ready locally; it was not installed after phone disconnect.
+
 ## Latest checkpoint — Unity 6.6 Editor acceptance, 2026-10-26
 
 Actual Editor tutorial-to-run-to-result/region/home flow passes, including Up/Down,
