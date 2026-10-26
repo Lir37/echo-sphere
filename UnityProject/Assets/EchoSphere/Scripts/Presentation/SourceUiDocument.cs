@@ -1,3 +1,4 @@
+using EchoSphere;
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
@@ -432,7 +433,7 @@ namespace EchoSphere.Presentation
                 EnsureBrush(entry);Append(entry.Paint,entry.PaintRect,matrix,opacity,node==root.Node?null:clip,_sheet.Get(node,"mix-blend-mode","normal"));
                 foreach(var child in node.Children)if(child.Native is VisualElement native){var position=native.layout.position;var alpha=float.TryParse(_sheet.Get(child,"opacity","1"),NumberStyles.Float,CultureInfo.InvariantCulture,out var value)?value:1f;Add(child,matrix*Matrix4x4.Translate(new Vector3(position.x,position.y,0))*SourceUiDepth.Transform(_sheet,child),opacity*alpha);}
             }
-            Add(root.Node,Matrix4x4.identity,1f);var fingerprint=perspective+"/"+eye+"/"+string.Join(";",images.Select(image=>(image.Texture!=null?image.Texture.GetInstanceID():0)+":"+image.Matrix.ToString("R")+":"+image.Opacity.ToString("R",CultureInfo.InvariantCulture)+":"+image.Blend+":"+(image.Clip!=null?image.Clip.GetInstanceID():0)));
+            Add(root.Node,Matrix4x4.identity,1f);var fingerprint=perspective+"/"+eye+"/"+string.Join(";",images.Select(image=>(image.Texture!=null?image.Texture.ExistingObjectId():0)+":"+image.Matrix.ToString("R")+":"+image.Opacity.ToString("R",CultureInfo.InvariantCulture)+":"+image.Blend+":"+(image.Clip!=null?image.Clip.ExistingObjectId():0)));
             var filter=_sheet.Get(root.Node,"filter","none");fingerprint+="/"+filter+"/"+_sheet.Get(root.Node,"color")+"/"+_scale;
             if(root.Depth==null)root.Depth=new SourceUiDepth();if(root.DepthKey!=fingerprint){
                 root.DepthTexture=root.Depth.Render(images,(float)root.Node.Width,(float)root.Node.Height,_scale,perspective,eye,!FlattensDepth(root.Node));root.DepthRect=root.Depth.Bounds;

@@ -37,7 +37,7 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
 {
     var editor = configuration != "Android player";
     var editorAssembly = configuration == "Android editor assembly";
-    var symbols = new List<string> { "UNITY_6000_3_OR_NEWER", "UNITY_6000_0_OR_NEWER", "UNITY_2023_1_OR_NEWER", "UNITY_2022_1_OR_NEWER", "UNITY_2021_1_OR_NEWER", "UNITY_ANDROID", "ENABLE_IL2CPP", "NET_STANDARD_2_1", "NET_STANDARD", "ENABLE_LEGACY_INPUT_MANAGER" };
+    var symbols = new List<string> { "UNITY_6000_6_OR_NEWER", "UNITY_6000_3_OR_NEWER", "UNITY_6000_0_OR_NEWER", "UNITY_2023_1_OR_NEWER", "UNITY_2022_1_OR_NEWER", "UNITY_2021_1_OR_NEWER", "UNITY_ANDROID", "ENABLE_IL2CPP", "NET_STANDARD_2_1", "NET_STANDARD", "ENABLE_LEGACY_INPUT_MANAGER" };
     if (editor) symbols.AddRange(new[] { "UNITY_EDITOR", "UNITY_EDITOR_LINUX" });
     var parse = new CSharpParseOptions(LanguageVersion.CSharp9, preprocessorSymbols: symbols);
     var trees = sources.Where(file => Path.GetRelativePath(Path.Combine(project,"Assets"), file).Split(Path.DirectorySeparatorChar).Contains("Editor") == editorAssembly)
@@ -67,7 +67,7 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release, warningLevel: 4, allowUnsafe: false));
     if(configuration=="Android player")
     {
-        foreach(var name in new[]{"V","VisualJs","VisualJson","IVisualHost","IVisualCallable","SourceCanvasImage","SourceCanvasArtIndex","NativeRunSnapshotDefaults","SourceUiDocument","SourceCanvasSurface"})
+        foreach(var name in new[]{"V","VisualJs","VisualJson","IVisualHost","IVisualCallable","SourceCanvasImage","SourceCanvasArtIndex","NativeRunSnapshotDefaults","SourceUiDocument","SourceCanvasSurface","SourceUiBackdrop","SourceUiReplica","SourceUiReplicaStyle","SourceUiReplicaSnapshotCache","SourceUiFrame","NativeCaptureBackdrop","NativeUiCapturePanel","LegacyMenuGlass","LegacyUiBackdropRegistry","NativeBackdropEngineProbe","NativeMenuEngineProbe"})
             if(compilation.GetTypeByMetadataName("EchoSphere.Presentation."+name)!=null)throw new InvalidOperationException("Retired presentation compatibility type leaked into Android player: "+name);
         var runtime=compilation.GetTypeByMetadataName("EchoSphere.Runtime.EchoSphereRuntime");
         foreach(var name in new[]{"_sourceRenderState","_sourceRenderEntities","UpdateSourceRenderState","UpdateSourceUiState","ApplySourceUiWrites"})

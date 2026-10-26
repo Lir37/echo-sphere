@@ -7,8 +7,8 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 // Explicit cloud build entry point. The regular Unity Editor bootstrap also
-// calls EnsurePrototypeScene after startup; CI calls it synchronously so that
-// a generated scene is registered before BuildPipeline.BuildPlayer starts.
+// calls EnsureNativeScene after startup; CI calls it synchronously so that
+// the authored native entry is registered before BuildPipeline.BuildPlayer starts.
 public static class EchoSphereCiBuild
 {
     private const string ApplicationId = "com.lir37.echosphere";
@@ -16,7 +16,7 @@ public static class EchoSphereCiBuild
 
     public static void BuildAndroidDevelopmentApk()
     {
-        EchoSphereProjectBootstrap.EnsurePrototypeScene();
+        EchoSphereProjectBootstrap.EnsureNativeScene();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 

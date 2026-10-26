@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
 using System;
 using System.Globalization;
 using System.Linq;
@@ -77,7 +77,7 @@ namespace EchoSphere.Presentation
             Debug.Log("[EchoSphere.Replay] textures="+stage+" count="+textures.Length+" bytes="+textures.Sum(t=>t.bytes)+" largest=["+string.Join(";",textures.Take(12).Select(t=>t.name+":"+t.width+"x"+t.height+":"+t.bytes))+"]");
             var images=Resources.FindObjectsOfTypeAll<Texture2D>().Select(t=>new {t.name,t.width,t.height,bytes=UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(t)}).OrderByDescending(t=>t.bytes).ToArray();
             Debug.Log("[EchoSphere.Replay] images="+stage+" count="+images.Length+" bytes="+images.Sum(t=>t.bytes)+" largest=["+string.Join(";",images.Take(8).Select(t=>t.name+":"+t.width+"x"+t.height+":"+t.bytes))+"]");
-            foreach(var d in UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None))if(d.isActiveAndEnabled&&d.rootVisualElement!=null&&d.rootVisualElement.style.visibility!=Visibility.Hidden&&d.rootVisualElement.style.opacity.value>0)Debug.Log("[EchoSphere.Replay] panel="+d.name+" scale="+d.panelSettings.scale+" bounds="+d.rootVisualElement.worldBound);
+            foreach(var d in UnityEngine.Object.FindObjectsByType<UIDocument>())if(d.isActiveAndEnabled&&d.rootVisualElement!=null&&d.rootVisualElement.style.visibility!=Visibility.Hidden&&d.rootVisualElement.style.opacity.value>0)Debug.Log("[EchoSphere.Replay] panel="+d.name+" scale="+d.panelSettings.scale+" bounds="+d.rootVisualElement.worldBound);
         }
         private static Button Find(string name)
         {
@@ -88,7 +88,7 @@ namespace EchoSphere.Presentation
                 if(e is Button b&&b.name==name&&b.enabledInHierarchy&&b.layout.width>0&&b.layout.height>0)found=b;
                 for(int i=0;i<e.hierarchy.childCount;i++)Visit(e.hierarchy[i]);
             }
-            foreach(var document in UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None))if(document.isActiveAndEnabled)Visit(document.rootVisualElement);
+            foreach(var document in UnityEngine.Object.FindObjectsByType<UIDocument>())if(document.isActiveAndEnabled)Visit(document.rootVisualElement);
             return found;
         }
         private static bool Submit(string name)

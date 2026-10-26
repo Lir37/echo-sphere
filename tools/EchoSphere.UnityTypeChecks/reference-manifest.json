@@ -1,2762 +1,3126 @@
 {
-  "editorVersion": "6000.3.24f1",
+  "editorVersion": "6000.6.1f1",
   "platform": "Linux",
-  "archiveUrl": "https://download.unity3d.com/download_unity/4e7b9b5b6244/LinuxEditorInstaller/Unity-6000.3.24f1.tar.xz",
-  "archiveSize": 4465840984,
+  "archiveUrl": "https://download.unity3d.com/download_unity/7efac9f6c10e/LinuxEditorInstaller/Unity-6000.6.1f1.tar.xz",
+  "archiveSize": 4167467024,
   "xzHeader": "/Td6WFoAAATm1rRG",
   "blocks": [
     {
-      "id": 90,
-      "offset": 657169708,
-      "unpadded": 13202373,
+      "id": 114,
+      "offset": 795378096,
+      "unpadded": 7526059,
       "uncompressed": 25165824,
-      "raw": 2264924160
+      "raw": 2868903936
     },
     {
-      "id": 92,
-      "offset": 675810636,
-      "unpadded": 6046879,
+      "id": 142,
+      "offset": 968811648,
+      "unpadded": 5917227,
       "uncompressed": 25165824,
-      "raw": 2315255808
+      "raw": 3573547008
     },
     {
-      "id": 93,
-      "offset": 681857516,
-      "unpadded": 4988558,
+      "id": 143,
+      "offset": 974728876,
+      "unpadded": 5684448,
       "uncompressed": 25165824,
-      "raw": 2340421632
+      "raw": 3598712832
     },
     {
-      "id": 94,
-      "offset": 686846076,
-      "unpadded": 5759646,
+      "id": 144,
+      "offset": 980413324,
+      "unpadded": 4904083,
       "uncompressed": 25165824,
-      "raw": 2365587456
+      "raw": 3623878656
     },
     {
-      "id": 287,
-      "offset": 4168231576,
-      "unpadded": 6644877,
+      "id": 145,
+      "offset": 985317408,
+      "unpadded": 5219232,
       "uncompressed": 25165824,
-      "raw": 7222591488
+      "raw": 3649044480
     },
     {
-      "id": 288,
-      "offset": 4174876456,
-      "unpadded": 4450001,
+      "id": 308,
+      "offset": 3857655128,
+      "unpadded": 7072223,
       "uncompressed": 25165824,
-      "raw": 7247757312
+      "raw": 7751073792
+    },
+    {
+      "id": 309,
+      "offset": 3864727352,
+      "unpadded": 3145888,
+      "uncompressed": 25165824,
+      "raw": 7776239616
     }
   ],
   "files": [
     {
-      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.Cecil.dll",
-      "target": "Managed/UnityEngine/Unity.Cecil.dll",
-      "offset": 2328493056,
-      "size": 351232,
-      "sha256": "27a8e20b84f9b6aef707d7ea026eed9e5b93f5d93b09362d61281194dee0f2a4"
+      "archivePath": "Editor/Data/Managed/UnityEngine/AsmDefToCSProjLib.dll",
+      "target": "Managed/UnityEngine/AsmDefToCSProjLib.dll",
+      "offset": 3605463040,
+      "size": 85504,
+      "sha256": "51d355bb5fa5a2f3849d17bdff37eabf4ef05e1a65d9f2fa9c9b01e6c173abe2"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Bee.BeeDriver2.dll",
+      "target": "Managed/UnityEngine/Bee.BeeDriver2.dll",
+      "offset": 3631384064,
+      "size": 123904,
+      "sha256": "09f57050700d05b800b4e31dbfffd078e83b9a5ee281aa26c22aa255496dfd99"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Bee.BinLog.dll",
+      "target": "Managed/UnityEngine/Bee.BinLog.dll",
+      "offset": 3647894016,
+      "size": 18944,
+      "sha256": "21ab365d35a846c245a546d84b27465e807a069b77f2d9ef2f768cc646b590be"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Bee.TinyProfiler2.dll",
+      "target": "Managed/UnityEngine/Bee.TinyProfiler2.dll",
+      "offset": 3628753408,
+      "size": 20480,
+      "sha256": "9c385ad3c4feb3585af84daaa82c27fc8d43183feb78b55fda91c46e93347805"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/BeeBuildProgramCommon.Data.dll",
+      "target": "Managed/UnityEngine/BeeBuildProgramCommon.Data.dll",
+      "offset": 3649844736,
+      "size": 4608,
+      "sha256": "aedac1a4a2bb0327d3a01ffb089d767ae744b940ec92f9053d1b20dd686295f3"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/ExCSS.Unity.dll",
+      "target": "Managed/UnityEngine/ExCSS.Unity.dll",
+      "offset": 3602619904,
+      "size": 347136,
+      "sha256": "07860534a9a2a91f273d96e8491ddfa065da699b5539423df8eaa1bf5307036d"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Google.Protobuf.dll",
+      "target": "Managed/UnityEngine/Google.Protobuf.dll",
+      "offset": 3632183296,
+      "size": 461088,
+      "sha256": "5502aab0aac10f558e659dde5eacf8abcc24ad4b937a1c157b2b3c83d50f0514"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Grpc.Core.Api.dll",
+      "target": "Managed/UnityEngine/Grpc.Core.Api.dll",
+      "offset": 3595651584,
+      "size": 70432,
+      "sha256": "0c4e14b08b418a0fda47282cbf36607c6f72ff0ebbb986eeff5b2fd9e2408d55"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Grpc.Net.Client.dll",
+      "target": "Managed/UnityEngine/Grpc.Net.Client.dll",
+      "offset": 3650433024,
+      "size": 204576,
+      "sha256": "4327477a190afaaf4da8db8814f518fa1684f217aceedaa206bedd72ef8a85df"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Grpc.Net.Common.dll",
+      "target": "Managed/UnityEngine/Grpc.Net.Common.dll",
+      "offset": 3650293248,
+      "size": 23328,
+      "sha256": "c277f136c53efd1fc0ec5acc8d8aa8667f124f728bb9a2f299ad00c0b931d8f2"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Newtonsoft.Json.dll",
+      "target": "Managed/UnityEngine/Newtonsoft.Json.dll",
+      "offset": 3665559552,
+      "size": 705296,
+      "sha256": "8c1dd5c184b4e2e7ead06971ff3ebcb46783be972292d1deb1061744369b4d80"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/PlayerBuildProgramLibrary.Data.dll",
+      "target": "Managed/UnityEngine/PlayerBuildProgramLibrary.Data.dll",
+      "offset": 3598695424,
+      "size": 6656,
+      "sha256": "a3ee04c6930acf2230455b6a4d789fa50c14e5edca194990d44077185bb52263"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/ScriptCompilationBuildProgram.Data.dll",
+      "target": "Managed/UnityEngine/ScriptCompilationBuildProgram.Data.dll",
+      "offset": 3601031680,
+      "size": 5632,
+      "sha256": "93af1b2a23c21d2ec2bb2825a23c3c0e429f590cc8658a83b33b5ee03d7d47ed"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/StandardSocketsHttpHandler.dll",
+      "target": "Managed/UnityEngine/StandardSocketsHttpHandler.dll",
+      "offset": 3658242560,
+      "size": 331264,
+      "sha256": "659c784c861fbe5b79ff5c24cf4de0106db27a37e4265023a91ece53d6c4e0b7"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/System.CodeDom.dll",
+      "target": "Managed/UnityEngine/System.CodeDom.dll",
+      "offset": 3638738432,
+      "size": 184936,
+      "sha256": "3772e9c431fe84eb53580225ba8fe1dca549e76037375f5ba2be0903733fb716"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.BuildService.dll",
+      "target": "Managed/UnityEngine/Unity.BuildService.dll",
+      "offset": 3632095744,
+      "size": 87040,
+      "sha256": "87cf03d479f27755d731db4d98c3c30853aec574df6b9c09752b6334363192e7"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/Unity.Cecil.Mdb.dll",
       "target": "Managed/UnityEngine/Unity.Cecil.Mdb.dll",
-      "offset": 2377017344,
+      "offset": 3657923072,
       "size": 44544,
       "sha256": "08db5b40b2610f31ff66dfc00b774cfee455dddd8e73f12a06f030517970f02f"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/Unity.Cecil.Pdb.dll",
       "target": "Managed/UnityEngine/Unity.Cecil.Pdb.dll",
-      "offset": 2328978944,
+      "offset": 3597021184,
       "size": 88064,
       "sha256": "ed6895a9cbe6aafb357b8c386fb9086fcd6e56899d34d4e7c15bc124ef2ccfa2"
     },
     {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.Cecil.Rocks.dll",
+      "target": "Managed/UnityEngine/Unity.Cecil.Rocks.dll",
+      "offset": 3655748096,
+      "size": 28672,
+      "sha256": "7ca9ebcef1a3ae21ea4f0d9a98337c0441bcf582571982e5ae29c49f48538e3b"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.Cecil.dll",
+      "target": "Managed/UnityEngine/Unity.Cecil.dll",
+      "offset": 3596493824,
+      "size": 351232,
+      "sha256": "27a8e20b84f9b6aef707d7ea026eed9e5b93f5d93b09362d61281194dee0f2a4"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.CecilTools.dll",
+      "target": "Managed/UnityEngine/Unity.CecilTools.dll",
+      "offset": 3623520256,
+      "size": 10752,
+      "sha256": "1fb9871e56f58d90312ab57a5f7f008624f5bf314f4ffc783eeff176435c2729"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.CompilationPipeline.Common.dll",
+      "target": "Managed/UnityEngine/Unity.CompilationPipeline.Common.dll",
+      "offset": 3660040192,
+      "size": 20480,
+      "sha256": "4723691d7055334fe6df3f4bd8fe92e51697d67fec3455cd8be6aedaaac8cbaa"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.FileUtilities.dll",
+      "target": "Managed/UnityEngine/Unity.FileUtilities.dll",
+      "offset": 3657979392,
+      "size": 6656,
+      "sha256": "6ff7bb3de59e53dcbf306808ad358957649318d3110191ec64e894c52be79547"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.Scripting.dll",
+      "target": "Managed/UnityEngine/Unity.Scripting.dll",
+      "offset": 3648131072,
+      "size": 59904,
+      "sha256": "2e68e737dc33b33b013cdaf0fc40940ff320121133316a64845c2d4bb639f0b5"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/Unity.SerializationLogic.dll",
+      "target": "Managed/UnityEngine/Unity.SerializationLogic.dll",
+      "offset": 3647386112,
+      "size": 19968,
+      "sha256": "ec65456692ea706b542f050f335a55a49f2a97b9d6096c6c1f27ec9e590ae613"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.AIModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.AIModule.dll",
+      "offset": 3623762944,
+      "size": 58880,
+      "sha256": "d2277c49524ce1d2a966dd84138a76af2bb77a2f084a40502c655791f08a433a"
+    },
+    {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.AccessibilityModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.AccessibilityModule.dll",
-      "offset": 2350467584,
-      "size": 26112,
-      "sha256": "9086670fec186d319e0d8c1fd7b743c6feeb6e9622caeeab7d47b99c8e1dba46"
+      "offset": 3622973440,
+      "size": 25600,
+      "sha256": "fe36876f2b5f029647ad06042df5173b5089c86c7f2e71266d7e7aec1636ae53"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.AdaptivePerformanceModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.AdaptivePerformanceModule.dll",
-      "offset": 2333160960,
-      "size": 184832,
-      "sha256": "4b4a11343f2e83039131ff18915641232febd238f6feada13522803e0e529d5f"
+      "offset": 3603397120,
+      "size": 185856,
+      "sha256": "44f52223e85b8d6612abec689c4b11aa6d35bb9208b368b6b09cf98844e49ed8"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.AnimationWindowModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.AnimationWindowModule.dll",
+      "offset": 3625057280,
+      "size": 256512,
+      "sha256": "0bd83b3d31cef398b150cecd6dc3963c6c1f2384d5656bbc5db9fb57ba8fd1d7"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.AssetComplianceModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.AssetComplianceModule.dll",
-      "offset": 2327664128,
+      "offset": 3595612160,
       "size": 3584,
-      "sha256": "8ac499283506988f4a93e312e2746117de02b46e1aac58c9306d8e8b84defb97"
+      "sha256": "49fd41a007d37f9b7df2effadb3a82bffe2ab15532519c4b0ffac3681c7d8820"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.BuildAnalysisModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.BuildAnalysisModule.dll",
+      "offset": 3648305664,
+      "size": 113152,
+      "sha256": "2a151fac29c9d2112438d450f031beda4600296692c678079a49937fedc37022"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.BuildProfileModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.BuildProfileModule.dll",
-      "offset": 2351644160,
-      "size": 118784,
-      "sha256": "08bf8103a37dce0e93e59ec552090b54e12cd3001ed5db77a7a03b55f1dd8d8f"
+      "offset": 3624282112,
+      "size": 141824,
+      "sha256": "d5fc19d6a07f09284c32130c03aa1f8871fc285489b4ba9c5c9af7c0b6c89b0e"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.BurstModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.BurstModule.dll",
+      "offset": 3658934272,
+      "size": 955392,
+      "sha256": "88bc927e51ea7c39e654223e3e0b6d7fc648c26a3c29fa366e4afcd3e9f90a31"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.ClothModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.ClothModule.dll",
-      "offset": 2344663552,
-      "size": 60416,
-      "sha256": "da2b98383b8ce74756349b5aff51840f15101201c965b13b03707fde7b66dc9c"
+      "offset": 3617308672,
+      "size": 61440,
+      "sha256": "bc76ccea148d242879205761f6432b891f9a05503b32acf1acccbfed8b966bf7"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.ContentLoadModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.ContentLoadModule.dll",
+      "offset": 3601478144,
+      "size": 9728,
+      "sha256": "d4c3a6cb24afdfb624be19a5330c0c097929b4dfaf8e8591893a3d52401c7805"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.CoreBusinessMetricsModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.CoreBusinessMetricsModule.dll",
-      "offset": 2370229248,
-      "size": 25600,
-      "sha256": "b29be80066464ecec00aaf953938ed9bf4bdd7bc181272c6d4b8c3211c22d61f"
+      "offset": 3650340352,
+      "size": 29696,
+      "sha256": "d9056b3c63d2f689085698e21173728c6c6771b0da42f2ffa210af11ac4387e9"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.CoreModule.dll",
-      "offset": 2333669376,
-      "size": 10993664,
-      "sha256": "6ab7beb5ad32dae4155e5cb372578943745ecc053689438c9faf8055de7d821b"
+      "offset": 3605662208,
+      "size": 10912768,
+      "sha256": "0b57546b4131a0ed3735cd9963b05076b2516216d0a4c060934bd852f937e86b"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll",
-      "offset": 2359233536,
-      "size": 119808,
-      "sha256": "e188184218a7cee73e0236728c6948c92ac5e0b974f7aa37a67e7e0fe842bebd"
+      "offset": 3634534912,
+      "size": 120832,
+      "sha256": "6ac23e1facf9ca0f116aa641812fe7eab8177c447d539778e31c9e38e482c1b8"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.DiagnosticsModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.DiagnosticsModule.dll",
-      "offset": 2350428672,
-      "size": 38400,
-      "sha256": "e308ae89f65861feb64916044fa12a6e084b56a8234f4f2e5792d00fb58466f0"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.dll",
-      "target": "Managed/UnityEngine/UnityEditor.dll",
-      "offset": 2344724480,
-      "size": 294912,
-      "sha256": "d87eaf277e310b90d1499f7ea34e67397ba39bacb01c0cb602ce579ea7455c1d"
+      "offset": 3622930944,
+      "size": 41984,
+      "sha256": "206d9bc51b61bd955bda73a0fa8a6e8f95bb32889a1ca8de8cdc7c72c1c9a452"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.EditorToolbarModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.EditorToolbarModule.dll",
-      "offset": 2375566336,
-      "size": 124416,
-      "sha256": "1c27a819b94942d599ee7c0f8a7947566d971c2c4acc3c02b301f071ee4f6b26"
+      "offset": 3655809024,
+      "size": 133632,
+      "sha256": "b1b8ee894d014356e74183f284984be6d47fdede80e6be2a2aa7e171d1eb7090"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.EmbreeModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.EmbreeModule.dll",
-      "offset": 2374332928,
-      "size": 6144,
-      "sha256": "36e420e91cb8c4a40d019d0abc1ac7ba50f0c00ad245f3ca1723cf330a5724a7"
+      "offset": 3654838272,
+      "size": 6656,
+      "sha256": "e07620243d4e1209be6ddec4859fe56d9b88c0c420889876df55d068ea2182e8"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.GIModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.GIModule.dll",
-      "offset": 2351116288,
-      "size": 25600,
-      "sha256": "533761141f808291319991b388829e005df51537e896f7de0c6362e957bcd0fa"
+      "offset": 3623822336,
+      "size": 29696,
+      "sha256": "87e1781916c89dc036c94ab940d3c6cf503f7d25dfc80fcb331b81a890452615"
     },
     {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.GraphicsStateCollectionSerializerModule.dll",
-      "target": "Managed/UnityEngine/UnityEditor.GraphicsStateCollectionSerializerModule.dll",
-      "offset": 2350878208,
-      "size": 3584,
-      "sha256": "5a5a8edcbe1c79b308a58c47d832422b2618f3e6c32e40d3bace66f98be43269"
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.GenericRemoteModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.GenericRemoteModule.dll",
+      "offset": 3605371904,
+      "size": 32256,
+      "sha256": "3c2b37cfdc28580e8b5c707f9334e61988d25083beca19f19754485b5debbf77"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.GraphToolkitModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.GraphToolkitModule.dll",
+      "offset": 3603639296,
+      "size": 1646080,
+      "sha256": "1c920edebf319a4b64f68d5475db9137d894196e810a701aaed7a87ebb2d4eb0"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.GraphViewModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.GraphViewModule.dll",
-      "offset": 2350018048,
-      "size": 280064,
-      "sha256": "a7bb85e2709dd14f62e01db90ee70faec226927d32f830d954fe99ab2ee9b701"
+      "offset": 3622524416,
+      "size": 289792,
+      "sha256": "36aecc8141c3e1b179bb6cbd352d54977403cfe98e4b1c618c7dc6f786a3c49a"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.GraphicsStateCollectionSerializerModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.GraphicsStateCollectionSerializerModule.dll",
+      "offset": 3623348736,
+      "size": 4096,
+      "sha256": "cc8bf019e739ae2b7129f41fd41ea4d3a6c73d61aaf6e738c9fa8ffe300f8fb8"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.GridAndSnapModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.GridAndSnapModule.dll",
-      "offset": 2377073664,
-      "size": 35840,
-      "sha256": "6df3be0e51d81fcf9656161350a16ea7e812884d708378ea013530069b37b93d"
+      "offset": 3657987584,
+      "size": 45568,
+      "sha256": "138afbd7c69eca99c096dc77ef4925246166aa38ca29707a85709512e200cfe2"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.GridModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.GridModule.dll",
-      "offset": 2364208128,
-      "size": 27136,
-      "sha256": "21e3fa7e108344352feda43c21940872261d79497c1cd0bb4ca02c0feebdf0af"
+      "offset": 3638686720,
+      "size": 31232,
+      "sha256": "4e37d3e3c8fb38d63e4afb53acf60db72e37b9fb11a6b64e2801ec666f996597"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.HierarchyModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.HierarchyModule.dll",
-      "offset": 2367384064,
-      "size": 133120,
-      "sha256": "6bbc88d42d2817abd4aee80d9fc96b29476a8d89b4de2c122746976382701bf3"
+      "offset": 3646379008,
+      "size": 151040,
+      "sha256": "9cf8e2e8f9f5191a6a4b1e256f1abc91ed26b5b1ed1f5994abffbf47aaf32309"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.LightingModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.LightingModule.dll",
+      "offset": 3631608320,
+      "size": 68608,
+      "sha256": "4f101ed014f35f2088aa424faa4bdbd399eddfe0fe0f74f77c6893304a844acb"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.MSBuild.dll",
+      "target": "Managed/UnityEngine/UnityEditor.MSBuild.dll",
+      "offset": 3596995584,
+      "size": 25088,
+      "sha256": "9e6ed1c69c84c9030644d4b2fc6a8082a059f4b1082f49acc7b9f5ac35468e99"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.MathematicsModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.MathematicsModule.dll",
+      "offset": 3601007104,
+      "size": 24064,
+      "sha256": "27e821baf28f65e2a3d7fc01da98bc5da7e0071c9b3aa56e8ed4dbc04b6bc552"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.MediaModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.MediaModule.dll",
-      "offset": 2370890752,
+      "offset": 3651408384,
       "size": 14336,
-      "sha256": "713e671aaddd44b2066d8439ae7f31deae7cd345dad79c3a5144024b55f7c4f5"
+      "sha256": "6c01c851e25d1e8c7efc17994a382daa827d79428afab6f2be8a92dad9b56ad4"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.MultiplayerModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.MultiplayerModule.dll",
-      "offset": 2345019904,
-      "size": 493568,
-      "sha256": "12175d21f46f21b02ca388a007c7b4fbfc8b2f9171d9b1866d90821904bb4e38"
+      "offset": 3617770496,
+      "size": 495616,
+      "sha256": "0c484a6b03f729c94d8e6a84cb130a0bff3d6c44a867032c8e0228630b7a86b3"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.Physics2DModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.Physics2DModule.dll",
-      "offset": 2350889984,
-      "size": 139776,
-      "sha256": "74852bbb5aa61f7ea4e2aa49d4a4c82efa307ec66a259a9a1da07858d5dcefe9"
+      "offset": 3623361024,
+      "size": 121344,
+      "sha256": "82a019da7424ea99591799ace5748b3ad572e264dfb0377a453518e1189e8da6"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.PhysicsCore2DModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.PhysicsCore2DModule.dll",
+      "offset": 3658033664,
+      "size": 86016,
+      "sha256": "9c59fdb8c72cd09ac854e6206d9c52d9728e70b6d95c414aeb32612ae5c7294d"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.PhysicsModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.PhysicsModule.dll",
-      "offset": 2373538304,
-      "size": 189440,
-      "sha256": "c9ee3840ba086900192683bebb5e2f3ec56c7ca76b060233091752031ab22ce5"
+      "offset": 3654222848,
+      "size": 188416,
+      "sha256": "3b85977dc7fcec6ad3c927c80ab4ae63fb58f7f632562ec23368a6ec131e4052"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.PlayModeModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.PlayModeModule.dll",
-      "offset": 2369013760,
-      "size": 44544,
-      "sha256": "b7f381144fcaa77af9174e0275a4dd153aae15f6b2af8df41659317439fa469a"
+      "offset": 3648084992,
+      "size": 45568,
+      "sha256": "3702e361e7d364900b9c25dfdde95da5e30fb92690edeab8b94c47d14a9ffde0"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.PresetsUIModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.PresetsUIModule.dll",
-      "offset": 2358125568,
-      "size": 83968,
-      "sha256": "9d8f0985e0dcfb92d10ac2e8f37728c139c5bfce46c85e432bee6a8c6e617430"
+      "offset": 3631805440,
+      "size": 85504,
+      "sha256": "3d8d8586d646b8defce5cfbcceb972877554d5269c579f0d43b149b657c2a766"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.ProjectAuditorModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.ProjectAuditorModule.dll",
+      "offset": 3645653504,
+      "size": 655360,
+      "sha256": "c0ba4165b2aba345c12d7798091726db8d2f63c53628ef354cea54655d970b03"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.PropertiesModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.PropertiesModule.dll",
-      "offset": 2369058816,
-      "size": 4608,
-      "sha256": "2d42a7914e223afc11095fca6e05e2563d91cd2a2db98f3f39a7b5ed4882295f"
+      "offset": 3648191488,
+      "size": 5120,
+      "sha256": "2382561b5ab903e4c067ebbf2c000bddec1105bbabf0aeb2b113be2e3c4ac0ef"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.QuickInstallModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.QuickInstallModule.dll",
-      "offset": 2370732544,
-      "size": 40960,
-      "sha256": "c09f764070461bae5fec3b81baf5a0d015594bcc07da53f99c24773bc430ee43"
+      "offset": 3651220992,
+      "size": 46080,
+      "sha256": "9511091ab3ef3041f7278aeeb8d6ff96e9dbe37174b12f21492566fbf5b6831e"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.QuickSearchModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.QuickSearchModule.dll",
-      "offset": 2355847680,
-      "size": 1793024,
-      "sha256": "162ea8d62798a11d69345809fbd8b45cf0ccf15c4bbff8f4c573a95c4d211388"
+      "offset": 3629321216,
+      "size": 1754112,
+      "sha256": "9533ad6e0601162cff0794b279ec5dffe9a0c9fe6d8def2164bd8bf6ec1c2dbb"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.SafeModeModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.SafeModeModule.dll",
-      "offset": 2350505984,
-      "size": 33792,
-      "sha256": "1affbb991dda7e2dbbb98abf6d0b571ece207380065b5d8d330fbcec538ac2cb"
+      "offset": 3623012864,
+      "size": 37888,
+      "sha256": "e5b8d7d0d927b25e7017db202a445f14c4d76ac3fbb2d16351e3d70a7e0cccbb"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.SceneTemplateModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.SceneTemplateModule.dll",
-      "offset": 2368253952,
-      "size": 158720,
-      "sha256": "4bb54bc0eb869058277886b49aa23a49509217e23a2230def1acd85634d69e32"
+      "offset": 3647200256,
+      "size": 157696,
+      "sha256": "0c5693e58b71c5e97a410d0d504257c78d99700d16a67ada3cf5cb616c4c70e9"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.SceneViewModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.SceneViewModule.dll",
-      "offset": 2380617728,
-      "size": 83456,
-      "sha256": "6de34c0ce980a7f1201043857a25e8dbb56d96eb8b9492fc00313269ff8eb5c6"
+      "offset": 3667069952,
+      "size": 87552,
+      "sha256": "1652db060ef242da8af932fdc3e43db40f5047d782157e14f667b224cd5bbf51"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.ShaderBuildSettingsModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.ShaderBuildSettingsModule.dll",
-      "offset": 2331163136,
-      "size": 3584,
-      "sha256": "a052d571b8111e698a4ebba3dbdda076a932f9c495bb32a9daa341bbd7d5b84f"
+      "offset": 3600821248,
+      "size": 4096,
+      "sha256": "14c0a171e3121415e3dd9cec637ebd73a03a76f2834738df81abb14cb0a5c4be"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.ShaderCompilationModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.ShaderCompilationModule.dll",
-      "offset": 2370050560,
-      "size": 25600,
-      "sha256": "124862f285eeef65d88cafcf78a33dff73131a268a10ffbb7168bda8f530c28d"
+      "offset": 3650122240,
+      "size": 29696,
+      "sha256": "6bb5f4ae20f82387bf95509733ab3fd1762530f7eb663511c3920565a3eeb988"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.ShaderFoundryModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.ShaderFoundryModule.dll",
-      "offset": 2379769344,
-      "size": 190976,
-      "sha256": "b81831c6778b75fcb1080b49aca7414410a98f9fe56c7beebda94da27848032c"
+      "offset": 3665096704,
+      "size": 339456,
+      "sha256": "2c4f0da4794e73989359398eb909f7a079303d57be5e491a66caf35122950e8d"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.ShaderPreprocessorModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.ShaderPreprocessorModule.dll",
+      "offset": 3666426368,
+      "size": 29696,
+      "sha256": "14ab1b7c9516d534dbe28d5101de3a43f9a52d4a53b3713f2a0a3c903ca9d9f1"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.SketchUpModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.SketchUpModule.dll",
-      "offset": 2379726848,
-      "size": 41984,
-      "sha256": "e6d8537b5eaa374d2d63fe8adc893bf5e1e777a158d9bfc669611289482b3f3f"
+      "offset": 3665028096,
+      "size": 45568,
+      "sha256": "7227a2ed0b127c68596240dfcf064efcf76973ef18140d2367542b256ae30a17"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.SpriteMaskModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.SpriteMaskModule.dll",
-      "offset": 2370906624,
-      "size": 30208,
-      "sha256": "98e777efa71f9e793925eef3530f2f898ce8bea5cba243e4e17ede6843bef4a9"
+      "offset": 3651454464,
+      "size": 34816,
+      "sha256": "0edb35a204e84ed83bd822520b6ce96d6a486d482649116c22bfca70b7fc95ae"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.SpriteShapeModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.SpriteShapeModule.dll",
-      "offset": 2345546240,
-      "size": 29696,
-      "sha256": "1df0f1bdfd5590347e0c6a80f763f19dd77542617d05ac3731d5c0eb3ce7d21e"
+      "offset": 3618291712,
+      "size": 33792,
+      "sha256": "1c8aaa7497338baa2cebef98f4f25ea752586a99abe29e8fb88864481304415a"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.SubstanceModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.SubstanceModule.dll",
-      "offset": 2359207424,
-      "size": 25600,
-      "sha256": "b364f08ca413f7ac016ed1da89929c71b4850739a8cd2fe8c9eb6ff6b413e82f"
+      "offset": 3634504704,
+      "size": 29696,
+      "sha256": "6aeb10642cbaf1c92d1ce54d706f35a71ec709d7fc6d613205ef53d1cda7b3b0"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.SyntaxTreeModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.SyntaxTreeModule.dll",
+      "offset": 3645443584,
+      "size": 3584,
+      "sha256": "29e4dcf493a23e12cd33bbb16cda2616016c93119e3ff63ed86f03a6febf4b2a"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.TerrainModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.TerrainModule.dll",
-      "offset": 2350619136,
-      "size": 247296,
-      "sha256": "421f72580ce0f8c9403e941edbb69bb9611816751467dbcc3530bcb0b12c525e"
+      "offset": 3623105024,
+      "size": 243200,
+      "sha256": "0a18f83fc265b38207d30205e996b4e519a1967086f51b5ed1c3340f9bedd412"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.TextCoreFontEngineModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.TextCoreFontEngineModule.dll",
-      "offset": 2333556736,
+      "offset": 3605549056,
       "size": 5120,
-      "sha256": "07e3a317a092c8c3fbe40498538259a571e06128fbd7ebe2175fecadc794c412"
+      "sha256": "6dcfeb272f156edc2999bde19489c8014c6a4d8dcc5a0ee412bbfe8f88a59a81"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.TextCoreTextEngineModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.TextCoreTextEngineModule.dll",
-      "offset": 2330799104,
-      "size": 220672,
-      "sha256": "46dd49935ee034d1748e7edcd32beafc092be04b707a2d9d63f797d155c9ecd8"
+      "offset": 3600465920,
+      "size": 228864,
+      "sha256": "d296c1e1fd8e40577f2c17e0330fc746924b47eacf728b704088bca0b3ac1e7b"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.TextRenderingModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.TextRenderingModule.dll",
-      "offset": 2379999232,
-      "size": 19968,
-      "sha256": "aef5d148265b6f5bd27b9d1ef4f312396f393eba0164cd7a139d20f4fcd6b850"
+      "offset": 3665473024,
+      "size": 21504,
+      "sha256": "c8d95c0f986a2cc5c2cb87f6108778996bfe7587ec70e1c75994935e4063e9ec"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.TilemapModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.TilemapModule.dll",
-      "offset": 2369942528,
-      "size": 43008,
-      "sha256": "77ce407807187e61e6df7ba3bd102b2544647d562f38401d2ca3d44081cc02e0"
+      "offset": 3649906176,
+      "size": 48128,
+      "sha256": "1d6a78586c193581fda8f1b42b9d39051e9aee0000e5653a558635dda8241727"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.TimelineFoundationModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.TimelineFoundationModule.dll",
+      "offset": 3644999168,
+      "size": 185856,
+      "sha256": "a5e8a15c6023749eb76470780acd36e62d0bf054b76575bef116a14a833b69cb"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.TreeModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.TreeModule.dll",
-      "offset": 2379531264,
-      "size": 160256,
-      "sha256": "62192eb85a6514907faeb9764ae085be9bd3f713a182701a75fd7fb036c7538a"
+      "offset": 3664838144,
+      "size": 153088,
+      "sha256": "466675ba51dd1c451451db372d9163d5eacdbc79875d99a21f36d59de34708ab"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.U2DModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.U2DModule.dll",
+      "offset": 3657784320,
+      "size": 73216,
+      "sha256": "fee080db16b6a4e983e508f4784b9bd3248df553d7b8dda3f22bf2d14885f95d"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.UIAutomationModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.UIAutomationModule.dll",
-      "offset": 2377160192,
-      "size": 48640,
-      "sha256": "59d2ff87db9a9bcf4e7d20ad55cf676f38e92c167eb551998dc54d198f4d637c"
+      "offset": 3658176000,
+      "size": 51200,
+      "sha256": "1cf66adc94b0256c017229508cdcc9139f02be85a0e48ef9e59e19e0878ddd4e"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.UIBuilderModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.UIBuilderModule.dll",
-      "offset": 2374393856,
-      "size": 1141760,
-      "sha256": "7caef8d48c0d875528580de0b39292c53d804191d439f2746d9445035f4aabfc"
+      "offset": 3654903296,
+      "size": 824832,
+      "sha256": "c539357c8566ebd8531c8f9f3f5f10e02db0a06283501c0dde1b1a1bea6645db"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.UIElementsModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.UIElementsModule.dll",
-      "offset": 2369165312,
-      "size": 553472,
-      "sha256": "ac4706241d45d8bcb2a34f25a9606fe6b2b2bbc41990eec324f62244b4c75c9b"
+      "offset": 3648419328,
+      "size": 719872,
+      "sha256": "40a65ff2f542cac36f0491920d55fe1cde7045105816d410c32abb52e1305eba"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.UIElementsSamplesModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.UIElementsSamplesModule.dll",
-      "offset": 2351795200,
-      "size": 86528,
-      "sha256": "6da8cbf069b02c6d9e004a0fb3f2ce0e98d19aac86211757e5ec7593b50cd752"
+      "offset": 3624470016,
+      "size": 92160,
+      "sha256": "41df8ce3c5929988dd873fca19aa80882833d059e55074237300f9ef9fd2a1af"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.UIToolkitAuthoringModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.UIToolkitAuthoringModule.dll",
-      "offset": 2330174976,
-      "size": 62976,
-      "sha256": "6b4713d57d9a45e19e8ae72cb851606a4cb3bf1ac15de4a1791640dfed0df8c0"
+      "offset": 3598738432,
+      "size": 1172992,
+      "sha256": "747242d2cd471ba4a6e4d2264180ae970f30aa53b454ed04f31b3fefcb9bfb9a"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.UmbraModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.UmbraModule.dll",
-      "offset": 2370937344,
-      "size": 25600,
-      "sha256": "6dd95702e1b7c92d79c0411dd15134a6212f9cbf0a3f2c7de204dc96c51df2d1"
+      "offset": 3651508736,
+      "size": 29696,
+      "sha256": "5a56e24ea056c7e3de42afc1d756b185204fa2d43a4a243a4712b5d5ea056174"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.UnityConnectModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.UnityConnectModule.dll",
-      "offset": 2329857536,
-      "size": 229376,
-      "sha256": "c61427bef5b1faf2c990d1aa9367f274352138eaedbc497ec2d0eec5e0433240"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.VectorGraphicsModule.dll",
-      "target": "Managed/UnityEngine/UnityEditor.VectorGraphicsModule.dll",
-      "offset": 2333110784,
-      "size": 48640,
-      "sha256": "2775e8bcf71f55b2f966c6f733d6bd30046fecdaa2225b017dd23d214ae572e7"
+      "offset": 3597970944,
+      "size": 225280,
+      "sha256": "29846eef27a5c85a6aebc12ea65332b48a6244c18c0a7edff70855f80a603637"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.VFXModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.VFXModule.dll",
-      "offset": 2370671104,
-      "size": 60928,
-      "sha256": "21a8029767f36f4a69e9d20d9f4f8dd3a04663b3a5fffdfd96e84a9e94c34a68"
+      "offset": 3651155456,
+      "size": 65024,
+      "sha256": "8f780931afcd1c20bb2e44a82a744faffd4c8cc1cb5866eb7aec50e97fd589f2"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.VectorGraphicsModule.dll",
+      "target": "Managed/UnityEngine/UnityEditor.VectorGraphicsModule.dll",
+      "offset": 3603349504,
+      "size": 46080,
+      "sha256": "e72328ba5367b73c95cfedfa4dc07e38b40fc5714d7d41d5640ce695ce4d8c4a"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.VideoModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.VideoModule.dll",
-      "offset": 2370786304,
-      "size": 57344,
-      "sha256": "477d68298c0868d5fa7ae61406a48b05a51177002b033113608e00b5924e0f5b"
+      "offset": 3651299840,
+      "size": 57856,
+      "sha256": "90e32247c23dfe4dc80c3adedc09a515d0e9147dee5fc05bc58daf77429c2b8f"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.XRModule.dll",
       "target": "Managed/UnityEngine/UnityEditor.XRModule.dll",
-      "offset": 2377224704,
-      "size": 31232,
-      "sha256": "180d94bd2ed2c07a4cba0f86d98de9012ff94043e07baef51c6ab61cd223ff71"
+      "offset": 3658574336,
+      "size": 35328,
+      "sha256": "5a7b7e26770b81f7845393e6ea82140a9f62ef50be6991f8be9bd03cef288354"
     },
     {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AccessibilityModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.AccessibilityModule.dll",
-      "offset": 2366998016,
-      "size": 40448,
-      "sha256": "32b4e97e48d0e5bbc9136ff8036caa8e2e5801a1c98135dcf031425c6fc10a55"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AdaptivePerformanceModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.AdaptivePerformanceModule.dll",
-      "offset": 2328372224,
-      "size": 120320,
-      "sha256": "7de42de91e60f6731ba8e97de7fcd15c08c0e498978edbee54da85cbc6ae0d1f"
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEditor.dll",
+      "target": "Managed/UnityEngine/UnityEditor.dll",
+      "offset": 3617370624,
+      "size": 396800,
+      "sha256": "6ab4ba6d1673024edf63680084030f22b066c54b4ad16a477424e4d5273bbb40"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.AIModule.dll",
-      "offset": 2357837312,
-      "size": 76288,
-      "sha256": "e76117b5858b66c5a7f9d698ffd766e76f28c6bcb24b9b145b2df68ef204aff3"
+      "offset": 3631289344,
+      "size": 94208,
+      "sha256": "bb502d4f17ae51c37fe7c71a8471ea9092c9caf433a5828d253429b217bba05a"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AMDModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.AMDModule.dll",
-      "offset": 2350298624,
+      "offset": 3622814720,
       "size": 11264,
-      "sha256": "67ddc467ff27e094b325532bd4064a8b088b264f06e7b07559fd7075fab21163"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AndroidJNIModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.AndroidJNIModule.dll",
-      "offset": 2374217216,
-      "size": 115200,
-      "sha256": "d39223bd3932a8a9f5f8927dc8779735a71b5eb195af1ace5f66e1f187d8ec7d"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AnimationModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.AnimationModule.dll",
-      "offset": 2329498112,
-      "size": 228352,
-      "sha256": "23a18bf9c582ea5b3b466d081737c0a7109244e0d57470d337153814eb984426"
+      "sha256": "d34f253000584f5bfb8497ad3736d70efc85c7392f30f8d01cbc7d5161d2d717"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ARModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.ARModule.dll",
-      "offset": 2331184128,
-      "size": 19968,
-      "sha256": "4f5ad396656b984fc81dcca18d22abef62d48914451a305a38863492b94fb632"
+      "offset": 3600889344,
+      "size": 23040,
+      "sha256": "3af308904f72b4353f3b970f0a2fe1a5876e1c287b5050cac4064b57956be8eb"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AccessibilityModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.AccessibilityModule.dll",
+      "offset": 3645329920,
+      "size": 38912,
+      "sha256": "f4426203fe39be0b5826a741eba5183f38ec1597a6b07e0e6ccb62add5d00593"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AdaptivePerformanceModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.AdaptivePerformanceModule.dll",
+      "offset": 3596375552,
+      "size": 117760,
+      "sha256": "7ed8156f7d33da61f1579ebe8d36c342087e8f48393dc768d40cc756afb8e01f"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AndroidJNIModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.AndroidJNIModule.dll",
+      "offset": 3654721536,
+      "size": 116224,
+      "sha256": "761d609f5a4f051d6a67c340a3cdac281efd71fc69544ceb8ab9f6f3e62e8999"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AnimationModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.AnimationModule.dll",
+      "offset": 3597623296,
+      "size": 221184,
+      "sha256": "f08ff80eda60383ddb8e15e52366cdab163ea0097033f2ad0fed6c93c9d1ef9c"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AssetBundleModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.AssetBundleModule.dll",
-      "offset": 2376833024,
-      "size": 37376,
-      "sha256": "481365bab2aa520f04885a96865a920b86efda21d24b46f8df575524be28eb5b"
+      "offset": 3657666560,
+      "size": 38912,
+      "sha256": "3f8f4806ec592e1e07296247bfb23e55b9d2c38e258f06168254239feae68724"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.AudioModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.AudioModule.dll",
-      "offset": 2328055808,
-      "size": 141824,
-      "sha256": "0d08de3711a704fec60101424f8871812664c500cc531c4d13aabea50933205e"
+      "offset": 3596059648,
+      "size": 141312,
+      "sha256": "8c4e42c460b02cdd98d9f9800cd6a58eeebc096f3be8ed786b6e18a0e8d45219"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.BurstModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.BurstModule.dll",
+      "offset": 3624641024,
+      "size": 373760,
+      "sha256": "c1faeef721f1c2e17a9382c4968297d8f93a1f4e5605a7912a8cc970beaaba92"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ClothModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.ClothModule.dll",
-      "offset": 2333511680,
-      "size": 30720,
-      "sha256": "c69f869f695392bfc190e3ae337b922e15b4d8e6f45646f55b8807cb3ed22a20"
+      "offset": 3605413888,
+      "size": 33792,
+      "sha256": "a32c50930bdd8686f69e1faafeec882097226f2d718edfb4a389680a21c071a7"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ClusterInputModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.ClusterInputModule.dll",
-      "offset": 2351992320,
-      "size": 22528,
-      "sha256": "040f90c5585037eea1565ce98fb5434e6d703e7e7c00e59c926159516bfff887"
+      "offset": 3625314304,
+      "size": 25600,
+      "sha256": "c275d7713c7554b37570f5a391c3cf72a26b8b93c09b5af40134375958e1dc0b"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ClusterRendererModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.ClusterRendererModule.dll",
-      "offset": 2369067520,
-      "size": 20992,
-      "sha256": "b5b91c5cdba6b63d52524b7b410f7346951c44cf2bb65544288c96034724c9a0"
+      "offset": 3648201728,
+      "size": 24064,
+      "sha256": "7b679dd0b8d6450d29f8e3eaf37ca154dc697c0766fde81aea6fd4fa26eeb3f5"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ContentLoadModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.ContentLoadModule.dll",
-      "offset": 2380098048,
-      "size": 27136,
-      "sha256": "beb65bb43e120f9b608d774f30d962c04c94e1849c2b2b097501c5e035106a62"
+      "offset": 3666374144,
+      "size": 51712,
+      "sha256": "030ff21abdbaed47d53ff9f28f61e51cb0b70454282fd5feb2cd9ba08faebd6e"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.CoreModule.dll",
-      "offset": 2364678144,
-      "size": 2175488,
-      "sha256": "a8b2ac968ccd75851c0d7703554927bb9f085cfbaf872851808c03d08a2d9f87"
+      "offset": 3642789888,
+      "size": 2208768,
+      "sha256": "dcdf14b9eb8e09fe7bed5fac9da39406ed74f89a8dc7c99dbbd53755ce4c5ea5"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.CrashReportingModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.CrashReportingModule.dll",
-      "offset": 2366888960,
-      "size": 20992,
-      "sha256": "f60a3ec2bf8b598b93ef49c76b6bf86d03ff2bfd422ab61a87d60f40fb9c7705"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.DirectorModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.DirectorModule.dll",
-      "offset": 2351603200,
-      "size": 36352,
-      "sha256": "bc03080460f1bcb9dfd3eb771f00c67afe8b6425be2199256d470d70577f7801"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.dll",
-      "target": "Managed/UnityEngine/UnityEngine.dll",
-      "offset": 2380212224,
-      "size": 191488,
-      "sha256": "a436363e3f50ceb5b8720ed45f9bd6b32b9e1a3ce2cac35a0ea12ff4d06d12cc"
+      "offset": 3645215232,
+      "size": 24064,
+      "sha256": "06f577e2090ff74f0456d3a29ff151a6c159b1a3a836d7dbe0f034ebe2216d59"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.DSPGraphModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.DSPGraphModule.dll",
-      "offset": 2331724800,
-      "size": 26112,
-      "sha256": "3dae4062c2f9e2dae39e5e632c1331f54bbbddedab0c75b2d6dc6215b2bdc2f0"
+      "offset": 3601448448,
+      "size": 29184,
+      "sha256": "2d3c776f018d4341f53e3bac1ed0f7eb01585f4cc1b63c880bd4c7a680a0269f"
     },
     {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.GameCenterModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.GameCenterModule.dll",
-      "offset": 2357641216,
-      "size": 52224,
-      "sha256": "5a1463bde14486e28eeca3c6d1efddd2995bcd5c8ef3ed2dd83469b3ff5e7165"
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.DirectorModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.DirectorModule.dll",
+      "offset": 3624226816,
+      "size": 38400,
+      "sha256": "576a464dd356928246e0dfb44ca6c07b9ae8673c73fc908a394e83526733d327"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.GIModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.GIModule.dll",
-      "offset": 2368601600,
-      "size": 18944,
-      "sha256": "f3e614bfde53259c4d0010a11b3c4707801b54a39e9cbc10024d3d94c81f3efb"
+      "offset": 3647641600,
+      "size": 22016,
+      "sha256": "f4acd33adf98bbd79bc515e50cfb115b23ca2f63668ce6098cb25dc0e2464a3d"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.GameCenterModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.GameCenterModule.dll",
+      "offset": 3631075840,
+      "size": 53760,
+      "sha256": "f6e05a1ce380b7db7c4a60bff80c6e094482f89ac3177c96c934e428a5712adf"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.GraphicsStateCollectionSerializerModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.GraphicsStateCollectionSerializerModule.dll",
-      "offset": 2329726976,
+      "offset": 3597844992,
       "size": 3584,
-      "sha256": "ca11ec5b7a27ee2577e88c29a6a0057289b8e597454c9e17ac81e21c8154880a"
+      "sha256": "9f72b4dbdef96b286721752f55b6732bfdf65f58586e2b88626e7ea77eb7f9a4"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.GridModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.GridModule.dll",
-      "offset": 2377280000,
-      "size": 25088,
-      "sha256": "a8fd45665e4ebb396d9d124cf5e85eb9599d4cc1e8053aa2ca50575599b5dbbb"
+      "offset": 3658631680,
+      "size": 28160,
+      "sha256": "1010a415f83ea6fcc3d90205686964d92d206ab7bf1aa627c864798587a8474f"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.HierarchyCoreModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.HierarchyCoreModule.dll",
-      "offset": 2368872448,
-      "size": 98816,
-      "sha256": "03564e1b081ef1c784fda914c53b96d1ae9218a712dcaa16113e6da9ecd17623"
+      "offset": 3647913472,
+      "size": 100864,
+      "sha256": "dce448bdd276062a72527777253debc12c311dd85c82ac5f653b391d16735dac"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.HierarchyModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.HierarchyModule.dll",
-      "offset": 2358032896,
-      "size": 92160,
-      "sha256": "3874eebaae484583ffc8774260aac3f9df8a524ab1a3511a4213301371bce761"
+      "offset": 3631701504,
+      "size": 103424,
+      "sha256": "7f99d6ad83b09bee7f4ada247bb00a2ddee99a4da35b20595b4473598172ce96"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.HotReloadModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.HotReloadModule.dll",
-      "offset": 2358266880,
-      "size": 18944,
-      "sha256": "803ae3fce31df5f9957db91fe7b017f38ab6c991fb39f5b80c03275bc0db2494"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.IdentifiersModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.IdentifiersModule.dll",
-      "offset": 2370020352,
-      "size": 6144,
-      "sha256": "54075cfcd393f17544397462ae2da23834a71d2e6739dfabcca33fe9be40170e"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ImageConversionModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.ImageConversionModule.dll",
-      "offset": 2329731072,
-      "size": 26624,
-      "sha256": "cadd99aaf9e055c55b0d3dc25b7b2544355d4dabd15a77e478193b1bbc9e5546"
+      "offset": 3632645120,
+      "size": 22016,
+      "sha256": "fc27f447adaa679095ff48c04fb7dd96069aa8b66a0c3c83a63a8c59d2279192"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.IMGUIModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.IMGUIModule.dll",
-      "offset": 2368657920,
-      "size": 214016,
-      "sha256": "7799f07808b658ea7732f3ae1f4522374c876f914f1fca39e1255423f0ec6f03"
+      "offset": 3647700992,
+      "size": 192512,
+      "sha256": "f7b7a89beb3063e194f3d2db43b7f9e94fa685538bc533292e6941ed4f4c4d42"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.IdentifiersModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.IdentifiersModule.dll",
+      "offset": 3650088960,
+      "size": 6144,
+      "sha256": "37eac2763b7a8fdb23b161b7ad7eb9561b2b79a17a858a2c3f6d99c5a898df26"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ImageConversionModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.ImageConversionModule.dll",
+      "offset": 3597849088,
+      "size": 30720,
+      "sha256": "abbb1f6bf4321513607d97b306337a79335046db52207bffca98fe99a26c044b"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.InputForUIModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.InputForUIModule.dll",
-      "offset": 2369852416,
-      "size": 47616,
-      "sha256": "846527cf654a43c58c9b37fbc0e920cea9030640553e46296fff757103f3b971"
+      "offset": 3649797632,
+      "size": 46592,
+      "sha256": "e458ed47b66c30af3c4b06169f7c1443b9cbf146c05f21c013edf84602d0cb9f"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.InputLegacyModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.InputLegacyModule.dll",
-      "offset": 2369900544,
-      "size": 41472,
-      "sha256": "f10a4c6f4a97ea95f1c26547d28e853e5c05ace915b10283919fe900529d0e19"
+      "offset": 3649866240,
+      "size": 39424,
+      "sha256": "a027861977018d0666e3d5b13b9191de29eee2c8c8fe4901c554da693ded16cb"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.InputModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.InputModule.dll",
-      "offset": 2373514752,
-      "size": 23040,
-      "sha256": "8962e868948ff6bb5f9d5206db26fe2fb5a516b46b678435ae03069547c3113a"
+      "offset": 3654194176,
+      "size": 28160,
+      "sha256": "28063570ebb872b70eecee26f0adfa0e75dc8c987455333249d40531b4236702"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.InsightsModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.InsightsModule.dll",
-      "offset": 2351640064,
-      "size": 3584,
-      "sha256": "96fa7c71b218538b270ca59341825a8e10a61eb02977897d75c8c77e29d5cc4c"
+      "offset": 3624265728,
+      "size": 5120,
+      "sha256": "90c166d7a8c614b93e6487c175b21069f3c1389fa701dada413d283607c5d0bc"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll",
-      "offset": 2345524224,
-      "size": 21504,
-      "sha256": "52667ccfb115551c4917d00e026669ace4b6bee0e976dbb6b2446c3c848993b5"
+      "offset": 3618266624,
+      "size": 24576,
+      "sha256": "82755ada0c349e902dcb94eba922e7f48c63fea6bcf93ff4144de4e3e335df25"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.LocalizationModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.LocalizationModule.dll",
-      "offset": 2370076672,
-      "size": 21504,
-      "sha256": "9492d98024d3b4440be2a287031dcee67d3d3c83ff5627bbf91bbe06dacfd475"
+      "offset": 3650152448,
+      "size": 24576,
+      "sha256": "9a2352c42307c0c8fb77d9bc7f936cdf0f76d7c0740a992890e21eb4a4cbef9e"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ManagedKernelModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.ManagedKernelModule.dll",
+      "offset": 3651504640,
+      "size": 3584,
+      "sha256": "9f13c4e4a37805713686d349aaab8f45b957f590719ca7aa52a33b2902437570"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.MarshallingModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.MarshallingModule.dll",
-      "offset": 2357914112,
-      "size": 78336,
-      "sha256": "80f56d146cc5bb7594800fa0fb36c43efc91071e1a867fd7e30ed2e209e4bcab"
+      "offset": 3631508480,
+      "size": 96256,
+      "sha256": "a5e0e137e789ee863062b36afa97253ea80029a508566206105bdf9cdbe805e0"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.MathematicsModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.MathematicsModule.dll",
+      "offset": 3616575488,
+      "size": 732672,
+      "sha256": "1b0dfffa66e2c904e17d0e86ecc71b6dfd77dead3e0b0f314831317b9f8126bc"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.MultiplayerModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.MultiplayerModule.dll",
-      "offset": 2374369792,
-      "size": 7680,
-      "sha256": "30447001f18a3ea71eba3518f1763b697a29b2916522b60ec5446d6ccded6c19"
+      "offset": 3654875648,
+      "size": 8192,
+      "sha256": "941eee5d251ee90fa1a47fdf91924f18797229fef0428f9d2207bc214a571a8e"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.NVIDIAModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.NVIDIAModule.dll",
-      "offset": 2368971776,
-      "size": 35328,
-      "sha256": "ee080bb1ffd20b6b95f78abf02d35ba8c7648c9629b2528da98c8f76b368deb9"
+      "offset": 3648015872,
+      "size": 36864,
+      "sha256": "1f7d89edb4fa139b417bbdbfbfa536fc309cce4c85f91e75732b2ebb106c2d10"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ParticleSystemModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.ParticleSystemModule.dll",
-      "offset": 2331751424,
-      "size": 171008,
-      "sha256": "2f2227aeb82201af8ca51473c60db6094b3e1cf595e004ac8b9c9e1d455cd85b"
+      "offset": 3601499136,
+      "size": 169472,
+      "sha256": "d53d66294b5b51d17b7389a3cd7e6a9749150300e849d213a3fd17b3e27e87b9"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.PerformanceReportingModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.PerformanceReportingModule.dll",
-      "offset": 2370209280,
-      "size": 19456,
-      "sha256": "6ab6f2b8dcf83ec25192feed3952f48bcded42b9fb3ef3752e9b825bb3957d95"
+      "offset": 3650317312,
+      "size": 22528,
+      "sha256": "1936a6470f98b5322537d00878cd429f550c0c55623e1727b527b55c6ccf90e5"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.Physics2DModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.Physics2DModule.dll",
-      "offset": 2349400576,
-      "size": 583680,
-      "sha256": "118ad1b4cab9735817fbad4b6b75bbb401a7fac06179a2a173b0b03f952d5680"
+      "offset": 3622267392,
+      "size": 218624,
+      "sha256": "192108e10887feeeafaed6a61e2f5ebb607454706f73730b481af18f4359edaf"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.PhysicsBackendPhysXModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.PhysicsBackendPhysXModule.dll",
-      "offset": 2369007616,
+      "offset": 3648053248,
       "size": 3584,
-      "sha256": "777f9c7092569f4ea2d6518d46e1db3410bc2828d57f85be5cc843120965ee71"
+      "sha256": "83939d369ee2ff41a26c1bb3a19d8dd7316a8ef0a08b507c4592d96d11a7c6f8"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.PhysicsCore2DModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.PhysicsCore2DModule.dll",
+      "offset": 3649298432,
+      "size": 479744,
+      "sha256": "06569024cbc7fe64bf31944677967f071a485efb2514b3316c9ded9a731bbcc9"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.PhysicsModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.PhysicsModule.dll",
-      "offset": 2364411392,
-      "size": 179200,
-      "sha256": "c5557e3d18517618f437596ec07c478d64860de2a69f7902621f77d4e77bbf4f"
+      "offset": 3639085056,
+      "size": 178176,
+      "sha256": "934a3d22f246949379cb3b24bcdaaafe3e071b9f2eb6441ee9076aacd965b6db"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.PropertiesModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.PropertiesModule.dll",
-      "offset": 2367144960,
-      "size": 123392,
-      "sha256": "4084377aa686f8e4302cc07145ae8ee263a70161e6656f86690a898c2d936ac0"
+      "offset": 3645507072,
+      "size": 114176,
+      "sha256": "a142780bb83bb277ada65fd2c4ff79ec2a3a8b1644a19a51b8e0d38e87c28b9d"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.RenderAs2DModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.RenderAs2DModule.dll",
-      "offset": 2367123968,
-      "size": 20480,
-      "sha256": "e6c79becdccc7105367ad1817a98ec3b72b1c8b7d4330f7835cbdd85739349dd"
+      "offset": 3645483008,
+      "size": 23552,
+      "sha256": "34281ef84a5d601872adeffa6cc5546fbd7954f2387f97c190c7ac1828ef4ee0"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll",
-      "offset": 2379481088,
-      "size": 18944,
-      "sha256": "bb7edcd56505990d1c66b218985c11c6b47c52fef776d0b619d06eabfe93e3e5"
+      "offset": 3664784896,
+      "size": 22016,
+      "sha256": "8464fe4c1d93936357c5b0e989fd35a4cc1e29494ebb48b55d757db6b1985d78"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ScreenCaptureModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.ScreenCaptureModule.dll",
-      "offset": 2351773696,
-      "size": 20992,
-      "sha256": "13d6ac6ebc8fe763fe026cf3f9b0914c12997dd903515e71463fe16f15cf2f38"
+      "offset": 3624436736,
+      "size": 24064,
+      "sha256": "fbd93fe0eae6d7c14354a191ea488a9c378838350d907973972a4e4fad64192b"
     },
     {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ShaderRuntimeModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.ShaderRuntimeModule.dll",
-      "offset": 2333421568,
-      "size": 19968,
-      "sha256": "a250e019deec2559766d2ffd31bc2a53a9c2e35189753567350a0faf72d6f6c6"
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ScriptingModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.ScriptingModule.dll",
+      "offset": 3631949824,
+      "size": 61440,
+      "sha256": "93f5bb339ed617d5e113c5b79da6f231794bcb0875e0052cab945e907444ff58"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.ShaderVariantAnalyticsModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.ShaderVariantAnalyticsModule.dll",
-      "offset": 2380576768,
-      "size": 18944,
-      "sha256": "2d190c4a72ed43dff21e8f0bd7c3a60f53354aadaf567cb7e3a29c7d1c6d9ff2"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.SharedInternalsModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.SharedInternalsModule.dll",
-      "offset": 2350585856,
-      "size": 32768,
-      "sha256": "e7d1e7aa44650f8dae746be58d92385632907b09be13d8846e2d293889277065"
+      "offset": 3667022848,
+      "size": 22016,
+      "sha256": "ef3ed69a5b316205732b18aa855af3296de03a2aa7c39038d689aea1101028af"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.SpriteMaskModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.SpriteMaskModule.dll",
-      "offset": 2330248704,
-      "size": 23040,
-      "sha256": "3cda6a733a3dca124524e4eb591b352f402fa5a50742156b04ad57516003d7f2"
+      "offset": 3599922688,
+      "size": 26112,
+      "sha256": "5c724e6d0eb8e5bb3d8929a533b2bc2cf69d854ebb774f3cc69c03a98cd36b03"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.SpriteShapeModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.SpriteShapeModule.dll",
-      "offset": 2359513600,
-      "size": 27648,
-      "sha256": "2e11785471e2b74184a691b4f4d08d9d6eb8e5cbd223e07009b1086750b828cb"
+      "offset": 3634839040,
+      "size": 30720,
+      "sha256": "34b9c1b4e879c17187e3b7fd01bc95d26c746c83eb34f99d175b69891a25a4c5"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.StreamingModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.StreamingModule.dll",
-      "offset": 2359353856,
-      "size": 20480,
-      "sha256": "8503892cf5f951d0279f15eeb37ffdde5a621a538d0a0f92e37d7521d82e45d7"
+      "offset": 3634667008,
+      "size": 23552,
+      "sha256": "da2288dfe91f105ce914b96e388ab68ec5c04dbeb7e083b78a5530e2355e7513"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.SubstanceModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.SubstanceModule.dll",
-      "offset": 2351081472,
-      "size": 24064,
-      "sha256": "d0bc0c438928c082b34bf94c95a8ba7412c07097d2c7d52a6a8b23b371c11369"
+      "offset": 3623546880,
+      "size": 27136,
+      "sha256": "32123252842dba0739c03bbc6457c887c118e3670e11a56649a9ed861b33c397"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.SubsystemsModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.SubsystemsModule.dll",
-      "offset": 2366960128,
-      "size": 36352,
-      "sha256": "bf159bb0b5ace42aaddf611f48b03824461ab56fc2870e49873284d4ecda65bd"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TerrainModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.TerrainModule.dll",
-      "offset": 2357706752,
-      "size": 130048,
-      "sha256": "c9c08585af6e69705c969f39ff8b6012a31fbf8ed8e0134b9701a9905ee78309"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TerrainPhysicsModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.TerrainPhysicsModule.dll",
-      "offset": 2367068672,
-      "size": 20480,
-      "sha256": "fd5b36fb4d8538721bb33d57a37413d6bcb535c0fc8bd86d3080240ad0e83525"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TextCoreFontEngineModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.TextCoreFontEngineModule.dll",
-      "offset": 2380504576,
-      "size": 71680,
-      "sha256": "1733712064cea1e65c8f2ddb2e92591962f3b24a6408381e9569c43a75ab2660"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TextCoreTextEngineModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.TextCoreTextEngineModule.dll",
-      "offset": 2355430912,
-      "size": 327168,
-      "sha256": "8c7d29b415e0e77dfcc76cf969466c72f4445e394c4ae45a4b717d9ee654ce18"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TextRenderingModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.TextRenderingModule.dll",
-      "offset": 2374339584,
-      "size": 29696,
-      "sha256": "ecd8dcb6b2ef1f87efc64795fdd25cf6120ce47a449e743816dcb3cde435d5f7"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TilemapModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.TilemapModule.dll",
-      "offset": 2330402816,
-      "size": 56832,
-      "sha256": "e763253f0331bb23a5b403061dee0a1b1dbcf0344a8f68a603fb9ef82cf2cf50"
+      "offset": 3645289472,
+      "size": 38912,
+      "sha256": "8b5393ac569af7e01def6fd17e705e48e33f5f7f2fb1db39c41e94d14ce0c6a4"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TLSModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.TLSModule.dll",
-      "offset": 2377110016,
-      "size": 26624,
-      "sha256": "028026f6fe073701eb0e74c5cf8c54f6ca08a519fd89523b37ac201f34073218"
+      "offset": 3658120192,
+      "size": 29696,
+      "sha256": "0382040112f47d7d1985f73fa6b7ed452b18b5ca8a1d84d214c54244ec9cef7e"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TerrainModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.TerrainModule.dll",
+      "offset": 3631144960,
+      "size": 130048,
+      "sha256": "7a26a1926c861a46e273b1cc00d257ef91c77fb33f73bb4b090565dd56d62f13"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TerrainPhysicsModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.TerrainPhysicsModule.dll",
+      "offset": 3645395968,
+      "size": 23552,
+      "sha256": "1eccd606a0f013c86ac2e28d76aa14c1de03ddf580b139abb403cf6ce63d9c5f"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TetgenModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.TetgenModule.dll",
+      "offset": 3665074176,
+      "size": 22016,
+      "sha256": "a4d8110c90f1f8eedc5abcd51a45d4bf255b4115c8f0aceb390041a639381c73"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TextCoreFontEngineModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.TextCoreFontEngineModule.dll",
+      "offset": 3666946048,
+      "size": 76288,
+      "sha256": "7aa7969f5407dde3b5d11656c535bbd3d465f4915141f4a6fc152323bf4d1ed8"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TextCoreTextEngineModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.TextCoreTextEngineModule.dll",
+      "offset": 3628922880,
+      "size": 305664,
+      "sha256": "adf5fc60dd7348d87ed2cbd7e7cc51eeeec2fe963dbd9b6c3a0c1b36a67cfcc8"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TextRenderingModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.TextRenderingModule.dll",
+      "offset": 3654845440,
+      "size": 29696,
+      "sha256": "12931fdee139c30a2eb3c455b49f9216e5c175ab279ac07cf9be58df4698f915"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TilemapModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.TilemapModule.dll",
+      "offset": 3600052736,
+      "size": 77312,
+      "sha256": "8a96558c2b12ef36d5160f104ff5c71f198243a835bc6dcaa11a6f97988f7a30"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.TimelineFoundationModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.TimelineFoundationModule.dll",
+      "offset": 3602968576,
+      "size": 156672,
+      "sha256": "d5910a9eaee6dc10e9f7ecb94796841bfc468d6a172864840f207383254ffc8f"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.U2DRuntimeModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.U2DRuntimeModule.dll",
+      "offset": 3647528448,
+      "size": 71680,
+      "sha256": "1d170259b835188c6b13a885f97abba5ce77afc12f0a58fdb7eb48d27c41e090"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UIElementsModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UIElementsModule.dll",
-      "offset": 2370976768,
-      "size": 2482176,
-      "sha256": "5f2ea0ea71f6d7c1dc49fa51c5d96023cce3a0fa631ce134b0d712bbbbfd89b5"
+      "offset": 3651554816,
+      "size": 2579968,
+      "sha256": "6605cea3ab8f8ca0863e6b8987cf1bfc2b4b0dfd87c7327ea03b35b8a84546c1"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UIModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UIModule.dll",
-      "offset": 2350540288,
-      "size": 45056,
-      "sha256": "c9fbcc9a6c7e696fe2cd7d6942939475e052a72e52de107bf20b62e9c6b7f14c"
+      "offset": 3623051264,
+      "size": 53248,
+      "sha256": "d31d79853e64f3f475d7d20a107b644774718f60b6b9113e6af7d99a81ac9f6e"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UmbraModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UmbraModule.dll",
-      "offset": 2333468672,
-      "size": 18944,
-      "sha256": "21d02b98935825ff825048df2d6375cfe61db765fbd95ed6544ecabb1c766452"
+      "offset": 3605335552,
+      "size": 22016,
+      "sha256": "fc6a7d3849b1d5263ec40bf03c1f51afb03ee414999de9b8bcdcd3a9d577fa81"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityAnalyticsCommonModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityAnalyticsCommonModule.dll",
-      "offset": 2373484032,
-      "size": 30208,
-      "sha256": "390a4560c5374a2d52b0e178278f49e908ab68af0a4b16166a7966270b2694a2"
+      "offset": 3654161408,
+      "size": 32256,
+      "sha256": "0f5295d61d41736c30037521890155953c6f4068e430346abb6df41889244001"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityAnalyticsModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityAnalyticsModule.dll",
-      "offset": 2358210048,
-      "size": 55296,
-      "sha256": "444e5a4bbb0d1f4f30348e5fd7e08e430bc55740b5b3957f0c9bf6b02f6ba1d0"
+      "offset": 3631891456,
+      "size": 57856,
+      "sha256": "e85108ccc10ff733c49f303d746c24a934304b9e0cd73be535eabd1330411e35"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityConnectModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityConnectModule.dll",
-      "offset": 2358286336,
-      "size": 22016,
-      "sha256": "e877d1d5850825fadb482558d9a164c5599f2fb164ac22a98c2a17315e8ce86e"
+      "offset": 3632667648,
+      "size": 25088,
+      "sha256": "36ada91983520546e460ff7bc3ac4062aa804bcfe93f3561d0a7f089f4d31f2d"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityConsentModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityConsentModule.dll",
-      "offset": 2331204608,
+      "offset": 3600912896,
       "size": 5632,
-      "sha256": "7c32e73856515a98b76f6323ba8bea371a2819657f1c3da1dd006e05281a4c6c"
+      "sha256": "0ea15078b1fe11d2370e16c699c64e9ef60436aaa250ded74cac2108f1aa9bf3"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityCurlModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityCurlModule.dll",
-      "offset": 2380596224,
-      "size": 20992,
-      "sha256": "cd47e0c153965d20e24ee0665c4398d0273e9126f800572ba84432f9a80476c8"
+      "offset": 3667045376,
+      "size": 24064,
+      "sha256": "5fa8cf36c65e6376c8f846d6439120a9e271f9143f0124ea13d65392af03eb57"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestAssetBundleModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityWebRequestAssetBundleModule.dll",
-      "offset": 2330119168,
-      "size": 23552,
-      "sha256": "85cfcc602463ad1882f56019b3180204805303e3151bb686b05bb2341d25ea56"
+      "offset": 3598668800,
+      "size": 26112,
+      "sha256": "7f1bed3527d6cc22156a35fca0a9d3873841b66ad5fa52fddc144f8aa0bd83c8"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestAudioModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityWebRequestAudioModule.dll",
-      "offset": 2370027008,
-      "size": 23040,
-      "sha256": "fadfe4820a327d080738d199bdf4fd126f6267783a40bcff1c27aba1bf50a840"
+      "offset": 3650095616,
+      "size": 26112,
+      "sha256": "36b44a35e9fa10ac2cb1af0b145fa2d0d27e2b044cbda395b2f2fbc69f6adfe5"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityWebRequestModule.dll",
-      "offset": 2377315840,
-      "size": 65024,
-      "sha256": "f811862405ded4db0f297ad6b0500a5686c3bfa1dbbe3244b7a077bf3671dfb4"
+      "offset": 3658671104,
+      "size": 76800,
+      "sha256": "973e23ec7079d00d34d5b037854fa4f1c37f8ccdfe8efde11ac0f3d5e36af572"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestTextureModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityWebRequestTextureModule.dll",
-      "offset": 2349995520,
-      "size": 22016,
-      "sha256": "939df8fd6ea4da52218e39e729c7e116dd1af240e525e92aee2bbaaa54f56c04"
+      "offset": 3622498816,
+      "size": 25088,
+      "sha256": "2e705aa886992adc75edcdcfc3022fbca9f15d9ba5a8bb8a73d37d2af7297e90"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll",
-      "offset": 2329412096,
-      "size": 31232,
-      "sha256": "edc5ef6b5aa0323912cff99591e7c8c4a2bc2599df476a5dcb9642f25b6b3991"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.VectorGraphicsModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.VectorGraphicsModule.dll",
-      "offset": 2379234816,
-      "size": 242688,
-      "sha256": "f8310379fbbb303185ad5a28574896745ba3e6463891cc04c97465ed3f0a283c"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.VehiclesModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.VehiclesModule.dll",
-      "offset": 2333442048,
-      "size": 26112,
-      "sha256": "e1a1d95fcdb53fda7e0729773e24f2580ba7ad89e3d1705abb72d9aa9d4f076f"
+      "offset": 3597422592,
+      "size": 30720,
+      "sha256": "c3c0ca3c814072fde866ddde49dd884f2af4b9142930d41ab90efa16aa2e975d"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.VFXModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.VFXModule.dll",
-      "offset": 2352019968,
-      "size": 73728,
-      "sha256": "527363bb307bb1b5bc38e1c52ac3ab330b006f8d8d0003239445f216e0719ee0"
+      "offset": 3625347072,
+      "size": 79872,
+      "sha256": "e686d969e4f4fe80ceb8241f5c48ec2a422b776fe5cf071a1381a81986080b4e"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.VectorGraphicsModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.VectorGraphicsModule.dll",
+      "offset": 3664234496,
+      "size": 218624,
+      "sha256": "2fa501ed1400d926d71fc4c4f8782e9603c805c76763005e17aeba528716a25c"
+    },
+    {
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.VehiclesModule.dll",
+      "target": "Managed/UnityEngine/UnityEngine.VehiclesModule.dll",
+      "offset": 3605305856,
+      "size": 29184,
+      "sha256": "18120cb7770a84f7465f33eaac4977f7624e5845fd05c449f1fa92d1ded7bf1c"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.VideoModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.VideoModule.dll",
-      "offset": 2380462080,
-      "size": 38912,
-      "sha256": "0cc454f0841ac2f01ce2d186a68b202b58814a5d05caf61f4422972debf61827"
+      "offset": 3666903040,
+      "size": 39424,
+      "sha256": "f909de18d14d63cef89c2df7fd388cb27e623af05d40885ea657ec5bb302bf70"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.VirtualTexturingModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.VirtualTexturingModule.dll",
-      "offset": 2355758592,
-      "size": 37376,
-      "sha256": "df52fddff6b589f4592bcf6f4d5eb439774069d9e83a6d6eb8f8589cc7eab5f5"
-    },
-    {
-      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.VRModule.dll",
-      "target": "Managed/UnityEngine/UnityEngine.VRModule.dll",
-      "offset": 2327668224,
-      "size": 26112,
-      "sha256": "5e6b8e04ea8c47e8cdd191bbba501f7d9be625b85e69372f0002a3ea9df194c5"
+      "offset": 3629229056,
+      "size": 39424,
+      "sha256": "7b613f7d57efe48a2bd0ad1e1ca4050a59e163e5e89f5cd9efa4134dd248605e"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.WindModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.WindModule.dll",
-      "offset": 2327773696,
-      "size": 20992,
-      "sha256": "87963ef3b9e2d3182d144e47e07cab4e2df1073f3a47bcbe4aeab546c8156315"
+      "offset": 3595764224,
+      "size": 24064,
+      "sha256": "e9bc4efe54737b3634b6ddbc84ff4f2bc600bd4d63d6f53457ca9ada7399bda9"
     },
     {
       "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll",
       "target": "Managed/UnityEngine/UnityEngine.XRModule.dll",
-      "offset": 2370572800,
-      "size": 82944,
-      "sha256": "d17c686f5a73ce30f2e21ecbd41981af773ff09181450ade70adb5e5631fd618"
+      "offset": 3650955264,
+      "size": 91648,
+      "sha256": "309fbb1a163c37460f730c2a7fde4e3c1297a99c7981a6b2b828b7296fc6e718"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.Burst.dll",
+      "archivePath": "Editor/Data/Managed/UnityEngine/UnityEngine.dll",
+      "target": "Managed/UnityEngine/UnityEngine.dll",
+      "offset": 3666547200,
+      "size": 220160,
+      "sha256": "658a6e964b53b7469e11b5b08d9e2c1bb09779243ea7e550698f4e1f7a6d0d42"
+    },
+    {
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.Burst.dll",
       "target": "PackageReferences/Unity.Burst.dll",
-      "offset": 7255584256,
-      "size": 366080,
-      "sha256": "a4248726b1f8c6d40da3bff79f3c08a3cbeffc4cf9a4db92c34d23fc13ed9bf4"
+      "offset": 7777063936,
+      "size": 5632,
+      "sha256": "085b2a45b5e36a11b002d71b74e44ccb32d21139fbf0a82910dd41341b0b9d65"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.Collections.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.Collections.dll",
       "target": "PackageReferences/Unity.Collections.dll",
-      "offset": 7246295552,
-      "size": 476160,
-      "sha256": "298497f329304cbfc0af345605884b8d69dddad62a71710dcba63307abfb640b"
+      "offset": 7767343616,
+      "size": 486400,
+      "sha256": "9dde51aa3daaeae98ff4f894902360749cc4401c0c591d3d684db8447a287a7e"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.Mathematics.dll",
-      "target": "PackageReferences/Unity.Mathematics.dll",
-      "offset": 7240555008,
-      "size": 755200,
-      "sha256": "a91e4da2b0775a4602ee95da195542ad2b948800f9ce2edb3b6f0cb9a29564a9"
-    },
-    {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll",
-      "target": "PackageReferences/Unity.RenderPipelines.Core.Runtime.dll",
-      "offset": 7235048960,
-      "size": 1304576,
-      "sha256": "bc62ffab1f2e0083f6dcdb0a6e9b86a14b53b46dfaa2e5d9336c46afc2f185bf"
-    },
-    {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.Core.Runtime.Shared.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.Core.Runtime.Shared.dll",
       "target": "PackageReferences/Unity.RenderPipelines.Core.Runtime.Shared.dll",
-      "offset": 7255182848,
-      "size": 5632,
-      "sha256": "a24679eb1b99d09fbf7f3d94a6a803ee2e50491803d15d42307fde3732818cbc"
+      "offset": 7776628736,
+      "size": 13824,
+      "sha256": "3d2ab7231255eb85b80aa276c02bc322ae370da1ae70688606bc0740b1f5f7eb"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll",
+      "target": "PackageReferences/Unity.RenderPipelines.Core.Runtime.dll",
+      "offset": 7757753856,
+      "size": 1320960,
+      "sha256": "76c04b6d7a4b51a189774f652f533aad12c3d2c4beb802839cfa40b2d94722d4"
+    },
+    {
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll",
       "target": "PackageReferences/Unity.RenderPipelines.Core.ShaderLibrary.dll",
-      "offset": 7254530560,
+      "offset": 7775834624,
       "size": 4608,
-      "sha256": "b53310f45f26890a2f3215d6622614f4dfd9cd254598dedc0523addf7326377e"
+      "sha256": "3ba7afc7da8dfb02d6eb6deaed06d75f20611020e940bd28648d4e5837e1736a"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.GPUDriven.Runtime.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.GPUDriven.Runtime.dll",
       "target": "PackageReferences/Unity.RenderPipelines.GPUDriven.Runtime.dll",
-      "offset": 7256036352,
-      "size": 253952,
-      "sha256": "7b9c79ae4e8d757a65a2268a3f89bb3fe7b8edf7374391991c71589f0a088a77"
+      "offset": 7777248256,
+      "size": 324608,
+      "sha256": "453fc7e3bc99a76410ea4a7fa4e709059518b1b988080713821a1d5d9be8fffd"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll",
       "target": "PackageReferences/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll",
-      "offset": 7255491584,
+      "offset": 7776946176,
       "size": 4608,
-      "sha256": "47bba904d1f2869da071d1625d7ee707e7e15a0fc496c32a34e208667ff0c339"
+      "sha256": "b66bf50ca10a4ecf5c8eb978e42ae9f7c1cea8bd8b8a4926d62b039e529b515e"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.Universal.2D.Runtime.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.Universal.2D.Runtime.dll",
       "target": "PackageReferences/Unity.RenderPipelines.Universal.2D.Runtime.dll",
-      "offset": 7259852800,
-      "size": 244736,
-      "sha256": "bdaa28f3722b6cc672dee1976e4698baf102b03af5df7558c792efea1c39302c"
+      "offset": 7781102592,
+      "size": 249856,
+      "sha256": "c9d18f662355b9ac5e837a858ca9ac8a20fdfdf2365f93cea97a63686512fc8a"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.dll",
       "target": "PackageReferences/Unity.RenderPipelines.Universal.Config.Runtime.dll",
-      "offset": 7238489600,
+      "offset": 7761440256,
       "size": 5632,
-      "sha256": "9672c4abb49b043864b5e7affb31eded0273909e1f1a556b27c8ca286aa0f391"
+      "sha256": "b19f6ec09dcfad8caef405b242eb01aeffdec9db39facd7c59582bf1127d9851"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.dll",
       "target": "PackageReferences/Unity.RenderPipelines.Universal.Runtime.dll",
-      "offset": 7257566720,
-      "size": 821760,
-      "sha256": "d7787520ddb8f4905875a08e4e0bd14e7539a42c6ea91d7355eb798711049741"
+      "offset": 7778763264,
+      "size": 871424,
+      "sha256": "678021ae589fadbaed7f1f1b26127968b4707235907747dbabc2a43ce4e3ee92"
     },
     {
-      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.3d-cross-platform-17.0.14/ScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.dll",
+      "archivePath": "Editor/Data/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.urp-blank-17.2.1/ScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.dll",
       "target": "PackageReferences/Unity.RenderPipelines.Universal.Shaders.dll",
-      "offset": 7260171776,
+      "offset": 7781432832,
       "size": 4608,
-      "sha256": "cbc9786a95ef5e2197cae819284d4d966491b418de4d236653d0fabe2fc7711f"
+      "sha256": "45dfe8dbccd11f798a70764d09c59150a2a8f29c023161249943f078c275ff7a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Accessibility.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Accessibility.dll",
-      "offset": 2287809536,
+      "offset": 2885255168,
       "size": 10240,
       "sha256": "9507e08441d4c83f9f3d95aea43bc7bf029bd9365ce2592490b22e72dfab26e7"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Commons.Xml.Relaxng.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Commons.Xml.Relaxng.dll",
-      "offset": 2285895680,
+      "offset": 2883341312,
       "size": 33792,
       "sha256": "2ba5d35420dd67017d83c19aa92c289c4e6122729e621884a8fd0d85eee86a78"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/cscompmgd.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/cscompmgd.dll",
-      "offset": 2280849920,
-      "size": 5632,
-      "sha256": "a521001ecfbea4c19fa13e990fb61f0e5a93e2e300fc455901822db1a015390c"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/CustomMarshalers.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/CustomMarshalers.dll",
-      "offset": 2282136064,
+      "offset": 2879581696,
       "size": 6144,
       "sha256": "734dc3428d2a97268a5d9993252fb173f11ccf29bef358e998b17b8dfdd793c6"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/Microsoft.Win32.Primitives.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/Microsoft.Win32.Primitives.dll",
-      "offset": 2285165056,
+      "offset": 2882610688,
       "size": 5120,
       "sha256": "0e70ef3ae765d4e429d6a210358afee42e71848431328020808a76921002122d"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/netstandard.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/netstandard.dll",
-      "offset": 2285604352,
-      "size": 87040,
-      "sha256": "3b20c3bb5da550371635c8ff930c2a3404d4f51fc9a7d8e530c99f99cadf1699"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.AppContext.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.AppContext.dll",
-      "offset": 2285558784,
+      "offset": 2883004416,
       "size": 4608,
       "sha256": "95a1524a337a0e967ac4e23fce8d4b02e0681479a86fe15327823844355cd4db"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Buffers.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Buffers.dll",
-      "offset": 2285242880,
+      "offset": 2882688512,
       "size": 4608,
       "sha256": "ac128c3c138ee6f6a397615d23eb248c85614e69defa7afc8d33d49087100233"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.Concurrent.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.Concurrent.dll",
-      "offset": 2285290496,
+      "offset": 2882736128,
       "size": 5120,
       "sha256": "bea496d6dcb322f28d0b2341fff91838fcea9940654bcfa6b218ba42eefedcc0"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.dll",
-      "offset": 2285372928,
-      "size": 5632,
-      "sha256": "f84e0a371e52a533d933d2c835efeb6a96b08d7da0008d6ab2242d980f1d7e46"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.NonGeneric.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.NonGeneric.dll",
-      "offset": 2285721088,
+      "offset": 2883166720,
       "size": 5120,
       "sha256": "874f96623a7971b402cba236aab49e550d52786641701d43ae172c952fb9ef26"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.Specialized.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.Specialized.dll",
-      "offset": 2285182464,
+      "offset": 2882628096,
       "size": 5120,
       "sha256": "900a35b9a013806db1043fa504d0ea8ca7f61db142bb8826557835ebd0a55af6"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.dll",
+      "offset": 2882818560,
+      "size": 5632,
+      "sha256": "f84e0a371e52a533d933d2c835efeb6a96b08d7da0008d6ab2242d980f1d7e46"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.Annotations.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.Annotations.dll",
-      "offset": 2285447680,
+      "offset": 2882893312,
       "size": 6144,
       "sha256": "f3315940bb42a3fe8d07b9b34c94b4597c75b494302df722122c4a2911ccfffb"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.dll",
-      "offset": 2285442048,
-      "size": 5120,
-      "sha256": "3e95f1a35c1788f2b34af0e27946c7e4a4e3c0172bcce4b843c8677b788e7a11"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.EventBasedAsync.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.EventBasedAsync.dll",
-      "offset": 2285136896,
+      "offset": 2882582528,
       "size": 5120,
       "sha256": "25d642c437951b1f5d50676ccdec7284d1a1efbd25561a40d79c856f7ce2a795"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.Primitives.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.Primitives.dll",
-      "offset": 2285101568,
+      "offset": 2882547200,
       "size": 5632,
       "sha256": "acaf33f2e91f83d744276ef2b8245cb48a78d88a798eef5499048dc15bbfcaee"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.TypeConverter.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.TypeConverter.dll",
-      "offset": 2285253632,
+      "offset": 2882699264,
       "size": 6656,
       "sha256": "84ff0c6eb1830d3951f18dbf551ddbb8a81bd92eafa6064ab120fb005ba4982f"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.dll",
+      "offset": 2882887680,
+      "size": 5120,
+      "sha256": "3e95f1a35c1788f2b34af0e27946c7e4a4e3c0172bcce4b843c8677b788e7a11"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Console.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Console.dll",
-      "offset": 2285807616,
+      "offset": 2883253248,
       "size": 5120,
       "sha256": "20613cd1602b4a2ab79386d1b42cec0a83eee3d00f8e955abfa2a0cefb3d88c1"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Data.Common.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Data.Common.dll",
-      "offset": 2285465088,
+      "offset": 2882910720,
       "size": 9728,
       "sha256": "226fc9d84a1f2aa883e6db932062e1467dd687bead20c299fa1243c66c0f2c0a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Contracts.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Contracts.dll",
-      "offset": 2285230592,
+      "offset": 2882676224,
       "size": 5120,
       "sha256": "9666ae0d143a6d3529fad8984677f6c7105728f6c64f453676f168e8fb964086"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Debug.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Debug.dll",
-      "offset": 2285541888,
+      "offset": 2882987520,
       "size": 5120,
       "sha256": "34f9376f3aeec0da52bd9f56a3cb96ab29272c0f2ab36646144e4e4a60826b7c"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.FileVersionInfo.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.FileVersionInfo.dll",
-      "offset": 2285459968,
+      "offset": 2882905600,
       "size": 4608,
       "sha256": "f6f514800cf3543ce3d71cdc5d24119d0374acde950eef780179e0187739b579"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Process.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Process.dll",
-      "offset": 2285732864,
+      "offset": 2883178496,
       "size": 5120,
       "sha256": "bfc1d49e5ce9eb820027644eb228a550e0dedb4172097749b97f6d2a52a86393"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.StackTrace.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.StackTrace.dll",
-      "offset": 2285726720,
+      "offset": 2883172352,
       "size": 5632,
       "sha256": "8905f767326006eaee279049cc2538aa0e76a59b5109466d513e42b670bc7463"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.TextWriterTraceListener.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.TextWriterTraceListener.dll",
+      "offset": 2883027456,
+      "size": 5120,
+      "sha256": "211be7b185a6a6656e2d8ef774b29aac3ed4d337210b3fa7f41a1c19c7119bee"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Tools.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Tools.dll",
-      "offset": 2285361664,
+      "offset": 2882807296,
       "size": 5120,
       "sha256": "e96b8bfa656b24195b5ddbed5ec43aa251d0fb22b262bdc1c26a6a21de9add5c"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.TraceSource.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.TraceSource.dll",
-      "offset": 2285750272,
+      "offset": 2883195904,
       "size": 5120,
       "sha256": "f2afb80a833ff38b4acfdd18a7253741b0b9a51a72ff61254bbf72bb03b6a0e0"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Drawing.Primitives.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Drawing.Primitives.dll",
-      "offset": 2285112832,
+      "offset": 2882558464,
       "size": 5120,
       "sha256": "00a4ce24c70b4f29b67c74774ab81b21bed253d8fd835b8dc9bc92c3c21c45ad"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Dynamic.Runtime.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Dynamic.Runtime.dll",
-      "offset": 2285430272,
+      "offset": 2882875904,
       "size": 5632,
       "sha256": "15e4752e92054ab4ae65ac433c72cfb7937f4d2cbce48c58437b1b1d89723b71"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.Calendars.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.Calendars.dll",
-      "offset": 2285367296,
+      "offset": 2882812928,
       "size": 5120,
       "sha256": "04f7980f8b3d7e2f516418ee6c1bde006a358dcf99b2cceb1fd3d16d8789c1c7"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.dll",
-      "offset": 2285260800,
-      "size": 5120,
-      "sha256": "4e9eb12e49fa58904a3b2402aa3811297d65a28d6499239609a2735d3724c337"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.Extensions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.Extensions.dll",
-      "offset": 2285307392,
+      "offset": 2882753024,
       "size": 5120,
       "sha256": "64929dbc8b5d1fefa1fb24c996259caf23a34ca9814eead6679db1b8a0df82f9"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.dll",
+      "offset": 2882706432,
+      "size": 5120,
+      "sha256": "4e9eb12e49fa58904a3b2402aa3811297d65a28d6499239609a2735d3724c337"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.Compression.ZipFile.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.Compression.ZipFile.dll",
-      "offset": 2285575680,
+      "offset": 2883021312,
       "size": 4608,
       "sha256": "509d3d9e5b5b7e7a32b35b4865443c013916141eeeaed4979cf696be644a7ff9"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.dll",
-      "offset": 2285107712,
-      "size": 4608,
-      "sha256": "c5288c373f4e41ae45c5b2a8f4ac6b5d68d22e28cd956024070bd94b0ed41dc5"
-    },
-    {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.dll",
-      "offset": 2285715456,
-      "size": 5120,
-      "sha256": "2ce8a9fa98f853d95439a24a3fb7117c619d44cc1ac383a8944ef33055abaf1d"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.DriveInfo.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.DriveInfo.dll",
-      "offset": 2285301760,
+      "offset": 2882747392,
       "size": 5120,
       "sha256": "50945cee237616367e649c762d989857b34464c52fab8d7b77258a4f23bad9bc"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.Primitives.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.Primitives.dll",
-      "offset": 2285698560,
+      "offset": 2883144192,
       "size": 5120,
       "sha256": "fe91a21541f8143b717379b5ab4716a3d4cc170adc8ab5998f7cfff35ff38b5a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.Watcher.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.Watcher.dll",
-      "offset": 2285272064,
+      "offset": 2882717696,
       "size": 5120,
       "sha256": "ff5b79eefdc4defd88b7906658f4bedd0083944887d1b154424730e94d949e55"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.dll",
+      "offset": 2883161088,
+      "size": 5120,
+      "sha256": "2ce8a9fa98f853d95439a24a3fb7117c619d44cc1ac383a8944ef33055abaf1d"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.IsolatedStorage.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.IsolatedStorage.dll",
-      "offset": 2285379072,
+      "offset": 2882824704,
       "size": 5120,
       "sha256": "b9cf9bc8a7a5b9bef1b81294d8fc15da919dbf6e880131194390e3d32a73e7fe"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.MemoryMappedFiles.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.MemoryMappedFiles.dll",
-      "offset": 2285412864,
+      "offset": 2882858496,
       "size": 5120,
       "sha256": "362d9afeb570763025fa78698ba461cead8faaec20514a220075ab3f0e5a0ac6"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.Pipes.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.Pipes.dll",
-      "offset": 2285801984,
+      "offset": 2883247616,
       "size": 5120,
       "sha256": "313db96a0282de9376c471f5af64075f22b101544affee0bb781eee6dfe9b897"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.UnmanagedMemoryStream.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.UnmanagedMemoryStream.dll",
-      "offset": 2285761024,
+      "offset": 2883206656,
       "size": 5120,
       "sha256": "0dbd15db47d662035c6a52363fe0ce0cf22ff4226de9cc9bed75ff275ae86200"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.dll",
-      "offset": 2285418496,
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.dll",
+      "offset": 2882553344,
       "size": 4608,
-      "sha256": "97d3bcde64d1c1884330554e75edbf0791ef1c3e5aa831db3ba6d9cd3f377d09"
+      "sha256": "c5288c373f4e41ae45c5b2a8f4ac6b5d68d22e28cd956024070bd94b0ed41dc5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Expressions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Expressions.dll",
-      "offset": 2285772288,
+      "offset": 2883217920,
       "size": 6144,
       "sha256": "e8b623417716403a478465fb4906f4f181639aaa895ad298fc092d7e2c731a22"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Parallel.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Parallel.dll",
-      "offset": 2285570048,
+      "offset": 2883015680,
       "size": 5120,
       "sha256": "426ec85eda5596db68a6c14b603f98a1d43cbab92b0783f233c05fbee9952811"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Queryable.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Queryable.dll",
-      "offset": 2285593088,
+      "offset": 2883038720,
       "size": 5120,
       "sha256": "024d17e6ae98d4ea56f07869643a0d464af47ff7d837db1e569e6464e6edab5f"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.dll",
+      "offset": 2882864128,
+      "size": 4608,
+      "sha256": "97d3bcde64d1c1884330554e75edbf0791ef1c3e5aa831db3ba6d9cd3f377d09"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Memory.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Memory.dll",
-      "offset": 2285481472,
+      "offset": 2882927104,
       "size": 4608,
       "sha256": "a6ca0c07281e587e03efa0042f9a48c13e5cc53a9c0ab005ff4573fcc6657b2e"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Http.Rtc.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Http.Rtc.dll",
-      "offset": 2285536768,
+      "offset": 2882982400,
       "size": 4608,
       "sha256": "dd5a88a7e5e1ee9df07e6e4e5b053f9f52aa4e4993da5c74c0ad4bea2f2f7c1f"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.NameResolution.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.NameResolution.dll",
-      "offset": 2285324288,
+      "offset": 2882769920,
       "size": 5120,
       "sha256": "9f0cbf7943ea42cb8ac2fffa3a9b9b3986712549b97626472932c5bf99de6eb0"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.NetworkInformation.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.NetworkInformation.dll",
-      "offset": 2285423616,
+      "offset": 2882869248,
       "size": 6144,
       "sha256": "8ba75c2f9c337407968838d936472272cbd98248a8bb16b4e8cf9b6bfec804b2"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Ping.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Ping.dll",
-      "offset": 2285401600,
+      "offset": 2882847232,
       "size": 5120,
       "sha256": "f6e7756ebd90c708b8ef8afaf459822bfdd15a15f80be46b8de1085bca4e8f9a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Primitives.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Primitives.dll",
-      "offset": 2285384704,
+      "offset": 2882830336,
       "size": 5632,
       "sha256": "bdb1580746ea3e41752249a342af0eb140821b7850eb3a01329cda1d76863077"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Requests.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Requests.dll",
-      "offset": 2285704192,
+      "offset": 2883149824,
       "size": 5120,
       "sha256": "08e011eee889ecff6200b316ee4a3c6693ba8a97d61eea30b1e7fd438adc88c6"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Security.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Security.dll",
-      "offset": 2285784576,
+      "offset": 2883230208,
       "size": 5120,
       "sha256": "93f108d9dd3334551531c93f5a98a45dae2a635a08705e66aaefa06343eecb84"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Sockets.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Sockets.dll",
-      "offset": 2285318144,
+      "offset": 2882763776,
       "size": 5632,
       "sha256": "3900768a66073ce12c67934748584292ba0cc3c10e613c9e2c4c280d81813e0e"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebHeaderCollection.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebHeaderCollection.dll",
-      "offset": 2285519360,
+      "offset": 2882964992,
       "size": 5120,
       "sha256": "b418b7bac3fb1ba125de733e82b956d9c98f3e2789ac4a449c200c4654f78c97"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebSockets.Client.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebSockets.Client.dll",
-      "offset": 2285796352,
+      "offset": 2883241984,
       "size": 5120,
       "sha256": "3dfc5c488d14fc44502cb18f277c4f26163019fd0dd8a283bf78782a3d45f905"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebSockets.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebSockets.dll",
-      "offset": 2285218304,
+      "offset": 2882663936,
       "size": 5120,
       "sha256": "4f1510be5a1760fae21a97710427012b168fb96f32ba77037690eeb358420572"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ObjectModel.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ObjectModel.dll",
-      "offset": 2285563904,
+      "offset": 2883009536,
       "size": 5632,
       "sha256": "f8867e17cb0746323073275b7fd2d0f37d4c17f97c4d00c3479503575084e816"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.DispatchProxy.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.DispatchProxy.dll",
-      "offset": 2285313024,
+      "offset": 2882758656,
       "size": 4608,
       "sha256": "27a02ef402846ee204b78ff7dd0cfede2d72ad1428bfc11af85db1e9fb6da8a1"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.dll",
-      "offset": 2285530624,
-      "size": 5632,
-      "sha256": "9e6442bee0ccf14efffc95defec5651b58fb33104a7fcf6fccf3913e9bb09738"
-    },
-    {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.dll",
-      "offset": 2285524992,
-      "size": 5120,
-      "sha256": "abd6dfeefafa60599e8a5f0c628459b11c0431099847263ae67568b12ddc2855"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.ILGeneration.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.ILGeneration.dll",
-      "offset": 2285147648,
+      "offset": 2882593280,
       "size": 5120,
       "sha256": "b21849b0956088a46f6b6f8e2ea22b59fc8d5bc8fac2466f693aca152217d873"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.Lightweight.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.Lightweight.dll",
-      "offset": 2285188096,
+      "offset": 2882633728,
       "size": 4608,
       "sha256": "fbf930badb304f8970267bdeb7db30d86445026ccc042a1e2f4f171125655e3e"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.dll",
+      "offset": 2882970624,
+      "size": 5120,
+      "sha256": "abd6dfeefafa60599e8a5f0c628459b11c0431099847263ae67568b12ddc2855"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Extensions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Extensions.dll",
-      "offset": 2285813248,
+      "offset": 2883258880,
       "size": 5120,
       "sha256": "aec29396ed672ea9fe1b8f3091e1445f87447f22369b531d32fde36f3c43542a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Primitives.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Primitives.dll",
-      "offset": 2285212672,
+      "offset": 2882658304,
       "size": 5120,
       "sha256": "387c47b07a331e8ceee469dc4b4bbb3651823daa6c6556912850a9138e754a63"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.dll",
+      "offset": 2882976256,
+      "size": 5632,
+      "sha256": "9e6442bee0ccf14efffc95defec5651b58fb33104a7fcf6fccf3913e9bb09738"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.Reader.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.Reader.dll",
-      "offset": 2285755904,
+      "offset": 2883201536,
       "size": 4608,
       "sha256": "e7f55c37975fb7e22dc0b386d6237f014d22064c37860a5a2f09ee1bbc4f7b9e"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.ResourceManager.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.ResourceManager.dll",
-      "offset": 2285338624,
+      "offset": 2882784256,
       "size": 5120,
       "sha256": "03d6db9ad69c0493629b74d3bb7d5d182497df4ff6d605e2c61a00f4a3c2ec09"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.Writer.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.Writer.dll",
-      "offset": 2285199872,
+      "offset": 2882645504,
       "size": 4608,
       "sha256": "ed99eb2db493c9a131422f5f608416e9d58724cdb5b4f388bfac25813c518bed"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.dll",
-      "offset": 2285500416,
-      "size": 12800,
-      "sha256": "67755c37816bd9b0811067fb5721fff3ae9ed598cc5f7d4ab685bf2929ce70ff"
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.CompilerServices.VisualC.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.CompilerServices.VisualC.dll",
+      "offset": 2882682880,
+      "size": 5120,
+      "sha256": "82b3c1eb78e36919fcb1f65c233f829105d2ea26daf65ce4254987c66f25e706"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Extensions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Extensions.dll",
-      "offset": 2285395968,
+      "offset": 2882841600,
       "size": 5120,
       "sha256": "e672d1d1b128f185eba5ea6f63cfcdaf20cda48638d96ff4846f109e245346ae"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Handles.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Handles.dll",
-      "offset": 2285598720,
+      "offset": 2883044352,
       "size": 5120,
       "sha256": "efdb80d2dea56fdd5821fe13083196933a21c1ecc55bf3572c5624c5306476b6"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "offset": 2883138560,
+      "size": 5120,
+      "sha256": "94f0f8bb5f484476510cf80d65b9e6daa5732abc69ce7f3a86dd6755248e5f46"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.WindowsRuntime.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.WindowsRuntime.dll",
+      "offset": 2882730496,
+      "size": 5120,
+      "sha256": "15f7bf54aa0b317379f579ce1dd00a6dcac9bbc41d1921de4e04bb1107795980"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.dll",
-      "offset": 2285329920,
+      "offset": 2882775552,
       "size": 8192,
       "sha256": "2ea619fee24916dbbba7533f1109c5536e10d280abbc8f13f6b11b8c49eb56f7"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Numerics.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Numerics.dll",
-      "offset": 2285142528,
+      "offset": 2882588160,
       "size": 4608,
       "sha256": "5a7dd020dca51c58a37e34e015e3e8e9558b3d535233aae1544456677c91b8bc"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Formatters.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Formatters.dll",
+      "offset": 2882639872,
+      "size": 5120,
+      "sha256": "994463f988dc9b75af0386cf259df3f803566e24f7f7a10f5c5b915fc5b0a6b6"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Json.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Json.dll",
-      "offset": 2285266432,
+      "offset": 2882712064,
       "size": 5120,
       "sha256": "b09733d3caae9f67636d2abb93e023f7f3b61e31c0ba75b748ae8ff3c2d97455"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Primitives.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Primitives.dll",
+      "offset": 2882801152,
+      "size": 5632,
+      "sha256": "ca601331d732336546757d43a27138c164a2a93c521dc52c6c0466ce544d8ce3"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Xml.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Xml.dll",
-      "offset": 2285738496,
+      "offset": 2883184128,
       "size": 5632,
       "sha256": "331b6a5bc12133ea6ffe332cab77a4b3446d1e8df9431b23c62137ae70a0f721"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.dll",
+      "offset": 2882946048,
+      "size": 12800,
+      "sha256": "67755c37816bd9b0811067fb5721fff3ae9ed598cc5f7d4ab685bf2929ce70ff"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Claims.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Claims.dll",
-      "offset": 2285553152,
+      "offset": 2882998784,
       "size": 5120,
       "sha256": "6dc2b88fee35bc921b00953cf6c569cd0ac8027de655fd64d73fddd269e53ef9"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Algorithms.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Algorithms.dll",
+      "offset": 2882938880,
+      "size": 6656,
+      "sha256": "e9c085a6ddf8ac98bbe51976ee3918af713b8affcd81ce3281213468ee70471a"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Csp.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Csp.dll",
-      "offset": 2285513728,
+      "offset": 2882959360,
       "size": 5120,
       "sha256": "1292e245052b56e9fcf6f5ba3da08c4c51dc6e3eb571f98705f76136a7e46ccc"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Encoding.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Encoding.dll",
-      "offset": 2285296128,
+      "offset": 2882741760,
       "size": 5120,
       "sha256": "f0358a2c9e4abb94c6c5d16a0193e30ef38e004898778db2db1406936aebde1b"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Primitives.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Primitives.dll",
+      "offset": 2882570752,
+      "size": 5120,
+      "sha256": "17a62a776bebbb2e95947689afa67b4ef730944825f5bb6e7db10dfa558a2211"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.X509Certificates.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.X509Certificates.dll",
+      "offset": 2882651648,
+      "size": 6144,
+      "sha256": "cf6bbb72d38bd9d435b620a57f02e5e5a3fce51b690921add601c4a2bd39e405"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Principal.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Principal.dll",
-      "offset": 2285454336,
+      "offset": 2882899968,
       "size": 5120,
       "sha256": "57fd8163f3e303da3b3b4bd013554433c3fa9db3b905915903aad2287fea488e"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.SecureString.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.SecureString.dll",
-      "offset": 2285153280,
+      "offset": 2882598912,
       "size": 5120,
       "sha256": "66738faa411eeeffa6920933f5af6bb1ef1dd43d7f7566ad383aef83df9b279d"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Duplex.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Duplex.dll",
-      "offset": 2285766656,
+      "offset": 2883212288,
       "size": 5120,
       "sha256": "6a32745908ea7875d5045c822501008f1bb0836d877a4b722f7919250f32c776"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Http.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Http.dll",
-      "offset": 2285158912,
+      "offset": 2882604544,
       "size": 5632,
       "sha256": "648703953fcd7ea397d5978447ae2c943b403a1cc6b12dadf8e117c60fd9c051"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.NetTcp.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.NetTcp.dll",
-      "offset": 2285170688,
+      "offset": 2882616320,
       "size": 5120,
       "sha256": "0f2bb21c09415b0c38847c52695f8b5e49fead656458d65f02c859bb43782ad1"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Primitives.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Primitives.dll",
-      "offset": 2285344256,
+      "offset": 2882789888,
       "size": 9728,
       "sha256": "2bc09f454fa1b9f42c8baaba42af7bf414060d95ec6580b6d70220addc69e9fb"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Security.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Security.dll",
-      "offset": 2285790208,
+      "offset": 2883235840,
       "size": 5632,
       "sha256": "18ce85a3cce8df673e02fd98533f6861a1a34a97a21dbc61af2badbcb90c3cc1"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.Encoding.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.Encoding.dll",
-      "offset": 2285778944,
-      "size": 5120,
-      "sha256": "fe8607ab56d9f456bd69f6f12ed88b27537282bc97faf5d7eaf696403248e992"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.Encoding.Extensions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.Encoding.Extensions.dll",
-      "offset": 2285709824,
+      "offset": 2883155456,
       "size": 5120,
       "sha256": "845e469167f70a5d3b0d17b42a4ad5f121568af9d0ea8d73e640757262d064b8"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.Encoding.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.Encoding.dll",
+      "offset": 2883224576,
+      "size": 5120,
+      "sha256": "fe8607ab56d9f456bd69f6f12ed88b27537282bc97faf5d7eaf696403248e992"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.RegularExpressions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.RegularExpressions.dll",
-      "offset": 2285095936,
+      "offset": 2882541568,
       "size": 5120,
       "sha256": "bf446ab48b09037f07d5e0828620b340de9f282d7dd8fa67df3f25d83e1b8f19"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.dll",
-      "offset": 2285130752,
-      "size": 5632,
-      "sha256": "7a28b6cffea2f721701d7c27b2b39dcaa484d281971b53413cfd72acc9874243"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Overlapped.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Overlapped.dll",
-      "offset": 2285436416,
+      "offset": 2882882048,
       "size": 5120,
       "sha256": "c562ee030d66bd68d76b5175957865ee0e4ee3867edd6edf6e3b7e1a736ec182"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.dll",
-      "offset": 2285223936,
-      "size": 6144,
-      "sha256": "f2b2198ee4acfb4ef7d6d07cfe037acc5681e8a1c894931a7a170c38d3afe944"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.Extensions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.Extensions.dll",
-      "offset": 2285407232,
+      "offset": 2882852864,
       "size": 5120,
       "sha256": "6455c1307c4de0e5875856b0c18b9ec449d9e541904759f5a310744303f1fd18"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.Parallel.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.Parallel.dll",
-      "offset": 2285486592,
+      "offset": 2882932224,
       "size": 5120,
       "sha256": "c7fdfade96f5cfce459c6771a83f47305a26bd536b51ca54815bc4c8a26ffc54"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.dll",
+      "offset": 2882669568,
+      "size": 6144,
+      "sha256": "f2b2198ee4acfb4ef7d6d07cfe037acc5681e8a1c894931a7a170c38d3afe944"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Thread.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Thread.dll",
-      "offset": 2285248000,
+      "offset": 2882693632,
       "size": 5120,
       "sha256": "3fe5a363d4c12c57e88af4d866aae65eca0f750943b2d824307aeb490caa223a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.ThreadPool.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.ThreadPool.dll",
-      "offset": 2285118464,
+      "offset": 2882564096,
       "size": 5120,
       "sha256": "9829de8ff80ed99415c5a18e35174c21b3bd118de3415d65dbc6bb57b5a93491"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Timer.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Timer.dll",
-      "offset": 2285390848,
+      "offset": 2882836480,
       "size": 4608,
       "sha256": "21b08c040fa6373bfe802d910be567c3e2dd55540bda6082d00469abf2738487"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.dll",
+      "offset": 2882576384,
+      "size": 5632,
+      "sha256": "7a28b6cffea2f721701d7c27b2b39dcaa484d281971b53413cfd72acc9874243"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ValueTuple.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.ValueTuple.dll",
-      "offset": 2285547520,
+      "offset": 2882993152,
       "size": 5120,
       "sha256": "702fe8344cb343f11f1cce895f4ecb5995207f8046ea06b13e55ea0b62cbc157"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.ReaderWriter.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.ReaderWriter.dll",
-      "offset": 2285277696,
+      "offset": 2882723328,
       "size": 5632,
       "sha256": "00bfeea19962bbec8a51dfe55e1bd8ad4cf02ef0c565fee880b3ceb84744bc8e"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XDocument.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XDocument.dll",
-      "offset": 2285176320,
+      "offset": 2882621952,
       "size": 5632,
       "sha256": "eab5886d4285c69e03c9f5a5984eea68bd7a24b8e930c095ed559dced8e088de"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.XDocument.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.XDocument.dll",
+      "offset": 2883190272,
+      "size": 5120,
+      "sha256": "231077479671377a327ae0c72da8c766f63c2dc412d14ebfaa0263f06a41d7a9"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.dll",
+      "offset": 2883033088,
+      "size": 5120,
+      "sha256": "59d920e0b80f5f9cefd52b0b88969f225483d8fce1a4e7723a369700c7fba93e"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XmlDocument.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XmlDocument.dll",
-      "offset": 2285089792,
+      "offset": 2882535424,
       "size": 5632,
       "sha256": "62049ed17429e37772f8cbc83bd5b65a500c7a979207f40aeb45d7f75d5b1917"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XmlSerializer.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XmlSerializer.dll",
-      "offset": 2285475328,
+      "offset": 2882920960,
       "size": 5632,
       "sha256": "a14f0e5e83dc393be95fab05eba94f83aac2a5aba8e16e4e3311cd2ea4779c53"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.dll",
-      "offset": 2285587456,
-      "size": 5120,
-      "sha256": "59d920e0b80f5f9cefd52b0b88969f225483d8fce1a4e7723a369700c7fba93e"
-    },
-    {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.XDocument.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.XDocument.dll",
-      "offset": 2285744640,
-      "size": 5120,
-      "sha256": "231077479671377a327ae0c72da8c766f63c2dc412d14ebfaa0263f06a41d7a9"
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/netstandard.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Facades/netstandard.dll",
+      "offset": 2883049984,
+      "size": 87040,
+      "sha256": "3b20c3bb5da550371635c8ff930c2a3404d4f51fc9a7d8e530c99f99cadf1699"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/I18N.CJK.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/I18N.CJK.dll",
-      "offset": 2280502784,
+      "offset": 2877948416,
       "size": 6656,
       "sha256": "d284f8a4e1a1411be524de6d3a1ba91f7266a8850ce5c26116236737be451b6e"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/I18N.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/I18N.dll",
-      "offset": 2284870656,
-      "size": 9216,
-      "sha256": "25d97e52f310e462e5b8ebd5bb4e52bd6ec7bac22c14cffb8503acf62bbfc87e"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/I18N.MidEast.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/I18N.MidEast.dll",
-      "offset": 2281594368,
+      "offset": 2879040000,
       "size": 5632,
       "sha256": "4344b5ce901962d22163b02ebb3d14268952712fe028173b0dcdd43acd4a9c44"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/I18N.Other.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/I18N.Other.dll",
-      "offset": 2283610624,
+      "offset": 2881056256,
       "size": 7680,
       "sha256": "46eef24700beb9f0706eddd2173fed4fdf6a49884e39a6659994ec760e2832b5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/I18N.Rare.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/I18N.Rare.dll",
-      "offset": 2285995008,
+      "offset": 2883440640,
       "size": 12800,
       "sha256": "cbe93287eb3f57944c96bd704558b98305b5906e1017750ab998c5d51fc4e9f8"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/I18N.West.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/I18N.West.dll",
-      "offset": 2282438144,
+      "offset": 2879883776,
       "size": 7680,
       "sha256": "0aae22402b37e63e70d1df62ff3250655fe3d86a509a6154b3861fa1aacfeedc"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/I18N.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/I18N.dll",
+      "offset": 2882316288,
+      "size": 9216,
+      "sha256": "25d97e52f310e462e5b8ebd5bb4e52bd6ec7bac22c14cffb8503acf62bbfc87e"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/IBM.Data.DB2.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/IBM.Data.DB2.dll",
-      "offset": 2284966400,
+      "offset": 2882412032,
       "size": 17408,
       "sha256": "f79f2620398c8348da37d7bfb09dcea92d81c6f297aa2399bd8b72e8046866f7"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.dll",
-      "offset": 2281537024,
-      "size": 56832,
-      "sha256": "4b103fd3250e19cf15aeffa65499ba5d6fece52a2a346c00ac27375c002a65bc"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.Engine.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.Engine.dll",
-      "offset": 2283573760,
+      "offset": 2881019392,
       "size": 25600,
       "sha256": "7c9a2c38a69648aba94c8c36f3fd28eaff922851acc053e5d7a9fde4df28e733"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.Framework.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.Framework.dll",
-      "offset": 2287075328,
+      "offset": 2884520960,
       "size": 35328,
       "sha256": "f353f86838b59343a6913036a3851ce454c31b38f3ceda2fc5be4cd655e89c65"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.Tasks.v4.0.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.Tasks.v4.0.dll",
-      "offset": 2280397312,
+      "offset": 2877842944,
       "size": 104960,
       "sha256": "aaf96540c78b07ab6c752b59b8adf4bb5e7efb19eb38e1cf264d956fc1537ff7"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.Utilities.v4.0.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.Utilities.v4.0.dll",
-      "offset": 2281089536,
+      "offset": 2878535168,
       "size": 28160,
       "sha256": "495523ad5d53a46c722d2fb160c58fe938a9846a1ee1af3ae9f01beaefb00c63"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.Build.dll",
+      "offset": 2878982656,
+      "size": 56832,
+      "sha256": "4b103fd3250e19cf15aeffa65499ba5d6fece52a2a346c00ac27375c002a65bc"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.CSharp.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.CSharp.dll",
-      "offset": 2283774464,
+      "offset": 2881220096,
       "size": 7680,
       "sha256": "78b521c40b3031fdbb0fa3df65ab6347ad56f564edb13251965b47013a934f24"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.VisualBasic.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.VisualBasic.dll",
-      "offset": 2283709440,
+      "offset": 2881155072,
       "size": 64512,
       "sha256": "e9893db220f3d071182ac3a7731ef6bed02e5c5ec09bdd5a607b177c62ff4519"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.VisualC.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.VisualC.dll",
-      "offset": 2282622464,
+      "offset": 2880068096,
       "size": 5120,
       "sha256": "c91c402d6e524d364f546844671cd7aa842e95779945f3c2276a29e06cdff3fc"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.Web.Infrastructure.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Microsoft.Web.Infrastructure.dll",
-      "offset": 2281296896,
+      "offset": 2878742528,
       "size": 6656,
       "sha256": "fa3d2894ca00edc1d8239e41664b88b8fbc1f701d0d72623c8ddaad8c7d60fec"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.C5.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.C5.dll",
-      "offset": 2284805120,
+      "offset": 2882250752,
       "size": 65024,
       "sha256": "5cf92d47ca03e11b81b5d12cd362499322c2dc2ca016418a59619b9a08a12b74"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.CSharp.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.CSharp.dll",
+      "offset": 2884605952,
+      "size": 214528,
+      "sha256": "a79c8b23ea0b420d7c3bcece7b756158b8b4fc52675f2599afa546dd19a1aa15"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Cairo.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Cairo.dll",
-      "offset": 2284935680,
+      "offset": 2882381312,
       "size": 23552,
       "sha256": "23c03ee541f6bb9c05426c43200a37b9bc02123a1ebf9f2bf84da22bb8aeceb4"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.CodeContracts.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.CodeContracts.dll",
-      "offset": 2282102272,
+      "offset": 2879547904,
       "size": 19968,
       "sha256": "4ac03b3308fab27aa08e299f447a86a89a15a272288fa5d2c3b8722f9f636dd5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.CompilerServices.SymbolWriter.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.CompilerServices.SymbolWriter.dll",
-      "offset": 2282142720,
+      "offset": 2879588352,
       "size": 13824,
       "sha256": "08514a4ea33a25f91bd550073cc916a9559fc89306faf7a0d116c30a5ad28be8"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.CSharp.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.CSharp.dll",
-      "offset": 2287160320,
-      "size": 214528,
-      "sha256": "a79c8b23ea0b420d7c3bcece7b756158b8b4fc52675f2599afa546dd19a1aa15"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Data.Sqlite.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Data.Sqlite.dll",
-      "offset": 2279786496,
+      "offset": 2877232128,
       "size": 26624,
       "sha256": "9a70030f944d9d2f9efa712f00a14be0c014d78722aef0f0dfc727ca302aeb01"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Data.Tds.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Data.Tds.dll",
-      "offset": 2280825344,
+      "offset": 2878270976,
       "size": 24064,
       "sha256": "1243a69552651294fcd6db5004f307a518f6060cc6a1834e3c9b8a4eeafc2960"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Debugger.Soft.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Debugger.Soft.dll",
-      "offset": 2281422848,
+      "offset": 2878868480,
       "size": 31232,
       "sha256": "91e2364724f047f7d90da0e6902fd30fa9e1c6badf2e229799f0acea65df2376"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Http.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Http.dll",
-      "offset": 2282363392,
+      "offset": 2879809024,
       "size": 8704,
       "sha256": "341b4ebb790b4897237a4061244ae6907f5e473f5354f86cf39811dcce2cc5b6"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Management.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Management.dll",
-      "offset": 2283816448,
+      "offset": 2881262080,
       "size": 4096,
       "sha256": "88e977143e3d5eb064e6270250b9b867d751b6fbb16106118eff571813d88158"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Messaging.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Messaging.dll",
-      "offset": 2287778304,
-      "size": 18432,
-      "sha256": "edb68ccffa93fde7044b7107023df5b7235beb7326bd83cdf6265058d3a8e571"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Messaging.RabbitMQ.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Messaging.RabbitMQ.dll",
-      "offset": 2282089472,
+      "offset": 2879535104,
       "size": 12288,
       "sha256": "94d2df2698e88df72b9e9add2f0227c171992b182b9c3946dac3005b635bfd45"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Messaging.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Messaging.dll",
+      "offset": 2885223936,
+      "size": 18432,
+      "sha256": "edb68ccffa93fde7044b7107023df5b7235beb7326bd83cdf6265058d3a8e571"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Options.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Options.dll",
-      "offset": 2281044480,
+      "offset": 2878490112,
       "size": 11264,
       "sha256": "d580596dca203887506b426ffaea31563f51aea7d6b67b720142e272bce94b85"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Parallel.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Parallel.dll",
-      "offset": 2285986816,
+      "offset": 2883432448,
       "size": 7680,
       "sha256": "313eae8318b325a1fd3b7ce0c1c8aca637ed52e48dd76ce193a434c24fe51e72"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Posix.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Posix.dll",
-      "offset": 2281148416,
+      "offset": 2878594048,
       "size": 88064,
       "sha256": "13a1e0fc3f6727eaabdf1707ab680a14719bfe6183f8606a67955ce9c26d1f05"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Security.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Security.dll",
-      "offset": 2283407872,
-      "size": 72704,
-      "sha256": "6d7cb7b8be2eee28cd6e8222835c439835b1550ed5360c16d9cf0460317ef84e"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Security.Win32.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Security.Win32.dll",
-      "offset": 2283702272,
+      "offset": 2881147904,
       "size": 6656,
       "sha256": "29425caaa82e507778512ffa67b651611816d94a38665401358a77d141b914e5"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Security.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Security.dll",
+      "offset": 2880853504,
+      "size": 72704,
+      "sha256": "6d7cb7b8be2eee28cd6e8222835c439835b1550ed5360c16d9cf0460317ef84e"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Simd.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Simd.dll",
-      "offset": 2287633408,
+      "offset": 2885079040,
       "size": 32256,
       "sha256": "422e9ad44a14a5f133e61ad79bad38832dcd7e9eadece1c0e3781bd5c063aaa1"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.Tasklets.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.Tasklets.dll",
-      "offset": 2287149056,
+      "offset": 2884594688,
       "size": 4096,
       "sha256": "0c1e9ef44e530998988ed49bd894d447ba01ca2fba4b5dbdeeab548b5f742f96"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Mono.WebBrowser.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Mono.WebBrowser.dll",
-      "offset": 2282339328,
+      "offset": 2879784960,
       "size": 23552,
       "sha256": "f9810dbd75ac9bce9dffdbfe7e9d8c7fed5498bf62944ff65bb926bc5eee273d"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/mscorlib.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/mscorlib.dll",
-      "offset": 2286149120,
-      "size": 925696,
-      "sha256": "800371597a06660e3f20251785d44cdab5edc681b9aa4b09120ad4a7ab2f9478"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Novell.Directory.Ldap.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/Novell.Directory.Ldap.dll",
-      "offset": 2287532544,
+      "offset": 2884978176,
       "size": 88064,
       "sha256": "e2afc8eeeb3550ef8f3216fe58e7d46ec5115ff4932e93a1894508a1bca849e5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/PEAPI.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/PEAPI.dll",
-      "offset": 2282303488,
+      "offset": 2879749120,
       "size": 29696,
       "sha256": "239a30733e38a76598c1c5f240974e0587bf204c1a2ea263809e688d5f628f32"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/RabbitMQ.Client.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/RabbitMQ.Client.dll",
-      "offset": 2280519168,
+      "offset": 2877964800,
       "size": 305664,
       "sha256": "d6b5dc0e8ae09a66387e5eabfaa81a2b8b68db5d49cab42d148ce9907ee4099b"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/SMDiagnostics.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/SMDiagnostics.dll",
-      "offset": 2285860864,
+      "offset": 2883306496,
       "size": 4096,
       "sha256": "463869fa00737994b93dd480d997fcdd060a819f05190fb404365237e4622022"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.Composition.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.Composition.dll",
-      "offset": 2282476032,
+      "offset": 2879921664,
       "size": 28160,
       "sha256": "673b2b71a9d0c83629676647c908c67048dc1e9b51d9b43c7561e72882abc693"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.DataAnnotations.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.DataAnnotations.dll",
-      "offset": 2287514624,
+      "offset": 2884960256,
       "size": 17408,
       "sha256": "de63103d6555e13b53ccb096c09db9bbd0e97779d8593768f2d8cf2b692b02e4"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Configuration.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Configuration.dll",
-      "offset": 2280015360,
-      "size": 44032,
-      "sha256": "856feafa39c88147637b577d11750f8124380ab56cef210e6498acf6020f6be9"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Configuration.Install.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Configuration.Install.dll",
-      "offset": 2283899392,
+      "offset": 2881345024,
       "size": 12288,
       "sha256": "1437da0db940917f8a4bed7e4e0ad08ad19bcaa60bd9849a83178db5e03e4eb6"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Configuration.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Configuration.dll",
+      "offset": 2877460992,
+      "size": 44032,
+      "sha256": "856feafa39c88147637b577d11750f8124380ab56cef210e6498acf6020f6be9"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Core.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Core.dll",
-      "offset": 2279628800,
+      "offset": 2877074432,
       "size": 157184,
       "sha256": "a87b470d5878d9fa7bb3201c86d8e5fd62fdccc7ce6e4241a77b07a7510005f7"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.DataSetExtensions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Data.DataSetExtensions.dll",
-      "offset": 2285938176,
+      "offset": 2883383808,
       "size": 9216,
       "sha256": "1d9c2e9d867f5521cf80bbd37b3dcb0291ae9bb98dbc49365ff35c866c1697b4"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Data.dll",
-      "offset": 2279820288,
-      "size": 194560,
-      "sha256": "045eb935b721514205f762ed39ea033f68ef647ccf7ecb9c65e513261841f5d6"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.Entity.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Data.Entity.dll",
-      "offset": 2281304064,
+      "offset": 2878749696,
       "size": 118272,
       "sha256": "54f954734db2f55b2069ced01baaf4e184f92b64b5323f96a0f94fbe92355503"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.Linq.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Data.Linq.dll",
-      "offset": 2283368448,
+      "offset": 2880814080,
       "size": 31744,
       "sha256": "2b25a4dcd5ac03db9204fff271af2bc00764765a9ce6e37627dc4e024a2f64d5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.OracleClient.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Data.OracleClient.dll",
-      "offset": 2285947904,
+      "offset": 2883393536,
       "size": 38400,
       "sha256": "d959f274aec052eab56cd3d0d91fea6200d461000eb5014ef8f8ee9bee02ba5c"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.Services.Client.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Data.Services.Client.dll",
-      "offset": 2283821056,
+      "offset": 2881266688,
       "size": 19456,
       "sha256": "b3438ffc6682c929694871799b14c3a541a150f4df4b072d3d22b8326b7e8af3"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.Services.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Data.Services.dll",
-      "offset": 2287739904,
+      "offset": 2885185536,
       "size": 37888,
       "sha256": "03412a683ed850032c1a46215a6b2815e6aace3801cbdd42cca2b4f3fa536ef0"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Data.dll",
+      "offset": 2877265920,
+      "size": 194560,
+      "sha256": "045eb935b721514205f762ed39ea033f68ef647ccf7ecb9c65e513261841f5d6"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Deployment.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Deployment.dll",
-      "offset": 2287797248,
+      "offset": 2885242880,
       "size": 5632,
       "sha256": "36c3c5b0fa6f3c7eaafbadd49026d358e19c2a9ffec9214e9ef0a266c430b47a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Design.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Design.dll",
-      "offset": 2280259584,
+      "offset": 2877705216,
       "size": 137216,
       "sha256": "3d3ffcfbf06708e22ad128a58d1fa649daa920628d8b0e5cee09dbe2edad054a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Diagnostics.Tracing.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Diagnostics.Tracing.dll",
-      "offset": 2284959744,
+      "offset": 2882405376,
       "size": 6144,
       "sha256": "0ff8ef0e5c200db44aa381bb435f800d347ac2a5b4e9c51ca5a9bcf493a4efdc"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.DirectoryServices.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.DirectoryServices.dll",
-      "offset": 2283632640,
-      "size": 69120,
-      "sha256": "89d01fc3bc2334613e2fc1a0b2c016c16679add49934f610baaef160f280fed6"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.DirectoryServices.Protocols.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.DirectoryServices.Protocols.dll",
-      "offset": 2287111168,
+      "offset": 2884556800,
       "size": 37376,
       "sha256": "ea60103a12794d4e11bc2ed3a184c28158b9d80fb1f01f1cada8306760305f9e"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.dll",
-      "offset": 2281600512,
-      "size": 488448,
-      "sha256": "cfb1aaefd49dcabcd4abcce2d15592d6acca29e6fac1a418ec41aab9b71a1c6d"
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.DirectoryServices.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.DirectoryServices.dll",
+      "offset": 2881078272,
+      "size": 69120,
+      "sha256": "89d01fc3bc2334613e2fc1a0b2c016c16679add49934f610baaef160f280fed6"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Drawing.Design.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Drawing.Design.dll",
-      "offset": 2282453504,
+      "offset": 2879899136,
       "size": 12288,
       "sha256": "747ae5f9e704e7d177d6cfb19ef6f56e8e4f50d503c6f182eee68323be2d10a6"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Drawing.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Drawing.dll",
-      "offset": 2287375360,
+      "offset": 2884820992,
       "size": 131584,
       "sha256": "4b54159d6acafa0a00f90eefdc3273f573539d8150c5f718a4992298ecb2aaab"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Dynamic.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Dynamic.dll",
-      "offset": 2287803392,
+      "offset": 2885249024,
       "size": 5632,
       "sha256": "6bf38b6e3e22fcdd85f1e8b16874714d84fc43993e437f8187b1b46a04c82cce"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.EnterpriseServices.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.EnterpriseServices.dll",
-      "offset": 2283481088,
+      "offset": 2880926720,
       "size": 33280,
       "sha256": "787e9dd7966433bb931dfea9420509676fe82b4f61805f95b4738da7e6e7504e"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IdentityModel.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.IdentityModel.dll",
-      "offset": 2280890880,
-      "size": 130048,
-      "sha256": "353417837be9ab419bb3b673791e066a06d369c8a6f5f9e5ba813df8050dcfa5"
-    },
-    {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IdentityModel.Selectors.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.IdentityModel.Selectors.dll",
-      "offset": 2285887488,
-      "size": 7680,
-      "sha256": "18b0eec450ee651ff858743ac2e19ae55443af1e7505a954148378b28d2c1799"
-    },
-    {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IO.Compression.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.IO.Compression.dll",
-      "offset": 2281080320,
-      "size": 8704,
-      "sha256": "b8f7557c6b517f82a47643a344198cd7dd2b6310e3b1ea55da09298888519833"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IO.Compression.FileSystem.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.IO.Compression.FileSystem.dll",
-      "offset": 2282446336,
+      "offset": 2879891968,
       "size": 6656,
       "sha256": "ace98e3269c9d21d7a5a86d1bd5f975921a228101c37b1f202d943b1c5c2a68e"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Json.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Json.dll",
-      "offset": 2282466304,
-      "size": 9216,
-      "sha256": "123103f58b0f57c75e2b90f399690e9fa8225a6c3b4571508a1c5fefa9cf3958"
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IO.Compression.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.IO.Compression.dll",
+      "offset": 2878525952,
+      "size": 8704,
+      "sha256": "b8f7557c6b517f82a47643a344198cd7dd2b6310e3b1ea55da09298888519833"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IdentityModel.Selectors.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.IdentityModel.Selectors.dll",
+      "offset": 2883333120,
+      "size": 7680,
+      "sha256": "18b0eec450ee651ff858743ac2e19ae55443af1e7505a954148378b28d2c1799"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IdentityModel.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.IdentityModel.dll",
+      "offset": 2878336512,
+      "size": 130048,
+      "sha256": "353417837be9ab419bb3b673791e066a06d369c8a6f5f9e5ba813df8050dcfa5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Json.Microsoft.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Json.Microsoft.dll",
-      "offset": 2282122752,
+      "offset": 2879568384,
       "size": 12800,
       "sha256": "d0061252ec60d92c7df7cc5cda7f3d116f96d28fc4e781736d7d7293b2028b24"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Json.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Json.dll",
+      "offset": 2879911936,
+      "size": 9216,
+      "sha256": "123103f58b0f57c75e2b90f399690e9fa8225a6c3b4571508a1c5fefa9cf3958"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Management.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Management.dll",
-      "offset": 2285825536,
+      "offset": 2883271168,
       "size": 34816,
       "sha256": "deec64a34d54e3455f68fe5f1d9556a620f268efed095956e8edcbe0016feed5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Messaging.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Messaging.dll",
-      "offset": 2281236992,
+      "offset": 2878682624,
       "size": 43520,
       "sha256": "6d251573e0918d2d720ba696bf2eedc8a898643eed9de097ed70db53194649e9"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Net.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Net.dll",
-      "offset": 2280174080,
-      "size": 31232,
-      "sha256": "9fdd34e5ec8f05c972591bcd36daec8d5d8d6995503af0c60509fc547832dda5"
-    },
-    {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.dll",
-      "offset": 2280229888,
-      "size": 29184,
-      "sha256": "ecb4f41d4573dec929660dfb04c46a0c31be415ce4befd2369bc34b3de2cd8f8"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.Formatting.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.Formatting.dll",
-      "offset": 2284916736,
+      "offset": 2882362368,
       "size": 18432,
       "sha256": "f988667db207ddf55d943832c253618e7ec9f63d4accd22921ccf2f78a83ff39"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.WebRequest.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.WebRequest.dll",
-      "offset": 2282295808,
+      "offset": 2879741440,
       "size": 7168,
       "sha256": "54e838d05745770cffa68c54d2f627e20e70ada8dedcc6adbaa7314717be2a50"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Numerics.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Numerics.dll",
-      "offset": 2281118208,
-      "size": 22528,
-      "sha256": "3acd08429a7ce3028ad0be4134ff5c603a14a202c39a08499b188b9018d34d3a"
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.dll",
+      "offset": 2877675520,
+      "size": 29184,
+      "sha256": "ecb4f41d4573dec929660dfb04c46a0c31be415ce4befd2369bc34b3de2cd8f8"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Net.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Net.dll",
+      "offset": 2877619712,
+      "size": 31232,
+      "sha256": "9fdd34e5ec8f05c972591bcd36daec8d5d8d6995503af0c60509fc547832dda5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Numerics.Vectors.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Numerics.Vectors.dll",
-      "offset": 2287621120,
+      "offset": 2885066752,
       "size": 11776,
       "sha256": "395e47e04869f6a5ba90bb005918a3ff755c1bcefe58994bfe4f035563e98d32"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Numerics.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Numerics.dll",
+      "offset": 2878563840,
+      "size": 22528,
+      "sha256": "3acd08429a7ce3028ad0be4134ff5c603a14a202c39a08499b188b9018d34d3a"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Core.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Core.dll",
-      "offset": 2285865472,
+      "offset": 2883311104,
       "size": 21504,
       "sha256": "82d62303614c65bb751ec21dfe5dc9c237a85de81b404b9f7cb661b6e5c31fc2"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Debugger.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Debugger.dll",
-      "offset": 2283919360,
+      "offset": 2881364992,
       "size": 5120,
       "sha256": "3c5606e86af5ebf00a01d497b7d5cc512f8381f407846cc882316e6fdad6c6cb"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Experimental.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Experimental.dll",
-      "offset": 2286008320,
+      "offset": 2883453952,
       "size": 8704,
       "sha256": "ade769b70fca2de6604b636e3632d83cd9882505f404f609b24069c5dbdde3e8"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Interfaces.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Interfaces.dll",
-      "offset": 2281056256,
+      "offset": 2878501888,
       "size": 7680,
       "sha256": "1abd251750cf54a3065aabb9f64dc3ab946a5069c04f03ea15f810a36a5903a0"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Linq.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Linq.dll",
-      "offset": 2280103936,
+      "offset": 2877549568,
       "size": 69632,
       "sha256": "dbb864d066e1dc9fc563654abc79c71db49a6df89fbe8ed3d2733cb34cb3b6f6"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Observable.Aliases.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Observable.Aliases.dll",
-      "offset": 2281071104,
+      "offset": 2878516736,
       "size": 8704,
       "sha256": "66b57b8bb51916d4fd75985936150ab606ec5e7a9e3d4710f4bf88e854a517b4"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.PlatformServices.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.PlatformServices.dll",
-      "offset": 2287666176,
+      "offset": 2885111808,
       "size": 7168,
       "sha256": "877f385258ac010899650e8bf4d2a1b595e43bd8f1566bb29a3d12e7009dca48"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Providers.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Providers.dll",
-      "offset": 2287673856,
+      "offset": 2885119488,
       "size": 65536,
       "sha256": "11b0f6f911f82c624d4161086ac78362e3165404de502f803168a87ca8695a90"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Runtime.Remoting.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Runtime.Remoting.dll",
-      "offset": 2286142976,
+      "offset": 2883588608,
       "size": 5632,
       "sha256": "80d4f84f118955ea67ef27f658dc77866c3672ae980f96eb04a530e743004ecf"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Windows.Forms.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Windows.Forms.dll",
-      "offset": 2285818880,
+      "offset": 2883264512,
       "size": 6144,
       "sha256": "18aabffd13357c8cc3705c7a9c7ed131c54e28dc019385b86662547b635b1309"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Windows.Threading.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reactive.Windows.Threading.dll",
-      "offset": 2281141248,
+      "offset": 2878586880,
       "size": 6656,
       "sha256": "440fb194faba1628748c65c1ce632d6dfe7602a68477fd50df8c2f993145676e"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Reflection.Context.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Reflection.Context.dll",
-      "offset": 2280205824,
+      "offset": 2877651456,
       "size": 6144,
       "sha256": "104758d140f449406f025565bdc1abe6cc68f5ac6489c28f0e5bdc3b40772a2c"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Caching.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Caching.dll",
-      "offset": 2282385920,
+      "offset": 2879831552,
       "size": 15872,
       "sha256": "aeb580d84bcdd2c3aae7be5ec17db48125ee85d50987e02288ef9e63c48b129d"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Runtime.DurableInstancing.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Runtime.DurableInstancing.dll",
-      "offset": 2280212480,
+      "offset": 2877658112,
       "size": 16896,
       "sha256": "a9f02df270d69d57ee4587b56be5ff39b1596f6a172c7a964b0cc8bb9e31b2dd"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Remoting.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Remoting.dll",
-      "offset": 2283514880,
+      "offset": 2880960512,
       "size": 19968,
       "sha256": "d62222331b6ffcce4b2adfcd7527a6c5bd378431d9b6bcadcfb844aa600b7825"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Serialization.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Serialization.dll",
-      "offset": 2283535360,
-      "size": 37888,
-      "sha256": "9f28b56d5a2675066cc22f62eb9af8244e8e9ccc17ba97a49b5c9d59bac824a9"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Serialization.Formatters.Soap.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Serialization.Formatters.Soap.dll",
-      "offset": 2287507456,
+      "offset": 2884953088,
       "size": 6656,
       "sha256": "b6b6dd0f891141ac3d4fe729024a983f44e069066fb09c695084f17d4630981e"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Serialization.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Serialization.dll",
+      "offset": 2880980992,
+      "size": 37888,
+      "sha256": "9f28b56d5a2675066cc22f62eb9af8244e8e9ccc17ba97a49b5c9d59bac824a9"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Security.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Security.dll",
-      "offset": 2282157056,
+      "offset": 2879602688,
       "size": 39936,
       "sha256": "edab79ba6e373972bc1d072cc071d8415bd1e2f54e3dd9c1e3f316c25590e3d2"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.Activation.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.Activation.dll",
-      "offset": 2285929984,
+      "offset": 2883375616,
       "size": 7680,
       "sha256": "660cc132eb58a3a363d3785a36098411927c305980a8872c537319a1a3899756"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.Discovery.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.Discovery.dll",
-      "offset": 2282402304,
+      "offset": 2879847936,
       "size": 35328,
       "sha256": "e97f2bae67e6021c60a555aceabf8d3d110540a26a37b9af2572cfb4e3396b9c"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.dll",
-      "offset": 2287820288,
-      "size": 497152,
-      "sha256": "3c59beb540cb5ee3dce3263b0e510630f53d44bfae71c8d9dd7c4df187ff97e3"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.Routing.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.Routing.dll",
-      "offset": 2282209792,
+      "offset": 2879655424,
       "size": 19968,
       "sha256": "8a08239e8537e059f176414122ca1eaab6b779a5ba37b651462122bb9abcfb10"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.Web.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.Web.dll",
-      "offset": 2280856064,
+      "offset": 2878301696,
       "size": 34304,
       "sha256": "b578680cecf136ecd6d31f8072a869767ed5c33990dcc9bfeb49108dee447862"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.ServiceModel.dll",
+      "offset": 2885265920,
+      "size": 497152,
+      "sha256": "3c59beb540cb5ee3dce3263b0e510630f53d44bfae71c8d9dd7c4df187ff97e3"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ServiceProcess.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.ServiceProcess.dll",
-      "offset": 2281281024,
+      "offset": 2878726656,
       "size": 15360,
       "sha256": "670f9cf76140591e67e3ca162ce143ca1c69ebf7c4fc60934332b18ef291a5e5"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Threading.Tasks.Dataflow.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Threading.Tasks.Dataflow.dll",
-      "offset": 2286025728,
+      "offset": 2883471360,
       "size": 20992,
       "sha256": "a7a9245cc21b87b2da64786ca30e755df2320d0c3a1ce90954ee0437b9904359"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Transactions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Transactions.dll",
-      "offset": 2281021440,
+      "offset": 2878467072,
       "size": 16384,
       "sha256": "0b2e0053fe55acde33f356c967db6b179e500d0b1e6a4232474a1a0babc88069"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Abstractions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Abstractions.dll",
-      "offset": 2283912192,
+      "offset": 2881357824,
       "size": 6656,
       "sha256": "2b73789de8dba5865fd83d8fda22c88b305ef4b29105be8fc6d356cd0d631225"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.ApplicationServices.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.ApplicationServices.dll",
-      "offset": 2283618816,
+      "offset": 2881064448,
       "size": 13312,
       "sha256": "1c13aff55c413b3b5f2e60c1161b6a21cc112465eeed951c845030a0ce9e4e59"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.dll",
-      "offset": 2283924992,
-      "size": 879616,
-      "sha256": "77724849ba006938302768498e526470f053d30186a3e9aa135806599ca82e01"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.DynamicData.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.DynamicData.dll",
-      "offset": 2284880384,
+      "offset": 2882326016,
       "size": 35840,
       "sha256": "e30aae21cc0b083cb41deb86e068e36a34a98723f28e3687bae5f78f8ff8e26e"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Extensions.Design.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Extensions.Design.dll",
-      "offset": 2282372608,
+      "offset": 2879818240,
       "size": 12800,
       "sha256": "084092925c8d32620870db1d416391274d7a7b4964a5818c02abe5a41e249c1b"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Extensions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Extensions.dll",
-      "offset": 2284984320,
+      "offset": 2882429952,
       "size": 104448,
       "sha256": "219bb5cfea5f1fe6ac03358a4d57b774efd21b6d7ebeed7490f81b9d1ace274c"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Http.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Http.dll",
-      "offset": 2282235904,
-      "size": 53248,
-      "sha256": "6f3dd8b64e9bb9cbfe3a1358a471a3ee3cbbac558ec011fd17af8d607c299862"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Http.SelfHost.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Http.SelfHost.dll",
-      "offset": 2280509952,
+      "offset": 2877955584,
       "size": 8704,
       "sha256": "9192d541392182550674098dcabaac905d167bf1abbf31b259d3f6b008a4a764"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Http.WebHost.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Http.WebHost.dll",
-      "offset": 2286017536,
+      "offset": 2883463168,
       "size": 7680,
       "sha256": "d30d3bf649a5c17de9b0bc5e542ba8591de06a35068d06704b3391a530eb0463"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Http.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Http.dll",
+      "offset": 2879681536,
+      "size": 53248,
+      "sha256": "6f3dd8b64e9bb9cbfe3a1358a471a3ee3cbbac558ec011fd17af8d607c299862"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Mobile.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Mobile.dll",
-      "offset": 2282333696,
+      "offset": 2879779328,
       "size": 5120,
       "sha256": "2a7c2a5c74e7873272097db28eb1a3de9512283f1dc63434659a049c76d7ca65"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Mvc.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Mvc.dll",
-      "offset": 2286047232,
+      "offset": 2883492864,
       "size": 95232,
       "sha256": "33a9ea193272667a849efef0078ed555368db23debe24d8f081ba7b7c3611e65"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Razor.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Razor.dll",
-      "offset": 2283841024,
+      "offset": 2881286656,
       "size": 57856,
       "sha256": "34477452daf16b9076ed51875ec56f82ce6fb7052344c48169f88881947503e9"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.RegularExpressions.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.RegularExpressions.dll",
-      "offset": 2287153664,
+      "offset": 2884599296,
       "size": 6144,
       "sha256": "0bf95bea3d10a8999e2d5f9e310995b9acebf3cd88acf0d79751dc8095c02055"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Routing.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Routing.dll",
-      "offset": 2281064448,
+      "offset": 2878510080,
       "size": 6144,
       "sha256": "42c776eb1608e62455008ae6799945fc3ef1d7af19f5bc48367e664c2a0d6c34"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.Services.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.Services.dll",
-      "offset": 2279425024,
+      "offset": 2876870656,
       "size": 75776,
       "sha256": "30373b82d3411a58f029543040351e05fcf530cd9844b0aa9a5534fcb59aa55f"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.WebPages.Deployment.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.WebPages.Deployment.dll",
-      "offset": 2279813632,
+      "offset": 2877259264,
       "size": 6144,
       "sha256": "814fc5481b72314899a2dc38f51c7c70cf281f8d16aca202a2161680aca983b7"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.WebPages.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.WebPages.dll",
-      "offset": 2283782656,
-      "size": 33280,
-      "sha256": "5a764f7a5a1b021a5a52497b6f3748e80c22a10dfcc55854248807f9a017e290"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.WebPages.Razor.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.WebPages.Razor.dll",
-      "offset": 2283599872,
+      "offset": 2881045504,
       "size": 10240,
       "sha256": "9249b05dbc55d4df78600017578359b083e5c0fbad7ff47619d0d6c629adb0d1"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Windows.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Windows.dll",
-      "offset": 2281038336,
-      "size": 5632,
-      "sha256": "9f1ba40d48452cd58038d879cc323a9bf49daf71e059c5269e0b3a968b4824f8"
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.WebPages.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.WebPages.dll",
+      "offset": 2881228288,
+      "size": 33280,
+      "sha256": "5a764f7a5a1b021a5a52497b6f3748e80c22a10dfcc55854248807f9a017e290"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Web.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Web.dll",
+      "offset": 2881370624,
+      "size": 879616,
+      "sha256": "77724849ba006938302768498e526470f053d30186a3e9aa135806599ca82e01"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Windows.Forms.DataVisualization.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Windows.Forms.DataVisualization.dll",
-      "offset": 2282504704,
+      "offset": 2879950336,
       "size": 117248,
       "sha256": "5d0a59b5b43cf8cc1b99c71d9b4ed50eeab34b4e4cc7ee3d2a5d1a2148264bbe"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Windows.Forms.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Windows.Forms.dll",
-      "offset": 2282650624,
+      "offset": 2880096256,
       "size": 717312,
       "sha256": "8e48c1bca2a85178c522a58583c0c0a0a85a85759b188b0620f8f614ae9f2424"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Windows.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Windows.dll",
+      "offset": 2878483968,
+      "size": 5632,
+      "sha256": "9f1ba40d48452cd58038d879cc323a9bf49daf71e059c5269e0b3a968b4824f8"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Workflow.Activities.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Workflow.Activities.dll",
-      "offset": 2282230272,
+      "offset": 2879675904,
       "size": 5120,
       "sha256": "4fa86ce54404d5ec1bf2f3ed22a26befb4854ad02b187b6c45dc428f9aa0311e"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Workflow.ComponentModel.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Workflow.ComponentModel.dll",
-      "offset": 2282204160,
+      "offset": 2879649792,
       "size": 5120,
       "sha256": "3e4e565e3ce83b02041e34e8406fd0223c73a5a1f548f21588fc2a4a6b57edf1"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Workflow.Runtime.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Workflow.Runtime.dll",
-      "offset": 2282289664,
+      "offset": 2879735296,
       "size": 5632,
       "sha256": "0f4e60c86527444c66fb78c9a6c348e4494c8941cb4956e6a09763aa6a400c5d"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xaml.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Xaml.dll",
-      "offset": 2280059904,
+      "offset": 2877505536,
       "size": 43520,
       "sha256": "4ff919e074bd62f2871cea782750c0eea3d411c5d7776f5a92ee05e635ec10a8"
     },
     {
-      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.dll",
-      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Xml.dll",
-      "offset": 2279501312,
-      "size": 126976,
-      "sha256": "e014fb786edfaba4e0cc714f162944dc55883f0bdbc33b90dd0ec5dfef175705"
-    },
-    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.Linq.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Xml.Linq.dll",
-      "offset": 2282628096,
+      "offset": 2880073728,
       "size": 22016,
       "sha256": "30c6a9ac36ee1b08e23028b135f6152de336b069dea7bbb0f5e6340cbaac6c6a"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.Serialization.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/System.Xml.Serialization.dll",
-      "offset": 2282197504,
+      "offset": 2879643136,
       "size": 6144,
       "sha256": "ef62fd99ac566027b8b5d282302687c017f9a9a12bc27bc38b7099e53c1b48a2"
     },
     {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.Xml.dll",
+      "offset": 2876946944,
+      "size": 126976,
+      "sha256": "e014fb786edfaba4e0cc714f162944dc55883f0bdbc33b90dd0ec5dfef175705"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/System.dll",
+      "offset": 2879046144,
+      "size": 488448,
+      "sha256": "cfb1aaefd49dcabcd4abcce2d15592d6acca29e6fac1a418ec41aab9b71a1c6d"
+    },
+    {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/WebMatrix.Data.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/WebMatrix.Data.dll",
-      "offset": 2283400704,
+      "offset": 2880846336,
       "size": 6656,
       "sha256": "9a3954a9b2f1ddd53dadf1da7c8827298bf836480ce0eb8bfafbd2bd9ba24a0c"
     },
     {
       "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/WindowsBase.dll",
       "target": "UnityReferenceAssemblies/unity-4.8-api/WindowsBase.dll",
-      "offset": 2281454592,
+      "offset": 2878900224,
       "size": 81920,
       "sha256": "045f62b722b59fe2de52d2f86ec4804903fa9928e96f6a68e49ab3fe0a4cd1be"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/cscompmgd.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/cscompmgd.dll",
+      "offset": 2878295552,
+      "size": 5632,
+      "sha256": "a521001ecfbea4c19fa13e990fb61f0e5a93e2e300fc455901822db1a015390c"
+    },
+    {
+      "archivePath": "Editor/Data/UnityReferenceAssemblies/unity-4.8-api/mscorlib.dll",
+      "target": "UnityReferenceAssemblies/unity-4.8-api/mscorlib.dll",
+      "offset": 2883594752,
+      "size": 925696,
+      "sha256": "800371597a06660e3f20251785d44cdab5edc681b9aa4b09120ad4a7ab2f9478"
     }
   ]
 }

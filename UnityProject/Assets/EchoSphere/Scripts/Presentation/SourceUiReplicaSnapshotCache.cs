@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
@@ -23,6 +24,9 @@ namespace EchoSphere.Presentation
         private sealed class Snapshot : IStyle
         {
             internal bool Used;
+            public StyleList<FilterFunction> backdropFilter {get;set;}
+            public StyleEnum<AnimationPlayState> animationPlayState {get;set;}
+            public StyleUIAnimationClip unityAnimationClip {get;set;}
             public void Clear(bool clearInherited)=>throw new NotSupportedException("Read-only pass snapshot");
             public UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.Align> alignContent { get; set; }
             public UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.Align> alignItems { get; set; }
@@ -245,3 +249,5 @@ namespace EchoSphere.Presentation
         }
     }
 }
+
+#endif

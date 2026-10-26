@@ -37,7 +37,7 @@ namespace EchoSphere.Presentation
         public RenderTexture Texture=>_target;
         public Rect Bounds {get;private set;}
         public int PaintCount {get;private set;}
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
         internal static long DiagnosticRenders,DiagnosticBlurReads;
 #endif
         public NativeMenuBrush()
@@ -60,7 +60,7 @@ namespace EchoSphere.Presentation
                 int radius=Mathf.Max(1,Mathf.CeilToInt(4*sigma));
                 _material.SetFloat("_Sigma",sigma);_material.SetInt("_KernelRadius",radius);_material.SetFloat("_Outside",inset?1:0);
                 bool cached=NativeGaussianWeights.TryGet(sigma,out var weights)&&SystemInfo.IsFormatSupported(UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat,UnityEngine.Experimental.Rendering.GraphicsFormatUsage.Linear);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
                 if(NativeDeviceReplay.Active)DiagnosticBlurReads+=(long)w*h*2*(cached?2*((radius+1)/2)+1:2*radius+1);
 #endif
 #if UNITY_EDITOR
@@ -82,7 +82,7 @@ namespace EchoSphere.Presentation
             float padding=0;
             foreach(var shadow in new[]{paint.OuterA,paint.OuterB})if(shadow.HasValue)padding=Mathf.Max(padding,Mathf.Max(Mathf.Abs(shadow.Value.Offset.x),Mathf.Abs(shadow.Value.Offset.y))+shadow.Value.Blur*2+Mathf.Max(0,shadow.Value.Spread));
             int w=Mathf.CeilToInt((width+padding*2)*scale),h=Mathf.CeilToInt((height+padding*2)*scale);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
             if(NativeDeviceReplay.Active)DiagnosticRenders++;
 #endif
             if(_target==null||_target.width!=w||_target.height!=h){ReleaseTarget();_target=new RenderTexture(w,h,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native menu brush",hideFlags=HideFlags.DontSave,filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};if(!_target.Create())throw new InvalidOperationException("Native menu brush target allocation failed");}

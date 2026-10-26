@@ -76,22 +76,6 @@ public static class EchoSphereNativeBattleScene
     // configuration. A scene reload still works because this scene is index 0.
     public static object BuildEmulator(string output)
     {
-        if(EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("Stop Play Mode before building");
-        Create();
-        var architectures=PlayerSettings.Android.targetArchitectures;
-        try
-        {
-            PlayerSettings.Android.targetArchitectures=AndroidArchitecture.X86_64;
-            var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions {
-                scenes=new[]{Path},locationPathName=output,target=BuildTarget.Android,
-                options=BuildOptions.Development|BuildOptions.CompressWithLz4
-            });
-            var notices=new List<string>();foreach(var step in report.steps)foreach(var message in step.messages)
-                if(message.type==LogType.Warning||message.type==LogType.Error||message.type==LogType.Exception)notices.Add(message.content);
-            return new {result=report.summary.result.ToString(),errors=report.summary.totalErrors,
-                warnings=report.summary.totalWarnings,seconds=report.summary.totalTime.TotalSeconds,
-                size=report.summary.totalSize,output,notices};
-        }
-        finally{PlayerSettings.Android.targetArchitectures=architectures;AssetDatabase.SaveAssets();}
+        throw new NotSupportedException("Unity 6.6 no longer supports Android x86_64; use a supported Android ARM target for player validation. This evaluation has not built an APK.");
     }
 }

@@ -154,7 +154,9 @@ namespace EchoSphere.Presentation
             }
             var buttons=new List<Button>();var glass=new List<NativeMenuGlass>();
             void Visit(VisualElement node){
+#if UNITY_EDITOR
                 if(node.userData is SourceUiBackdrop.ClipTag||ReferenceEquals(node.userData,SourceUiBackdrop.ReplicaTag))return;
+#endif
                 if(node is Button button){int index=_buttons.IndexOf(button);if(index>=0){buttons.Add(button);glass.Add(_glass[index]);}}
                 for(int i=0;i<node.hierarchy.childCount;i++)Visit(node.hierarchy[i]);
             }

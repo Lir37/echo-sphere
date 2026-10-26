@@ -1,3 +1,4 @@
+using EchoSphere;
 using System;
 using System.Collections.Generic;
 using EchoSphere.Core;
@@ -1204,7 +1205,7 @@ namespace EchoSphere.Runtime
             // The prototype scene is generated empty, so ensure the runtime
             // camera supplies the single listener Unity expects. Do not add a
             // duplicate if another active listener is already present.
-            if (FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Length == 0)
+            if (FindObjectsByType<AudioListener>().Length == 0)
             {
                 var listener = _camera.GetComponent<AudioListener>();
                 if (listener == null) listener = _camera.gameObject.AddComponent<AudioListener>();
@@ -2296,7 +2297,7 @@ namespace EchoSphere.Runtime
             {
                 var enemy = _enemies[i];
                 if (enemy == null || !enemy.IsAlive ||
-                    (ignoredIds != null && ignoredIds.Contains(enemy.GetInstanceID()))) continue;
+                    (ignoredIds != null && ignoredIds.Contains(enemy.ExistingObjectId()))) continue;
                 var distance = ((Vector2)enemy.transform.position - from).sqrMagnitude;
                 if (distance < bestDistance) { bestDistance = distance; best = enemy; }
             }
@@ -2323,7 +2324,7 @@ namespace EchoSphere.Runtime
             {
                 var e = _enemies[i];
                 var combined = radius + (e != null ? e.SourceRadius * SpherePlacementRules.SourcePixelsToWorld : 0f);
-                if (e != null && e.IsAlive && (ignoredIds == null || !ignoredIds.Contains(e.GetInstanceID())) &&
+                if (e != null && e.IsAlive && (ignoredIds == null || !ignoredIds.Contains(e.ExistingObjectId())) &&
                     ((Vector2)e.transform.position - position).sqrMagnitude < combined * combined) return e;
             }
             return null;
@@ -2800,7 +2801,7 @@ namespace EchoSphere.Runtime
                         SpawnImpact(from, new Color(0.72f, 0.40f, 0.86f, 0.9f));
                         if (nextIndex >= 0 && nextIndex < _spheres.Count && _spheres[nextIndex] != null)
                             SpawnImpact(Vector2.Lerp(from, _spheres[nextIndex].transform.position, 0.5f), new Color(0.72f, 0.40f, 0.86f, 0.95f));
-                        if (i < targets.Count && targets[i] != null && usedTargets.Add(targets[i].GetInstanceID()))
+                        if (i < targets.Count && targets[i] != null && usedTargets.Add(targets[i].ExistingObjectId()))
                             targets[i].ReceiveDamage(baseDamage * 0.65f);
                     }
                     ShowMessage("TRIANGLE RESONANCE");

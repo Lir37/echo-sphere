@@ -1,5 +1,9 @@
 # ECHO SPHERE — separate Unity 6.6 evaluation
 
+Status update: user subsequently approved promotion. Main now uses 6.6/native
+glass and entry. See UNITY_NATIVE_66_PROMOTION_2026-10-26.md. The copy-only and
+pending-approval statements below describe the evaluation stage historically.
+
 User authorization: evaluate Unity 6.6 in a separate copy. Main project promotion
 is not yet authorized. Main baseline: a9766ade3d392453af7ef51bdf2fa577ac181f52,
 unity-migration, CI #864 SUCCESS:

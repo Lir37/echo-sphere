@@ -1,5 +1,10 @@
 # Native presentation ownership — 2026-10-26
 
+Promotion update: user approved Unity 6.6; main project now uses native
+backdropFilter and authored entry index 0. Prior pending engine/replica retirement
+statements below are historical. Current verification/remaining acceptance:
+GPT/UNITY_NATIVE_66_PROMOTION_2026-10-26.md.
+
 Latest update: user approved separate-copy Unity 6.6 evaluation. Native engine
 backdropFilter replaces production replicas in that copy, authored entry is index
 0, actual Editor menu/battle/pause checks pass. Main stays on 6.3; no promotion

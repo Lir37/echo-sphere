@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine.UIElements;
 
 namespace EchoSphere.Presentation
@@ -11,6 +12,9 @@ namespace EchoSphere.Presentation
     internal sealed class SourceUiReplicaStyle : IStyle
     {
         private readonly IStyle _target;
+        public StyleEnum<AnimationPlayState> animationPlayState {get=>_target.animationPlayState;set=>_target.animationPlayState=value;}
+        public StyleUIAnimationClip unityAnimationClip {get=>_target.unityAnimationClip;set=>_target.unityAnimationClip=value;}
+        public StyleList<FilterFunction> backdropFilter {get=>_target.backdropFilter;set=>_target.backdropFilter=value;}
         internal SourceUiReplicaStyle(IStyle target)
         {
             _target=target;
@@ -284,3 +288,5 @@ namespace EchoSphere.Presentation
         public UnityEngine.UIElements.StyleEnum<UnityEngine.ScaleMode> unityBackgroundScaleMode {get=>_target.unityBackgroundScaleMode;set {_target.unityBackgroundScaleMode=value;Read();}}
     }
 }
+
+#endif

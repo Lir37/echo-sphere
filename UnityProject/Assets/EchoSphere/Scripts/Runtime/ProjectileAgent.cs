@@ -1,3 +1,4 @@
+using EchoSphere;
 using System.Collections.Generic;
 using UnityEngine;
 using EchoSphere.Core;
@@ -63,7 +64,7 @@ namespace EchoSphere.Runtime
 
         public void IgnoreEnemy(EnemyAgent2D enemy)
         {
-            if (enemy != null) _hitEnemyIds.Add(enemy.GetInstanceID());
+            if (enemy != null) _hitEnemyIds.Add(enemy.ExistingObjectId());
         }
         public void ResetRestoredSourceReferences() { _evolutionOwner = null; _hitEnemyIds.Clear(); }
 
@@ -82,7 +83,7 @@ namespace EchoSphere.Runtime
             var enemy = _runtime.TryHitEnemy(transform.position, _sourceRadius * SpherePlacementRules.SourcePixelsToWorld, _hitEnemyIds);
             if (enemy != null)
             {
-                _hitEnemyIds.Add(enemy.GetInstanceID());
+                _hitEnemyIds.Add(enemy.ExistingObjectId());
                 if (_evolutionOwner != null)
                     enemy.ReceiveSphereDamage(_evolutionOwner.Type, _damage, false, _allowAuthoredProcs, _evolutionOwner);
                 else

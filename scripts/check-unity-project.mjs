@@ -98,7 +98,7 @@ for (const relative of svgArtPaths) {
 
 const versionText = readFileSync(join(root, 'ProjectSettings/ProjectVersion.txt'), 'utf8');
 const version = versionText.match(/m_EditorVersion:\s*(\S+)/)?.[1] ?? '';
-assert.ok(/^6000\.3\./.test(version), `Unity editor pin must stay on 6000.3 stream, got ${version}`);
+assert.equal(version, '6000.6.1f1', 'native backdropFilter requires the approved Unity 6.6 pin');
 
 const manifest = JSON.parse(readFileSync(join(root, 'Packages/manifest.json'), 'utf8'));
 // UnityEngine.TextRenderingModule is an engine assembly, not a resolvable
@@ -106,8 +106,8 @@ const manifest = JSON.parse(readFileSync(join(root, 'Packages/manifest.json'), '
 assert.ok(!Object.hasOwn(manifest.dependencies ?? {}, 'com.unity.modules.textrendering'),
   'invalid UPM dependency: com.unity.modules.textrendering does not exist; UnityEngine.TextRenderingModule is an engine assembly');
 assert.ok(manifest.dependencies?.['com.unity.render-pipelines.universal'], 'URP dependency is required');
-assert.equal(manifest.dependencies['com.unity.render-pipelines.universal'], '17.3.0', 'review URP pin if the editor stream changes');
-assert.equal(manifest.dependencies['com.unity.vectorgraphics'], '3.0.0-preview.7', 'authored SVG Sprite importer pin must match Unity 6.3');
+assert.equal(manifest.dependencies['com.unity.render-pipelines.universal'], '17.6.0', 'URP pin must match the approved editor stream');
+assert.equal(manifest.dependencies['com.unity.vectorgraphics'], '3.0.0-preview.7', 'preserve the verified SVG importer');
 
 const scriptRoot = join(root, 'Assets/EchoSphere/Scripts');
 function walk(directory) {
@@ -126,7 +126,10 @@ for (const file of runtimeFiles) {
   assert.ok(!/using\s+UnityEditor\b/.test(source), `UnityEditor dependency leaked into runtime: ${file}`);
 }
 const bootstrap = readFileSync(join(root, 'Assets/Editor/EchoSphereProjectBootstrap.cs'), 'utf8');
-assert.ok(bootstrap.includes('EchoSphere_Prototype.unity'), 'first-open scene generation contract missing');
+assert.ok(bootstrap.includes('private const string ScenePath = "Assets/Scenes/EchoSphere_NativeBattleSlice.unity"'), 'authored native scene must be the bootstrap entry');
+const buildSettings = readFileSync(join(root, 'ProjectSettings/EditorBuildSettings.asset'), 'utf8');
+assert.equal([...buildSettings.matchAll(/path: (Assets\/Scenes\/[^\r\n]+)/g)][0]?.[1], 'Assets/Scenes/EchoSphere_NativeBattleSlice.unity', 'native scene must occupy build index 0');
+assert.ok(!/enabled: 1\s+path: Assets\/Scenes\/EchoSphere_Prototype\.unity/.test(buildSettings), 'prototype entry must stay disabled');
 assert.ok(bootstrap.includes('com.lir37.echosphere'), 'Android application id contract missing');
 assert.ok(bootstrap.includes('SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP)'), 'Android ARM64 requires the IL2CPP backend');
 assert.ok(bootstrap.includes('AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64'), 'Android must retain ARMv7 support and include ARM64');
@@ -981,7 +984,7 @@ assert.ok(engineerRelayVfxSource.includes('src/renderer.ts:drawEnergyBolt') &&
 const ciBuildPath = 'Assets/Editor/EchoSphereCiBuild.cs';
 const ciBuild = readFileSync(join(root, ciBuildPath), 'utf8');
 assert.ok(ciBuild.includes('BuildAndroidDevelopmentApk'), 'Unity Android build entry point should remain available for a future explicitly approved build');
-assert.ok(ciBuild.includes('EchoSphereProjectBootstrap.EnsurePrototypeScene()'), 'future Android build entry point must generate/register the bootstrap scene');
+assert.ok(ciBuild.includes('EchoSphereProjectBootstrap.EnsureNativeScene()'), 'future Android build must register the authored native entry');
 assert.ok(ciBuild.includes('BuildPipeline.BuildPlayer') && ciBuild.includes('BuildTarget.Android'), 'future Android build entry point must use Unity BuildPipeline');
 
 const ciWorkflowPath = join(root, '..', '.github', 'workflows', 'unity-android-apk.yml');

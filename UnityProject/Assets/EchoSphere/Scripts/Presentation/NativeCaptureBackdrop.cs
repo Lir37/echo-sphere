@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,7 +26,33 @@ namespace EchoSphere.Presentation
         private Material _blur;
         private Rect _area;private Matrix4x4 _matrix;
         private float _scale,_sigma;private int _layer=-1;private bool _disposed;
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+        private Vector2Int _reportedSize;
+#endif
         internal bool Scheduled;
+        internal static bool CanCapture(VisualElement root,VisualElement stop,float sigma)
+        {
+            if(QualitySettings.activeColorSpace!=ColorSpace.Gamma||!SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf))return false;
+            var area=SourceUiBackdrop.WorldBounds(stop);float padding=Mathf.Ceil(4*sigma);area.xMin-=padding;area.xMax+=padding;area.yMin-=padding;area.yMax+=padding;
+            // The retained filter clips intermediate coverage at its producer
+            // edge. Preserve that behavior when full kernel support leaves the
+            // producer, rather than silently replacing it with mirrored pixels.
+            var producer=SourceUiBackdrop.WorldBounds(root);if(area.xMin<producer.xMin||area.xMax>producer.xMax||area.yMin<producer.yMin||area.yMax>producer.yMax)return false;
+            foreach(var item in VisualBackdrop.PaintPrefix(root,stop,e=>e.hierarchy.childCount,(e,i)=>e.hierarchy[i],e=>e.style.display==DisplayStyle.None||(e.style.opacity.keyword==StyleKeyword.Undefined&&e.style.opacity.value<=0)||e.userData is SourceUiBackdrop.ClipTag clip&&(clip.Owner==root||!SourceUiBackdrop.WorldBounds(clip.Owner).Overlaps(area)))){
+                var e=item.Node;var bounds=e.worldBound;if(!bounds.Overlaps(area))continue;
+                if(e.resolvedStyle.filter!=null)foreach(var filter in e.resolvedStyle.filter)return false;
+                // World UIR capture does not match screen-panel stencil coverage
+                // at an intersecting ancestor clip edge. Keep that layer on the
+                // existing exact path until its producer/mask is authored directly.
+                if(e.style.overflow==Overflow.Hidden){
+                    var s=e.resolvedStyle;float radius=Mathf.Max(Mathf.Max(s.borderTopLeftRadius,s.borderTopRightRadius),Mathf.Max(s.borderBottomLeftRadius,s.borderBottomRightRadius));var matrix=e.worldTransform;
+                    if(Mathf.Abs(matrix.m01)+Mathf.Abs(matrix.m10)>1e-6f||matrix.m00<=0||matrix.m11<=0)return false;
+                    bounds.xMin+=Mathf.Max(radius,s.borderLeftWidth)*matrix.m00;bounds.xMax-=Mathf.Max(radius,s.borderRightWidth)*matrix.m00;bounds.yMin+=Mathf.Max(radius,s.borderTopWidth)*matrix.m11;bounds.yMax-=Mathf.Max(radius,s.borderBottomWidth)*matrix.m11;
+                    if(area.xMin<bounds.xMin||area.xMax>bounds.xMax||area.yMin<bounds.yMin||area.yMax>bounds.yMax)return false;
+                }
+            }
+            return true;
+        }
         internal NativeCaptureBackdrop(VisualElement original,Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,Transform owner)
         {
             _original=original;_owner=owner;_normalPaint=original.generateVisualContent;
@@ -41,12 +68,12 @@ namespace EchoSphere.Presentation
         private void EnsureCapture(Vector2 size)
         {
             if(_capture!=null){_capture.Resize(size);return;}
-            var occupied=new HashSet<int>();foreach(var renderer in UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))if(renderer.enabled&&renderer.gameObject.activeInHierarchy)occupied.Add(renderer.gameObject.layer);
+            var occupied=new HashSet<int>();foreach(var renderer in UnityEngine.Object.FindObjectsByType<Renderer>())if(renderer.enabled&&renderer.gameObject.activeInHierarchy)occupied.Add(renderer.gameObject.layer);
             for(int layer=31;layer>=8;layer--)if(!ReservedLayers.Contains(layer)&&!occupied.Contains(layer)){_layer=layer;ReservedLayers.Add(layer);break;}
             if(_layer<0)throw new InvalidOperationException("No free layer for native UI effect capture");
             try{
                 _capture=new NativeUiCapturePanel(_owner,"Native effect "+_original.name,_layer,size,Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme"));
-                _capture.Root.style.overflow=Overflow.Hidden;_prefixPlacement=Box("Native layer prefix placement");_prefixRotation=Box("Native layer prefix rotation");
+                _prefixPlacement=Box("Native layer prefix placement");_prefixRotation=Box("Native layer prefix rotation");
                 _capture.Root.Add(_prefixPlacement);_prefixPlacement.Add(_prefixRotation);
                 var shader=Resources.Load<Shader>("EchoSphere/NativeEffectBlur");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Native effect blur shader unavailable");
                 _blur=new Material(shader){name="Native ROI blur",hideFlags=HideFlags.DontSave};
@@ -68,7 +95,7 @@ namespace EchoSphere.Presentation
             var bounds=SourceUiBackdrop.WorldBounds(_original);float padding=Mathf.Ceil(4*sigma);
             _area=Rect.MinMaxRect(Mathf.Floor((bounds.xMin-padding)*scale)/scale,Mathf.Floor((bounds.yMin-padding)*scale)/scale,Mathf.Ceil((bounds.xMax+padding)*scale)/scale,Mathf.Ceil((bounds.yMax+padding)*scale)/scale);
             int width=Mathf.RoundToInt(_area.width*scale),height=Mathf.RoundToInt(_area.height*scale);EnsureCapture(_area.size);
-            if(_source==null||_source.width!=width||_source.height!=height){ReleaseTargets();try{_source=Target("Native effect capture",width,height,24);_horizontal=Target("Native effect horizontal",width,height,0);_output=Target("Native effect output",width,height,0);_image.image=_output;}catch{ReleaseTargets();throw;}}
+            if(_source==null||_source.width!=width||_source.height!=height){ReleaseTargets();try{_source=Target("Native effect capture",width,height,24);_horizontal=Target("Native effect horizontal",width,height,0);_output=Target("Native effect output",width,height,0,true);_image.image=_output;}catch{ReleaseTargets();throw;}}
             SourceUiBackdrop.SetMatrix(_prefixPlacement,_prefixRotation,Matrix4x4.Translate(new Vector3(-_area.x,-_area.y,0))*root.worldTransform);
             SourceUiBackdrop.SetMatrix(_placement,_rotation,_matrix.inverse*Matrix4x4.Translate(new Vector3(_area.x,_area.y,0)));
             SourceUiBackdrop.LocalBox(_image,0,0,_area.width,_area.height);_replica.Update(root,_original,_prefixRotation,_area);RepaintDynamic();Scheduled=true;
@@ -80,6 +107,9 @@ namespace EchoSphere.Presentation
             var previous=RenderTexture.active;bool srgb=GL.sRGBWrite;
             try{
                 using(CaptureMarker.Auto()){if(!_capture.TryRender(_source))return;}
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+                var size=new Vector2Int(_source.width,_source.height);if(NativeDeviceReplay.Active&&_reportedSize!=size){_reportedSize=size;Debug.Log("[EchoSphere.Replay] effect-render=native element="+_original.name+" pixels="+size.x+"x"+size.y+" sigma="+_sigma+" density="+_scale);}
+#endif
                 GL.sRGBWrite=false;_blur.SetFloat("_Sigma",_sigma*_scale);_blur.SetFloat("_Density",_scale);_blur.SetVector("_Roi",new Vector4(_area.x,_area.y,_area.width,_area.height));
                 _blur.SetVector("_PanelSize",new Vector4(_original.layout.width,_original.layout.height,0,0));var inverse=_matrix.inverse;
                 _blur.SetVector("_ToPanelX",new Vector4(inverse.m00,inverse.m01,inverse.m03,0));_blur.SetVector("_ToPanelY",new Vector4(inverse.m10,inverse.m11,inverse.m13,0));
@@ -88,8 +118,8 @@ namespace EchoSphere.Presentation
                 using(BlurMarker.Auto()){Graphics.Blit(_source,_horizontal,_blur,0);Graphics.Blit(_horizontal,_output,_blur,1);}
             }finally{GL.sRGBWrite=srgb;RenderTexture.active=previous;}
         }
-        private static RenderTexture Target(string name,int width,int height,int depth)
-        {var target=new RenderTexture(width,height,depth,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name=name,filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};if(!target.Create()){UnityEngine.Object.Destroy(target);throw new InvalidOperationException("Native effect target allocation failed");}return target;}
+        private static RenderTexture Target(string name,int width,int height,int depth,bool straightOutput=false)
+        {var target=new RenderTexture(width,height,depth,straightOutput?RenderTextureFormat.ARGBHalf:RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear){name=name,filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};if(!target.Create()){UnityEngine.Object.Destroy(target);throw new InvalidOperationException("Native effect target allocation failed");}return target;}
         private void ReleaseTargets(){_image.image=null;Release(ref _source);Release(ref _horizontal);Release(ref _output);}
         private static void Release(ref RenderTexture texture){if(texture==null)return;texture.Release();UnityEngine.Object.Destroy(texture);texture=null;}
         public void Dispose()
@@ -99,3 +129,5 @@ namespace EchoSphere.Presentation
         }
     }
 }
+
+#endif

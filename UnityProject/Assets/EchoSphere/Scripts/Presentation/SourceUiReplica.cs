@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -229,3 +230,5 @@ namespace EchoSphere.Presentation
         public void Dispose(){foreach(var copy in _copies.Values)copy.Element.RemoveFromHierarchy();_copies.Clear();}
     }
 }
+
+#endif

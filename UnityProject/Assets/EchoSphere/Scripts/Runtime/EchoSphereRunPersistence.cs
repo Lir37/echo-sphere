@@ -1,3 +1,5 @@
+using System.Linq;
+using EchoSphere;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -17,7 +19,7 @@ namespace EchoSphere.Runtime
             private readonly Dictionary<int,SnapshotValue> _states=new Dictionary<int,SnapshotValue>();
             private readonly HashSet<int> _seen=new HashSet<int>();private readonly List<int> _stale=new List<int>();
             internal void Begin(){LiveEnemies.Clear();_seen.Clear();}
-            internal SnapshotValue Capture(MonoBehaviour agent){int id=agent.GetInstanceID();_seen.Add(id);_states.TryGetValue(id,out var state);state=RunSnapshotCodec.CaptureRetained(agent,state);_states[id]=state;return state;}
+            internal SnapshotValue Capture(MonoBehaviour agent){int id=agent.ExistingObjectId();_seen.Add(id);_states.TryGetValue(id,out var state);state=RunSnapshotCodec.CaptureRetained(agent,state);_states[id]=state;return state;}
             internal void End(){_stale.Clear();foreach(var pair in _states)if(!_seen.Contains(pair.Key))_stale.Add(pair.Key);foreach(int id in _stale)_states.Remove(id);_stale.Clear();}
         }
         private readonly RunSaveBuffers _runSaveBuffers=new RunSaveBuffers();
@@ -158,7 +160,7 @@ namespace EchoSphere.Runtime
         {
             var save = LoadRunSnapshot(); if (save == null) return;
             // Stop old entity updates immediately; Unity's deferred Destroy happens after this frame.
-            foreach (var agent in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.InstanceID))
+            foreach (var agent in FindObjectsByType<MonoBehaviour>().OrderBy(agent=>agent.ExistingObjectId()))
             {
                 if (agent is SphereAttackAgent || agent is EnemyAgent2D || agent is ProjectileAgent || agent is BossProjectileAgent2D ||
                     agent is AbilityDroneAgent2D || agent is ExperienceOrbAgent || agent is HealthPackAgent2D || agent is RuneAgent2D ||

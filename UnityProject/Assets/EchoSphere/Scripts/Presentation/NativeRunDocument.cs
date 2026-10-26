@@ -10,7 +10,6 @@ namespace EchoSphere.Presentation
     public class NativeRunDocument : MonoBehaviour, INativeUiBackdrops
     {
         private UIDocument _document; private PanelSettings _panel;private NativePanelLease _panelLease;
-        private readonly SourceUiReplicaSnapshotCache _snapshots = new SourceUiReplicaSnapshotCache();
         private NativeUiBackdropRegistry _backdrops;
         private readonly List<NativeHudSurface> _paint = new List<NativeHudSurface>();
         private readonly List<IDisposable> _registrations = new List<IDisposable>();
@@ -24,8 +23,6 @@ namespace EchoSphere.Presentation
         internal VisualElement ControlsPredecessor {get;private set;}
         internal VisualElement Field => _field;
         protected virtual VisualTreeAsset SceneLayout => Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeBattle")??throw new InvalidOperationException("Native battle UXML is missing");
-        protected virtual bool BoundBackdropGeometry => false;
-        protected virtual bool ExplicitBackdropLayers => false;
         private static Color C(string s){ColorUtility.TryParseHtmlString(s,out var c);return c;}
         private void Paint(VisualElement e,NativeMenuBrush.Paint p)=>_paint.Add(new NativeHudSurface(e,p));
         public void Initialize(Action invalidate,Action closeDetail)
@@ -36,7 +33,7 @@ namespace EchoSphere.Presentation
             T Require<T>(string name) where T:VisualElement=>_document.rootVisualElement.Q<T>(name)??throw new InvalidOperationException("Native battle layout is missing "+name);
             _root=Require<VisualElement>("native-run-root");
             _root.RegisterCallback<GeometryChangedEvent>(_=>invalidate());
-            _backdrops=new NativeUiBackdropRegistry(ReplicaPaint,_snapshots,true,BoundBackdropGeometry,ExplicitBackdropLayers,transform);
+            _backdrops=new NativeUiBackdropRegistry();
             _field=Require<Image>("native-world-field");
             _field.scaleMode=ScaleMode.StretchToFill;
             var vignette=Require<VisualElement>("native-field-vignette");
@@ -84,23 +81,26 @@ namespace EchoSphere.Presentation
         }
         internal void End(float dpr)
         {
-            _backdrops.BeginFrame();
             foreach(var p in _paint)p.Prepare(dpr);
-            void Visit(VisualElement e){if(e.style.visibility==Visibility.Hidden||e.resolvedStyle.display==DisplayStyle.None)return;if(_backdrops.Contains(e)){var prefix=_root;for(var p=e.parent;p!=null;p=p.parent)if(p==_pause||p==_rewards){prefix=p;break;}_backdrops.Prepare(e,prefix,dpr);}for(int i=0;i<e.hierarchy.childCount;i++){var c=e.hierarchy[i];if(c.userData==SourceUiBackdrop.ReplicaTag||c.userData is SourceUiBackdrop.ClipTag)continue;Visit(c);}}
-            _snapshots.Begin();try{Visit(_root);}finally{_snapshots.End();}
+#if UNITY_EDITOR
+            if(NativeBackdropValidation.UseLegacy){
+                _backdrops.BeginFrame();
+                void Visit(VisualElement e){if(e.style.visibility==Visibility.Hidden||e.resolvedStyle.display==DisplayStyle.None)return;if(_backdrops.Contains(e)){var prefix=_root;for(var parent=e.parent;parent!=null;parent=parent.parent)if(parent==_pause||parent==_rewards){prefix=parent;break;}_backdrops.Prepare(e,prefix,dpr);}foreach(var child in e.Children())if(child.userData!=SourceUiBackdrop.ReplicaTag&&!(child.userData is SourceUiBackdrop.ClipTag))Visit(child);}
+                Visit(_root);
+            }
+#endif
         }
         internal void OrderPauseContent(VisualElement content)
         {if(content.parent==_shell)content.PlaceInFront(_highlight);}
         internal void Hide()
         {
-            if(!_visible)return;_visible=false;_backdrops.BeginFrame();
+            if(!_visible)return;_visible=false;
             // Retain filter target ownership across menu/run transitions, as for
             // modal hosts. display:none invalidates Unity 6.3 filter texture IDs
             // still referenced by the retained render chain after a resize.
             _root.style.visibility=Visibility.Hidden;_root.style.opacity=0;_root.SetEnabled(false);
         }
         public IDisposable RegisterNativeBackdrop(VisualElement e,float sigma)=>_backdrops.RegisterNativeBackdrop(e,sigma);
-        private static Action<MeshGenerationContext> ReplicaPaint(VisualElement source)=>source.userData is SourceUiReplica.PaintTag tag?tag.Paint:source is Image||source is TextElement?null:source.generateVisualContent;
         protected virtual void OnDestroy(){foreach(var r in _registrations)r.Dispose();_backdrops?.Dispose();foreach(var p in _paint)p.Dispose();_panelLease?.Dispose();}
     }
 }

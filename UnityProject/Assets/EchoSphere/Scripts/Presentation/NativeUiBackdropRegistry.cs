@@ -2,69 +2,73 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-
 namespace EchoSphere.Presentation
 {
-    // Native views depend on a backdrop provider, not a DOM/document owner.
-    public interface INativeUiBackdrops
+    public interface INativeUiBackdrops {IDisposable RegisterNativeBackdrop(VisualElement element,float sigma);}
+    internal sealed class NativeUiBackdropRegistry:INativeUiBackdrops,IDisposable
     {
-        IDisposable RegisterNativeBackdrop(VisualElement element,float sigma);
-    }
-    internal sealed class NativeUiBackdropRegistry : INativeUiBackdrops,IDisposable
-    {
-        private sealed class Binding : IDisposable
+        private sealed class Binding:IDisposable
         {
-            internal NativeUiBackdropRegistry Owner;internal VisualElement Element,Prefix;internal SourceUiBackdrop Backdrop;internal NativeCaptureBackdrop Capture;internal float Sigma,Scale;internal ulong Version,Revision;internal bool Prepared;
-            internal void Retire(){Backdrop?.Dispose();Backdrop=null;if(Capture!=null){Owner._renderOrder.Remove(Capture);Capture.Dispose();Capture=null;}}
-            public void Dispose(){if(Owner==null)return;if(Owner._bindings.Remove(Element)){Owner._revision++;Retire();}Owner=null;}
+            internal NativeUiBackdropRegistry Owner;internal VisualElement Element;internal NativeEngineBackdrop Effect;
+            public void Dispose(){if(Owner==null)return;Owner._bindings.Remove(Element);Owner=null;Effect.Dispose();}
         }
         private readonly Dictionary<VisualElement,Binding> _bindings=new Dictionary<VisualElement,Binding>();
-        private readonly Func<VisualElement,Action<MeshGenerationContext>> _paint;
-        private readonly SourceUiReplicaSnapshotCache _snapshots;
         private bool _disposed;
-        private readonly bool _retainLayout,_boundReplica;private ulong _revision;
-        private readonly bool _explicitLayers;private readonly Transform _captureOwner;
-        private readonly List<NativeCaptureBackdrop> _renderOrder=new List<NativeCaptureBackdrop>();private bool _rendering;
-        internal int LayoutPrepareCount {get;private set;}
-        internal int DynamicRepaintCount {get;private set;}
 #if UNITY_EDITOR
-        internal bool DisableLayoutCacheForValidation=false;
-        internal bool DisableExplicitLayersForValidation=false;
+        private LegacyUiBackdropRegistry _legacy;
+        internal bool DisableLayoutCacheForValidation=false,DisableExplicitLayersForValidation=false;
+        internal NativeUiBackdropRegistry(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,bool retainLayout=false):this(paint,snapshots,retainLayout,false,false,null){}
+        internal NativeUiBackdropRegistry(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,bool retainLayout,bool bounded):this(paint,snapshots,retainLayout,bounded,false,null){}
+        internal NativeUiBackdropRegistry(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,bool retainLayout,bool bounded,bool explicitLayers,Transform owner):this(){if(NativeBackdropValidation.UseLegacy){_legacy?.Dispose();_legacy=new LegacyUiBackdropRegistry(paint,snapshots,retainLayout,bounded,false,null);}}
 #endif
-        internal NativeUiBackdropRegistry(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,bool retainLayout=false)
-            :this(paint,snapshots,retainLayout,false){}
-        internal NativeUiBackdropRegistry(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,bool retainLayout,bool boundReplica)
-            :this(paint,snapshots,retainLayout,boundReplica,false,null){}
-        internal NativeUiBackdropRegistry(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots,bool retainLayout,bool boundReplica,bool explicitLayers,Transform captureOwner)
-        {_paint=paint;_snapshots=snapshots;_retainLayout=retainLayout;_boundReplica=boundReplica;_explicitLayers=explicitLayers;_captureOwner=captureOwner;if(explicitLayers)Application.onBeforeRender+=RenderLayers;}
+        internal NativeUiBackdropRegistry()
+        {
+#if UNITY_EDITOR
+            if(NativeBackdropValidation.UseLegacy)_legacy=new LegacyUiBackdropRegistry(e=>e is Image||e is TextElement?null:e.generateVisualContent,null,true,true,false,null);
+#endif
+        }
         public IDisposable RegisterNativeBackdrop(VisualElement element,float sigma)
         {
-            if(_disposed)throw new ObjectDisposedException(nameof(NativeUiBackdropRegistry));if(_bindings.ContainsKey(element))throw new InvalidOperationException("Native backdrop already registered");
-            var binding=new Binding {Owner=this,Element=element,Sigma=sigma};SelectBackend(binding,_explicitLayers);_bindings.Add(element,binding);_revision++;return binding;
+            if(_disposed)throw new ObjectDisposedException(nameof(NativeUiBackdropRegistry));
+#if UNITY_EDITOR
+            if(_legacy!=null)return _legacy.RegisterNativeBackdrop(element,sigma);
+#endif
+            if(_bindings.ContainsKey(element))throw new InvalidOperationException("Native backdrop already registered");
+            var binding=new Binding{Owner=this,Element=element,Effect=new NativeEngineBackdrop(element,sigma)};_bindings.Add(element,binding);
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+            if(NativeDeviceReplay.Active)Debug.Log("[EchoSphere.Replay] effect-mode=unity-backdrop-filter element="+element.name);
+#endif
+            return binding;
         }
-        private void SelectBackend(Binding binding,bool explicitLayers)
-        {binding.Retire();if(explicitLayers)binding.Capture=new NativeCaptureBackdrop(binding.Element,_paint,_snapshots,_captureOwner);else binding.Backdrop=new SourceUiBackdrop(binding.Element,context=>{},_paint,_snapshots,_boundReplica);binding.Prepared=false;}
-        internal void BeginFrame(){foreach(var layer in _renderOrder)layer.Scheduled=false;_renderOrder.Clear();}
-        private void RenderLayers(){if(_disposed||_rendering)return;_rendering=true;try{foreach(var layer in _renderOrder)layer.Render();}finally{_rendering=false;}}
-        internal bool Contains(VisualElement element)=>_bindings.ContainsKey(element);
-        internal void Prepare(VisualElement element,VisualElement prefixRoot,float scale=1)
+        internal int LayoutPrepareCount=>0;
+        internal int DynamicRepaintCount=>0;
+        internal int CapturePrepareCount=>0;
+        internal int RetainedFallbackCount=>0;
+        internal bool Contains(VisualElement e){
+#if UNITY_EDITOR
+            if(_legacy!=null)return _legacy.Contains(e);
+#endif
+            return _bindings.ContainsKey(e);
+        }
+        internal bool UsesCapture(VisualElement e)=>false;
+        internal void BeginFrame(){
+#if UNITY_EDITOR
+            _legacy?.BeginFrame();
+#endif
+        }
+        internal void Prepare(VisualElement e,VisualElement root,float scale=1)
         {
-            if(!_bindings.TryGetValue(element,out var binding))return;
-            bool explicitLayers=_explicitLayers;
 #if UNITY_EDITOR
-            if(DisableExplicitLayersForValidation)explicitLayers=false;
+            _legacy?.Prepare(e,root,scale);
 #endif
-            if((binding.Capture!=null)!=explicitLayers){SelectBackend(binding,explicitLayers);_revision++;}
-            if(binding.Capture!=null){binding.Capture.Scheduled=true;_renderOrder.Add(binding.Capture);}
-            bool retain=_retainLayout;
-#if UNITY_EDITOR
-            if(DisableLayoutCacheForValidation)retain=false;
-#endif
-            ulong version=retain?NativeMenuPaintVersion.ReadLayoutPrefix(prefixRoot,element,binding.Sigma):0;
-            if(retain&&binding.Prepared&&ReferenceEquals(binding.Prefix,prefixRoot)&&binding.Scale==scale&&binding.Version==version&&binding.Revision==_revision){if(binding.Capture!=null)binding.Capture.RepaintDynamic();else binding.Backdrop.RepaintDynamic();DynamicRepaintCount++;return;}
-            if(binding.Capture!=null)binding.Capture.Prepare(prefixRoot,binding.Sigma,scale);else binding.Backdrop.Prepare(prefixRoot,binding.Sigma);LayoutPrepareCount++;binding.Prepared=true;binding.Prefix=prefixRoot;binding.Scale=scale;binding.Version=version;binding.Revision=_revision;
         }
         public void Dispose()
-        {if(_disposed)return;_disposed=true;if(_explicitLayers)Application.onBeforeRender-=RenderLayers;foreach(var binding in _bindings.Values){binding.Retire();binding.Owner=null;}_bindings.Clear();_renderOrder.Clear();}
+        {
+            if(_disposed)return;_disposed=true;
+#if UNITY_EDITOR
+            _legacy?.Dispose();
+#endif
+            foreach(var binding in _bindings.Values){binding.Owner=null;binding.Effect.Dispose();}_bindings.Clear();
+        }
     }
 }

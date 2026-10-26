@@ -12,40 +12,28 @@ using UnityEngine.Rendering.Universal;
 [InitializeOnLoad]
 internal static class EchoSphereProjectBootstrap
 {
-    private const string ScenePath = "Assets/Scenes/EchoSphere_Prototype.unity";
+    private const string ScenePath = "Assets/Scenes/EchoSphere_NativeBattleSlice.unity";
     private const string ApplicationId = "com.lir37.echosphere";
     private const string PipelinePath = "Assets/Settings/EchoSphere_URP.asset";
     private const string RendererPath = "Assets/Settings/EchoSphere_Renderer.asset";
 
-    static EchoSphereProjectBootstrap() { EditorApplication.delayCall += EnsurePrototypeScene; }
+    static EchoSphereProjectBootstrap() { EditorApplication.delayCall += EnsureNativeScene; }
 
-    internal static void EnsurePrototypeScene()
+    internal static void EnsureNativeScene()
     {
         if (EditorApplication.isCompiling || EditorApplication.isUpdating)
         {
-            EditorApplication.delayCall += EnsurePrototypeScene;
+            EditorApplication.delayCall += EnsureNativeScene;
             return;
         }
         ConfigureProjectSettings();
         ConfigureUniversalRenderPipeline();
         Directory.CreateDirectory("Assets/Scenes");
         if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) == null)
-        {
-            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            new GameObject("ECHO SPHERE Runtime").AddComponent<EchoSphereRuntime>();
-            EditorSceneManager.SaveScene(scene, ScenePath);
-            Debug.Log("[ECHO SPHERE] Created EchoSphere_Prototype. Open the scene and press Play.");
-        }
-        var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-        var registered = false;
-        for (var i = 0; i < scenes.Count; i++)
-        {
-            if (scenes[i].path != ScenePath) continue;
-            scenes[i] = new EditorBuildSettingsScene(ScenePath, true);
-            registered = true;
-            break;
-        }
-        if (!registered) scenes.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
+            throw new System.InvalidOperationException("The authored native scene is required; do not generate a prototype fallback.");
+        var scenes = new List<EditorBuildSettingsScene> { new EditorBuildSettingsScene(ScenePath, true) };
+        foreach (var scene in EditorBuildSettings.scenes)
+            if (scene.path != ScenePath && scene.path != "Assets/Scenes/EchoSphere_Prototype.unity") scenes.Add(scene);
         EditorBuildSettings.scenes = scenes.ToArray();
         AssetDatabase.SaveAssets();
     }
@@ -128,8 +116,8 @@ internal static class EchoSphereProjectBootstrap
         PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.Android, ApiCompatibilityLevel.NET_Standard);
         // Keep 32-bit device support and include the required 64-bit player.
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
-        if ((int)PlayerSettings.Android.minSdkVersion < 25)
-            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
+        if ((int)PlayerSettings.Android.minSdkVersion < 26)
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
         // ECHO SPHERE is designed for upright portrait mobile play.
         // Keep Android from rotating into a landscape layout.
         PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;

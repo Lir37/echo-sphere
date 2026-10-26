@@ -1,6 +1,18 @@
 # ECHO SPHERE — native visual modernization
 
-## Latest checkpoint — separate Unity 6.6 evaluation, 2026-10-26
+## Latest checkpoint — approved Unity 6.6 promotion, 2026-10-26
+
+User approved promotion. Main UnityProject now uses Unity 6000.6.1f1 / URP 17.6.0,
+native backdropFilter and authored native entry index 0. Production UI replicas,
+prefix snapshots and capture-camera bridge are excluded by Android metadata
+guards. Main Editor menu/Continue/populated pause tabs/Resume pass; ten original
+preferences restored. Core/parity/Node tests and Windows/Linux 6.6 API checks pass.
+User overrides are preserved separately from engine serialization changes.
+Architecture implementation of glass/entry is promoted; full visual/control/device
+acceptance and measured Android performance remain OPEN. See
+GPT/UNITY_NATIVE_66_PROMOTION_2026-10-26.md. Earlier copy-only statements are history.
+
+## Separate-copy checkpoint — 2026-10-26
 
 User approved a separate copy. Installed 6000.6.1f1 / URP 17.6.0 and Android
 support. Candidate uses native backdropFilter without production UI replicas or

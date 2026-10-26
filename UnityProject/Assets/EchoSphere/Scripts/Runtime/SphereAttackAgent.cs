@@ -1,3 +1,4 @@
+using EchoSphere;
 using System.Collections.Generic;
 using EchoSphere.Core;
 using UnityEngine;
@@ -678,14 +679,14 @@ namespace EchoSphere.Runtime
                 for (var i = 0; i < candidates.Count; i++)
                 {
                     var candidate = candidates[i];
-                    if (candidate == null || !candidate.IsAlive || usedTargets.Contains(candidate.GetInstanceID())) continue;
+                    if (candidate == null || !candidate.IsAlive || usedTargets.Contains(candidate.ExistingObjectId())) continue;
                     if (candidate.CurrentHp <= highestHp) continue;
                     highestHp = candidate.CurrentHp;
                     beamTarget = candidate;
                 }
                 if (beamTarget == null) break;
 
-                usedTargets.Add(beamTarget.GetInstanceID());
+                usedTargets.Add(beamTarget.ExistingObjectId());
                 if (beam == 0)
                 {
                     primaryTarget = beamTarget;
@@ -750,7 +751,7 @@ namespace EchoSphere.Runtime
                 var bounceCount = SphereEvolutionCombatRules.GetPrismMirrorRicochetCount(
                     _progressionLevel, branch, finalId, ricochetModifier);
                 var bounceRange = SphereEvolutionCombatRules.GetPrismRicochetRangeWorld(_progressionLevel, finalId);
-                var visited = new HashSet<int> { primaryTarget.GetInstanceID() };
+                var visited = new HashSet<int> { primaryTarget.ExistingObjectId() };
                 var bounceTarget = primaryTarget;
 
                 for (var bounce = 0; bounce < bounceCount; bounce++)
@@ -763,7 +764,7 @@ namespace EchoSphere.Runtime
                     for (var candidateIndex = 0; candidateIndex < nearby.Count; candidateIndex++)
                     {
                         var candidate = nearby[candidateIndex];
-                        if (candidate == null || !candidate.IsAlive || visited.Contains(candidate.GetInstanceID())) continue;
+                        if (candidate == null || !candidate.IsAlive || visited.Contains(candidate.ExistingObjectId())) continue;
                         var distanceSquared = ((Vector2)candidate.transform.position - center).sqrMagnitude;
                         if (distanceSquared >= nearestDistanceSquared) continue;
                         nearestDistanceSquared = distanceSquared;
@@ -771,7 +772,7 @@ namespace EchoSphere.Runtime
                     }
                     if (next == null) break;
 
-                    visited.Add(next.GetInstanceID());
+                    visited.Add(next.ExistingObjectId());
                     _runtime.SpawnCombatArc(center, next.transform.position, SphereId.Prism,
                         branch, finalId, new Color(1f, 0.55f, 0.88f, 0.95f), 0.12f);
                     DealPrismRelayHit(relay, next,

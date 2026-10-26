@@ -9,13 +9,13 @@ dotnet run --project tools/EchoSphere.UnityTypeChecks --configuration Release --
 ```
 
 On Windows, use `python` and a writable Windows output directory. The preparer
-fetches approximately 39 MiB of independent XZ blocks from the official Unity
-6000.3.24f1 Linux archive and extracts only the pinned DLLs. Each DLL's SHA-256
+fetches approximately 38 MiB of independent XZ blocks from the official Unity
+6000.6.1f1 Linux archive and extracts only the 438 pinned DLLs. Each DLL's SHA-256
 is verified against `reference-manifest.json`. Unity is neither installed nor
 executed. Reference binaries and archive blocks belong outside the repository.
 
 The checker uses the actual Unity engine API DLLs and the render-pipeline DLLs
-shipped in that editor's Universal template cache. It emits the project's C#
+shipped in that editor's URP template cache. It emits the project's C#
 assemblies into memory, with C# 9, and checks:
 
 1. Android player code, including its JNI branch, against .NET Standard 2.1.
@@ -31,6 +31,12 @@ The checker also rejects direct native Unity object creation in instance field
 initializers of MonoBehaviours (`ES1001`); those resources must be created in
 `Awake`/`Initialize`. One scoped compatibility exception remains for the source
 DOM preventDefault flag; its legacy call suppresses CS0618 on that line only.
+
+The player check also rejects the retired source UI/value emulation, UI replicas,
+snapshot prefixes and camera-capture bridge. These may exist only as Editor
+reference code; production effects use Unity 6.6 backdropFilter. The version
+symbols include UNITY_6000_6_OR_NEWER. A green check does not execute the native
+filter shader, Play Mode or an Android player.
 
 An installed matching editor's `Editor/Data` directory can also be passed as the
 second argument. Imported project package DLLs are read from

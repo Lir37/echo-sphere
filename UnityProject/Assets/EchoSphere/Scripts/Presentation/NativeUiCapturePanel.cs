@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -37,7 +38,7 @@ namespace EchoSphere.Presentation
             if (layer < 8 || layer > 31) throw new ArgumentOutOfRangeException(nameof(layer));
             if (!float.IsFinite(logicalSize.x + logicalSize.y) || logicalSize.x <= 0 || logicalSize.y <= 0)
                 throw new ArgumentOutOfRangeException(nameof(logicalSize));
-            foreach (var renderer in UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            foreach (var renderer in UnityEngine.Object.FindObjectsByType<Renderer>())
                 if (renderer.gameObject.layer == layer && renderer.enabled && renderer.gameObject.activeInHierarchy)
                     throw new InvalidOperationException("Native UI capture layer is already occupied");
             if (parent != null && (parent.position != Vector3.zero || parent.rotation != Quaternion.identity || parent.lossyScale != Vector3.one))
@@ -50,7 +51,7 @@ namespace EchoSphere.Presentation
                 _settings.forceGammaRendering = true; _settings.themeStyleSheet = theme;
                 _owner = new GameObject(name + " native capture document"); _owner.transform.SetParent(parent, false); _owner.layer = layer;
                 _document = _owner.AddComponent<UIDocument>(); _document.panelSettings = _settings;
-                _document.worldSpaceSizeMode = UIDocument.WorldSpaceSizeMode.Fixed; _document.worldSpaceSize = logicalSize;
+                _document.worldSpaceSizeMode = WorldSpaceSizeMode.Fixed; _document.worldSpaceSize = logicalSize;
                 // Overflowing paint/input must not move the capture's logical origin.
                 _document.pivotReferenceSize = PivotReferenceSize.Layout; _document.pivot = Pivot.Center;
                 var root = Root; root.style.position = Position.Absolute; root.style.left = root.style.top = 0;
@@ -100,3 +101,4 @@ namespace EchoSphere.Presentation
         }
     }
 }
+#endif

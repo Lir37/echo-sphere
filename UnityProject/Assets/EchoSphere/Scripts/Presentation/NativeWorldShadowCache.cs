@@ -1,3 +1,4 @@
+using EchoSphere;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace EchoSphere.Presentation
             private readonly Matrix4x4 _matrix;private readonly Rect _viewport;private readonly RectInt _area;
             private readonly float _alpha,_opacity,_blur;private readonly int _hash;
             internal Key(Mesh mesh,ulong version,Matrix4x4 matrix,Rect viewport,RectInt area,float alpha,float opacity,float blur)
-            {Mesh=mesh;_version=version;_matrix=matrix;_viewport=viewport;_area=area;_alpha=alpha;_opacity=opacity;_blur=blur;var h=new HashCode();h.Add(mesh.GetInstanceID());h.Add(version);h.Add(matrix);h.Add(viewport);h.Add(area);h.Add(alpha);h.Add(opacity);h.Add(blur);_hash=h.ToHashCode();}
+            {Mesh=mesh;_version=version;_matrix=matrix;_viewport=viewport;_area=area;_alpha=alpha;_opacity=opacity;_blur=blur;var h=new HashCode();h.Add(mesh.ExistingObjectId());h.Add(version);h.Add(matrix);h.Add(viewport);h.Add(area);h.Add(alpha);h.Add(opacity);h.Add(blur);_hash=h.ToHashCode();}
             public override int GetHashCode()=>_hash;
             public override bool Equals(object other)=>other is Key key&&Equals(key);
             public bool Equals(Key other)=>ReferenceEquals(Mesh,other.Mesh)&&_version==other._version&&_matrix.Equals(other._matrix)&&_viewport.Equals(other._viewport)&&_area.Equals(other._area)&&_alpha.Equals(other._alpha)&&_opacity.Equals(other._opacity)&&_blur.Equals(other._blur);

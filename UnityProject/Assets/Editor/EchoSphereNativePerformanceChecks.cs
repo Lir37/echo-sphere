@@ -10,8 +10,8 @@ public static class EchoSphereNativePerformanceChecks
     private const BindingFlags Hidden=BindingFlags.Instance|BindingFlags.NonPublic;
     public static object MenuSnapshot()
     {
-        var runtime=UnityEngine.Object.FindFirstObjectByType<EchoSphere.Runtime.EchoSphereRuntime>();var documents=new System.Collections.Generic.List<object>();
-        foreach(var document in UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None)){
+        var runtime=UnityEngine.Object.FindAnyObjectByType<EchoSphere.Runtime.EchoSphereRuntime>();var documents=new System.Collections.Generic.List<object>();
+        foreach(var document in UnityEngine.Object.FindObjectsByType<UIDocument>()){
             var root=document.rootVisualElement;int nodes=0,portraits=0;var buttons=new System.Collections.Generic.List<string>();
             void Visit(VisualElement e){if(e.userData!=null&&e.userData.GetType().Name=="ClipTag")return;nodes++;if(e is Button button)buttons.Add(button.name);if(e is Image image&&image.name=="character-portrait"&&image.sprite!=null)portraits++;for(int i=0;i<e.hierarchy.childCount;i++)Visit(e.hierarchy[i]);}
             Visit(root);documents.Add(new {name=document.gameObject.name,nodes,portraits,buttons,visibility=root.style.visibility.ToString(),opacity=root.style.opacity.ToString()});
@@ -25,7 +25,7 @@ public static class EchoSphereNativePerformanceChecks
     public static object Click(string name)
     {
         Button found=null;
-        foreach(var document in UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None)){
+        foreach(var document in UnityEngine.Object.FindObjectsByType<UIDocument>()){
             void Visit(VisualElement e){if(e.style.visibility==Visibility.Hidden||e.style.display==DisplayStyle.None||(e.style.opacity.keyword==StyleKeyword.Undefined&&e.style.opacity.value<=0))return;if(e is Button button&&button.name==name&&button.enabledInHierarchy)found=button;for(int i=0;i<e.hierarchy.childCount;i++)Visit(e.hierarchy[i]);}
             Visit(document.rootVisualElement);
         }

@@ -1,3 +1,5 @@
+using UnityEngine.SceneManagement;
+using EchoSphere;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,10 +10,10 @@ namespace EchoSphere.Presentation
     internal sealed class NativeRouteJournal
     {
         private readonly Queue<string> _events=new Queue<string>(64);
-        private bool _seen,_menu,_region,_paused;private int _page,_tutorial,_scene;
+        private bool _seen,_menu,_region,_paused;private int _page,_tutorial;private SceneHandle _scene;
         internal bool RegionLaunchPending;
         internal string[] Events=>_events.ToArray();
-        internal void Observe(int runtime,int scene,bool menu,bool region,int page,int tutorial,bool paused,string reason)
+        internal void Observe(int runtime,SceneHandle scene,bool menu,bool region,int page,int tutorial,bool paused,string reason)
         {
             bool changed=!_seen||scene!=_scene||menu!=_menu||region!=_region||page!=_page||tutorial!=_tutorial||paused!=_paused;
             if(!changed&&reason=="state")return;
@@ -22,9 +24,9 @@ namespace EchoSphere.Presentation
                 if(element is TextElement text&&!string.IsNullOrEmpty(text.text)||element is Image image&&(image.image!=null||image.sprite!=null||image.vectorImage!=null)||element.style.backgroundColor.value.a>0)return true;
                 for(int i=0;i<element.hierarchy.childCount;i++)if(HasContent(element.hierarchy[i]))return true;return false;
             }
-            foreach(var document in UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None)){
+            foreach(var document in UnityEngine.Object.FindObjectsByType<UIDocument>()){
                 var root=document.rootVisualElement;if(root==null||!HasContent(root))continue;
-                if(documents.Length>0)documents.Append(',');documents.Append(document.gameObject.name).Append('#').Append(document.GetInstanceID());
+                if(documents.Length>0)documents.Append(',');documents.Append(document.gameObject.name).Append('#').Append(document.ExistingObjectId());
             }
             string entry=$"[EchoSphere.Route] frame={Time.frameCount} runtime={runtime} scene={scene} menu={menu} region={region} page={page} tutorial={tutorial} paused={paused} documents=[{documents}] reason={reason}";
             if(_events.Count==64)_events.Dequeue();_events.Enqueue(entry);Debug.Log(entry);

@@ -30,14 +30,14 @@ namespace EchoSphere.Presentation
                 typeof(T)==typeof(SourceSettingsToolkitScreen)?_settings:null;
             return screen as T??throw new InvalidOperationException("Native scene has no screen binding for "+typeof(T).Name);
         }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
         internal static bool PrototypeForDiagnosticReplay;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetDiagnosticRoute()=>PrototypeForDiagnosticReplay=false;
 #endif
         public static NativeBattleSceneRoot Find(Scene scene)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
             if(PrototypeForDiagnosticReplay)return null;
 #endif
             if(!scene.IsValid()||!scene.isLoaded)return null;

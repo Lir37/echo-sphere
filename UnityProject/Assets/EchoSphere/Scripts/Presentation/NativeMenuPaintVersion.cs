@@ -1,3 +1,5 @@
+using EchoSphere;
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -42,8 +44,8 @@ namespace EchoSphere.Presentation
                 if(!pixels){
                     ownership=Mix(ownership,(uint)e.GetHashCode());ownership=Mix(ownership,(uint)e.hierarchy.childCount);ownership=Mix(ownership,hidden?1UL:0UL);
                     ownership=Mix(ownership,(uint)s.backgroundImage.GetHashCode());ownership=Mix(ownership,(uint)s.unityMaterial.GetHashCode());ownership=Mix(ownership,(uint)(e.generateVisualContent?.GetHashCode()??0));
-                    if(e is Image image){ownership=Mix(ownership,(uint)(image.image==null?0:image.image.GetInstanceID()));ownership=Mix(ownership,(uint)(image.sprite==null?0:image.sprite.GetInstanceID()));ownership=Mix(ownership,(uint)(image.vectorImage==null?0:image.vectorImage.GetInstanceID()));}
-                    if(e is TextElement){ownership=Mix(ownership,(uint)s.unityFontDefinition.GetHashCode());ownership=Mix(ownership,(uint)(s.unityFont==null?0:s.unityFont.GetInstanceID()));}
+                    if(e is Image image){ownership=Mix(ownership,(uint)(image.image==null?0:image.image.ExistingObjectId()));ownership=Mix(ownership,(uint)(image.sprite==null?0:image.sprite.ExistingObjectId()));ownership=Mix(ownership,(uint)(image.vectorImage==null?0:image.vectorImage.ExistingObjectId()));}
+                    if(e is TextElement){ownership=Mix(ownership,(uint)s.unityFontDefinition.GetHashCode());ownership=Mix(ownership,(uint)(s.unityFont==null?0:s.unityFont.ExistingObjectId()));}
                     if(s.filter!=null)foreach(var filter in s.filter)ownership=Mix(ownership,(uint)filter.GetHashCode());
                 }
                 if(hidden)return;
@@ -73,10 +75,12 @@ namespace EchoSphere.Presentation
                 Add(s.borderTopLeftRadius.GetHashCode());Add(s.borderTopRightRadius.GetHashCode());Add(s.borderBottomLeftRadius.GetHashCode());Add(s.borderBottomRightRadius.GetHashCode());Add(e.style.overflow.GetHashCode());
                 if(s.filter!=null)foreach(var filter in s.filter)Add(filter.GetHashCode());
                 if(!pixels){Add(s.paddingLeft.GetHashCode());Add(s.paddingRight.GetHashCode());Add(s.paddingTop.GetHashCode());Add(s.paddingBottom.GetHashCode());Add(s.backgroundPositionX.GetHashCode());Add(s.backgroundPositionY.GetHashCode());Add(s.backgroundRepeat.GetHashCode());Add(s.backgroundSize.GetHashCode());Add(s.unitySliceLeft);Add(s.unitySliceRight);Add(s.unitySliceTop);Add(s.unitySliceBottom);Add(s.unitySliceScale.GetHashCode());Add(s.unitySliceType.GetHashCode());Add(s.unityMaterial.GetHashCode());}
-                if(e is TextElement text){Add(text.text?.GetHashCode()??0);Add(text.enableRichText?1:0);Add(s.color.GetHashCode());Add(s.fontSize.GetHashCode());Add(s.unityFontDefinition.GetHashCode());Add((int)s.unityFontStyleAndWeight);Add(s.letterSpacing.GetHashCode());Add(s.wordSpacing.GetHashCode());Add(e.style.textShadow.value.GetHashCode());Add(s.unityTextOutlineColor.GetHashCode());Add(s.unityTextOutlineWidth.GetHashCode());if(!pixels){Add(s.unityFont==null?0:s.unityFont.GetInstanceID());Add(s.unityTextAlign.GetHashCode());Add(s.whiteSpace.GetHashCode());Add(s.unityParagraphSpacing.GetHashCode());Add(s.unityTextGenerator.GetHashCode());Add(s.textOverflow.GetHashCode());Add(s.unityTextOverflowPosition.GetHashCode());}}
-                else if(e is Image image){Add(image.image==null?0:image.image.GetInstanceID());Add(image.sprite==null?0:image.sprite.GetInstanceID());Add(image.vectorImage==null?0:image.vectorImage.GetInstanceID());Add(image.uv.GetHashCode());Add(image.tintColor.GetHashCode());Add((int)image.scaleMode);if(pixels&&image.image!=null)Add((int)image.image.updateCount);}
+                if(e is TextElement text){Add(text.text?.GetHashCode()??0);Add(text.enableRichText?1:0);Add(s.color.GetHashCode());Add(s.fontSize.GetHashCode());Add(s.unityFontDefinition.GetHashCode());Add((int)s.unityFontStyleAndWeight);Add(s.letterSpacing.GetHashCode());Add(s.wordSpacing.GetHashCode());Add(e.style.textShadow.value.GetHashCode());Add(s.unityTextOutlineColor.GetHashCode());Add(s.unityTextOutlineWidth.GetHashCode());if(!pixels){Add(s.unityFont==null?0:s.unityFont.ExistingObjectId());Add(s.unityTextAlign.GetHashCode());Add(s.whiteSpace.GetHashCode());Add(s.unityParagraphSpacing.GetHashCode());Add(s.unityTextGenerator.GetHashCode());Add(s.textOverflow.GetHashCode());Add(s.unityTextOverflowPosition.GetHashCode());}}
+                else if(e is Image image){Add(image.image==null?0:image.image.ExistingObjectId());Add(image.sprite==null?0:image.sprite.ExistingObjectId());Add(image.vectorImage==null?0:image.vectorImage.ExistingObjectId());Add(image.uv.GetHashCode());Add(image.tintColor.GetHashCode());Add((int)image.scaleMode);if(pixels&&image.image!=null)Add((int)image.image.updateCount);}
                 else if(e.generateVisualContent!=null)Add(pixels?Time.frameCount:e.generateVisualContent.GetHashCode());
             return hash;
         }
     }
 }
+
+#endif
