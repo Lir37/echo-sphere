@@ -1,5 +1,14 @@
 # ECHO SPHERE — native visual modernization
 
+## Android build checkpoint — 2026-10-26
+
+User authorized an APK and physical USB-device testing. Unity 6000.6.1f1 main
+development IL2CPP ARM64/ARMv7 APK built: 0 errors, 5 warnings, 177835552 bytes.
+Source 45d899dda3ef0be018ae3ff2774b12a370d9cecc, CI #868 SUCCESS.
+Xiaomi initially rejected installation with INSTALL_FAILED_USER_RESTRICTED;
+same verified APK is also in phone Downloads. Device execution/performance
+acceptance is still pending. See UNITY_NATIVE_66_ANDROID_DEVICE_2026-10-26.md.
+
 ## Latest checkpoint — Unity 6.6 Editor acceptance, 2026-10-26
 
 Actual Editor tutorial-to-run-to-result/region/home flow passes, including Up/Down,
