@@ -118,9 +118,13 @@ Editor verification after the fixes:
 - Windows diagnostic preferences restored and verified, all ten original keys.
   Scene is clean/stopped. Pre-existing local user files/settings remain separate.
 
-**No post-fix Android FPS/GC or phone acceptance is available.** The installed phone
-APK is the measured baseline above, not these source fixes. Editor counts prove
-removed hidden work, not the size of the device performance improvement.
+**Update after reconnection:** the corrected APK below was installed successfully
+as an ADB replacement with the user's current run intact. USB Profiler measured
+home 7.445 FPS, continued pause 0.530 FPS and early battle 0.582 FPS. These fixes
+alone did not solve the stalls. The continued-run scenario differs from the older
+fresh tutorial. Further glyph-shadow optimization and device retest details are in
+UNITY_NATIVE_66_ANDROID_RETEST_2026-10-26.md. Editor callback counts establish the
+removed hidden work, not Android acceptance.
 
 ## Corrected APK candidate
 
@@ -129,7 +133,7 @@ the checks: Succeeded, 0 errors, 5 warnings, 6m17.54s; signature verification PA
 Same application/version/code, both ARM ABIs and existing user quality overrides.
 File: UnityProject/Builds/Android/ECHO-SPHERE-debug.apk, 232093576 bytes.
 SHA-256: 003fb912e6ca2e531069435578d745614f36d6150cee47a7963d9665316cb981.
-It has not been installed on the disconnected phone. The earlier measured APK is
+It was installed after phone reconnection; installed base.apk hash matches. The earlier measured APK is
 preserved outside Git as baseline-45d899dd.apk. Local corrected build report and
 source-file hashes are in the device evidence folder. The 32 pre-existing tracked
 local edits match their pre-test SHA-256 values; build-only serialization is
@@ -141,8 +145,8 @@ No private save contents are published.
 
 ## Continue
 
-Install the corrected candidate after the phone reconnects, preserving app data.
-Repeat comparable native replay/frame/GC captures; complete the generated upgrade,
+Continue from the newer retained saved run; never overwrite it with the older
+pre-tutorial backup. Repeat comparable frame/GC captures; complete the generated upgrade,
 tutorial, battle, pause/focus and intermittent region checks. Use a fresh diagnostic
 profile only with an appropriate backup/restore boundary; never clear real progress
 to bypass the replay's saved-run/tutorial guards. Inspect remaining visible filter,
