@@ -1,5 +1,31 @@
 # Боевой мир: раннее отсечение и URP RenderGraph
 
+## Дополнение: graph-owned shadows и подготовка телефона
+
+После a5c9c68e ресурсы теней вынесены из одного общего unsafe pass в отдельные
+узлы: mask MSAA4 → horizontal → vertical → optional retained-cache copy →
+ordered composite; между тенями сохраняются последовательные geometry ranges.
+Три временные текстуры каждой новой маски создаёт RenderGraph, с объявленными
+read/write dependencies. В обычном graph-пути больше нет GetTemporaryRT /
+ReleaseTemporaryRT для теней. Retained cache остаётся ограниченным собственным
+кэшем; его RTHandle-обёртки не владеют текстурами и освобождаются при eviction.
+Немедленный диагностический fallback сохраняет прежний temporary-RT путь.
+
+Точный порядок blend modes не менялся, instancing не пересекает границы ranges.
+Это unsafe nodes с явными global-state barriers, не raster-pass merging и не
+обещание снижения CPU от увеличения числа узлов. Lifetimes теперь известны графу;
+фактическая память и выигрыш на Android требуют измерения.
+
+Editor: 6 фактических graph/copy/cache/resize/text случаев PASS, max delta 0;
+cache hit case использует 0 transient textures / 8 nodes, каждый из пяти
+cache-write случаев — 9 transient textures / 20 nodes. Полный retained battle UI
+при density 1/2.75 также совпал пиксель-в-пиксель, 0 новых Console errors.
+C# 351 runtime + 6 Editor файлов, 0 errors/warnings. Телефон подключён пользователем
+для последующей установки и проверки. До установки сохранены текущие данные
+(tar 88064 bytes) и фактически установленный APK (177835552 bytes,
+SHA256 a9916c6a29ed96b2cbd5e4504a1b898bc6a65f74e86e3200d17794be100fb6e0).
+Новые Android-результаты записываются после сборки; не подменять их Editor-цифрами.
+
 2026-10-27, `unity-migration`, исходный HEAD `5a1e51ff2547512c6ef5b76e5feb579305b867dd` (CI #875 SUCCESS).
 
 ## Реализовано и включено

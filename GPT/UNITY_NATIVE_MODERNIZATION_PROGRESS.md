@@ -1,5 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
+## Graph-owned shadow resources / device preparation — 2026-10-27
+
+World shadows now have explicit mask/blur/cache-copy/composite graph nodes and
+graph-created transient textures, preserving ordered geometry ranges. Normal
+graph rendering no longer requests/releases legacy temporary shadow RTs.
+Retained cache wrapper ownership and fallback remain explicit. Six real graph
+cases plus full battle UI density 1/2.75 match exactly; C# 351 + 6 files PASS.
+User connected Xiaomi for install/retest. Actual existing APK and newest local
+device data backed up before replacement; phone performance not yet measured.
+See the latest addendum in UNITY_NATIVE_WORLD_RENDERGRAPH_2026-10-27.md.
+
 ## World execution / early geometry culling — 2026-10-27
 
 Production world commands now execute inside the camera's URP RenderGraph pass;

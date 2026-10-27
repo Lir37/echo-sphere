@@ -26,35 +26,11 @@ namespace EchoSphere.Presentation
         {
             internal NativeWorldSurface World;
             internal WorldPass(){renderPassEvent=RenderPassEvent.BeforeRenderingPostProcessing;}
-            private sealed class Data
-            {
-                internal NativeWorldSurface World;
-                internal TextureHandle CameraColor;
-                internal Matrix4x4 View,Projection;
-                internal Rect Viewport;
-            }
             public override void RecordRenderGraph(RenderGraph graph,ContextContainer frameData)
             {
                 if(World==null||!World.GraphPending)return;
                 var resources=frameData.Get<UniversalResourceData>();var camera=frameData.Get<UniversalCameraData>();
-                using(var builder=graph.AddUnsafePass<Data>("ECHO SPHERE native world",out var data)){
-                    data.World=World;data.CameraColor=resources.activeColorTexture;
-                    data.View=camera.GetViewMatrix();data.Projection=GL.GetGPUProjectionMatrix(camera.GetProjectionMatrix(),true);
-                    data.Viewport=new Rect(0,0,camera.cameraTargetDescriptor.width,camera.cameraTargetDescriptor.height);
-                    builder.UseTexture(graph.ImportTexture(World.GraphTarget),AccessFlags.ReadWrite);
-                    builder.UseTexture(graph.ImportTexture(World.GraphUi),AccessFlags.WriteAll);
-                    builder.UseTexture(data.CameraColor,AccessFlags.ReadWrite);
-                    // Ordered custom blends and existing temporary shadow RTs
-                    // require an unsafe pass. This is explicit graph ownership,
-                    // not a claim that these subpasses can already be merged.
-                    builder.AllowGlobalStateModification(true);builder.AllowPassCulling(false);
-                    builder.SetRenderFunc(static (Data pass,UnsafeGraphContext context)=>{
-                        var commands=CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
-                        pass.World.RecordGraphCommands(commands);
-                        context.cmd.SetRenderTarget(pass.CameraColor);
-                        commands.SetViewport(pass.Viewport);commands.SetViewProjectionMatrices(pass.View,pass.Projection);
-                    });
-                }
+                World.RecordResourceGraph(graph,resources.activeColorTexture,camera.GetViewMatrix(),GL.GetGPUProjectionMatrix(camera.GetProjectionMatrix(),true),new Rect(0,0,camera.cameraTargetDescriptor.width,camera.cameraTargetDescriptor.height));
             }
         }
     }

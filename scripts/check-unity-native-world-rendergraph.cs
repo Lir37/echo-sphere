@@ -9,7 +9,7 @@ var cameraTarget=new UnityEngine.RenderTexture(64,64,24);cameraTarget.Create();c
 var material=new UnityEngine.Material(UnityEngine.Resources.Load<UnityEngine.Shader>("EchoSphere/NativeWorldSolid"));var mesh=(UnityEngine.Mesh)Call(shapes,"Rectangle",-17f,-11f,34f,22f);
 var label=(System.IDisposable)System.Activator.CreateInstance(assembly.GetType("EchoSphere.Presentation.NativeWorldLabel"),true);
 Call(world,"Initialize");Call(world,"BindCamera",camera);bool background=UnityEngine.Application.runInBackground;UnityEngine.Application.runInBackground=true;
-int stage=0,frames=0,last=-1,phase=0,cases=0,maxDelta=0,errors=0;long previousPass=0;UnityEngine.Color32[] reference=null;
+int stage=0,frames=0,last=-1,phase=0,cases=0,maxDelta=0,errors=0,transientTextures=0;long previousPass=0;UnityEngine.Color32[] reference=null;
 var rows=new System.Collections.Generic.List<object>();double deadline=UnityEditor.EditorApplication.timeSinceStartup+120;UnityEditor.EditorApplication.CallbackFunction tick=null;
 UnityEngine.Application.LogCallback onError=(m,s,k)=>{if(k==UnityEngine.LogType.Error||k==UnityEngine.LogType.Exception||k==UnityEngine.LogType.Assert)errors++;};UnityEngine.Application.logMessageReceived+=onError;
 int Passes()=>(int)wt.GetProperty("GraphPassCount",flags).GetValue(world);
@@ -23,6 +23,6 @@ tick=()=>{try{UnityEditor.EditorApplication.QueuePlayerLoopUpdate();if(!UnityEdi
  if(frames++<6){Draw(true);return;}
  if(phase==0){Draw(true);reference=Read();previousPass=Passes();Draw(false);if(!(bool)wt.GetProperty("GraphPending",flags).GetValue(world))throw new System.Exception("World did not queue to URP");phase=1;return;}
  if(Passes()==previousPass)return;if(Passes()!=previousPass+1)throw new System.Exception("Duplicate world execution");var actual=Read();if(actual.Length!=reference.Length)throw new System.Exception("Target size mismatch");int delta=0,visible=0;for(int i=0;i<actual.Length;i++){var a=reference[i];var b=actual[i];if(a.a>0)visible++;delta=System.Math.Max(delta,System.Math.Max(System.Math.Max(System.Math.Abs(a.r-b.r),System.Math.Abs(a.g-b.g)),System.Math.Max(System.Math.Abs(a.b-b.b),System.Math.Abs(a.a-b.a))));}
- if(visible==0||delta>1)throw new System.Exception("Graph pixels differ "+delta+" visible="+visible);maxDelta=System.Math.Max(maxDelta,delta);rows.Add(new{stage,delta,visible,passes=Passes()});cases++;if(++stage==6){Finish("PASS actual URP RenderGraph composition");return;}phase=0;
+ if(visible==0||delta>1)throw new System.Exception("Graph pixels differ "+delta+" visible="+visible);maxDelta=System.Math.Max(maxDelta,delta);int textures=(int)wt.GetProperty("GraphTransientShadowTextures",flags).GetValue(world);transientTextures+=textures;rows.Add(new{stage,delta,visible,passes=Passes(),textures,nodes=wt.GetProperty("GraphResourceNodeCount",flags).GetValue(world)});cases++;if(++stage==6){if(transientTextures==0)throw new System.Exception("Graph-owned shadow textures were never exercised");Finish("PASS actual URP RenderGraph composition");return;}phase=0;
 }catch(System.Exception e){Finish("FAIL "+e.GetBaseException().Message);}};
 UnityEditor.SessionState.SetString("EchoWorldRenderGraph","RUNNING");UnityEditor.EditorApplication.update+=tick;return "Queued actual URP graph parity / resize / single-execution check";

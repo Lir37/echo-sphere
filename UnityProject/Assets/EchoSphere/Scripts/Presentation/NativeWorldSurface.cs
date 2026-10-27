@@ -10,7 +10,7 @@ namespace EchoSphere.Presentation
 {
     // Ordered Unity mesh compositor. It has no Canvas command sink, paths,
     // generic paint texture, DOM tree, generated drawing code or scene Renderer.
-    internal sealed class NativeWorldSurface : MonoBehaviour
+    internal sealed partial class NativeWorldSurface : MonoBehaviour
     {
         private sealed class State
         {
@@ -59,11 +59,6 @@ namespace EchoSphere.Presentation
         {
             if(_renderGraphLease!=null&&_renderGraphLease.IsCurrent(camera))return;
             _renderGraphLease?.Dispose();_renderGraphLease=new NativeWorldRenderGraphLease(this,camera);
-        }
-        internal void RecordGraphCommands(CommandBuffer commands)
-        {
-            using var frame=FrameMarker.Auto();PrepareFrameGlyphs();RenderMeshes(commands);commands.Blit(_target,_uiTarget,_presentMaterial,2);
-            GraphPending=false;GraphPassCount++;LastGraphFrame=Time.frameCount;
         }
         internal void CancelGraphFrame()=>GraphPending=false;
         private Matrix4x4 _sourceToWorld=Matrix4x4.identity;private Shader _solidShader,_labelShader;
@@ -207,14 +202,14 @@ namespace EchoSphere.Presentation
             if(!cached){commands.SetGlobalInt(ShadowWeightCountId,0);return;}
             commands.SetGlobalInt(ShadowWeightCountId,radius+1);commands.SetGlobalVectorArray(ShadowWeightsId,weights);
         }
-        private int DrawInstanceRun(CommandBuffer commands,int first,int pass)
+        private int DrawInstanceRun(CommandBuffer commands,int first,int pass,int end=int.MaxValue)
         {
             if(!_canInstance||_batches[first].NativeMaterial.shader!=_solidShader)return 0;
 #if UNITY_EDITOR
             if(DisableInstancingForValidation)return 0;
 #endif
             var initial=_batches[first];int count=0;
-            for(int i=first;i<_batches.Count&&count<64;i++){
+            for(int i=first;i<_batches.Count&&i<end&&count<64;i++){
                 var batch=_batches[i];
                 if(batch.NativeMesh!=initial.NativeMesh||batch.Blend!=initial.Blend||batch.NativeMaterial.shader!=_solidShader||batch.Shadow.a>0&&(batch.Blur>0||batch.X!=0||batch.Y!=0)||!batch.NativeProperties.HasVector(NativeColorId))break;
                 _instanceMatrices[count]=batch.NativeMatrix;_instanceColors[count]=batch.NativeProperties.GetVector(NativeColorId);_instanceOpacities[count]=batch.NativeProperties.GetFloat(NativeOpacityId);count++;

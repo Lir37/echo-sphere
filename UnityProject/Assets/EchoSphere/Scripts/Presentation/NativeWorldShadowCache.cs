@@ -22,7 +22,7 @@ namespace EchoSphere.Presentation
             public override bool Equals(object other)=>other is Key key&&Equals(key);
             public bool Equals(Key other)=>ReferenceEquals(Mesh,other.Mesh)&&_version==other._version&&_matrix.Equals(other._matrix)&&_viewport.Equals(other._viewport)&&_area.Equals(other._area)&&_alpha.Equals(other._alpha)&&_opacity.Equals(other._opacity)&&_blur.Equals(other._blur);
         }
-        private sealed class Entry {internal RenderTexture Texture;internal long Bytes;internal ulong Used;}
+        private sealed class Entry {internal RenderTexture Texture;internal RTHandle Graph;internal long Bytes;internal ulong Used;}
         private const long Budget=16*1024*1024,MaxEntry=1024*1024;
         private const int MaxEntries=128,MaxCandidates=4096;
         private readonly Dictionary<Key,Entry> _entries=new Dictionary<Key,Entry>();
@@ -37,7 +37,7 @@ namespace EchoSphere.Presentation
             foreach(var pair in _entries)if(pair.Key.Mesh==null||!pair.Value.Texture.IsCreated()||_frame-pair.Value.Used>age)_stale.Add(pair.Key);
             // Evict BEFORE recording this frame: no queued command can refer to
             // a released entry from an earlier primitive in the same frame.
-            foreach(var key in _stale){var entry=_entries[key];Release(entry.Texture);ResidentBytes-=entry.Bytes;_entries.Remove(key);}
+            foreach(var key in _stale){var entry=_entries[key];entry.Graph?.Release();Release(entry.Texture);ResidentBytes-=entry.Bytes;_entries.Remove(key);}
         }
         internal Result Probe(Key key,int width,int height,out RenderTexture texture)
         {
@@ -51,6 +51,8 @@ namespace EchoSphere.Presentation
             _entries.Add(key,new Entry {Texture=texture,Bytes=bytes,Used=_frame});ResidentBytes+=bytes;return Result.Write;
         }
         private static void Release(RenderTexture texture){texture.Release();if(Application.isPlaying)UnityEngine.Object.Destroy(texture);else UnityEngine.Object.DestroyImmediate(texture);}
-        public void Dispose(){foreach(var entry in _entries.Values)Release(entry.Texture);_entries.Clear();_previous.Clear();_current.Clear();_stale.Clear();ResidentBytes=0;}
+        internal RTHandle GraphHandle(RenderTexture texture)
+        {foreach(var entry in _entries.Values)if(entry.Texture==texture)return entry.Graph??(entry.Graph=RTHandles.Alloc(texture,transferOwnership:false));throw new InvalidOperationException("Shadow cache texture has no owner");}
+        public void Dispose(){foreach(var entry in _entries.Values){entry.Graph?.Release();Release(entry.Texture);}_entries.Clear();_previous.Clear();_current.Clear();_stale.Clear();ResidentBytes=0;}
     }
 }

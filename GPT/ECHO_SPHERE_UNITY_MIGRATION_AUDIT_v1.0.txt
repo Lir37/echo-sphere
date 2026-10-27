@@ -6,6 +6,13 @@ Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 Baseline CI: Android APK #1845 — SUCCESS
 
+Graph shadow-resource update (2026-10-27):
+Mask/blur/cache-copy/composite are declared graph nodes; transient shadow targets
+belong to RenderGraph instead of GetTemporaryRT in the normal graph path.
+Ordered native geometry and blend modes retained. Editor graph/UI pixel checks
+PASS, Android install/retest pending after user connected phone. Existing device
+APK/data backed up. Latest UNITY_NATIVE_WORLD_RENDERGRAPH_2026-10-27.md addendum.
+
 World execution update (2026-10-27):
 Active battle composition now records into a camera-owned URP RenderGraph pass.
 One unsafe pass retains authored blends/temporary shadow operations; full graph
