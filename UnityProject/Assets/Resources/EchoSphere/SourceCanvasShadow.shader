@@ -6,7 +6,8 @@ Shader "EchoSphere/SourceCanvasShadow" {
         #include "UnityCG.cginc"
         sampler2D _MainTex;float4 _SourceShadowDirection,_SourceShadowColor,_SourceShadowOffset,_SourceShadowRect;float _SourceShadowSigma;
         float4 _SourceShadowWeights[128];int _SourceShadowWeightCount;
-        float Alpha(float2 uv){return any(uv<0)||any(uv>1)?0:tex2D(_MainTex,uv).a;}
+        float _SourceShadowAtlas;float4 _SourceShadowSampleRect;
+        float Alpha(float2 uv){if(_SourceShadowAtlas>.5&&(any(uv<_SourceShadowSampleRect.xy)||any(uv>_SourceShadowSampleRect.zw)))return 0;return any(uv<0)||any(uv>1)?0:tex2D(_MainTex,uv).a;}
         float4 gaussian(v2f_img input):SV_Target {
             float sigma=_SourceShadowSigma;if(sigma<.01)return Alpha(input.uv).xxxx;
             int radius=(int)ceil(sigma*4);float total=0,alpha=0;

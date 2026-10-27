@@ -191,6 +191,43 @@ namespace EchoSphere.Presentation
             int right=Math.Min(full.xMax,Mathf.CeilToInt(x1)+px+1),top=Math.Min(full.yMax,Mathf.CeilToInt(y1)+py+1);
             return new RectInt(left,bottom,Math.Max(0,right-left),Math.Max(0,top-bottom));
         }
+        private readonly struct ShadowPlacement
+        {
+            internal readonly RectInt Area;internal readonly Matrix4x4 Matrix;internal readonly Vector2 Translation;internal readonly bool Local;
+            internal ShadowPlacement(RectInt area,Matrix4x4 matrix,Vector2 translation=default,bool local=false){Area=area;Matrix=matrix;Translation=translation;Local=local;}
+        }
+        // A complete local mask follows the object without rerasterizing at each
+        // world position. Rotation/scale/geometry/alpha still invalidate the mask.
+        // Very large or unblurred shapes retain the exact viewport raster path.
+        private ShadowPlacement PlaceShadow(Batch batch,RectInt visibleArea)
+        {
+            var fallback=new ShadowPlacement(visibleArea,batch.NativeMatrix);
+#if UNITY_EDITOR
+            if(FullShadowViewportForValidation||DisableShadowCacheForValidation)return fallback;
+#endif
+            if(batch.Blur<2||batch.NativeMaterial.shader!=_solidShader||NativeWorldShapes.GeometryVersion(batch.NativeMesh)==0)return fallback;
+            var matrix=batch.NativeMatrix;var shift=new Vector2(matrix.m03/_viewport.width*_target.width,matrix.m13/_viewport.height*_target.height);matrix.m03=matrix.m13=0;
+            var bounds=batch.NativeMesh.bounds;float x0=float.PositiveInfinity,y0=float.PositiveInfinity,x1=float.NegativeInfinity,y1=float.NegativeInfinity;
+            for(int i=0;i<4;i++){
+                var point=matrix.MultiplyPoint3x4(new Vector3(i%2==0?bounds.min.x:bounds.max.x,i<2?bounds.min.y:bounds.max.y,bounds.center.z));
+                float x=(point.x-_viewport.xMin)/_viewport.width*_target.width,y=(point.y-_viewport.yMin)/_viewport.height*_target.height;
+                x0=Mathf.Min(x0,x);x1=Mathf.Max(x1,x);y0=Mathf.Min(y0,y);y1=Mathf.Max(y1,y);
+            }
+            if(!float.IsFinite(x0+y0+x1+y1+shift.x+shift.y))return fallback;
+            int px=VisualCanvasShadowViewport.Padding(batch.Blur,batch.X)+2,py=VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y)+2;
+            int left=Mathf.FloorToInt(x0)-px,bottom=Mathf.FloorToInt(y0)-py,right=Mathf.CeilToInt(x1)+px,top=Mathf.CeilToInt(y1)+py;
+            long pixels=(long)(right-left)*(top-bottom);
+            if(pixels<=0||pixels>256*1024||right-left>SystemInfo.maxTextureSize||top-bottom>SystemInfo.maxTextureSize)return fallback;
+            return new ShadowPlacement(new RectInt(left,bottom,right-left,top-bottom),matrix,shift,true);
+        }
+        private Rect ShadowCompositeRect(Batch batch,ShadowPlacement placement)
+        {
+            var area=placement.Area;var shift=placement.Translation;
+            int mx=Mathf.CeilToInt(Mathf.Abs(batch.X))+2,my=Mathf.CeilToInt(Mathf.Abs(batch.Y))+2;
+            float left=Mathf.Clamp(area.xMin+shift.x-mx,0,_target.width),bottom=Mathf.Clamp(area.yMin+shift.y-my,0,_target.height);
+            float right=Mathf.Clamp(area.xMax+shift.x+mx,0,_target.width),top=Mathf.Clamp(area.yMax+shift.y+my,0,_target.height);
+            return new Rect(left,bottom,right-left,top-bottom);
+        }
         private void SetShadowKernel(CommandBuffer commands,float sigma)
         {
             commands.SetGlobalFloat(ShadowSigmaId,sigma);
@@ -222,7 +259,7 @@ namespace EchoSphere.Presentation
         private void RenderMeshes(CommandBuffer recorder=null)
         {
             if(_target==null)throw new InvalidOperationException("Native world viewport is not set");
-            var commands=recorder??_commands;if(recorder==null)commands.Clear();commands.SetRenderTarget(_target);commands.ClearRenderTarget(false,true,Color.clear);
+            var commands=recorder??_commands;if(recorder==null)commands.Clear();commands.SetGlobalFloat(ShadowAtlasId,0);commands.SetRenderTarget(_target);commands.ClearRenderTarget(false,true,Color.clear);
             // This texture is sampled directly by UI Toolkit, not presented by a Camera.
             // Camera render-target Y inversion would mirror both the world and its labels.
             var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),false);
@@ -245,13 +282,14 @@ namespace EchoSphere.Presentation
                 if(batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)) {
                     using var shadowSample=ShadowCommandsMarker.Auto();
                     if(area.width>0&&area.height>0){
+                    var placement=PlaceShadow(batch,area);area=placement.Area;
                     RenderTexture retained=null;var cacheResult=NativeWorldShadowCache.Result.Miss;
                     bool cacheAllowed=batch.NativeMaterial.shader==_solidShader&&NativeWorldShapes.GeometryVersion(batch.NativeMesh)!=0&&props.HasVector(NativeColorId);
 #if UNITY_EDITOR
                     if(FullShadowViewportForValidation||DisableShadowCacheForValidation)cacheAllowed=false;
 #endif
                     if(cacheAllowed){
-                        var key=new NativeWorldShadowCache.Key(batch.NativeMesh,NativeWorldShapes.GeometryVersion(batch.NativeMesh),batch.NativeMatrix,_viewport,area,props.GetVector(NativeColorId).w,props.GetFloat(NativeOpacityId),batch.Blur);
+                        var key=new NativeWorldShadowCache.Key(batch.NativeMesh,NativeWorldShapes.GeometryVersion(batch.NativeMesh),placement.Matrix,_viewport,area,props.GetVector(NativeColorId).w,props.GetFloat(NativeOpacityId),batch.Blur);
                         cacheResult=_shadowCache.Probe(key,area.width,area.height,out retained);
                     }
                     if(cacheResult!=NativeWorldShadowCache.Result.Hit){
@@ -263,7 +301,7 @@ namespace EchoSphere.Presentation
                     commands.GetTemporaryRT(ping,area.width,area.height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
                     commands.GetTemporaryRT(blur,area.width,area.height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
                     commands.SetRenderTarget(mask);commands.ClearRenderTarget(false,true,Color.clear);commands.SetViewProjectionMatrices(Matrix4x4.identity,shadowProjection);
-                    commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,0,props);
+                    commands.DrawMesh(batch.NativeMesh,placement.Matrix,batch.NativeMaterial,0,0,props);
                     SetShadowKernel(commands,(float)VisualCanvasShadowViewport.Sigma(batch.Blur));
                     commands.SetGlobalVector(ShadowDirectionId,new Vector4(1f/area.width,0f,0f,0f));commands.Blit(mask,ping,_blurMaterial,0);
                     commands.SetGlobalVector(ShadowDirectionId,new Vector4(0f,1f/area.height,0f,0f));commands.Blit(ping,blur,_blurMaterial,0);
@@ -271,15 +309,12 @@ namespace EchoSphere.Presentation
                     }else ShadowCacheHits++;
                     commands.SetGlobalColor(ShadowColorId,batch.Shadow);
                     commands.SetGlobalVector(ShadowOffsetId,new Vector4(batch.X/area.width,-batch.Y/area.height,0f,0f));
-                    commands.SetGlobalVector(ShadowRectId,new Vector4(-(float)area.x/area.width,-(float)area.y/area.height,(float)_target.width/area.width,(float)_target.height/area.height));
+                    commands.SetGlobalVector(ShadowRectId,new Vector4(-(area.x+placement.Translation.x)/area.width,-(area.y+placement.Translation.y)/area.height,(float)_target.width/area.width,(float)_target.height/area.height));
                     // Keep the original full-target UV mapping and blend order,
                     // but rasterize only the nonzero support of this shadow.
                     // Include offset and bilinear/MSAA edge coverage. This also
                     // bounds cache-hit composites, which still need blending.
-                    int marginX=Mathf.CeilToInt(Mathf.Abs(batch.X))+2,marginY=Mathf.CeilToInt(Mathf.Abs(batch.Y))+2;
-                    int left=Mathf.Clamp(area.xMin-marginX,0,_target.width),bottom=Mathf.Clamp(area.yMin-marginY,0,_target.height);
-                    int right=Mathf.Clamp(area.xMax+marginX,0,_target.width),top=Mathf.Clamp(area.yMax+marginY,0,_target.height);
-                    var composite=new Rect(left,bottom,right-left,top-bottom);
+                    var composite=ShadowCompositeRect(batch,placement);
 #if UNITY_EDITOR
                     if(FullShadowCompositeForValidation)composite=new Rect(0,0,_target.width,_target.height);
 #endif

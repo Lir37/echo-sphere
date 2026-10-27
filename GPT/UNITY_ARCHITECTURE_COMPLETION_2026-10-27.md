@@ -93,3 +93,51 @@ Selected владельцы удерживают ресурс; offscreen/hide к
 
 Полная деформация с сохранённой топологией, атласы теней, spatial queries,
 чистка оставшегося reference слоя и device acceptance всё ещё OPEN.
+
+## Группа 3 — локальные маски и пакетные атласы (2026-10-28)
+
+Для ограниченных solid-мешей с blur>=2 маска готовится в локальной системе,
+без мировой трансляции. Перемещение с дробными координатами больше не меняет
+ключ кэша. Полная область ядра сохраняется и у края экрана; rotation/scale,
+geometry version, alpha/opacity и blur по-прежнему инвалидируют маску. Большие,
+неизвестные и неразмытые формы сохраняют прежний viewport path. Это не снижение
+разрешения, MSAA, числа эффектов или частоты анимации.
+
+Неподготовленные локальные маски группируются в transient atlas pages по sigma:
+каждая страница до 512x512, до восьми страниц; избыток идёт прежним индивидуальным
+путём. Геометрия каждой маски рисуется в собственный viewport/scissor. Полный
+запас kernel+bilinear/MSAA отделяет содержимое соседних областей. Два Gaussian
+прохода выполняются на страницу; alpha sampling конечного composite ограничено
+областью конкретной маски. Наложение теней и геометрии остаётся в исходном порядке
+normal/additive/screen. Retained cache получает CopyTexture конкретного региона.
+
+Новые counters GraphShadowAtlasPages / GraphShadowBlurPasses / GraphShadowBlurPixels
+отдельны от ShadowPassCount (число масок), чтобы не выдавать его за число GPU-pass.
+В RenderGraph пока остаются UnsafePass/global bindings; raster API migration
+не объявляется выполненной. Static cache ещё использует отдельные retained RT;
+в атласах сейчас готовится dynamic/miss слой. Все текущие работы — кандидаты
+до реальной Android-проверки.
+
+### Проверка группы 3
+
+- 216 GPU-сравнений локальных масок с прежней растеризацией: DPR 1/1.75,
+  три угла, normal/additive/screen, смещения, край/вне экрана, дробные позиции.
+  max alpha difference 2/255, max RGB*alpha difference 3/255; максимальное
+  среднее взвешенное отличие 0.0121/255 на пиксель. Raw RGB на почти прозрачных
+  пикселях отличается до 250/255; это НЕ побитовое совпадение.
+- 162 проверки реального cache hit после дробного перемещения PASS.
+- Actual URP atlas fixture: 25 перекрывающихся теней, 6 размеров/поворотов/DPR,
+  normal/additive/screen. Вместо 50 blur passes выполняется 2 или 4; вместо
+  75 transient textures — 3 или 6. Это числа команд/ресурсов, не FPS/GPU ms.
+  Пять случаев побитово совпали с individual path; шестой: alpha и RGB*alpha
+  max 1/255, raw RGB max42/255 на слабопрозрачных пикселях.
+- Atlas-to-retained CopyTexture и следующий reuse: 12 GPU сравнений, max delta
+  0/255. Последующие 25 масок: 25 cache hits, 0 новых transient textures / blur.
+- Существующий enemy/culling GPU fixture: 140 comparisons, max delta0/255.
+- C# Android player/editor, 350 runtime +6 Editor: 0 errors/warnings.
+- Предыдущая группа 20f96709 прошла CI #888 SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/40583178176 .
+
+Открыто: эффективность live backdrop Gaussian меню; деформируемая topology;
+spatial queries и явные адаптеры остальных save entities; дальнейшая очистка;
+белая Android-пауза; итоговые FPS/GC/память и 15-минутный device test.
