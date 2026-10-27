@@ -1,5 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
+## Menu avatar ownership — 2026-10-27
+
+Confirmed leftover layer: the old gradient sphere/glow remained beneath the
+approved character portrait in the selection row. New portrait now exclusively
+owns that slot; old brush is allocated only for missing-art fallback and freed
+when the portrait returns. All 10 portraits plus fallback/return/disposal checked
+in real Editor Play Mode at 1080x2400 / density 2.75; GPU screenshot inspected.
+Android compilation PASS; new APK/device verification pending. Related roster
+and player paths checked without removing intended framing/status effects.
+See UNITY_AVATAR_LAYER_OWNERSHIP_2026-10-27.md. Low FPS / white pause panel remain.
+
 ## Android first layout / measured menu — 2026-10-27
 
 Update after installation: 81b2c510 / CI #879 SUCCESS installed with preserved

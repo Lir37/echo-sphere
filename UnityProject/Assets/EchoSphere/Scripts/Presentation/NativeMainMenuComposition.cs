@@ -15,11 +15,12 @@ namespace EchoSphere.Presentation
         private readonly NativeMainMenuView _view;
         private readonly NativeMainMenuBackground _background;
         private readonly NativeMenuArtwork _artwork;
-        private readonly NativeMenuBrush _avatar=new NativeMenuBrush();
+        private NativeMenuBrush _avatar;
         private readonly Image _avatarImage;
         private readonly Label _avatarGlyph;
         private readonly Image _characterPortrait;
         private string _portraitId;
+        private bool _hasPortrait;
         private readonly List<Surface> _surfaces=new List<Surface>();
         private readonly List<VisualElement> _observed=new List<VisualElement>();
         private float _scale,_avatarWidth,_avatarHeight;
@@ -68,7 +69,13 @@ namespace EchoSphere.Presentation
         {
             if(_portraitId==id)return;_portraitId=id;
             var art=NativeCharacterArtwork.Resolve(id);_characterPortrait.sprite=art?.Sprite;
-            _avatarGlyph.style.display=art==null?DisplayStyle.Flex:DisplayStyle.None;
+            _hasPortrait=_characterPortrait.sprite!=null;
+            // The approved portrait replaces the old sphere, including its glow.
+            // Keep that sphere only as a fallback when no portrait is available.
+            _characterPortrait.style.display=_hasPortrait?DisplayStyle.Flex:DisplayStyle.None;
+            _avatarImage.style.display=_avatarGlyph.style.display=_hasPortrait?DisplayStyle.None:DisplayStyle.Flex;
+            if(_hasPortrait){_avatarImage.image=null;_avatar?.Dispose();_avatar=null;}
+            Invalidate();
         }
         private void Observe(VisualElement node)
         {
@@ -101,7 +108,8 @@ namespace EchoSphere.Presentation
             int backgroundCount=_background.PaintCount,artCount=_artwork.PaintCount;
             _background.SetViewport(size.width,size.height,scale);if(!_artwork.Prepare(scale))return false;
             if(backgroundCount!=_background.PaintCount||artCount!=_artwork.PaintCount||_scale!=scale)Invalidate();
-            if(_avatarWidth!=avatar.width||_avatarHeight!=avatar.height||_scale!=scale||_characterColor!=characterColor){
+            if(!_hasPortrait&&(_avatar==null||_avatarWidth!=avatar.width||_avatarHeight!=avatar.height||_scale!=scale||_characterColor!=characterColor)){
+                _avatar??=new NativeMenuBrush();
                 _avatar.Render(avatar.width,avatar.height,scale,NativeMenuArtwork.AvatarPaint(characterColor));
                 _avatarImage.image=_avatar.Texture;var r=_avatar.Bounds;_avatarImage.style.left=r.x;_avatarImage.style.top=r.y;_avatarImage.style.width=r.width;_avatarImage.style.height=r.height;
                 _avatarWidth=avatar.width;_avatarHeight=avatar.height;_characterColor=characterColor;Invalidate();
@@ -157,7 +165,7 @@ namespace EchoSphere.Presentation
             if(_disposed)return;_disposed=true;
             foreach(var node in _observed){node.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);if(node is Button){node.UnregisterCallback<PointerEnterEvent>(PointerChanged);node.UnregisterCallback<PointerLeaveEvent>(PointerChanged);}}
             foreach(var surface in _surfaces){surface.Glass?.Dispose();surface.Image?.RemoveFromHierarchy();surface.Brush.Dispose();}
-            _avatarImage.RemoveFromHierarchy();_avatarGlyph.RemoveFromHierarchy();_avatar.Dispose();_artwork.Dispose();_background.Dispose();
+            _avatarImage.RemoveFromHierarchy();_avatarGlyph.RemoveFromHierarchy();_characterPortrait.RemoveFromHierarchy();_avatar?.Dispose();_artwork.Dispose();_background.Dispose();
         }
     }
 }

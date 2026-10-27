@@ -5,6 +5,12 @@ Working branch: unity-migration
 Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 
+Avatar ownership update (2026-10-27):
+Old gradient sphere/glow behind the approved menu portrait now disabled/released
+when a Sprite exists. All 10 portraits, missing-art fallback and return checked
+in actual Editor Play Mode, density 2.75. Android typecheck PASS; new APK pending.
+See GPT/UNITY_AVATAR_LAYER_OWNERSHIP_2026-10-27.md. FPS/pause blockers remain open.
+
 Android first-layout update (2026-10-27):
 Retest: 81b2c510 / CI #879 SUCCESS built/installed. First layout correct on phone
 in two region launches; early battle still 9.00 FPS. New-run pause shows a white
