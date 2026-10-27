@@ -1,0 +1,8 @@
+C:/Users/toxik/Documents/GitHub/echo/UnityProject/.utmp/Debug/3s6w2l2q/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/toxik/Documents/GitHub/echo/UnityProject/.utmp/Debug/3s6w2l2q/x86_64/CMakeFiles/rebuild_cache.dir
+C:/Users/toxik/Documents/GitHub/echo/UnityProject/.utmp/Debug/3s6w2l2q/x86_64/GameActivity/CMakeFiles/game.dir
+C:/Users/toxik/Documents/GitHub/echo/UnityProject/.utmp/Debug/3s6w2l2q/x86_64/GameActivity/CMakeFiles/edit_cache.dir
+C:/Users/toxik/Documents/GitHub/echo/UnityProject/.utmp/Debug/3s6w2l2q/x86_64/GameActivity/CMakeFiles/rebuild_cache.dir
+C:/Users/toxik/Documents/GitHub/echo/UnityProject/.utmp/Debug/3s6w2l2q/x86_64/FramePacing/CMakeFiles/swappywrapper.dir
+C:/Users/toxik/Documents/GitHub/echo/UnityProject/.utmp/Debug/3s6w2l2q/x86_64/FramePacing/CMakeFiles/edit_cache.dir
+C:/Users/toxik/Documents/GitHub/echo/UnityProject/.utmp/Debug/3s6w2l2q/x86_64/FramePacing/CMakeFiles/rebuild_cache.dir

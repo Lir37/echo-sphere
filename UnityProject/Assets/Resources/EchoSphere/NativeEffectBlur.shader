@@ -18,7 +18,7 @@ Shader "EchoSphere/NativeEffectBlur"
    if(any(uv<0)||any(uv>1))return 0;
    float4 color=tex2D(_MainTex,uv);
    #ifndef UNITY_COLORSPACE_GAMMA
-    color.rgb=LinearToGammaSpace(color.rgb);
+    if(horizontal)color.rgb=LinearToGammaSpace(color.rgb);
    #endif
    return color;
   }
@@ -31,7 +31,16 @@ Shader "EchoSphere/NativeEffectBlur"
    }
    color/=max(.000001,total);
    // UI Images consume straight RGBA; the captured/native intermediate is premultiplied.
-   if(!horizontal)color.rgb=color.a>0?color.rgb/color.a:0;
+   if(!horizontal){
+    // UIR's reference filter stores premultiplied RGBA8 between passes.
+    // Match that quantization before converting to the Image's straight RGBA;
+    // the half-float output avoids a second lossy straight-alpha quantization.
+    color=round(saturate(color)*255)/255;
+    color.rgb=color.a>0?color.rgb/color.a:0;
+    #ifndef UNITY_COLORSPACE_GAMMA
+     color.rgb=GammaToLinearSpace(color.rgb);
+    #endif
+   }
    return color;
   }
   ENDHLSL
