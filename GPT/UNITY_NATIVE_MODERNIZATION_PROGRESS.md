@@ -1,5 +1,23 @@
 # ECHO SPHERE — native visual modernization
 
+## World execution / early geometry culling — 2026-10-27
+
+Production world commands now execute inside the camera's URP RenderGraph pass;
+world/UI targets are imported without transferring ownership. Runtime-owned
+features attach only in memory and disappear at teardown. Existing ordered
+shadow subpasses remain inside one unsafe pass; per-shadow graph lifetimes and
+raster-pass merging are not yet migrated. Immediate execution remains a fallback.
+
+Body/limb/glow/status preparation is skipped outside a conservative source-space
+envelope while pose clocks keep advancing. Long telegraphs/nameplates remain
+independent. 350 envelopes / 1.9M vertices and 140 GPU pairs pass, max delta 0;
+fixture batches 10820 -> 4608. Actual graph 6 resize/blend/text cases and full
+battle UI at panel density 1/2.75 match pixel-for-pixel. Pointer 53 and modals 420
+checks pass without new errors. C# 350 + 6 files / Core/parity PASS; user files and
+ten preferences preserved, zero owned features after Stop. Android FPS/startup
+strip and the broader remaining plan are OPEN. No new APK. See
+UNITY_NATIVE_WORLD_RENDERGRAPH_2026-10-27.md.
+
 ## Performance implementation group — 2026-10-27
 
 Implemented bounded world-shadow composites (including cache hits), conservative

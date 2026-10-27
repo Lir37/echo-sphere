@@ -174,7 +174,7 @@ namespace EchoSphere.Runtime
             #if UNITY_EDITOR
             VisualBindings.Locale=IsRussianUi?"ru":"en";
             #endif
-            if(_mainMenu)_nativeRunDocument?.Hide();
+            if(_mainMenu){_nativeRunDocument?.Hide();_worldSurface?.CancelGraphFrame();}
             bool nativeHome=TryDrawNativeMainMenu();
             bool nativeProgression=TryDrawNativeProgression();
             bool nativeSettings=TryDrawNativeSettings();
@@ -197,6 +197,7 @@ namespace EchoSphere.Runtime
             // Retained menu screens own their rendering; only a run needs
             // the native world texture.
             if(!_mainMenu){
+            _worldSurface.BindCamera(_camera);
             _worldSurface.SetViewport(width,height,dpr);
             _worldSurface.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
             _worldSurface.Begin(new Vector2(width*.5f,height*.5f));

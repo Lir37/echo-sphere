@@ -34,6 +34,10 @@ namespace EchoSphere.Presentation
         private readonly Material _solid,_radial;
         private int _used,_segmentUsed,_dynamicUsed;
         private NativeWorldSurface _surface;
+        internal int CulledBodyCount {get;private set;}
+#if UNITY_EDITOR
+        internal bool DisableEarlyBodyCullingForValidation=false;
+#endif
 
 
         internal NativeWorldCreatures()
@@ -41,7 +45,7 @@ namespace EchoSphere.Presentation
             _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native creature anatomy",hideFlags=HideFlags.DontSave};
             _radial=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldCreatureGlow")){name="Native creature glows",hideFlags=HideFlags.DontSave};
         }
-        internal void BeginFrame(){_used=0;_segmentUsed=0;_dynamicUsed=0;_labelUsed=0;}
+        internal void BeginFrame(){_used=0;_segmentUsed=0;_dynamicUsed=0;_labelUsed=0;CulledBodyCount=0;}
         private Art Dynamic(BezierContour contour,double width=0,bool fill=true)
         {
             if(_dynamicUsed==_dynamic.Count)_dynamic.Add(new Art());var art=_dynamic[_dynamicUsed++];art.Build(contour,(float)width,_surface.NativeStrokeEnding,_surface.NativeStrokeCorner,_surface.NativeStrokeMiter,fill);return art;

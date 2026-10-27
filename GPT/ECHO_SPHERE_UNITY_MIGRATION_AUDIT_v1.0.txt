@@ -6,6 +6,15 @@ Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 Baseline CI: Android APK #1845 — SUCCESS
 
+World execution update (2026-10-27):
+Active battle composition now records into a camera-owned URP RenderGraph pass.
+One unsafe pass retains authored blends/temporary shadow operations; full graph
+resource decomposition remains OPEN. Early body geometry culling preserves pose
+updates and separate long signals/labels. 140 GPU pairs + six actual graph cases
+and full battle UI at density 1/2.75 have max pixel delta 0. C#/Core/parity and
+production pointer/modal checks PASS. No new Android performance or APK claim.
+GPT/UNITY_NATIVE_WORLD_RENDERGRAPH_2026-10-27.md
+
 Implementation group (2026-10-27, after re-audit):
 Bounded shadow composites, offscreen batch culling, retained network buffers,
 maintained phase lists and Unity ObjectPool projectile/particle lifetimes.
