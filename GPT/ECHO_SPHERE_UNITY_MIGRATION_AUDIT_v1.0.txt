@@ -7,6 +7,10 @@ Protected baseline branch: new-desing
 Baseline CI: Android APK #1845 — SUCCESS
 
 Graph shadow-resource update (2026-10-27):
+Source 8916f039 / CI #877 SUCCESS built and installed on Xiaomi via ADB -r.
+Build 0 errors / 2 warnings; signature and installed hash verified; shared_prefs
+unchanged. Phone remains locked; interactive/performance tests require unlock.
+Installation is not a phone FPS/gameplay acceptance result.
 Mask/blur/cache-copy/composite are declared graph nodes; transient shadow targets
 belong to RenderGraph instead of GetTemporaryRT in the normal graph path.
 Ordered native geometry and blend modes retained. Editor graph/UI pixel checks

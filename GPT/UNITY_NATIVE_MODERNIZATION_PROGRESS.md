@@ -2,6 +2,13 @@
 
 ## Graph-owned shadow resources / device preparation — 2026-10-27
 
+Source 8916f039 (CI #877 SUCCESS) now built and installed through ADB replacement:
+232212577-byte APK, SHA256 108e3a0c076a6a370a349e5263bed445169b4ae29383ce42bdfd8bcf67bf922e.
+0 build errors / 2 warnings; package/signature/device APK hash verified. Fresh
+phone data and previous APK backed up; preferences unchanged before first launch.
+Phone keyguard still requires user unlock. New phone FPS/GC and gameplay remain
+UNMEASURED, not accepted. See the newest build/install addendum below.
+
 World shadows now have explicit mask/blur/cache-copy/composite graph nodes and
 graph-created transient textures, preserving ordered geometry ranges. Normal
 graph rendering no longer requests/releases legacy temporary shadow RTs.

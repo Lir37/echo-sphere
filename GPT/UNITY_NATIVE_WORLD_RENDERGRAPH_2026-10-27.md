@@ -2,6 +2,20 @@
 
 ## Дополнение: graph-owned shadows и подготовка телефона
 
+**Сборка/установка:** реализация 8916f039016cd7315411d28e03441ede4becf4dc,
+CI #877 SUCCESS. Unity development IL2CPP ARM64/ARMv7 APK построен за 687.156 s,
+0 errors / 2 warnings (нет RuntimePipelineConfig инструмента Pipeline; большой
+static initializer вынесен IL2CPP в отдельный cpp). Файл
+`C:\Users\toxik\Downloads\ECHO-SPHERE-8916f039-2026-10-27.apk`, 232212577 bytes,
+SHA256 `108e3a0c076a6a370a349e5263bed445169b4ae29383ce42bdfd8bcf67bf922e`.
+Подпись совпала с прежним APK. ADB install -r: SUCCESS; установленный base.apk
+имеет этот же SHA256. До первого запуска shared_prefs побайтно совпадает с
+свежим backup; данные не очищались/не восстанавливались из старых снимков.
+Пользовательские файлы сохранились по pre-build хэшам; удалена только проверенная
+автогенерация списка URP runtime settings. Телефон остаётся под keyguard: запрос
+разблокировки отправлен пользователю. **Меню/бой/FPS/GC нового билда ещё не
+проверены на телефоне**; установленная сборка не означает device acceptance.
+
 После a5c9c68e ресурсы теней вынесены из одного общего unsafe pass в отдельные
 узлы: mask MSAA4 → horizontal → vertical → optional retained-cache copy →
 ordered composite; между тенями сохраняются последовательные geometry ranges.
