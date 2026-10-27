@@ -1,5 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
+## Cold pause shell layout — 2026-10-27
+
+Pause root now contributes to shell layout while presenters warm up. Real
+Editor comparison at density 2.75: first shell layout 2.182 -> 780 logical px;
+Ready/content/limits/effects retained. Final GPU captures inspected; pixel-exact
+parity is not claimed. Android white panel remains unresolved: a stencil-less
+test reproduces a similar symptom, not a proven device cause. Experimental
+world-depth restoration was rejected and removed. Device disconnected by user;
+continue with a fresh APK and real device profiling when available.
+See UNITY_PAUSE_COLD_LAYOUT_2026-10-27.md.
+
 ## Menu avatar ownership — 2026-10-27
 
 Confirmed leftover layer: the old gradient sphere/glow remained beneath the

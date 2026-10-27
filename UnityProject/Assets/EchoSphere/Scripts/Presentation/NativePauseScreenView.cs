@@ -17,8 +17,10 @@ namespace EchoSphere.Presentation
         public NativePauseScreenView(VisualElement parent, float initialHeight)
         {
             Root = new VisualElement { name = "native-pause-screen", pickingMode = PickingMode.Ignore };
-            Root.style.position = Position.Absolute; Root.style.left = Root.style.top = 0;
-            Root.style.width = Length.Percent(100); Root.style.height = Mathf.Max(1, initialHeight);
+            // Reserve the shell's layout while its presenters warm up. An
+            // absolute root leaves an auto-sized shell only its border high.
+            Root.style.position = Position.Relative; Root.style.left = Root.style.top = 0;
+            Root.style.width = Length.Percent(100); Root.style.height = float.IsFinite(initialHeight) ? Mathf.Max(1, initialHeight) : 1;
             Root.style.minWidth = Root.style.minHeight = 0; Root.style.flexShrink = 1;
             Root.style.opacity = 0; parent.Add(Root);
             Header = Host("native-pause-screen-header", 16, 16, 12);

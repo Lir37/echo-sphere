@@ -5,6 +5,12 @@ Working branch: unity-migration
 Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 
+Cold pause update (2026-10-27):
+Shell reserves layout before content Ready. Actual Editor first layout at DPR
+2.75 is 780 px instead of 2.182 px. Final screen inspected; Android acceptance
+pending. White panel cause not proven; world-depth experiment removed.
+See GPT/UNITY_PAUSE_COLD_LAYOUT_2026-10-27.md. FPS/GC device work remains open.
+
 Avatar ownership update (2026-10-27):
 Old gradient sphere/glow behind the approved menu portrait now disabled/released
 when a Sprite exists. All 10 portraits, missing-art fallback and return checked
