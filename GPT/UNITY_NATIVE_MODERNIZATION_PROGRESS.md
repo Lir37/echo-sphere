@@ -1,5 +1,21 @@
 # ECHO SPHERE — native visual modernization
 
+## Performance implementation group — 2026-10-27
+
+Implemented bounded world-shadow composites (including cache hits), conservative
+offscreen batch culling, retained network projection, maintained simulation-type
+lists and Unity ObjectPool projectile/particle retirement at the original
+post-Update boundary. Gameplay/RNG/save schema and quality preserved.
+72 actual GPU comparisons max delta 0/255; fixture composite coverage
+8424000 -> 269319 pixels (not GPU timing). Network 64 cases / zero stable Topology
+allocation; phase ordering 7 cases; pools 21 Play checks / 50 reuse cycles.
+Production pointers 53 and populated modals 420 checks PASS, no new errors.
+C# 349 runtime + 6 Editor files / Core/parity/VisualChecks PASS. Ten preferences
+restored; user changes preserved. Full URP compositor ownership, pre-geometry
+culling, device FPS/startup strip, target queries and save/load work remain OPEN.
+Previous Downloads APK predates this group. See
+UNITY_NATIVE_PERFORMANCE_IMPLEMENTATION_2026-10-27.md.
+
 ## Re-audit and requested APK — 2026-10-27
 
 Source 34b1b885d7a0a86dad02dec25b8730ac449f15bd built successfully in Unity

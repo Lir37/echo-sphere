@@ -44,6 +44,9 @@ namespace EchoSphere.Runtime
         }
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
+            "_nativeNetworkProjection",
+            "_nativeTransientPools",
+            "_simulationTypes", "_simulationPhases",
             "_runSaveBuffers",
             "_nativeProgressionScreen", "_nativeProgressionCatalog", "_nativeProgressionPage", "_nativeProgressionWasActive", "_nativeProgressionState",
             "_nativeRegionScreen", "_nativeRegionState", "_nativeRegionWasActive",

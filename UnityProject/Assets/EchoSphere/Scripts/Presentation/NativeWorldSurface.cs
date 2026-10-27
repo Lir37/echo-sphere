@@ -31,6 +31,9 @@ namespace EchoSphere.Presentation
         private readonly List<Batch> _batchPool=new List<Batch>();private int _batchUsed;
         internal long ShadowPixelCount {get;private set;}
         internal int ShadowPassCount {get;private set;}
+        internal long ShadowCompositePixelCount {get;private set;}
+        internal int ShadowCompositeCount {get;private set;}
+        internal int CulledBatchCount {get;private set;}
         private readonly NativeWorldShadowCache _shadowCache=new NativeWorldShadowCache();
         internal int ShadowCacheHits {get;private set;}
         internal long ShadowCacheBytes=>_shadowCache.ResidentBytes;
@@ -38,6 +41,8 @@ namespace EchoSphere.Presentation
         internal bool FullShadowViewportForValidation=false;
         internal bool DisableShadowCacheForValidation=false;
         internal bool DisableInstancingForValidation=false;
+        internal bool FullShadowCompositeForValidation=false;
+        internal bool DisableBatchCullingForValidation=false;
 #endif
         private CommandBuffer _commands;private Material _blurMaterial,_presentMaterial;private RenderTexture _target,_uiTarget;private Rect _viewport;private float _dpr=1;private Vector2 _logicalSize;
         private Matrix4x4 _sourceToWorld=Matrix4x4.identity;private Shader _solidShader,_labelShader;
@@ -178,14 +183,22 @@ namespace EchoSphere.Presentation
             var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),false);
             _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
             var mask=ShadowMaskId;var ping=ShadowPingId;var blur=ShadowBlurId;
-            ShadowPixelCount=0;ShadowPassCount=0;ShadowCacheHits=0;GeometryDrawCalls=0;InstancedPrimitiveCount=0;_shadowCache.Begin();
+            ShadowPixelCount=0;ShadowPassCount=0;ShadowCompositePixelCount=0;ShadowCompositeCount=0;CulledBatchCount=0;ShadowCacheHits=0;GeometryDrawCalls=0;InstancedPrimitiveCount=0;_shadowCache.Begin();
             var pixelX=_viewport.width/_target.width;var pixelY=_viewport.height/_target.height;
             for(var i=0;i<_batches.Count;i++) {
                 var batch=_batches[i];
                 if(batch.NativeMesh==null)continue;var props=batch.NativeProperties;
+                // Reuse the conservative geometry+shadow support calculation.
+                // Unknown vertex-deforming shaders return the complete viewport
+                // and are never culled. Simulation/pose updates stay untouched.
+                var area=ShadowArea(batch);
+                bool cull=area.width<=0||area.height<=0;
+#if UNITY_EDITOR
+                if(DisableBatchCullingForValidation)cull=false;
+#endif
+                if(cull){CulledBatchCount++;continue;}
                 if(batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)) {
                     using var shadowSample=ShadowCommandsMarker.Auto();
-                    var area=ShadowArea(batch);
                     if(area.width>0&&area.height>0){
                     RenderTexture retained=null;var cacheResult=NativeWorldShadowCache.Result.Miss;
                     bool cacheAllowed=batch.NativeMaterial.shader==_solidShader&&NativeWorldShapes.GeometryVersion(batch.NativeMesh)!=0&&props.HasVector(NativeColorId);
@@ -214,7 +227,23 @@ namespace EchoSphere.Presentation
                     _commands.SetGlobalColor(ShadowColorId,batch.Shadow);
                     _commands.SetGlobalVector(ShadowOffsetId,new Vector4(batch.X/area.width,-batch.Y/area.height,0f,0f));
                     _commands.SetGlobalVector(ShadowRectId,new Vector4(-(float)area.x/area.width,-(float)area.y/area.height,(float)_target.width/area.width,(float)_target.height/area.height));
-                    _commands.Blit(retained!=null?new RenderTargetIdentifier(retained):new RenderTargetIdentifier(blur),_target,_blurMaterial,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1);
+                    // Keep the original full-target UV mapping and blend order,
+                    // but rasterize only the nonzero support of this shadow.
+                    // Include offset and bilinear/MSAA edge coverage. This also
+                    // bounds cache-hit composites, which still need blending.
+                    int marginX=Mathf.CeilToInt(Mathf.Abs(batch.X))+2,marginY=Mathf.CeilToInt(Mathf.Abs(batch.Y))+2;
+                    int left=Mathf.Clamp(area.xMin-marginX,0,_target.width),bottom=Mathf.Clamp(area.yMin-marginY,0,_target.height);
+                    int right=Mathf.Clamp(area.xMax+marginX,0,_target.width),top=Mathf.Clamp(area.yMax+marginY,0,_target.height);
+                    var composite=new Rect(left,bottom,right-left,top-bottom);
+#if UNITY_EDITOR
+                    if(FullShadowCompositeForValidation)composite=new Rect(0,0,_target.width,_target.height);
+#endif
+                    if(composite.width>0&&composite.height>0){
+                        _commands.EnableScissorRect(composite);
+                        _commands.Blit(retained!=null?new RenderTargetIdentifier(retained):new RenderTargetIdentifier(blur),_target,_blurMaterial,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1);
+                        _commands.DisableScissorRect();
+                        ShadowCompositeCount++;ShadowCompositePixelCount+=(long)composite.width*(long)composite.height;
+                    }
                     if(cacheResult!=NativeWorldShadowCache.Result.Hit){_commands.ReleaseTemporaryRT(mask);_commands.ReleaseTemporaryRT(ping);_commands.ReleaseTemporaryRT(blur);}
                     }
                     _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);

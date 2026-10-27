@@ -24,12 +24,47 @@ namespace EchoSphere.Runtime
             return 1+(cluster>0?.08*cluster:0)+(ring>0?.12*ring:0)+System.Math.Min(.20,neighbours*.03);
         }
         internal NativeWorldNetwork.Node[] ProjectNativeWorldNetworkNodes()=>_spheres.Where(sphere=>sphere!=null&&sphere.gameObject.activeInHierarchy).Select(sphere=>{var point=NativeSourcePixels(sphere.transform.position);return new NativeWorldNetwork.Node {X=point.x,Y=point.y,Charge=sphere.FormationHitCount,Pulse=sphere.ResonancePulseTimer};}).ToArray();
+        // Exact-sized arrays retain the original renderer contract (Length is
+        // the live count), while stable populations allocate nothing per frame.
+        private sealed class NativeNetworkProjectionBuffers
+        {
+            internal readonly NativeWorldNetwork.Network Network=new NativeWorldNetwork.Network();
+            internal NativeWorldNetwork.Node?[] Positions=System.Array.Empty<NativeWorldNetwork.Node?>();
+            internal NativeWorldNetwork.Link[] External=System.Array.Empty<NativeWorldNetwork.Link>();
+            private readonly NativeWorldNetwork.Formation[] _formations=new NativeWorldNetwork.Formation[7];
+            internal static void Size<T>(ref T[] values,int length){if(values==null||values.Length!=length)values=new T[length];}
+            private NativeWorldNetwork.Formation Shape(SphereNetworkState state,SphereNetworkFormation kind,int slot,int count)
+            {
+                var source=state?.GetFormation(kind);if(source==null)return null;
+                int length=0;foreach(int index in source.NodeIndexes)if(index>=0&&index<count)length++;
+                if(length<2)return null;
+                var target=_formations[slot]??(_formations[slot]=new NativeWorldNetwork.Formation());Size(ref target.Nodes,length);
+                int at=0;foreach(int index in source.NodeIndexes)if(index>=0&&index<count)target.Nodes[at++]=index;
+                target.Active=source.Active;return target;
+            }
+            internal void Topology(SphereNetworkState state,int count)
+            {
+                int internalCount=0,externalCount=0;Network.NodeCount=0;
+                if(state!=null){foreach(int index in state.Nodes)if(index>=0&&index<count)Network.NodeCount++;
+                    foreach(var link in state.Links)if(link.A>=0&&link.A<count&&link.B>=0&&link.B<count)internalCount++;else externalCount++;}
+                Size(ref Network.Links,internalCount);Size(ref External,externalCount);int a=0,b=0;
+                if(state!=null)foreach(var link in state.Links){var value=new NativeWorldNetwork.Link {A=link.A,B=link.B};if(link.A>=0&&link.A<count&&link.B>=0&&link.B<count)Network.Links[a++]=value;else External[b++]=value;}
+                Network.Line=Shape(state,SphereNetworkFormation.Line,0,count);Network.Triangle=Shape(state,SphereNetworkFormation.Triangle,1,count);
+                Network.Square=Shape(state,SphereNetworkFormation.Square,2,count);Network.Cluster=Shape(state,SphereNetworkFormation.Cluster,3,count);
+                Network.Ring=Shape(state,SphereNetworkFormation.Ring,4,count);Network.Lattice=Shape(state,SphereNetworkFormation.Lattice,5,count);Network.Fractal=Shape(state,SphereNetworkFormation.Fractal,6,count);
+            }
+        }
+        private readonly NativeNetworkProjectionBuffers _nativeNetworkProjection=new NativeNetworkProjectionBuffers();
         private void DrawNativeNetwork()
         {
-            var spheres=ProjectNativeWorldNetworkNodes();
-            var positions=spheres.Select(sphere=>(NativeWorldNetwork.Node?)new NativeWorldNetwork.Node {X=sphere.X,Y=sphere.Y}).ToList();if(GetAbilityLevel(RunUpgradeKind.Minion)>=3)foreach(var agent in _simulationAgents)if(agent is AbilityDroneAgent2D drone&&drone!=null&&drone.gameObject.activeInHierarchy){var point=NativeSourcePixels(drone.transform.position);positions.Add(new NativeWorldNetwork.Node {X=point.x,Y=point.y});}
-            var projected=ProjectNativeNetworkState(_networkState,spheres);
-            _nativeWorldNetwork.Draw(_worldSurface,projected.Network,positions.ToArray(),projected.ExternalLinks,_runTime);
+            int count=0,drones=0;bool includeDrones=GetAbilityLevel(RunUpgradeKind.Minion)>=3;
+            foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy)count++;
+            if(includeDrones)foreach(var agent in _simulationAgents)if(agent is AbilityDroneAgent2D drone&&drone!=null&&drone.gameObject.activeInHierarchy)drones++;
+            var buffer=_nativeNetworkProjection;NativeNetworkProjectionBuffers.Size(ref buffer.Network.Spheres,count);NativeNetworkProjectionBuffers.Size(ref buffer.Positions,count+drones);
+            int at=0;foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy){var point=NativeSourcePixels(sphere.transform.position);buffer.Network.Spheres[at]=new NativeWorldNetwork.Node {X=point.x,Y=point.y,Charge=sphere.FormationHitCount,Pulse=sphere.ResonancePulseTimer};buffer.Positions[at++]=new NativeWorldNetwork.Node {X=point.x,Y=point.y};}
+            if(includeDrones)foreach(var agent in _simulationAgents)if(agent is AbilityDroneAgent2D drone&&drone!=null&&drone.gameObject.activeInHierarchy){var point=NativeSourcePixels(drone.transform.position);buffer.Positions[at++]=new NativeWorldNetwork.Node {X=point.x,Y=point.y};}
+            buffer.Topology(_networkState,count);
+            _nativeWorldNetwork.Draw(_worldSurface,buffer.Network,buffer.Positions,buffer.External,_runTime);
         }
         internal static (NativeWorldNetwork.Network Network,NativeWorldNetwork.Link[] ExternalLinks) ProjectNativeNetworkState(SphereNetworkState state,NativeWorldNetwork.Node[] spheres)
         {

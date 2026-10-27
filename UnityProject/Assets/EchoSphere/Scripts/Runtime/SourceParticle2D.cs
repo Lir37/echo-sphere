@@ -20,8 +20,11 @@ namespace EchoSphere.Runtime
         {
             if (_runtime == null || _runtime.IsGameplayPaused) return;
             transform.position += (Vector3)(_velocity * dt); _velocity *= 0.95f; _life -= dt;
-            if (_life <= 0f) { Destroy(gameObject); return; }
+            if (_life <= 0f) { _runtime.RetireNativeTransient(this); return; }
+            // SaveCurrentRun also captures this color. Retain the original
+            // value even though the active world draws the typed particle view.
             _renderer.color = new Color(_color.r, _color.g, _color.b, _color.a * Mathf.Clamp01(_life / _maxLife));
         }
+        internal void ResetForNativePool(){_runtime=null;_renderer=null;}
     }
 }

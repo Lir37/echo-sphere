@@ -168,6 +168,7 @@ namespace EchoSphere.Runtime
 #endif
         private void LateUpdate()
         {
+            _nativeTransientPools?.Flush();
             try{
             if(_playerCore==null||_camera==null)return;
             #if UNITY_EDITOR

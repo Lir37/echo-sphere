@@ -2336,12 +2336,12 @@ namespace EchoSphere.Runtime
             SphereAttackAgent evolutionOwner = null, int ricochets = 0, float lifetime = 2f,
             bool allowAuthoredProcs = true, bool useEvolutionHitEffects = true, bool applyElementalStatus = true, float sourceRadius = 5f)
         {
-            var go = new GameObject("Sphere Projectile");
+            var agent = TransientPools.Projectile();
+            var go = agent.gameObject;
             go.transform.position = position;
-            var agent = go.AddComponent<ProjectileAgent>();
             agent.Initialize(this, direction, damage, color, speed, pierce, critChanceBonus,
                 evolutionOwner, ricochets, lifetime, allowAuthoredProcs, useEvolutionHitEffects, applyElementalStatus, sourceRadius);
-            var projectileVfx = go.AddComponent<ProjectileVfx2D>();
+            var projectileVfx = go.GetComponent<ProjectileVfx2D>()??go.AddComponent<ProjectileVfx2D>();
             projectileVfx.Initialize(this, direction, speed, color, evolutionOwner);
             return agent;
         }
@@ -6470,6 +6470,7 @@ namespace EchoSphere.Runtime
 
         private void PruneDestroyed()
         {
+            _simulationAgents.RemoveAll(agent=>agent==null);
             for (var i = _enemies.Count - 1; i >= 0; i--) if (_enemies[i] == null) _enemies.RemoveAt(i);
             for (var i = _spheres.Count - 1; i >= 0; i--) if (_spheres[i] == null) _spheres.RemoveAt(i);
         }
@@ -7281,6 +7282,7 @@ namespace EchoSphere.Runtime
 
         private void OnDestroy()
         {
+            _nativeTransientPools?.Dispose();_nativeTransientPools=null;
             Application.lowMemory-=OnNativeLowMemory;TraceNativeRoute("runtime-destroy");
             DisposeNativePauseStatsIsland();
             DisposeNativePauseAbilitiesIsland();

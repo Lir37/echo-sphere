@@ -9,10 +9,14 @@ namespace EchoSphere.Runtime
         public float SimulationDeltaTime { get; private set; }
         private readonly List<MonoBehaviour> _simulationAgents = new List<MonoBehaviour>();
         private readonly Dictionary<System.Type,List<MonoBehaviour>> _simulationPhases = new Dictionary<System.Type,List<MonoBehaviour>>();
+        private readonly Dictionary<System.Type,List<MonoBehaviour>> _simulationTypes = new Dictionary<System.Type,List<MonoBehaviour>>();
         public void RegisterSimulationAgent(MonoBehaviour agent)
         {
             if (agent == null || _simulationAgents.Contains(agent)) return;
             _simulationAgents.Add(agent);
+            // A newly registered agent is visible to later phases this frame.
+            // The running phase still iterates its separate immutable snapshot.
+            foreach(var entry in _simulationTypes)if(entry.Key.IsInstanceOfType(agent))entry.Value.Add(agent);
             if (agent is SourceParticle2D)
             {
                 var count = 0;
@@ -21,20 +25,24 @@ namespace EchoSphere.Runtime
                 {
                     if (count <= 220) break;
                     if (item == null || !(item is SourceParticle2D) || !item.gameObject.activeInHierarchy) continue;
-                    item.gameObject.SetActive(false); Destroy(item.gameObject); count--;
+                    item.gameObject.SetActive(false); RetireNativeTransient(item); count--;
                 }
             }
         }
         private void TickSimulationPhase<T>(float dt, bool reverse = false) where T : MonoBehaviour, ISourceSimulationAgent
         {
-            _simulationAgents.RemoveAll(agent => agent == null);
             if (!_simulationPhases.TryGetValue(typeof(T), out var phase))
                 _simulationPhases.Add(typeof(T), phase = new List<MonoBehaviour>());
+            if(!_simulationTypes.TryGetValue(typeof(T),out var members)){
+                members=new List<MonoBehaviour>();foreach(var agent in _simulationAgents)if(agent is T)members.Add(agent);
+                _simulationTypes.Add(typeof(T),members);
+            }
+            members.RemoveAll(agent=>agent==null);
             phase.Clear();
             // Snapshot BEFORE ticking: agents registered by this phase wait for
             // its next invocation, just as with FindAll. Later phases see them.
-            foreach (var agent in _simulationAgents)
-                if (agent is T && agent.gameObject.activeInHierarchy) phase.Add(agent);
+            foreach (var agent in members)
+                if (agent.gameObject.activeInHierarchy) phase.Add(agent);
             for (var i = reverse ? phase.Count - 1 : 0; reverse ? i >= 0 : i < phase.Count; i += reverse ? -1 : 1)
             {
                 var item = phase[i];

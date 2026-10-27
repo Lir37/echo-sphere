@@ -39,6 +39,7 @@ namespace EchoSphere.Runtime
             int ricochets = 0, float lifetime = 2.5f, bool allowAuthoredProcs = true,
             bool useEvolutionHitEffects = true, bool applyElementalStatus = true, float sourceRadius = 5f)
         {
+            _hitEnemyIds.Clear();_sourceElement=SphereElement.None;
             _runtime = runtime;
             _runtime.RegisterSimulationAgent(this);
             _direction = direction.sqrMagnitude <= 0.0001f ? Vector2.right : direction.normalized;
@@ -115,18 +116,19 @@ namespace EchoSphere.Runtime
                     }
                     else
                     {
-                        Destroy(gameObject);
+                        _runtime.RetireNativeTransient(this);
                         return;
                     }
                 }
                 else
                 {
-                    Destroy(gameObject);
+                    _runtime.RetireNativeTransient(this);
                     return;
                 }
             }
-            if (_life <= 0f) Destroy(gameObject);
+            if (_life <= 0f) _runtime.RetireNativeTransient(this);
         }
+        internal void ResetForNativePool(){_runtime=null;_evolutionOwner=null;_hitEnemyIds.Clear();_sourceElement=SphereElement.None;}
 
         private void TrySplitAfterHit()
         {

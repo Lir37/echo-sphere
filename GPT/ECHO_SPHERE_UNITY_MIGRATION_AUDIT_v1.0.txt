@@ -6,6 +6,14 @@ Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 Baseline CI: Android APK #1845 — SUCCESS
 
+Implementation group (2026-10-27, after re-audit):
+Bounded shadow composites, offscreen batch culling, retained network buffers,
+maintained phase lists and Unity ObjectPool projectile/particle lifetimes.
+72 real GPU cases max delta 0/255; network 64 checks, phase 7, pools 21;
+production pointer 53 and populated modals 420 checks PASS. C#/Core/parity PASS.
+No new APK/device FPS claim; full URP world ownership and broader plan remain OPEN.
+GPT/UNITY_NATIVE_PERFORMANCE_IMPLEMENTATION_2026-10-27.md
+
 Latest static re-audit / requested APK (2026-10-27):
 Source 34b1b885d7a0a86dad02dec25b8730ac449f15bd, Unity 6000.6.1f1,
 development ARM64/ARMv7 APK SUCCESS, 0 errors / 5 warnings; signature verified.
