@@ -1,5 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
+## External audit verified / frame allocations — 2026-10-27
+
+Kimi audit checked against unread-by-auditor renderer/pools/settings. Existing
+mesh batching/instancing, label dirty cache, ObjectPool, targetFrameRate 60 and
+IL2CPP confirmed. Primitive-to-UGUI rebuild and unbounded draw-call claims are
+not established. Confirmed frame allocations addressed: reusable dash, manual
+alive count, cached banner wrapping/metrics. 50 real-font parity cases PASS;
+ProfilerRecorder: 10000 cache hits 0 bytes vs 761300 bytes / 1000 reference calls.
+Not a device FPS/GC claim. Preserve graphics quality; UI/menu bottleneck pending.
+See UNITY_KIMI_AUDIT_REVIEW_2026-10-27.md.
+
 ## Cold pause shell layout — 2026-10-27
 
 Pause root now contributes to shell layout while presenters warm up. Real

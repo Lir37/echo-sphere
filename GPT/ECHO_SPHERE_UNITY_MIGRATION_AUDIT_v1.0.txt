@@ -5,6 +5,12 @@ Working branch: unity-migration
 Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 
+External-audit verification (2026-10-27):
+Confirmed dash/Count/banner frame work removed/cached with unchanged text/layout;
+50 parity cases PASS, local GC.Alloc probe validated with positive control.
+Native mesh instancing/pools, cached labels, target 60 and IL2CPP already exist.
+See GPT/UNITY_KIMI_AUDIT_REVIEW_2026-10-27.md. No graphics degradation applied.
+
 Cold pause update (2026-10-27):
 Shell reserves layout before content Ready. Actual Editor first layout at DPR
 2.75 is 780 px instead of 2.182 px. Final screen inspected; Android acceptance
