@@ -6,6 +6,17 @@ Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 Baseline CI: Android APK #1845 — SUCCESS
 
+Latest static re-audit / requested APK (2026-10-27):
+Source 34b1b885d7a0a86dad02dec25b8730ac449f15bd, Unity 6000.6.1f1,
+development ARM64/ARMv7 APK SUCCESS, 0 errors / 5 warnings; signature verified.
+Android performance after the latest alpha-shadow correction is not yet measured.
+Remaining mechanisms: full-target shadow COMPOSITE (blur is already bounded),
+custom world frame orchestration, offscreen geometry preparation, entity churn,
+network projection allocations, target scans, synchronous saves and scene reload.
+Native UI/backdrop, async list portraits and existing caches must not be rewritten
+as supposedly missing work. Audit only; source/gameplay unchanged. Details:
+GPT/UNITY_PERFORMANCE_NATIVE_REAUDIT_2026-10-27.md
+
 Latest device/correction addendum (2026-10-26, unity-migration):
 The main Unity 6000.6.1f1 native ARM64 build was installed on Xiaomi 11T.
 Actual first tutorial stages measured ~0.61 FPS; USB Profiler found dominant

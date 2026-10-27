@@ -1,5 +1,22 @@
 # ECHO SPHERE — native visual modernization
 
+## Re-audit and requested APK — 2026-10-27
+
+Source 34b1b885d7a0a86dad02dec25b8730ac449f15bd built successfully in Unity
+6000.6.1f1: development IL2CPP ARM64/ARMv7, 0 errors / 5 warnings. Verified signed
+APK copied to Downloads/ECHO-SPHERE-34b1b885-2026-10-27.apk; 232182723 bytes,
+SHA256 595f3e300fe62ff79b1fe19b7850c55e70fbd6cdb004da85a48148f1042754bf.
+Not installed or measured on phone. Initial 34 tracked local modifications preserved.
+
+New static audit distinguishes native API usage from engine-owned infrastructure.
+Confirmed remaining full-target shadow composite after bounded blur, uncullled enemy
+preparation, GameObject projectile/particle churn, network projection allocations,
+linear target queries and synchronous saves/reloads. Existing async portraits,
+native backdrop ownership, geometry/text/network caches are not missing work.
+Custom world compositor remains a URP RenderGraph candidate, not a proven cause
+of the previous dominant UI-shadow stall. No gameplay code changed in this audit.
+See UNITY_PERFORMANCE_NATIVE_REAUDIT_2026-10-27.md. Device acceptance remains OPEN.
+
 ## Latest correction — native battle UI shadows, 2026-10-26
 
 Controlled main Editor isolation at 1080x2400 / panel density 2.75: full native
