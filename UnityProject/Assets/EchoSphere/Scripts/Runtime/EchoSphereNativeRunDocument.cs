@@ -9,7 +9,7 @@ namespace EchoSphere.Runtime
         private double _nativeRunNextModel;
         private void DrawNativeRunDocument()
         {
-            if(_nativeRunDocument==null){var scene=NativeBattleSceneRoot.Find(gameObject.scene);if(scene!=null)_nativeRunDocument=scene.Document;else{var owner=new GameObject("Native Run UI Toolkit");UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(owner,gameObject.scene);_nativeRunDocument=owner.AddComponent<NativeRunDocument>();}_nativeRunDocument.Initialize(InvalidateNativeUiAnchors,()=>_pauseArtifactSetId=null);}
+            if(_nativeRunDocument==null){var scene=NativeBattleSceneRoot.Find(gameObject.scene);if(scene!=null)_nativeRunDocument=scene.Document;else{var owner=new GameObject("Native Run UI Toolkit");UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(owner,gameObject.scene);_nativeRunDocument=owner.AddComponent<NativeRunDocument>();}_nativeRunDocument.Initialize(InvalidateNativeUiAnchors,()=>_pauseArtifactSetId=null,SourceDevicePixelRatio);}
 
             var now=Time.unscaledTimeAsDouble;bool update=_sourceUi.Dirty||(!_userPaused&&now>=_nativeRunNextModel);
             if(update){_sourceUi.Dirty=false;_nativeRunNextModel=now+.1;}

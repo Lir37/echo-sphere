@@ -1,5 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
+## Android first layout / measured menu — 2026-10-27
+
+Installed 8916f039 tested on unlocked Xiaomi 11T: fixed home menu 8.69 FPS;
+performance remains unacceptable. Mixed user-navigation capture is not battle FPS.
+Phone frame journal proves initial effective density 1 followed by 2.75.
+Run panel now receives existing device density before UIDocument attachment;
+first real Editor layout at 1080x2400 / 2.75 has the expected logical dimensions.
+Device acceptance of this new initialization is pending a new APK. Android
+Profiler frames/GC remain unavailable; do not substitute Editor data.
+See UNITY_ANDROID_FIRST_LAYOUT_2026-10-27.md for evidence and limits.
+
 ## Graph-owned shadow resources / device preparation — 2026-10-27
 
 Source 8916f039 (CI #877 SUCCESS) now built and installed through ADB replacement:

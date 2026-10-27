@@ -29,10 +29,10 @@ namespace EchoSphere.Presentation
         protected virtual VisualTreeAsset SceneLayout => Resources.Load<VisualTreeAsset>("EchoSphere/NativeBattle/NativeBattle")??throw new InvalidOperationException("Native battle UXML is missing");
         private static Color C(string s){ColorUtility.TryParseHtmlString(s,out var c);return c;}
         private void Paint(VisualElement e,NativeMenuBrush.Paint p)=>_paint.Add(new NativeHudSurface(e,p));
-        public void Initialize(Action invalidate,Action closeDetail)
+        public void Initialize(Action invalidate,Action closeDetail,float initialScale=1f)
         {
             if(_document!=null)throw new InvalidOperationException("Native run document is already initialized");
-            _panelLease=new NativePanelLease(gameObject,"Native run panel",1000,SceneLayout);
+            _panelLease=new NativePanelLease(gameObject,"Native run panel",1000,SceneLayout,initialScale);
             _document=_panelLease.Document;_panel=_panelLease.Panel;
             T Require<T>(string name) where T:VisualElement=>_document.rootVisualElement.Q<T>(name)??throw new InvalidOperationException("Native battle layout is missing "+name);
             _root=Require<VisualElement>("native-run-root");

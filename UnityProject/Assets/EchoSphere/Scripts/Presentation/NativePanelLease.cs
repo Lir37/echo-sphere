@@ -13,7 +13,7 @@ namespace EchoSphere.Presentation
         private readonly PanelSettings _template;
         private bool _disposed;
 
-        internal NativePanelLease(GameObject owner,string name,int order,VisualTreeAsset layout=null)
+        internal NativePanelLease(GameObject owner,string name,int order,VisualTreeAsset layout=null,float? initialScale=null)
         {
             Document=owner.GetComponent<UIDocument>();
             if(Document!=null&&Document.panelSettings==null)
@@ -26,6 +26,9 @@ namespace EchoSphere.Presentation
                 Panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
             }
             try{
+                // UIDocument attachment can create and lay out the runtime panel.
+                // Supply the screen's density before that first attachment.
+                if(initialScale.HasValue)Panel.scale=initialScale.Value;
                 if(Document==null)Document=owner.AddComponent<UIDocument>();
                 Document.panelSettings=Panel;
                 if(layout!=null&&Document.visualTreeAsset!=layout)Document.visualTreeAsset=layout;

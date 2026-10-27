@@ -4,6 +4,13 @@ Date: 2026-10-09
 Working branch: unity-migration
 Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
+
+Android first-layout update (2026-10-27):
+Installed 8916f039 measured at 8.69 FPS in fixed home menu; not resolved.
+Initial phone battle layout uses effective density 1 before 2.75 next frame.
+Run document now initializes panel scale before attachment; Editor first-layout
+probe PASS. New APK/device validation and actual Android Profiler frames pending.
+See GPT/UNITY_ANDROID_FIRST_LAYOUT_2026-10-27.md; mixed user-input capture is not battle FPS.
 Baseline CI: Android APK #1845 — SUCCESS
 
 Graph shadow-resource update (2026-10-27):
