@@ -6,6 +6,10 @@ Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 
 Android first-layout update (2026-10-27):
+Retest: 81b2c510 / CI #879 SUCCESS built/installed. First layout correct on phone
+in two region launches; early battle still 9.00 FPS. New-run pause shows a white
+panel: unresolved blocker. Tutorial inactive; CPU/GPU/GC device capture pending.
+Historical pre-install status follows; see the result addendum in the report.
 Installed 8916f039 measured at 8.69 FPS in fixed home menu; not resolved.
 Initial phone battle layout uses effective density 1 before 2.75 next frame.
 Run document now initializes panel scale before attachment; Editor first-layout

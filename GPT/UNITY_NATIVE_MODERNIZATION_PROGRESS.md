@@ -2,6 +2,13 @@
 
 ## Android first layout / measured menu — 2026-10-27
 
+Update after installation: 81b2c510 / CI #879 SUCCESS installed with preserved
+preferences. Two phone region launches now have correct effective density 2.75
+on the first layout. Early battle still 9.00 FPS (5.110 s window). Pausing a new
+run exposed a white panel instead of content; unresolved and blocking visual
+acceptance. Tutorial inactive during this test; Android CPU/GPU/GC still pending.
+See the result addendum in UNITY_ANDROID_FIRST_LAYOUT_2026-10-27.md.
+
 Installed 8916f039 tested on unlocked Xiaomi 11T: fixed home menu 8.69 FPS;
 performance remains unacceptable. Mixed user-navigation capture is not battle FPS.
 Phone frame journal proves initial effective density 1 followed by 2.75.
