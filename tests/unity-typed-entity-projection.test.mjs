@@ -12,7 +12,7 @@ test('live Unity entity projection uses typed accessors rather than private-fiel
   assert.ok(start >= 0 && end > start);
   const method = source.slice(start, end);
   assert.doesNotMatch(method, /RenderField\(/);
-  for (const key of ['SourceProjectionOrbitalContactCheckTimer', 'SourceProjectionCreatureVisual', 'SourceProjectionDirection', 'SourceProjectionHitRadius', 'SourceProjectionMaxLife']) {
+  for (const key of ['SourceProjectionOrbitalContactCheckTimer', 'SourceVisualVariant', 'SourceProjectionDirection', 'SourceProjectionHitRadius', 'SourceProjectionMaxLife']) {
     assert.ok(method.includes(key), 'missing typed projection accessor: ' + key);
   }
   assert.match(read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), /SourceProjectionBossCombat => _bossCombat/);
