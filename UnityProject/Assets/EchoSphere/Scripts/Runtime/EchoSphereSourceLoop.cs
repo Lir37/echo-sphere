@@ -108,8 +108,6 @@ namespace EchoSphere.Runtime
             ColorUtility.TryParseHtmlString(htmlColor, out var color);
             var particle=TransientPools.Particle();var go=particle.gameObject;go.transform.position=position;
             go.transform.localScale = Vector3.one * (size * 2f * SpherePlacementRules.SourcePixelsToWorld);
-            var renderer = go.GetComponent<SpriteRenderer>();
-            renderer.color = color; renderer.sortingOrder = 24;
             particle.Initialize(this, sourceVelocity * SpherePlacementRules.SourcePixelsToWorld, life, color, maxLife,size);
         }
         private void SpawnSourceSplitChildren(EnemyAgent2D parent, bool elite)

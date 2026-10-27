@@ -10,6 +10,9 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
+        private static bool EntitySnapshotField(FieldInfo field) =>
+            !(field.DeclaringType == typeof(EnemyAgent2D) && field.Name == "_visualVariant") &&
+            !(field.DeclaringType == typeof(SourceParticle2D) && field.Name == "_savedColor");
         private const string RunSnapshotKey = "echosphere_active_run_v1";
         private float _runSaveAccumulator;
         private sealed class RunSaveBuffers
@@ -19,7 +22,7 @@ namespace EchoSphere.Runtime
             private readonly Dictionary<int,SnapshotValue> _states=new Dictionary<int,SnapshotValue>();
             private readonly HashSet<int> _seen=new HashSet<int>();private readonly List<int> _stale=new List<int>();
             internal void Begin(){LiveEnemies.Clear();_seen.Clear();}
-            internal SnapshotValue Capture(MonoBehaviour agent){int id=agent.ExistingObjectId();_seen.Add(id);_states.TryGetValue(id,out var state);state=RunSnapshotCodec.CaptureRetained(agent,state);_states[id]=state;return state;}
+            internal SnapshotValue Capture(MonoBehaviour agent){int id=agent.ExistingObjectId();_seen.Add(id);_states.TryGetValue(id,out var state);state=RunSnapshotCodec.CaptureRetained(agent,state,EntitySnapshotField);_states[id]=state;return state;}
             internal void End(){_stale.Clear();foreach(var pair in _states)if(!_seen.Contains(pair.Key))_stale.Add(pair.Key);foreach(int id in _stale)_states.Remove(id);_stale.Clear();}
         }
         private readonly RunSaveBuffers _runSaveBuffers=new RunSaveBuffers();
@@ -141,14 +144,13 @@ namespace EchoSphere.Runtime
                     if (agent is EnemyAgent2D enemy && !enemy.IsAlive) continue;
                     var sprite = agent.GetComponentInChildren<SpriteRenderer>();
                     var entity = new SavedEntity { kind = type.Name, name = agent.name, position = agent.transform.position,
-                        scale = agent.transform.localScale, color = sprite != null ? sprite.color : Color.white,
+                        scale = agent.transform.localScale, color = agent is SourceParticle2D particleColor ? particleColor.SavedColor : sprite != null ? sprite.color : Color.white,
                         state = _runSaveBuffers.Capture(agent) };
                     if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner)
                     { entity.hasProjectileOwner = true; entity.projectileOwnerIndex = liveEnemies.IndexOf(bullet.SourceOwner); }
                     if (agent is EnemyAgent2D)
                     {
-                        var creature = agent.GetComponent<EnemyCreatureVisual2D>();
-                        entity.variant = creature == null ? "wisp" : creature.SourceVariant;
+                        entity.variant = ((EnemyAgent2D)agent).SourceVisualVariant;
                         var boss = agent.GetComponent<BossCombatAgent2D>();
                         if (boss != null) entity.auxiliary = _runSaveBuffers.Capture(boss);
                     }
@@ -237,6 +239,8 @@ namespace EchoSphere.Runtime
                     if (entity.hasProjectileOwner && entity.projectileOwnerIndex >= 0 && entity.projectileOwnerIndex < _enemies.Count) bullet.SetSourceOwner(_enemies[entity.projectileOwnerIndex]);
                     agent = bullet;
                 }
+                else if (entity.kind == nameof(SourceParticle2D))
+                { var particle = go.AddComponent<SourceParticle2D>(); particle.Initialize(this, Vector2.zero, 1f, entity.color); agent = particle; }
                 else if (entity.kind == nameof(StellaChestAgent2D))
                 { var chest = go.AddComponent<StellaChestAgent2D>(); chest.Initialize(this, entity.position); agent = chest; }
                 else
@@ -259,15 +263,11 @@ namespace EchoSphere.Runtime
                             RunSnapshotCodec.Read(state, "_remaining", 1f), RunSnapshotCodec.Read(state, "_branch", ""), RunSnapshotCodec.Read(state, "_final", ""), RunSnapshotCodec.Read(state, "_ordinal", 0));
                         _abilityDrones.Add(drone); agent = drone;
                     }
-                    else if (entity.kind == nameof(SourceParticle2D))
-                    {
-                        sprite.sortingOrder = 24;
-                        var particle = go.AddComponent<SourceParticle2D>(); particle.Initialize(this, Vector2.zero, 1f, entity.color); agent = particle;
-                    }
                 }
             }
             if (agent == null) throw new FormatException("Unknown run entity " + entity.kind);
             RunSnapshotCodec.Restore(state, agent.GetType(), agent);
+            if (agent is SourceParticle2D restoredParticle) restoredParticle.RestoreSavedColor(entity.color);
             if (agent is ProjectileAgent projectile) projectile.ResetRestoredSourceReferences();
             agent.transform.position = entity.position; agent.transform.localScale = entity.scale;
         }

@@ -26,7 +26,7 @@ namespace EchoSphere.Runtime
                 _removeRetired=agent=>agent==null||_retiring.Contains(agent);
                 _projectiles=new ObjectPool<ProjectileAgent>(()=>Create<ProjectileAgent>("Sphere Projectile"),null,p=>p.gameObject.SetActive(false),DestroyOwned,false,32,256);
                 _particles=new ObjectPool<SourceParticle2D>(()=>{
-                    var particle=Create<SourceParticle2D>("Source Particle");var renderer=particle.gameObject.AddComponent<SpriteRenderer>();renderer.sprite=RuntimeSpriteFactory.Disc;renderer.sortingOrder=24;return particle;
+                    return Create<SourceParticle2D>("Source Particle");
                 },null,p=>p.gameObject.SetActive(false),DestroyOwned,false,32,220);
             }
             private T Create<T>(string name) where T:MonoBehaviour

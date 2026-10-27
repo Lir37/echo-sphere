@@ -12,7 +12,10 @@ namespace EchoSphere.Runtime
         internal float SourceProjectionRotation => _sourceVisualRotation;
         internal float SourceProjectionLinkBreakerTelegraphTimer => _linkBreakerTelegraphTimer;
         internal SphereAttackAgent SourceProjectionLinkBreakerTarget => _linkBreakerTarget;
-        internal EnemyCreatureVisual2D SourceProjectionCreatureVisual => _creatureVisual;
+        // The visual variant belongs to the entity, including when no view exists.
+        // SavedEntity.variant remains the persisted representation.
+        private string _visualVariant = "wisp";
+        internal string SourceVisualVariant => _visualVariant;
         internal BossCombatAgent2D SourceProjectionBossCombat => _bossCombat;
         private EchoSphereRuntime _runtime;
         private Transform _player;
@@ -40,7 +43,6 @@ namespace EchoSphere.Runtime
         public void SetSourceRadius(float radius)
         {
             _sourceRadiusOverride = radius;
-            if (_creatureVisual != null) _creatureVisual.RefreshSourceRadius();
         }
         private float _roleActionTimer;
         private EnemyArchetype _archetype = EnemyArchetype.Normal;
@@ -66,8 +68,6 @@ namespace EchoSphere.Runtime
         private SphereId? _freezeVulnerabilitySource, _elementalConductionSource;
         private int _elementalConduction;
         private Color _baseColor = Color.white;
-        private EnemyCreatureVisual2D _creatureVisual;
-        private BossPresentationVfx2D _bossPresentation;
         private BossCombatAgent2D _bossCombat;
         private string _bossType = "";
         public bool IsMarked => _markTimer > 0f;
@@ -85,12 +85,6 @@ namespace EchoSphere.Runtime
         public float MovementSlowMultiplier => _slowTimer > 0f ? _slowMultiplier : 1f;
         public void SetBossCombat(BossCombatAgent2D combat) { _bossCombat = combat; }
 
-        public void SetBossPresentationState(float shootTimer, float summonTimer, float chargeTimer,
-            bool isCharging, Vector2 chargeDirection, float auraRadius)
-        {
-            if (_bossPresentation != null)
-                _bossPresentation.SetCombatState(shootTimer, summonTimer, chargeTimer, isCharging, chargeDirection, auraRadius);
-        }
         public float CurrentHp => Mathf.Max(0f, _hp);
         public bool IsAlive => !_dead && _hp > 0f;
         public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
@@ -219,17 +213,11 @@ namespace EchoSphere.Runtime
                 _slowMultiplier = Mathf.Min(_slowMultiplier, status.AdditionalSlowMultiplier);
             }
             if (_runtime != null) _runtime.TryTriggerAlchemistReaction(this);
-            RefreshElementalStatusVfx();
         }
 
         public AlchemistReactionKind GetAlchemistReactionKind() =>
             AlchemistReactionRules.Resolve(HasFireStatus, HasFreezeStatus, HasPoisonStatus);
 
-        private void RefreshElementalStatusVfx()
-        {
-            if (_creatureVisual != null)
-                _creatureVisual.SetStatusVfx(_fireTimer, _poisonTimer, _freezeTimer);
-        }
 
         public void ConsumeAlchemistReaction(AlchemistReactionKind kind)
         {
@@ -259,7 +247,6 @@ namespace EchoSphere.Runtime
             _fireDps = 0f;
             _fireTickTimer = 0f;
             _fireTickInterval = 0f;
-            RefreshElementalStatusVfx();
         }
 
         private void ClearFreezeStatus()
@@ -267,7 +254,6 @@ namespace EchoSphere.Runtime
             _freezeTimer = 0f;
             _freezeVulnerabilityTimer = 0f;
             _freezeVulnerabilitySource = null;
-            RefreshElementalStatusVfx();
         }
 
         private void ClearPoisonStatus()
@@ -276,7 +262,6 @@ namespace EchoSphere.Runtime
             _poisonDps = 0f;
             _poisonTickTimer = 0f;
             _poisonTickInterval = 0f;
-            RefreshElementalStatusVfx();
         }
 
         public bool TryAdvanceElementalConduction(SphereId source, int threshold, float cooldown)
@@ -314,7 +299,6 @@ namespace EchoSphere.Runtime
             if (_dead) return;
             _markTimer = Mathf.Max(_markTimer, Mathf.Max(0f, duration));
             if (_shell != null) _shell.color = new Color(0.5f, 0.82f, 1f, 1f);
-            if (_creatureVisual != null) _creatureVisual.SetMarked(true);
         }
 
         public void ApplySlow(float duration, float multiplier)
@@ -328,14 +312,12 @@ namespace EchoSphere.Runtime
         {
             if (_dead) return;
             _freezeTimer = Mathf.Max(_freezeTimer, Mathf.Max(0f, duration));
-            RefreshElementalStatusVfx();
         }
 
         public void SetFreezeDuration(float duration)
         {
             if (_dead) return;
             _freezeTimer = Mathf.Max(0f, duration);
-            RefreshElementalStatusVfx();
         }
 
         public void KnockBackFrom(Vector2 center, float distance)
@@ -392,15 +374,7 @@ namespace EchoSphere.Runtime
             _shell = transform.Find("Shell")?.GetComponent<SpriteRenderer>();
             if (_shell != null) _baseColor = _shell.color;
             if (_eliteVariant == "linkbreaker") EnsureLinkBreakerLines();
-            _creatureVisual = GetComponent<EnemyCreatureVisual2D>();
-            if (_creatureVisual == null) _creatureVisual = gameObject.AddComponent<EnemyCreatureVisual2D>();
-            _creatureVisual.Initialize(_runtime, visualVariant, bossType, _baseColor);
-            if (!string.IsNullOrEmpty(bossType))
-            {
-                _bossPresentation = GetComponent<BossPresentationVfx2D>();
-                if (_bossPresentation == null) _bossPresentation = gameObject.AddComponent<BossPresentationVfx2D>();
-                _bossPresentation.Initialize(_runtime, this, bossType, _baseColor);
-            }
+            _visualVariant = string.IsNullOrEmpty(visualVariant) ? "wisp" : visualVariant;
         }
 
         public void SimulationTick(float dt)
@@ -460,7 +434,6 @@ namespace EchoSphere.Runtime
                 if (_poisonTimer <= 0f) { _poisonDps = 0f; _poisonTickInterval = 0f; _poisonTickTimer = 0f; }
             }
 
-            RefreshElementalStatusVfx();
 
             if (_markTimer > 0f)
             {
@@ -468,13 +441,11 @@ namespace EchoSphere.Runtime
                 if (_markTimer <= 0f)
                 {
                     if (_shell != null) _shell.color = _baseColor;
-                    if (_creatureVisual != null) _creatureVisual.SetMarked(false);
                 }
             }
             if (_freezeTimer > 0f)
             {
                 _freezeTimer = Mathf.Max(0f, _freezeTimer - dt);
-                RefreshElementalStatusVfx();
                 return;
             }
             if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - dt);
@@ -483,7 +454,6 @@ namespace EchoSphere.Runtime
             if (_bossCombat != null)
             {
                 _bossCombat.Tick(_runtime.SimulationDeltaTime);
-                if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
                 return;
             }
             var toPlayer = target - (Vector2)transform.position;
@@ -495,7 +465,6 @@ namespace EchoSphere.Runtime
             if (_eliteVariant == "phantom_hunter" && distanceToPlayer > 180f * SpherePlacementRules.SourcePixelsToWorld) speedMultiplier *= 1.35f;
             if (_eliteVariant == "scavenger_prime" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
             transform.position += (Vector3)(directionToPlayer * _moveSpeed * speedMultiplier * dt);
-            if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
             if (_role == "leech" && distanceToPlayer < 160f * SpherePlacementRules.SourcePixelsToWorld)
                 _hp = Mathf.Min(_maxHp, _hp + 3f * dt);
 
@@ -602,7 +571,7 @@ namespace EchoSphere.Runtime
         private void RefreshReceivedDamageVisuals()
         {
             if (_shell != null) _shell.color = IsMarked ? new Color(0.5f, 0.82f, 1f, 1f) : _baseColor;
-            _sourceHitFlash=.15f; if (_creatureVisual != null) _creatureVisual.PulseHit();
+            _sourceHitFlash = .15f;
             _runtime.SpawnImpact(transform.position, new Color(1f, 0.26f, 0.34f));
         }
         private void FinishReceivedDamage(SphereId? sourceSphere, SphereAttackAgent owner = null, float damage = 0f)

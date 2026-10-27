@@ -51,7 +51,6 @@ const required = [
   'Assets/EchoSphere/Scripts/Runtime/ArtifactChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
-  'Assets/EchoSphere/Scripts/Runtime/BossPresentationVfx2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs',
   'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs',
   'Assets/EchoSphere/Scripts/Runtime/EngineerRelayVfx2D.cs',
@@ -164,41 +163,13 @@ assert.equal(
   'GetSphereAuthoredModifierLevel must have exactly one declaration (CS0111 regression guard)',
 );
 
-const creatureVisualPath = 'Assets/EchoSphere/Scripts/Runtime/EnemyCreatureVisual2D.cs';
-assert.ok(existsSync(join(root, creatureVisualPath)), 'source-mapped enemy creature visual port is missing');
-const creatureVisual = readFileSync(join(root, creatureVisualPath), 'utf8');
-const sourceEnemyRenderer = readFileSync(join(root, '..', 'src/renderer.ts'), 'utf8');
-assert.ok(creatureVisual.includes('src/enemies/enemyVisual.ts') && creatureVisual.includes('DrawCreature') && creatureVisual.includes('DrawBoss'), 'enemy visual must retain explicit source mapping');
-const sourceCreatureVisual = readFileSync(join(root, '..', 'src/enemies/enemyVisual.ts'), 'utf8');
-assert.ok(sourceEnemyRenderer.includes('e.radius*(e.isBoss?1.65:1.15)') && sourceEnemyRenderer.includes('alpha * 0.16') && sourceEnemyRenderer.includes('alpha * 0.55') && sourceCreatureVisual.includes('glow(ctx,r*2.15,color,.065)') && sourceCreatureVisual.includes('glow(ctx,r*2.55,color,.085)'), 'active Canvas enemy renderer must retain the authored outer and creature glow contracts');
-assert.ok(creatureVisual.includes('private const float HitFlashDuration = 0.15f;') && creatureVisual.includes('_hitFlash = HitFlashDuration;') && creatureVisual.includes('var hit = Mathf.Clamp01(_hitFlash / HitFlashDuration);'), 'Unity enemy hit feedback must preserve the source 0.15-second flash window');
-assert.ok(creatureVisual.includes('transform.position.x / SpherePlacementRules.SourcePixelsToWorld') && creatureVisual.includes('Mathf.Sin(_time * 5f + sourceX * 0.01f) * 0.025f') && creatureVisual.includes('hit * 0.05f'), 'enemy presentation must reproduce source breathing and hit scale without changing gameplay transforms');
-assert.ok(creatureVisual.includes('DrawSourceOuterGlow(_p, R * 1.65f, c, 0.21f)') && creatureVisual.includes('DrawSourceOuterGlow(_p, R * 1.15f, c, 0.10f)') && creatureVisual.includes('if (hit > 0f) DrawHitFlash(_p, hit);') && !creatureVisual.includes('_hitFlash / 0.09f'), 'Unity enemy glow/hit overlay must follow active renderer variants rather than tinting the full body');
-assert.ok(sourceEnemyRenderer.includes('function drawEnemyStatusVfx') && sourceEnemyRenderer.includes('if(e.fireTimer>0){') && sourceEnemyRenderer.includes('if(e.poisonTimer>0){') && sourceEnemyRenderer.includes('if(e.freezeTimer>0){'), 'active Canvas enemy renderer must retain all three elemental status VFX paths');
-assert.ok(creatureVisual.includes('SetStatusVfx(float fireRemaining, float poisonRemaining, float freezeRemaining)') && creatureVisual.includes('DrawElementalStatusVfx') && creatureVisual.includes('if (burning)') && creatureVisual.includes('if (poisoned)') && creatureVisual.includes('if (frozen)'), 'Unity enemy visuals must render fire, poison and freeze only while the corresponding source status is active');
-assert.ok(creatureVisual.includes('new Color(105f / 255f, 214f / 255f, 1f, 1f)') && creatureVisual.includes('r * 1.12f') && creatureVisual.includes('r * .72f') && creatureVisual.includes('r * (2.2f + pulse * 1.4f) / pixelsPerRadius'), 'Unity status VFX must retain source freeze tint, ice arc ellipse and fire particle scaling');
-const enemyAgentVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
-assert.ok(enemyAgentVfx.includes('RefreshElementalStatusVfx()') && enemyAgentVfx.includes('_creatureVisual.SetStatusVfx(_fireTimer, _poisonTimer, _freezeTimer)'), 'elemental status VFX must follow live combat state and clear when Alchemist reactions consume statuses');
-for (const variant of ['wisp', 'leech', 'serpent', 'skitter', 'moth', 'beetle', 'brute', 'prism', 'stalker', 'linkbreaker']) assert.ok(creatureVisual.includes('case "' + variant + '"'), 'source creature variant missing: ' + variant);
-for (const boss of ['shooter', 'charger', 'summoner']) assert.ok(creatureVisual.includes('case "' + boss + '"'), 'source boss silhouette missing: ' + boss);
-assert.ok(creatureVisual.includes('Mesh') && creatureVisual.includes('Legs(') && creatureVisual.includes('Gradient('), 'creatures require mesh paths, gait and layered glow');
-assert.ok(creatureVisual.includes('PathScratch') && creatureVisual.includes('_shapeScratch') && creatureVisual.includes('MarkDynamic'), 'animated creature mesh must reuse path/shape buffers');
-assert.equal((creatureVisual.match(/new List<Vector2>/g) || []).length, 2, 'per-frame creature rendering must keep exactly two reusable vector buffers');
-assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(creatureVisual), 'presentation animation must not consume run RNG');
-
-const bossPresentationPath = 'Assets/EchoSphere/Scripts/Runtime/BossPresentationVfx2D.cs';
-assert.ok(existsSync(join(root, bossPresentationPath)), 'source-mapped boss presentation VFX is missing');
-const bossPresentation = readFileSync(join(root, bossPresentationPath), 'utf8');
-assert.ok(bossPresentation.includes('renderer.ts') && bossPresentation.includes('drawBossAttackTelegraph'), 'boss overlay must map to the live Canvas renderer path');
-assert.ok(creatureVisual.includes('DrawBoss(_p, R, c, _time, _bossType)') && !creatureVisual.includes('DrawBoss(_p, R * 1.15f'), 'boss visual radius must not add a second scale over the source-calibrated 34 px root radius');
-assert.ok(bossPresentation.includes('Mathf.Abs(transform.localScale.x) * 0.48f') && !bossPresentation.includes('* 0.48f * 1.15f') && bossPresentation.includes('radius + 0.60f'), 'boss HUD/telegraph scale and nameplate offset must follow the corrected source boss radius');
-for (const boss of ['shooter', 'charger', 'summoner', 'aura']) assert.ok(bossPresentation.includes('"' + boss + '"'), 'live-source boss telegraph missing: ' + boss);
-for (const label of ['VOID LANCER', 'BREACHER', 'BROOD MIND', 'AURA TITAN']) assert.ok(bossPresentation.includes(label), 'boss nameplate mapping missing: ' + label);
-assert.ok(bossPresentation.includes('SetCombatState') && bossPresentation.includes('MaxHp') && bossPresentation.includes('CurrentHp'), 'boss HUD must receive runtime attack state and health');
-assert.ok(bossPresentation.includes('MarkDynamic') && bossPresentation.includes('_vertices.Clear()') && bossPresentation.includes('_triangles.Clear()'), 'boss overlay must reuse dynamic-mesh buffers');
-assert.equal((bossPresentation.match(/transform\.localScale\.x\) \* 0\.48f/g) || []).length, 2, 'boss nameplate and HP bar must use the source-calibrated 34 px root radius');
-assert.ok(!bossPresentation.includes('* 0.48f * 1.15f'), 'boss overlays must not keep the removed prototype radius multiplier');
-assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(bossPresentation), 'boss presentation must not consume gameplay RNG');
+const nativeEnemyView = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Presentation/NativeWorldEnemyView.cs'), 'utf8');
+const nativeCreatures = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Presentation/NativeWorldCreatures.cs'), 'utf8');
+const nativeWorld = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeWorld.cs'), 'utf8');
+assert.ok(nativeEnemyView.includes('DrawEnemy') && nativeEnemyView.includes('DrawBossSignal') && nativeEnemyView.includes('DrawStatus'), 'active enemy view must retain body, boss and status presentation');
+assert.ok(nativeEnemyView.includes('e.HitFlash/.15') && nativeCreatures.includes('NativeWorldShapes.Tessellate'), 'active enemy view must preserve hit timing and authored vector geometry');
+assert.ok(nativeWorld.includes('enemy.SourceVisualVariant'), 'enemy variant must come from the gameplay entity');
+for (const retired of ['EnemyCreatureVisual2D.cs', 'BossPresentationVfx2D.cs']) assert.ok(!existsSync(join(root, 'Assets/EchoSphere/Scripts/Runtime', retired)), 'retired presentation must not return: ' + retired);
 
 const sphereVisualPath = 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs';
 assert.ok(existsSync(join(root, sphereVisualPath)), 'source-mapped Sphere family VFX component is missing');
@@ -461,8 +432,7 @@ const evolutionRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/S
 assert.ok(sphereAttack.includes('VisualRotation') && sphereAttack.includes('targetDelta.y'), 'Sphere emitter presentation must track target direction without altering combat');
 const projectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ProjectileAgent.cs'), 'utf8');
 const enemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
-assert.ok(enemy.includes('SetFacing(target - (Vector2)transform.position)') && enemy.includes('SetMarked(true)') && enemy.includes('PulseHit()'), 'enemy visual must track facing and source mark/hit feedback');
-assert.ok(enemy.includes('_bossPresentation.Initialize(_runtime, this, bossType, _baseColor)') && enemy.includes('SetBossPresentationState'), 'boss presentation must bind runtime and EnemyAgent2D');
+assert.ok(enemy.includes('SourceProjectionHitFlash') && enemy.includes('_sourceHitFlash = .15f') && enemy.includes('IsMarked'), 'enemy must expose live mark/hit state to its retained view');
 const bossRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/BossCombatRules.cs'), 'utf8');
 for (const boss of ['shooter','charger','summoner','aura','conductor','architect','null','stella_warden']) assert.ok(bossRules.includes('"' + boss + '"'), 'canonical boss roster missing: ' + boss);
 assert.ok(bossRules.includes('GetTypeForDefeatedCount') && bossRules.includes('GetMaxHp') && bossRules.includes('GetMoveSpeedWorldUnitsPerSecond'), 'source boss balance rules missing');

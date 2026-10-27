@@ -225,7 +225,6 @@ namespace EchoSphere.Runtime
 
         private void PushPresentationState()
         {
-            if (_agent != null) _agent.SetBossPresentationState(_shootTimer, _summonTimer, _chargeTimer, _isCharging, _chargeDirection, _auraRadius);
         }
 
         private static Color ParseColor(string value) => ColorUtility.TryParseHtmlString(value, out var color) ? color : Color.white;

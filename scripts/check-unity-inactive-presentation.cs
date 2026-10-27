@@ -11,8 +11,7 @@ try{
     var elemental=fixture.AddComponent<EchoSphere.Runtime.SourceElementalVisual2D>();elemental.Initialize(runtime,null);
     var standard=fixture.AddComponent<EchoSphere.Runtime.StandardSphereAttackVfx2D>();standard.Initialize(runtime,null);
     var projectile=fixture.AddComponent<EchoSphere.Runtime.ProjectileVfx2D>();projectile.Initialize(runtime,UnityEngine.Vector2.right,4,UnityEngine.Color.white,null);
-    var boss=fixture.AddComponent<EchoSphere.Runtime.BossPresentationVfx2D>();boss.Initialize(runtime,null,"shooter",UnityEngine.Color.white);
-    foreach(var component in new UnityEngine.Behaviour[]{player,elemental,standard,projectile,boss}){
+    foreach(var component in new UnityEngine.Behaviour[]{player,elemental,standard,projectile}){
         if(component.enabled)throw new System.Exception(component.GetType().Name+" still updates");
         foreach(var field in component.GetType().GetFields(flags))if((typeof(UnityEngine.Mesh).IsAssignableFrom(field.FieldType)||typeof(UnityEngine.Material).IsAssignableFrom(field.FieldType))&&field.GetValue(component)!=null)throw new System.Exception(component.GetType().Name+" allocated "+field.Name);
     }
@@ -38,7 +37,7 @@ try{
         UnityEditor.EditorApplication.update-=callback;
         UnityEditor.EditorApplication.isPaused=wasPaused;
         foreach(var star in stars)if(star!=null){UnityEditor.SessionState.SetString("EchoInactivePresentationCheck","FAIL: star survived owner destruction");return;}
-        UnityEditor.SessionState.SetString("EchoInactivePresentationCheck","PASS: five inactive producers, no mesh/material/render children, setters safe; 210 world-space stars owned and destroyed");
+        UnityEditor.SessionState.SetString("EchoInactivePresentationCheck","PASS: four inactive producers, no mesh/material/render children, setters safe; 210 world-space stars owned and destroyed");
     };
     UnityEditor.EditorApplication.update+=callback;
     UnityEditor.EditorApplication.isPaused=false;
