@@ -23,6 +23,8 @@ namespace EchoSphere.Presentation
             public void Dispose(){Destroy(Fill);Destroy(Stroke);}
         }
         private readonly Dictionary<(int,double,double,PathEnding,PathCorner,float),Art> _art=new Dictionary<(int,double,double,PathEnding,PathCorner,float),Art>();
+        private readonly NativeCharacterArtwork.Lease _portraitLease=new NativeCharacterArtwork.Lease();
+        private string _portraitId;private INativeWorldSprite _portrait;
         private readonly Material _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native player silhouette",hideFlags=HideFlags.DontSave};
         private readonly Material _core=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldPlayerCore")){name="Native player core",hideFlags=HideFlags.DontSave};
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();private int _used;
@@ -46,7 +48,8 @@ namespace EchoSphere.Presentation
         internal void Draw(NativeWorldSurface surface,State p,NativeWorldSprites sprites,NativeWorldCreatures shadows,Func<string,INativeWorldSprite> resolve)
         {
             _surface=surface;double r=p.Radius,t=p.Time,pulse=1+Math.Sin(t*5.5)*.025;var root=T(p.X,p.Y-r*.1+Math.Sin(t*2.4)*.8,sx:pulse,sy:pulse);shadows.DrawGroundShadow(surface,r*.95,r*.25,root);
-            var characterArt=NativeCharacterArtwork.Resolve(p.Character);
+            if(_portraitId!=p.Character){_portraitId=p.Character;_portrait=_portraitLease.Select(p.Character);}
+            var characterArt=_portrait;
             if(p.Character=="spherist"){
                 double dt=_lastTime>=0?Math.Max(.001,t-_lastTime):.016,vx=(p.X-_lastX)/dt,vy=(p.Y-_lastY)/dt;_lastX=p.X;_lastY=p.Y;_lastTime=t;
                 bool death=p.Hp<=0,hit=p.ContactCooldown>0,shield=p.ShieldTimer>0||p.ShieldCharges>0,moving=!death&&!hit&&!shield&&(p.DashTimer>0||Math.Sqrt(vx*vx+vy*vy)>.06);
@@ -90,6 +93,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){foreach(var art in _art.Values)art.Dispose();_art.Clear();foreach(var art in _dynamic)art.Dispose();_dynamic.Clear();Destroy(_solid);Destroy(_core);}
+        public void Dispose(){_portrait=null;_portraitLease.Dispose();foreach(var art in _art.Values)art.Dispose();_art.Clear();foreach(var art in _dynamic)art.Dispose();_dynamic.Clear();Destroy(_solid);Destroy(_core);}
     }
 }

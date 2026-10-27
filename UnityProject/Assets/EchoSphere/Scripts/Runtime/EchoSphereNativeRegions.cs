@@ -60,7 +60,7 @@ namespace EchoSphere.Runtime
             PlayerPrefs.SetString("echo-sphere:pending_region_challenge",challenge);
             PlayerPrefs.SetInt("echo-sphere:pending_region_endless",mode=="endless"?1:0);
             PlayerPrefs.SetInt("echo-sphere:start_selected_region_after_reload",1);
-            PlayerPrefs.Save();SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            PlayerPrefs.Save();NativeRoutes.LoadRegionScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 }

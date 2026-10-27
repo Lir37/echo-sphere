@@ -19,6 +19,7 @@ namespace EchoSphere.Presentation
         private readonly Image _avatarImage;
         private readonly Label _avatarGlyph;
         private readonly Image _characterPortrait;
+        private readonly NativeCharacterArtwork.Lease _portraitLease=new NativeCharacterArtwork.Lease();
         private string _portraitId;
         private bool _hasPortrait;
         private readonly List<Surface> _surfaces=new List<Surface>();
@@ -68,7 +69,7 @@ namespace EchoSphere.Presentation
         public void SetCharacter(string id)
         {
             if(_portraitId==id)return;_portraitId=id;
-            var art=NativeCharacterArtwork.Resolve(id);_characterPortrait.sprite=art?.Sprite;
+            _characterPortrait.sprite=null;var art=_portraitLease.Select(id);_characterPortrait.sprite=art?.Sprite;
             _hasPortrait=_characterPortrait.sprite!=null;
             // The approved portrait replaces the old sphere, including its glow.
             // Keep that sphere only as a fallback when no portrait is available.
@@ -165,7 +166,7 @@ namespace EchoSphere.Presentation
             if(_disposed)return;_disposed=true;
             foreach(var node in _observed){node.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);if(node is Button){node.UnregisterCallback<PointerEnterEvent>(PointerChanged);node.UnregisterCallback<PointerLeaveEvent>(PointerChanged);}}
             foreach(var surface in _surfaces){surface.Glass?.Dispose();surface.Image?.RemoveFromHierarchy();surface.Brush.Dispose();}
-            _avatarImage.RemoveFromHierarchy();_avatarGlyph.RemoveFromHierarchy();_characterPortrait.RemoveFromHierarchy();_avatar?.Dispose();_artwork.Dispose();_background.Dispose();
+            _avatarImage.RemoveFromHierarchy();_avatarGlyph.RemoveFromHierarchy();_characterPortrait.sprite=null;_characterPortrait.RemoveFromHierarchy();_portraitLease.Dispose();_avatar?.Dispose();_artwork.Dispose();_background.Dispose();
         }
     }
 }

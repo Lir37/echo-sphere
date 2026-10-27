@@ -46,3 +46,50 @@ Preflight обновлён: проверяет действующий NativeWorl
 
 Отдельные статусы: compile PASS; fixture PASS; полный Play lifecycle pending;
 Android performance pending; CI фиксируется по фактическому опубликованному SHA.
+
+## Группа 2 — постоянные представления и меню
+
+Реализован реестр mutable view resources по владельцу врага: сегменты,
+динамическая геометрия, property blocks и boss labels больше не смещаются между
+врагами при удалении соседа. Общие неизменяемые формы остаются общими. Умершие
+владельцы освобождаются на следующей границе кадров; запас до 64 наборов
+переиспользуется, избыток уничтожается. Новое рождение получает новый owner.
+Цифры урона закреплены за SourceDamageNumber; отработанные labels возвращаются
+в пул (до 256 неактивных), вместо создания Font/Mesh/Material на каждое событие.
+
+Карточки персонажей обновляют selected/unlocked, XP, progress, action и toggle
+на месте. Раскрытое mastery дерево сохраняется при сворачивании; меняющиеся
+mastery данные обновляют только этот раздел. Тяжёлая GPU-подготовка по-прежнему
+ограничивается NativeHudSurface.InViewport; все десять лёгких контейнеров остаются.
+
+Портреты имеют явные leases у главного меню, игрового персонажа и карточек.
+Selected владельцы удерживают ресурс; offscreen/hide карточки снимают ссылки.
+Последний owner удаляет cache entry и запрашивает Resources.UnloadAsset для
+индивидуального Sprite/Texture. Async completion без владельцев также очищается.
+Проверка ownership/cache прошла, но реальная освобождённая память телефона не
+измерена. NativeWorldSprites очищает mesh entries выгруженных Sprite.
+
+Регион запускает SceneManager.LoadSceneAsync через существующего владельца
+маршрута с защитой повторного запуска. PlayerPrefs handoff и создание нового
+забега прежние. Полный телефонный cold region launch остаётся открытым.
+
+### Проверка группы 2
+
+- Реальный Editor Play: 16 проверок retained cards, selection/XP/mastery,
+  hide/show и сохранения тех же экземпляров карточек PASS.
+- 4 проверки portrait lease: sharing, удержание вторым владельцем, удаление
+  cache entry последним, повторная загрузка PASS. Native wrapper Sprite может
+  жить после UnloadAsset; это не проверка точного времени освобождения GPU.
+- 7 проверок ресурсов: identity, переживший сосед, event label identity,
+  retirement и повторное использование набора PASS.
+- 140 GPU enemy/culling comparisons max delta 0/255, 350 envelopes,
+  1 904 832 vertices проверены. Текущие immutable geometry/визуал сохранены.
+- Production pointer 53 checks PASS; populated modal lifecycle 420 checks /
+  270 frames / 9 stages PASS, 0 новых Console errors.
+- 272 Node regression tests PASS; C# Android/editor 0 errors/warnings.
+- Первая публикация группы 1 имела CI #886 failure из-за старого имени property
+  в source regression test. Тест актуализирован; edc6dcf4 прошёл CI #887 SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/40582198788 .
+
+Полная деформация с сохранённой топологией, атласы теней, spatial queries,
+чистка оставшегося reference слоя и device acceptance всё ещё OPEN.

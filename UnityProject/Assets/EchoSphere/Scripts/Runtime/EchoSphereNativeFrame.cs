@@ -75,7 +75,7 @@ namespace EchoSphere.Runtime
         {
             bool crit=number.critical;string element=number.element,color=crit?"#ffd166":element=="fire"?"#ff5a36":element=="freeze"?"#69d6ff":element=="poison"?"#72f08e":"#e8f6ff";var point=NativeSourcePixels(number.position);
             _worldSurface.SetOpacity(Math.Min(1,(double)number.life/number.maxLife*1.5));_worldSurface.Shadow=NativeFrameColor(crit?"#b8860b":color);_worldSurface.ShadowBlur=0;
-            _nativeWorldFeedback.Text(NativeCharacterCanvasText(NativePresentationMath.NumberText(number.value)),point.x,point.y,NativeMutationColor(color),crit?20:14);
+            _nativeWorldFeedback.EventText(number,NativeCharacterCanvasText(NativePresentationMath.NumberText(number.value)),point.x,point.y,NativeMutationColor(color),crit?20:14);
         }
         private void DrawNativeFrameOverlay(NativeFrameInputs frame,double w,double h,double shakeX,double shakeY)
         {

@@ -12,7 +12,9 @@ namespace EchoSphere.Presentation
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();private int _used;
         private readonly Material _material;
         internal NativeWorldSprites(){var shader=Resources.Load<Shader>("EchoSphere/NativeWorldSprite");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Native world sprite shader unavailable");_material=new Material(shader){name="Native world sprites",hideFlags=HideFlags.DontSave};}
-        internal void BeginFrame(){_used=0;}
+        private readonly List<Sprite> _expired=new List<Sprite>();
+        internal void BeginFrame(){_used=0;_expired.Clear();foreach(var sprite in _meshes.Keys)if(sprite==null)_expired.Add(sprite);
+            foreach(var sprite in _expired){UnityEngine.Object.Destroy(_meshes[sprite]);_meshes.Remove(sprite);}}
         internal bool Draw(NativeWorldSurface surface,INativeWorldSprite image,double x,double y,double size,double rotation,double opacity,bool part,bool mirrorX,bool mirrorY,Matrix4x4? parent=null,bool forceOver=false,bool additive=false)
         {
             if(image?.Sprite==null)return false;var sprite=image.Sprite;var texture=sprite.texture;

@@ -28,11 +28,31 @@ namespace EchoSphere.Presentation
             public void Dispose(){Destroy(Fill);Destroy(Stroke);}
         }
         private readonly Dictionary<(int,double,double,double,PathEnding,PathCorner,float),Art> _art=new Dictionary<(int,double,double,double,PathEnding,PathCorner,float),Art>();
-        private readonly List<Art> _segments=new List<Art>();
-        private readonly List<Art> _dynamic=new List<Art>();
-        private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();
+        private sealed class ViewResources : IDisposable
+        {
+            internal readonly List<Art> Segments=new List<Art>(),Dynamic=new List<Art>();
+            internal readonly List<MaterialPropertyBlock> Properties=new List<MaterialPropertyBlock>();
+            internal readonly List<NativeWorldLabel> Labels=new List<NativeWorldLabel>();
+            internal int Used,SegmentUsed,DynamicUsed,LabelUsed;
+            internal ulong Frame;
+            internal void Reset(ulong frame){Used=SegmentUsed=DynamicUsed=LabelUsed=0;Frame=frame;}
+            public void Dispose(){foreach(var art in Segments)art.Dispose();foreach(var art in Dynamic)art.Dispose();foreach(var label in Labels)label.Dispose();Segments.Clear();Dynamic.Clear();Properties.Clear();Labels.Clear();}
+        }
+        private readonly ViewResources _defaultView=new ViewResources();
+        private ViewResources _activeView;
+        private readonly Dictionary<object,ViewResources> _entityViews=new Dictionary<object,ViewResources>();
+        private readonly Stack<ViewResources> _freeEntityViews=new Stack<ViewResources>();
+        private readonly List<object> _expiredViews=new List<object>();
+        private ulong _viewFrame;
+        internal int RetainedEntityCount=>_entityViews.Count;
+        private ViewResources EntityView(object identity)
+        {
+            if(identity==null)return _defaultView;
+            if(!_entityViews.TryGetValue(identity,out var view)){view=_freeEntityViews.Count>0?_freeEntityViews.Pop():new ViewResources();_entityViews.Add(identity,view);}
+            if(view.Frame!=_viewFrame)view.Reset(_viewFrame);
+            return view;
+        }
         private readonly Material _solid,_radial;
-        private int _used,_segmentUsed,_dynamicUsed;
         private NativeWorldSurface _surface;
         internal int CulledBodyCount {get;private set;}
 #if UNITY_EDITOR
@@ -42,13 +62,19 @@ namespace EchoSphere.Presentation
 
         internal NativeWorldCreatures()
         {
+            _activeView=_defaultView;
             _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native creature anatomy",hideFlags=HideFlags.DontSave};
             _radial=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldCreatureGlow")){name="Native creature glows",hideFlags=HideFlags.DontSave};
         }
-        internal void BeginFrame(){_used=0;_segmentUsed=0;_dynamicUsed=0;_labelUsed=0;CulledBodyCount=0;}
+        internal void BeginFrame()
+        {
+            _viewFrame++;_defaultView.Reset(_viewFrame);_activeView=_defaultView;CulledBodyCount=0;
+            _expiredViews.Clear();foreach(var pair in _entityViews)if(pair.Value.Frame+1<_viewFrame)_expiredViews.Add(pair.Key);
+            foreach(var identity in _expiredViews){var view=_entityViews[identity];if(_freeEntityViews.Count<64)_freeEntityViews.Push(view);else view.Dispose();_entityViews.Remove(identity);}
+        }
         private Art Dynamic(BezierContour contour,double width=0,bool fill=true)
         {
-            if(_dynamicUsed==_dynamic.Count)_dynamic.Add(new Art());var art=_dynamic[_dynamicUsed++];art.Build(contour,(float)width,_surface.NativeStrokeEnding,_surface.NativeStrokeCorner,_surface.NativeStrokeMiter,fill);return art;
+            if(_activeView.DynamicUsed==_activeView.Dynamic.Count)_activeView.Dynamic.Add(new Art());var art=_activeView.Dynamic[_activeView.DynamicUsed++];art.Build(contour,(float)width,_surface.NativeStrokeEnding,_surface.NativeStrokeCorner,_surface.NativeStrokeMiter,fill);return art;
         }
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Matrix4x4 T(double x=0,double y=0,double angle=0,double sx=1,double sy=1)=>Matrix4x4.TRS(new Vector3((float)x,(float)y,0),Quaternion.Euler(0,0,(float)angle*Mathf.Rad2Deg),new Vector3((float)sx,(float)sy,1));
@@ -56,7 +82,7 @@ namespace EchoSphere.Presentation
         private static Color A(Color c,double a){c.a=(float)a;return c;}
         private MaterialPropertyBlock Properties(Color c)
         {
-            if(_used==_properties.Count)_properties.Add(new MaterialPropertyBlock());var p=_properties[_used++];p.Clear();p.SetVector("_NativeColor",new Vector4(c.r,c.g,c.b,c.a));return p;
+            if(_activeView.Used==_activeView.Properties.Count)_activeView.Properties.Add(new MaterialPropertyBlock());var p=_activeView.Properties[_activeView.Used++];p.Clear();p.SetVector("_NativeColor",new Vector4(c.r,c.g,c.b,c.a));return p;
         }
         private void Paint(Art art,Matrix4x4 transform,Color? fill,Color? stroke,float? opacity=null,bool additive=false,bool forceOver=false,Color? shadow=null,float shadowBlur=0)
         {
@@ -114,7 +140,7 @@ namespace EchoSphere.Presentation
                 // of the stroke width and no quantization of animated paths.
                 var key=(901,len,w,Math.Max(.7,w*.09),ending,corner,miter);
                 if(!_art.TryGetValue(key,out art)){art=new Art();art.Build(Quadratic(P(0,-w*.34),true,P(len*.48,-w*.48),P(len,-w*.10),P(len*.62,w*.42),P(0,w*.30)),(float)key.Item4,ending,corner,miter,fill:false);art.Length=len;art.Width=w;art.Ending=ending;art.Corner=corner;art.Miter=miter;_art.Add(key,art);}
-            }else{if(_segmentUsed==_segments.Count)_segments.Add(new Art());art=_segments[_segmentUsed++];}
+            }else{if(_activeView.SegmentUsed==_activeView.Segments.Count)_activeView.Segments.Add(new Art());art=_activeView.Segments[_activeView.SegmentUsed++];}
             if(art.Stroke==null||art.Length!=len||art.Width!=w||art.Ending!=ending||art.Corner!=corner||art.Miter!=miter){art.Build(Quadratic(P(0,-w*.34),true,P(len*.48,-w*.48),P(len,-w*.10),P(len*.62,w*.42),P(0,w*.30)),(float)Math.Max(.7,w*.09),ending,corner,miter,fill:false);art.Length=len;art.Width=w;art.Ending=ending;art.Corner=corner;art.Miter=miter;}
             // Every fill control X is proportional to length. Share a canonical
             // filled mesh and animate its X transform instead of retriangulating
@@ -164,6 +190,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){foreach(var art in _art.Values)art.Dispose();foreach(var art in _segments)art.Dispose();foreach(var art in _dynamic)art.Dispose();_art.Clear();_segments.Clear();_dynamic.Clear();foreach(var label in _bossLabels)label.Dispose();_bossLabels.Clear();Destroy(_solid);Destroy(_radial);}
+        public void Dispose(){foreach(var art in _art.Values)art.Dispose();_art.Clear();_defaultView.Dispose();foreach(var view in _entityViews.Values)view.Dispose();_entityViews.Clear();_expiredViews.Clear();foreach(var view in _freeEntityViews)view.Dispose();_freeEntityViews.Clear();Destroy(_solid);Destroy(_radial);}
     }
 }

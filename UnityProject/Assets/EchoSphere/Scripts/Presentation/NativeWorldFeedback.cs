@@ -15,8 +15,14 @@ namespace EchoSphere.Presentation
         private readonly Material _backgroundMaterial=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldFrameBackground")){name="Native frame background",hideFlags=HideFlags.DontSave};
         private readonly MaterialPropertyBlock _backgroundProperties=new MaterialPropertyBlock();private double _width=-1,_height=-1;
         private readonly List<Art> _art=new List<Art>();private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();private readonly List<NativeWorldLabel> _labels=new List<NativeWorldLabel>();
+        private sealed class EventLabel {internal NativeWorldLabel Label;internal ulong Frame;}
+        private readonly Dictionary<object,EventLabel> _eventLabels=new Dictionary<object,EventLabel>();
+        private readonly Stack<NativeWorldLabel> _freeEventLabels=new Stack<NativeWorldLabel>();
+        private readonly List<object> _expiredLabels=new List<object>();private ulong _frame;
         private int _used,_labelUsed;private NativeWorldSurface _surface;
-        internal void BeginFrame(NativeWorldSurface surface){_used=0;_labelUsed=0;_surface=surface;}
+        internal void BeginFrame(NativeWorldSurface surface){_used=0;_labelUsed=0;_surface=surface;_frame++;
+            _expiredLabels.Clear();foreach(var pair in _eventLabels)if(pair.Value.Frame+1<_frame)_expiredLabels.Add(pair.Key);
+            foreach(var key in _expiredLabels){var label=_eventLabels[key].Label;if(_freeEventLabels.Count<256)_freeEventLabels.Push(label);else label.Dispose();_eventLabels.Remove(key);}}
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Color C(int r,int g,int b,double a=1)=>new Color(r/255f,g/255f,b/255f,(float)a);
         private static Matrix4x4 T(double x=0,double y=0,double angle=0)=>Matrix4x4.TRS(new Vector3((float)x,(float)y,0),Quaternion.Euler(0,0,(float)(angle*180/Math.PI)),Vector3.one);
@@ -65,8 +71,13 @@ namespace EchoSphere.Presentation
         }
         internal float Measure(string text,float logicalSize)
         {int size=Mathf.Max(1,Mathf.CeilToInt(logicalSize));var font=SourceCanvasTypography.ResolveFamily("system-ui,sans-serif",size);return SourceCanvasTypography.Width(font,text,size,FontStyle.Bold)*logicalSize/size;}
+        internal void EventText(object identity,string text,double x,double y,Color color,float size)
+        {
+            if(!_eventLabels.TryGetValue(identity,out var entry)){entry=new EventLabel {Label=_freeEventLabels.Count>0?_freeEventLabels.Pop():new NativeWorldLabel()};_eventLabels.Add(identity,entry);}
+            entry.Frame=_frame;entry.Label.Draw(_surface,text,P(x,y),color,fontSize:size,inheritBlend:true,inheritShadow:true,baseline:_surface.NativeTextBaseline);
+        }
         internal void Text(string text,double x,double y,Color color,float size)
         {if(_labelUsed==_labels.Count)_labels.Add(new NativeWorldLabel());_labels[_labelUsed++].Draw(_surface,text,P(x,y),color,fontSize:size,inheritBlend:true,inheritShadow:true,baseline:_surface.NativeTextBaseline);}
-        public void Dispose(){foreach(var art in _art)if(art.Mesh!=null)UnityEngine.Object.Destroy(art.Mesh);foreach(var label in _labels)label.Dispose();UnityEngine.Object.Destroy(_solid);UnityEngine.Object.Destroy(_background);UnityEngine.Object.Destroy(_backgroundMaterial);}
+        public void Dispose(){foreach(var entry in _eventLabels.Values)entry.Label.Dispose();_eventLabels.Clear();_expiredLabels.Clear();foreach(var label in _freeEventLabels)label.Dispose();_freeEventLabels.Clear();foreach(var art in _art)if(art.Mesh!=null)UnityEngine.Object.Destroy(art.Mesh);foreach(var label in _labels)label.Dispose();UnityEngine.Object.Destroy(_solid);UnityEngine.Object.Destroy(_background);UnityEngine.Object.Destroy(_backgroundMaterial);}
     }
 }

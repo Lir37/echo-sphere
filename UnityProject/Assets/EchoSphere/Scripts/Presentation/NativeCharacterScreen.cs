@@ -26,6 +26,7 @@ namespace EchoSphere.Presentation
         private readonly List<Button> _buttons=new List<Button>();
         private readonly List<VisualElement> _cards=new List<VisualElement>();
         private readonly List<(Image image,string id)> _portraits=new List<(Image,string)>();
+        private readonly NativeCharacterArtwork.Lease _portraitLease=new NativeCharacterArtwork.Lease();
         private State _state;private Action _back;private Action<string> _choose,_expand;
         private bool _visible,_narrow,_restoreScroll;private int _geometryFrame;private Vector2 _pendingScroll;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
@@ -89,12 +90,12 @@ namespace EchoSphere.Presentation
             var row=Box(choose,"character-main",true);row.style.alignItems=Align.FlexStart;
             var glyph=Box(row,"character-glyph");glyph.style.width=glyph.style.height=44;glyph.style.marginRight=12;glyph.style.alignItems=Align.Center;glyph.style.justifyContent=Justify.Center;Border(glyph,12);Paint(glyph,new NativeMenuBrush.Paint {Radius=12,Border=1,Fill=C("#081522"),BorderColor=C("#243b55")});
             var image=new Image {name="character-portrait",scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};image.style.position=Position.Absolute;image.style.left=image.style.right=image.style.top=image.style.bottom=0;image.style.opacity=character.Unlocked?1:.35f;glyph.Add(image);_portraits.Add((image,character.Id));
-            if(!character.Unlocked)Icon(glyph,"Lock",18,C(character.Color));
+            Icon(glyph,"Lock",18,C(character.Color)).style.display=character.Unlocked?DisplayStyle.None:DisplayStyle.Flex;
             var copy=Box(row,"character-copy");copy.style.flexGrow=1;copy.style.flexShrink=1;
             var nameRow=Box(copy,"character-name-row",true);nameRow.style.justifyContent=Justify.SpaceBetween;nameRow.style.alignItems=Align.Center;
             var names=Box(nameRow,"character-name-group");names.style.flexGrow=1;names.style.flexShrink=1;
             Text(names,"character-name",character.Name,16,"#e8f8ff","700",true);var role=Text(names,"character-role",character.Role,10,"#7f9bb8");role.style.letterSpacing=5;
-            if(character.Selected)Icon(nameRow,"Check",18,C("#63e6ff"));
+            Icon(nameRow,"Check",18,C("#63e6ff")).style.display=character.Selected?DisplayStyle.Flex:DisplayStyle.None;
             Text(copy,"character-description",character.Description,_narrow?10:12,"#dcecff","400",true,1.625).style.marginTop=8;
             var affinities=Box(copy,"character-affinities",true);affinities.style.flexWrap=Wrap.Wrap;affinities.style.marginTop=8;
             foreach(var affinity in character.Affinities){var tag=Box(affinities,"character-affinity");tag.style.marginRight=6;tag.style.marginBottom=6;tag.style.paddingLeft=tag.style.paddingRight=8;tag.style.paddingTop=tag.style.paddingBottom=4;Border(tag,999);var color=C(affinity.Color);Paint(tag,new NativeMenuBrush.Paint {Radius=999,Border=1,Fill=new Color(color.r,color.g,color.b,18f/255),BorderColor=new Color(color.r,color.g,color.b,102f/255)});Text(tag,"affinity-copy",affinity.Text,9,"#bfeeff");}
@@ -103,7 +104,7 @@ namespace EchoSphere.Presentation
             Text(summary,"mastery-label",character.MasteryLabel,10,"#7f9bb8","400",true).style.flexShrink=1;Text(summary,"mastery-xp",character.MasteryXp,10,"#7f9bb8");
             var track=Box(mastery,"mastery-track");track.style.height=6;track.style.marginTop=4;track.style.overflow=Overflow.Hidden;track.style.borderTopLeftRadius=track.style.borderTopRightRadius=track.style.borderBottomLeftRadius=track.style.borderBottomRightRadius=999;track.style.backgroundColor=A(36,59,85,.7f);
             var fill=Box(track,"mastery-fill");fill.style.width=Length.Percent(character.MasteryPercent);fill.style.height=Length.Percent(100);fill.style.backgroundColor=C("#39d8ff");
-            if(character.Unlocked){var toggle=Button(card,"expand-"+character.Id,()=>_expand?.Invoke(character.Id));toggle.style.marginTop=12;toggle.style.alignItems=Align.FlexStart;Text(toggle,"mastery-toggle",character.Toggle.ToUpperInvariant(),10,"#63e6ff","700");}
+            {var toggle=Button(card,"expand-"+character.Id,()=>_expand?.Invoke(character.Id));toggle.style.display=character.Unlocked?DisplayStyle.Flex:DisplayStyle.None;toggle.style.marginTop=12;toggle.style.alignItems=Align.FlexStart;Text(toggle,"mastery-toggle",character.Toggle.ToUpperInvariant(),10,"#63e6ff","700");}
             if(character.Unlocked&&character.Expanded)Masteries(card,character);
             var action=Text(card,"character-action",character.Action, _narrow?10:12,character.Unlocked?"#63e6ff":"#ffb84d","700");action.style.marginTop=12;action.style.unityTextAlign=TextAnchor.MiddleRight;
         }
@@ -133,37 +134,39 @@ namespace EchoSphere.Presentation
         {
             // Prioritize the actual viewport over the prefetch margin.
             for(int pass=0;pass<2;pass++)foreach(var portrait in _portraits){
-                if(portrait.image.sprite!=null||!NativeHudSurface.InViewport(portrait.image,pass==0?0:200))continue;
-                var art=NativeCharacterArtwork.ResolveAsync(portrait.id);if(art!=null)portrait.image.sprite=art.Sprite;
+                if(!NativeHudSurface.InViewport(portrait.image,pass==0?0:200)){if(pass==1){portrait.image.sprite=null;_portraitLease.Release(portrait.id);}continue;}
+                if(portrait.image.sprite!=null)continue;
+                var art=_portraitLease.Retain(portrait.id,true);if(art!=null)portrait.image.sprite=art.Sprite;
             }
         }
         private void UpdateCards(State previous)
         {
             _heading.Q<Label>("character-gold").text=_state.Gold;
             for(int i=0;i<_state.Characters.Count;i++){
-                if(NativeMenuRetainedState.Same(previous.Characters[i],_state.Characters[i]))continue;
-                var old=_cards[i];int index=_body.IndexOf(old);
-                // Glass and button lists share registration order. Detach the
-                // filter owners before disposing their source artwork.
-                for(int j=_buttons.Count-1;j>=0;j--)if(old.Contains(_buttons[j])){_glass[j].Dispose();_glass.RemoveAt(j);_buttons.RemoveAt(j);}
-                for(int j=_surfaces.Count-1;j>=0;j--)if(_surfaces[j].Host==old||old.Contains(_surfaces[j].Host)){_surfaces[j].Dispose();_surfaces.RemoveAt(j);}
-                for(int j=_portraits.Count-1;j>=0;j--)if(old.Contains(_portraits[j].image))_portraits.RemoveAt(j);
-                old.RemoveFromHierarchy();int firstButton=_buttons.Count;Card(_state.Characters[i]);
-                var replacement=_cards[_cards.Count-1];_cards.RemoveAt(_cards.Count-1);_cards[i]=replacement;_body.Insert(index,replacement);
-                for(int j=firstButton;j<_buttons.Count;j++)_glass.Add(new NativeMenuGlass(_buttons[j],8));
+                var character=_state.Characters[i];var old=previous.Characters[i];
+                if(NativeMenuRetainedState.Same(old,character))continue;
+                var card=_cards[i];
+                card.Q("character-glyph").Q("icon-Lock").style.display=character.Unlocked?DisplayStyle.None:DisplayStyle.Flex;
+                card.Q("character-name-row").Q("icon-Check").style.display=character.Selected?DisplayStyle.Flex:DisplayStyle.None;
+                card.Q<Image>("character-portrait").style.opacity=character.Unlocked?1:.35f;
+                card.Q<Label>("mastery-label").text=character.MasteryLabel;
+                card.Q<Label>("mastery-xp").text=character.MasteryXp;
+                card.Q("mastery-fill").style.width=Length.Percent(character.MasteryPercent);
+                card.Q("expand-"+character.Id).style.display=character.Unlocked?DisplayStyle.Flex:DisplayStyle.None;
+                card.Q<Label>("mastery-toggle").text=character.Toggle.ToUpperInvariant();
+                var action=card.Q<Label>("character-action");action.text=character.Action;action.style.color=C(character.Unlocked?"#63e6ff":"#ffb84d");
+                var details=card.Q("mastery-details");
+                bool detailChanged=!NativeMenuRetainedState.Same(old.Masteries,character.Masteries)||old.Complete!=character.Complete||old.NextLabel!=character.NextLabel||old.NextTitle!=character.NextTitle||old.NextDescription!=character.NextDescription;
+                if(details!=null&&detailChanged){
+                    for(int j=_surfaces.Count-1;j>=0;j--)if(_surfaces[j].Host==details||details.Contains(_surfaces[j].Host)){_surfaces[j].Dispose();_surfaces.RemoveAt(j);}
+                    details.RemoveFromHierarchy();details=null;
+                }
+                if(details==null&&character.Unlocked&&character.Expanded){Masteries(card,character);details=card.Q("mastery-details");details.PlaceBehind(action);}
+                if(details!=null)details.style.display=character.Unlocked&&character.Expanded?DisplayStyle.Flex:DisplayStyle.None;
             }
-            var buttons=new List<Button>();var glass=new List<NativeMenuGlass>();
-            void Visit(VisualElement node){
-#if UNITY_EDITOR
-                if(node.userData is SourceUiBackdrop.ClipTag||ReferenceEquals(node.userData,SourceUiBackdrop.ReplicaTag))return;
-#endif
-                if(node is Button button){int index=_buttons.IndexOf(button);if(index>=0){buttons.Add(button);glass.Add(_glass[index]);}}
-                for(int i=0;i<node.hierarchy.childCount;i++)Visit(node.hierarchy[i]);
-            }
-            Visit(_root);_buttons.Clear();_buttons.AddRange(buttons);_glass.Clear();_glass.AddRange(glass);
         }
-        private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var paint in _surfaces)paint.Dispose();_surfaces.Clear();_buttons.Clear();_cards.Clear();_portraits.Clear();_heading.Clear();_message.Clear();_body.Clear();}
-        public void Hide(){if(!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
+        private void Clear(){foreach(var portrait in _portraits)portrait.image.sprite=null;_portraitLease.Dispose();foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var paint in _surfaces)paint.Dispose();_surfaces.Clear();_buttons.Clear();_cards.Clear();_portraits.Clear();_heading.Clear();_message.Clear();_body.Clear();}
+        public void Hide(){if(!_visible)return;_visible=false;foreach(var portrait in _portraits)portrait.image.sprite=null;_portraitLease.Dispose();NativeMenuRetainedState.Visible(_root,false);}
         private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();_panelLease?.Dispose();}
     }
 }

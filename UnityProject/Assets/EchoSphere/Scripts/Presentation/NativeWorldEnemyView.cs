@@ -19,8 +19,6 @@ namespace EchoSphere.Presentation
         }
         private sealed class Facing {internal double X,Y,Angle,Travel,Time,AnatomyTime,Motion;}
         private readonly ConditionalWeakTable<object,Facing> _facing=new ConditionalWeakTable<object,Facing>();
-        private readonly List<NativeWorldLabel> _bossLabels=new List<NativeWorldLabel>();
-        private int _labelUsed;
         private static double Clamp(double value)=>Math.Max(0,Math.Min(1,value));
         private Art Multi(int kind,double radius,double width,Func<BezierContour[]> create)
         {
@@ -60,6 +58,11 @@ namespace EchoSphere.Presentation
         }
         internal void DrawEnemy(NativeWorldSurface surface,EnemyView e,double t)
         {
+            var previous=_activeView;_activeView=EntityView(e.Identity);
+            try{DrawOwnedEnemy(surface,e,t);}finally{_activeView=previous;}
+        }
+        private void DrawOwnedEnemy(NativeWorldSurface surface,EnemyView e,double t)
+        {
             _surface=surface;double facing=FacingAngle(e,t),poseTime=_facing.GetOrCreateValue(e.Identity).AnatomyTime,hit=Clamp(e.HitFlash/.15),pulse=1+Math.Sin(poseTime*5+e.X*.01)*.025,scale=pulse+hit*.05;var root=T(e.X,e.Y,facing,scale,scale);var statusColor=e.Freeze?C(105,214,255):e.Color;
             // All current body/limb/wing/tail controls and status glyphs fit
             // inside 4r+32, including stroke miters and minimum-size details.
@@ -83,7 +86,7 @@ namespace EchoSphere.Presentation
             if(!bodyVisible){CulledBodyCount++;_gaitActive=false;}
 
             if(e.Boss){double w=Math.Max(110,e.Radius*1.55),ratio=Clamp(e.Hp/Math.Max(1,e.MaxHp)),x=e.X-w/2,y=e.Y-e.Radius-30;var bar=Get(46,w,6,1,()=>Poly(Vector2.zero,P(w,0),P(w,6),P(0,6)));Paint(bar,T(x,y),C(2,7,18,.88),null,shadow:statusColor);Paint(bar,T(x,y,sx:ratio),statusColor,null,shadow:statusColor);Paint(bar,T(x,y),null,C(220,250,255,.68),shadow:statusColor);
-                if(_labelUsed==_bossLabels.Count)_bossLabels.Add(new NativeWorldLabel());_bossLabels[_labelUsed++].Draw(surface,e.BossName,P(e.X,y-4),C(230,250,255,.78),statusColor,true);}
+                if(_activeView.LabelUsed==_activeView.Labels.Count)_activeView.Labels.Add(new NativeWorldLabel());_activeView.Labels[_activeView.LabelUsed++].Draw(surface,e.BossName,P(e.X,y-4),C(230,250,255,.78),statusColor,true);}
 
         }
     }

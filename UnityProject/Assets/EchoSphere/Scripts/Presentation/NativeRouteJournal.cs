@@ -12,6 +12,13 @@ namespace EchoSphere.Presentation
         private readonly Queue<string> _events=new Queue<string>(64);
         private bool _seen,_menu,_region,_paused;private int _page,_tutorial;private SceneHandle _scene;
         internal bool RegionLaunchPending;
+        private AsyncOperation _regionLoad;
+        internal void LoadRegionScene(int buildIndex)
+        {
+            if(_regionLoad!=null)return;
+            try{_regionLoad=SceneManager.LoadSceneAsync(buildIndex,LoadSceneMode.Single);if(_regionLoad==null)throw new System.InvalidOperationException("Region scene load did not start");}
+            catch{RegionLaunchPending=false;throw;}
+        }
         internal string[] Events=>_events.ToArray();
         internal void Observe(int runtime,SceneHandle scene,bool menu,bool region,int page,int tutorial,bool paused,string reason)
         {
