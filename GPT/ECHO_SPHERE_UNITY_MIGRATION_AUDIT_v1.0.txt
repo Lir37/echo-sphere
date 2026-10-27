@@ -5,6 +5,11 @@ Working branch: unity-migration
 Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
 Protected baseline branch: new-desing
 
+Latest APK (2026-10-27):
+Source 14f319a4 / CI #884 SUCCESS, Editor build 0 errors / 5 warnings.
+Downloads/ECHO-SPHERE-14f319a4-2026-10-27.apk ready, signed/ABI checked; not installed.
+Contains portrait, pause initial layout, dash/count/banner changes; device blockers open.
+
 External-audit verification (2026-10-27):
 Confirmed dash/Count/banner frame work removed/cached with unchanged text/layout;
 50 parity cases PASS, local GC.Alloc probe validated with positive control.

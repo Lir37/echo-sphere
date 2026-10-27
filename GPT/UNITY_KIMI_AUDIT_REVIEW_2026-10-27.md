@@ -1,5 +1,28 @@
 # Сверка внешнего аудита с фактическим кодом
 
+## Свежая сборка для последующей проверки
+
+Source 14f319a4e17e9501b20101cfa0d33c7dced03712, CI #884 SUCCESS:
+https://github.com/Lir37/echo-sphere/actions/runs/40570188552.
+APK собран реальным Editor за 328.662 s, 0 errors / 5 warnings.
+Файл C:\Users\toxik\Downloads\ECHO-SPHERE-14f319a4-2026-10-27.apk,
+232218457 bytes, SHA256
+b322baa7236bfe6406fc830a4c945484bc918e2f07bfb33729e6ae4ec4befe6d.
+Подпись совпадает с известным предыдущим APK; package и ARM64/ARMv7 проверены.
+Телефон отключён, установки/новых device measurements не было.
+Содержит исправления портрета, cold pause layout и frame allocations.
+
+Warnings: отсутствует RuntimePipelineConfig инструмента Pipeline; большой
+Core static initializer вынесен IL2CPP в отдельный cpp; 3 shader warnings
+SourceUiSurfaceFilters Blur (GLES3/Vulkan/DX12). Shader уже явно инициализирует
+result/total; причина warnings не установлена. Он используется также в native
+menu artwork, поэтому считать его неиспользуемым только по имени Source нельзя.
+Эти warnings не выданы за причину белой панели/тормозов.
+Изменённые сборкой QualitySettings восстановлены до точных pre-build bytes;
+два tracked configure_fingerprint.bin из пользовательского .utmp коммита
+сохранены в evidence и восстановлены до pre-build Git версии. Пользовательский
+коммит a50bbbf4 и его содержимое не удалялись. Core 1383 / parity 47389 PASS.
+
 Проверена unity-migration после пользовательского коммита a50bbbf4
 (новые изменения/артефакты не откатывались). Внешний аудитор явно не прочитал
 NativeWorldSurface, transient pools и настройки; его гипотезы не являются замерами.

@@ -1,5 +1,13 @@
 # ECHO SPHERE — native visual modernization
 
+## Latest APK ready, device absent — 2026-10-27
+
+14f319a4 / CI #884 SUCCESS built in Editor, 328.662 s, 0 errors / 5 warnings.
+Downloads/ECHO-SPHERE-14f319a4-2026-10-27.apk (232218457 bytes), signature verified.
+Includes portrait replacement, cold pause layout, cached banner/dash/count work.
+Not installed: user continues without phone. Android white panel / low FPS remain
+open. Detailed receipt/warnings in UNITY_KIMI_AUDIT_REVIEW_2026-10-27.md.
+
 ## External audit verified / frame allocations — 2026-10-27
 
 Kimi audit checked against unread-by-auditor renderer/pools/settings. Existing

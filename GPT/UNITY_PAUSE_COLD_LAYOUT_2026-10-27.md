@@ -1,5 +1,9 @@
 # Первое открытие паузы: layout и диагностика белой панели
 
+Обновление: правка включена в APK source 14f319a4 / CI #884 SUCCESS.
+Downloads/ECHO-SPHERE-14f319a4-2026-10-27.apk собран без ошибок, не установлен.
+Device acceptance и проверка белой панели остаются открытыми.
+
 Исходный HEAD 66c8bcdcd81f4bf65a48fd4a80bbea61860d93da, unity-migration.
 Пользователь разрешил продолжить без телефона; ADB devices пуст.
 
