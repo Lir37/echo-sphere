@@ -2131,3 +2131,12 @@ renderers/labels or updates them; legacy radar lazy and Editor-only. Pre-removal
 baselines: shell44/POI56 PASS; query4826 and native enemy140GPU PASS(maxdelta0).
 C#344+6 clean, Core12462/parity47389/Node272 PASS. Remaining transient effects,
 geometry/save scratch, graph/reference cleanup and full acceptance stay open.
+
+2026-10-28 group8: world geometry/clear/local+atlas masks use raster RG attachments;
+remaining fullscreen blit/copy/composite paths still Unsafe. GPU6+12 maxdelta0.
+Region topology retained (361 checks); duplicate old network renderers retired
+(native projection1440/core1215 PASS). SaveRun/entity envelopes reused; capture/
+restore separated from PlayerPrefs; restore only owns its simulation registry.
+Actual version2 JSON full12-entity/11-kind roundtrip114 checks, RNG/player/POI and
+foreign owner PASS; pool14 PASS. UI pointer53/modal420 PASS, compile/core/Node clean.
+CI893 SUCCESS for preceding5a1b3685. Full plan/device acceptance remain open.

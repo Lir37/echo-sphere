@@ -241,6 +241,12 @@ namespace EchoSphere.Presentation
         }
         private int DrawInstanceRun(CommandBuffer commands,int first,int pass,int end=int.MaxValue)
         {
+            int count=PrepareInstanceRun(first,end);if(count==0)return 0;
+            commands.DrawMeshInstanced(_batches[first].NativeMesh,0,_solidInstances,pass,_instanceMatrices,count,_instanceProperties);
+            GeometryDrawCalls++;InstancedPrimitiveCount+=count;return count;
+        }
+        private int PrepareInstanceRun(int first,int end)
+        {
             if(!_canInstance||_batches[first].NativeMaterial.shader!=_solidShader)return 0;
 #if UNITY_EDITOR
             if(DisableInstancingForValidation)return 0;
@@ -253,8 +259,7 @@ namespace EchoSphere.Presentation
             }
             if(count<2)return 0;
             _instanceProperties.SetVectorArray(NativeColorId,_instanceColors);_instanceProperties.SetFloatArray(NativeOpacityId,_instanceOpacities);
-            commands.DrawMeshInstanced(initial.NativeMesh,0,_solidInstances,pass,_instanceMatrices,count,_instanceProperties);
-            GeometryDrawCalls++;InstancedPrimitiveCount+=count;return count;
+            return count;
         }
         private void RenderMeshes(CommandBuffer recorder=null)
         {

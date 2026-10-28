@@ -22,9 +22,21 @@ namespace EchoSphere.Presentation
         private readonly List<ShadowPlacement> _graphShadows=new List<ShadowPlacement>();
         internal int GraphResourceNodeCount {get;private set;}
         internal int GraphTransientShadowTextures {get;private set;}
+        internal int GraphRasterNodeCount {get;private set;}
         private void GraphNode(RenderGraph graph,GraphOperation operation,TextureHandle input,TextureHandle output,int first,int end,RectInt area,TextureHandle cameraColor,Matrix4x4 view,Matrix4x4 projection,Rect viewport)
         {
             string name=operation switch {GraphOperation.AtlasMask=>"ECHO shadow atlas masks",GraphOperation.AtlasHorizontal=>"ECHO shadow atlas horizontal",GraphOperation.AtlasVertical=>"ECHO shadow atlas vertical",GraphOperation.Clear=>"ECHO world clear",GraphOperation.Geometry=>"ECHO ordered geometry",GraphOperation.Mask=>"ECHO shadow mask",GraphOperation.Horizontal=>"ECHO shadow horizontal",GraphOperation.Vertical=>"ECHO shadow vertical",GraphOperation.CacheCopy=>"ECHO retained shadow write",GraphOperation.Composite=>"ECHO shadow composite",_=>"ECHO world UI copy"};
+            if(operation==GraphOperation.Clear||operation==GraphOperation.Geometry||operation==GraphOperation.Mask||operation==GraphOperation.AtlasMask){
+                using(var builder=graph.AddRasterRenderPass<GraphData>(name,out var data)){
+                    data.World=this;data.Operation=operation;data.Input=input;data.Output=output;data.First=first;data.End=end;data.Area=area;
+                    builder.SetRenderAttachment(output,0,operation==GraphOperation.Geometry?AccessFlags.ReadWrite:AccessFlags.WriteAll);
+                    // These draws use Unity's view/projection shader matrices.
+                    // The attachment and its load/store lifetime belong to RG.
+                    builder.AllowGlobalStateModification(true);builder.AllowPassCulling(false);
+                    builder.SetRenderFunc(static (GraphData pass,RasterGraphContext context)=>pass.World.ExecuteRasterGeometry(pass,context.cmd));
+                }
+                GraphResourceNodeCount++;GraphRasterNodeCount++;return;
+            }
             using(var builder=graph.AddUnsafePass<GraphData>(name,out var data)){
                 data.World=this;data.Operation=operation;data.Input=input;data.Output=output;data.First=first;data.End=end;data.Area=area;data.CameraColor=cameraColor;data.View=view;data.Projection=projection;data.Viewport=viewport;
                 if(input.IsValid())builder.UseTexture(input,AccessFlags.Read);
@@ -41,7 +53,7 @@ namespace EchoSphere.Presentation
         {
             using var frame=FrameMarker.Auto();
             PrepareFrameGlyphs();
-            ShadowPixelCount=0;ShadowPassCount=0;ShadowCompositePixelCount=0;ShadowCompositeCount=0;CulledBatchCount=0;ShadowCacheHits=0;GeometryDrawCalls=0;InstancedPrimitiveCount=0;GraphResourceNodeCount=0;GraphTransientShadowTextures=0;
+            ShadowPixelCount=0;ShadowPassCount=0;ShadowCompositePixelCount=0;ShadowCompositeCount=0;CulledBatchCount=0;ShadowCacheHits=0;GeometryDrawCalls=0;InstancedPrimitiveCount=0;GraphResourceNodeCount=0;GraphTransientShadowTextures=0;GraphRasterNodeCount=0;
             _shadowCache.Begin();_graphAreas.Clear();_graphShadows.Clear();
             var target=graph.ImportTexture(GraphTarget);var ui=graph.ImportTexture(GraphUi);var none=default(TextureHandle);
             GraphNode(graph,GraphOperation.Clear,none,target,0,0,default,none,default,default,default);
@@ -69,9 +81,28 @@ namespace EchoSphere.Presentation
             if(first<_batches.Count)GraphNode(graph,GraphOperation.Geometry,none,target,first,_batches.Count,default,none,default,default,default);
             GraphNode(graph,GraphOperation.Present,target,ui,0,0,default,cameraColor,view,projection,viewport);
         }
+        private void ExecuteRasterGeometry(GraphData data,RasterCommandBuffer commands)
+        {
+            if(data.Operation==GraphOperation.AtlasMask){ExecuteRasterAtlasMask(data,commands);return;}
+            if(data.Operation==GraphOperation.Clear){commands.ClearRenderTarget(false,true,Color.clear);return;}
+            var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1,1),false);
+            if(data.Operation==GraphOperation.Mask){
+                var area=data.Area;float px=_viewport.width/_target.width,py=_viewport.height/_target.height;
+                projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin+area.xMin*px,_viewport.xMin+area.xMax*px,_viewport.yMin+area.yMin*py,_viewport.yMin+area.yMax*py,-1,1),false);
+                commands.ClearRenderTarget(false,true,Color.clear);commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
+                var batch=_batches[data.First];commands.DrawMesh(batch.NativeMesh,_graphShadows[data.First].Matrix,batch.NativeMaterial,0,0,batch.NativeProperties);return;
+            }
+            commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
+            for(int i=data.First;i<data.End;i++){
+                var batch=_batches[i];if(batch.NativeMesh==null||_graphAreas[i].width<=0||_graphAreas[i].height<=0)continue;
+                int pass=batch.Blend=="lighter"?1:batch.Blend=="screen"?2:0,count=PrepareInstanceRun(i,data.End);
+                if(count>0){commands.DrawMeshInstanced(batch.NativeMesh,0,_solidInstances,pass,_instanceMatrices,count,_instanceProperties);GeometryDrawCalls++;InstancedPrimitiveCount+=count;i+=count-1;}
+                else{commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,pass,batch.NativeProperties);GeometryDrawCalls++;}
+            }
+        }
         private void ExecuteGraphNode(GraphData data,CommandBuffer commands)
         {
-            if(data.Operation==GraphOperation.AtlasMask||data.Operation==GraphOperation.AtlasHorizontal||data.Operation==GraphOperation.AtlasVertical){ExecuteShadowAtlas(data,commands);return;}
+            if(data.Operation==GraphOperation.AtlasHorizontal||data.Operation==GraphOperation.AtlasVertical){ExecuteShadowAtlas(data,commands);return;}
             commands.SetGlobalFloat(ShadowAtlasId,0);
             var output=((RTHandle)data.Output).nameID;
             if(data.Operation==GraphOperation.Present){
@@ -102,18 +133,7 @@ namespace EchoSphere.Presentation
 #endif
                 if(rect.width>0&&rect.height>0){commands.EnableScissorRect(rect);commands.Blit(((RTHandle)data.Input).nameID,output,_blurMaterial,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1);commands.DisableScissorRect();ShadowCompositeCount++;ShadowCompositePixelCount+=(long)rect.width*(long)rect.height;}return;
             }
-            var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1,1),false);
-            if(data.Operation==GraphOperation.Mask){
-                var area=data.Area;float px=_viewport.width/_target.width,py=_viewport.height/_target.height;
-                projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin+area.xMin*px,_viewport.xMin+area.xMax*px,_viewport.yMin+area.yMin*py,_viewport.yMin+area.yMax*py,-1,1),false);
-                commands.ClearRenderTarget(false,true,Color.clear);commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);var batch=_batches[data.First];commands.DrawMesh(batch.NativeMesh,_graphShadows[data.First].Matrix,batch.NativeMaterial,0,0,batch.NativeProperties);return;
-            }
-            commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
-            if(data.Operation==GraphOperation.Clear){commands.ClearRenderTarget(false,true,Color.clear);return;}
-            for(int i=data.First;i<data.End;i++){
-                var batch=_batches[i];if(batch.NativeMesh==null||_graphAreas[i].width<=0||_graphAreas[i].height<=0)continue;int pass=batch.Blend=="lighter"?1:batch.Blend=="screen"?2:0;
-                int instances=DrawInstanceRun(commands,i,pass,data.End);if(instances>0)i+=instances-1;else{commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,pass,batch.NativeProperties);GeometryDrawCalls++;}
-            }
+            throw new System.InvalidOperationException("Unexpected unsafe world operation: "+data.Operation);
         }
     }
 }

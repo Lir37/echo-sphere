@@ -230,15 +230,11 @@ assert.ok(retainedFamilies.includes('sniper') && retainedFamilies.includes('orbi
 assert.ok(runtime.includes('SetUserPaused'), 'pause/resume state handling is missing');
 const networkRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereNetworkRules.cs'), 'utf8');
 assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal') && networkRules.includes('GetFormationBonusMultiplier'), 'Network/Geometry analysis contract is missing');
-assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNetworkLinkVisuals') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
-assert.ok(runtime.includes('UpdateNetworkCometVisuals') && runtime.includes('var packetSpeed = active ? 0.34f : 0.27f') &&
-  runtime.includes('var tailDistance = active ? 0.075f : 0.06f') &&
-  runtime.includes('var raw = ((_runTime * packetSpeed + seed + packet / 3f) % 1f + 1f) % 1f') &&
-  runtime.includes('var pulse = 0.84f + Mathf.Sin(_runTime * 4.2f) * 0.10f') &&
-  runtime.includes('RuntimeSpriteFactory.NetworkCometHead') && runtime.includes('RuntimeSpriteFactory.NetworkCometTail') &&
-  runtime.includes('glowLine.startWidth = glowLine.endWidth = (active ? 5.8f : 3.6f) * pixelScale') &&
-  runtime.includes('highlightLine.startWidth = highlightLine.endWidth = (active ? 0.92f : 0.70f) * pixelScale'),
-  'network links must preserve source moving-comet packets and tapered trails');
+assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('DrawNativeNetwork') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
+const activeNetworkArt=readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldNetwork.cs'),'utf8');
+assert.ok(activeNetworkArt.includes('active?.34:.27') && activeNetworkArt.includes('active?.075:.06') &&
+  activeNetworkArt.includes('active?5.8:3.6') && activeNetworkArt.includes('packet/3.0'),
+  'active native network must retain source packet speed, trails and widths');
 
 assert.ok(runtime.includes('DrawSourcePausePlanner()') && runtime.includes('BuildPauseStats') && runtime.includes('BuildPauseAbilities') && runtime.includes('BuildPauseArtifacts') && runtime.includes('BuildPauseSynergies') && runtime.includes('SaveCurrentRun(); SceneManager.LoadScene'), 'source four-tab pause planner, resume and save/return controls are missing');
 const pausePlannerUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSpherePausePlanner.cs'), 'utf8').replaceAll('\\r\\n', '\\n');
@@ -1267,7 +1263,7 @@ assert.ok(runtimeArt.includes('var effectiveDamage = damage * synergyMultiplier;
 assert.ok(runtimeArt.includes('private readonly List<AbilityDroneAgent2D> _abilityDrones') &&
   runtimeArt.includes('GetAbilityLevel(RunUpgradeKind.Minion) >= 3') &&
   runtimeArt.includes('drone.NetworkPosition') &&
-  runtimeArt.includes('TryGetNetworkNodePosition(link.A') &&
+  runtimeArt.includes('buffer.Positions') &&
   runtimeArt.includes('TryGetNetworkNodePosition(formation.NodeIndexes[i], out var position)') &&
   runtimeArt.includes('drone.IsNetworkNodeAlive'),
   'source runtime network must append live Minions from Ability level III and preserve drone links/formation centers');

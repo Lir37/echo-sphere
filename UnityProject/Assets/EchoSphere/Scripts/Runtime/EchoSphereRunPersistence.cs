@@ -18,12 +18,20 @@ namespace EchoSphere.Runtime
         private sealed class RunSaveBuffers
         {
             internal SnapshotValue Player,Runtime;
+            internal readonly SavedRun Envelope=new SavedRun();
+            private readonly List<SavedEntity> _records=new List<SavedEntity>();
+            private int _used;
+            internal SavedEntity NextEntity(){
+                if(_used==_records.Count)_records.Add(new SavedEntity());var record=_records[_used++];
+                record.kind=record.name=record.variant=null;record.state=record.auxiliary=null;
+                record.hasProjectileOwner=false;record.projectileOwnerIndex=0;return record;
+            }
             internal readonly List<EnemyAgent2D> LiveEnemies=new List<EnemyAgent2D>();
             private readonly Dictionary<int,SnapshotValue> _states=new Dictionary<int,SnapshotValue>();
             private readonly HashSet<int> _seen=new HashSet<int>();private readonly List<int> _stale=new List<int>();
-            internal void Begin(){LiveEnemies.Clear();_seen.Clear();}
+            internal void Begin(){LiveEnemies.Clear();_seen.Clear();_used=0;Envelope.entities.Clear();}
             internal SnapshotValue Capture(MonoBehaviour agent){int id=agent.ExistingObjectId();_seen.Add(id);_states.TryGetValue(id,out var state);state=RunSnapshotCodec.CaptureRetained(agent,state,EntitySnapshotField);_states[id]=state;return state;}
-            internal void End(){_stale.Clear();foreach(var pair in _states)if(!_seen.Contains(pair.Key))_stale.Add(pair.Key);foreach(int id in _stale)_states.Remove(id);_stale.Clear();}
+            internal void End(){for(int i=_used;i<_records.Count;i++){_records[i].state=_records[i].auxiliary=null;_records[i].kind=_records[i].name=_records[i].variant=null;}_stale.Clear();foreach(var pair in _states)if(!_seen.Contains(pair.Key))_stale.Add(pair.Key);foreach(int id in _stale)_states.Remove(id);_stale.Clear();}
         }
         private readonly RunSaveBuffers _runSaveBuffers=new RunSaveBuffers();
         [Serializable] private sealed class SavedEntity
@@ -127,45 +135,58 @@ namespace EchoSphere.Runtime
             if (_mainMenu || _gameOver || _tutorialStep >= 0 || _playerCore == null) return;
             try
             {
-                _runSaveBuffers.Begin();
-                _runSaveBuffers.Player=RunSnapshotCodec.CaptureRetained(_playerCore,_runSaveBuffers.Player);
-                _runSaveBuffers.Runtime=RunSnapshotCodec.CaptureRetained(this,_runSaveBuffers.Runtime,field=>!NonRunFields.Contains(field.Name));
-                var save = new SavedRun { savedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), time = _runTime,
-                    playerPosition = _player.position, player = _runSaveBuffers.Player,
-                    runtime = _runSaveBuffers.Runtime, regionPois = _regionFieldVisuals.CapturePoiState() };
-                var liveEnemies = _runSaveBuffers.LiveEnemies; foreach (var enemy in _enemies) if (enemy != null && enemy.IsAlive) liveEnemies.Add(enemy);
-                foreach (var agent in _simulationAgents)
-                {
-                    if (agent == null || !agent.gameObject.activeInHierarchy) continue;
-                    var type = agent.GetType();
-                    if (type != typeof(SphereAttackAgent) && type != typeof(EnemyAgent2D) && type != typeof(ProjectileAgent) &&
-                        type != typeof(BossProjectileAgent2D) && type != typeof(AbilityDroneAgent2D) && type != typeof(ExperienceOrbAgent) &&
-                        type != typeof(HealthPackAgent2D) && type != typeof(RuneAgent2D) && type != typeof(ArtifactChestAgent2D) &&
-                        type != typeof(StellaChestAgent2D) && type != typeof(SourceParticle2D)) continue;
-                    if (agent is EnemyAgent2D enemy && !enemy.IsAlive) continue;
-                    var entity = new SavedEntity { kind = type.Name, name = agent.name, position = agent.transform.position,
-                        scale = agent.transform.localScale, color = agent is IRunSaveColor appearance ? appearance.SavedColor : Color.white,
-                        state = _runSaveBuffers.Capture(agent) };
-                    if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner)
-                    { entity.hasProjectileOwner = true; entity.projectileOwnerIndex = liveEnemies.IndexOf(bullet.SourceOwner); }
-                    if (agent is EnemyAgent2D)
-                    {
-                        entity.variant = ((EnemyAgent2D)agent).SourceVisualVariant;
-                        var boss = agent.GetComponent<BossCombatAgent2D>();
-                        if (boss != null) entity.auxiliary = _runSaveBuffers.Capture(boss);
-                    }
-                    save.entities.Add(entity);
-                }
+                var save=CaptureRunSnapshot();
                 PlayerPrefs.SetString(RunSnapshotKey, JsonUtility.ToJson(save)); PlayerPrefs.Save();
             }
             catch (Exception error) { Debug.LogWarning("[ECHO SPHERE] Run save failed: " + error.Message); }
             finally { _runSaveBuffers.End(); }
         }
+        // Consumed synchronously before another capture may reuse these buffers.
+        // Separate from PlayerPrefs so compatibility can be verified without touching a live save.
+        private SavedRun CaptureRunSnapshot()
+        {
+            _runSaveBuffers.Begin();
+            _runSaveBuffers.Player=RunSnapshotCodec.CaptureRetained(_playerCore,_runSaveBuffers.Player);
+            _runSaveBuffers.Runtime=RunSnapshotCodec.CaptureRetained(this,_runSaveBuffers.Runtime,field=>!NonRunFields.Contains(field.Name));
+            var save = _runSaveBuffers.Envelope;
+            save.savedAt=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();save.time=_runTime;
+            save.playerPosition=_player.position;save.player=_runSaveBuffers.Player;
+            save.runtime=_runSaveBuffers.Runtime;save.regionPois=_regionFieldVisuals.CapturePoiState();
+            var liveEnemies = _runSaveBuffers.LiveEnemies; foreach (var enemy in _enemies) if (enemy != null && enemy.IsAlive) liveEnemies.Add(enemy);
+            foreach (var agent in _simulationAgents)
+            {
+                if (agent == null || !agent.gameObject.activeInHierarchy) continue;
+                var type = agent.GetType();
+                if (type != typeof(SphereAttackAgent) && type != typeof(EnemyAgent2D) && type != typeof(ProjectileAgent) &&
+                    type != typeof(BossProjectileAgent2D) && type != typeof(AbilityDroneAgent2D) && type != typeof(ExperienceOrbAgent) &&
+                    type != typeof(HealthPackAgent2D) && type != typeof(RuneAgent2D) && type != typeof(ArtifactChestAgent2D) &&
+                    type != typeof(StellaChestAgent2D) && type != typeof(SourceParticle2D)) continue;
+                if (agent is EnemyAgent2D enemy && !enemy.IsAlive) continue;
+                var entity = _runSaveBuffers.NextEntity();
+                entity.kind=type.Name;entity.name=agent.name;entity.position=agent.transform.position;
+                entity.scale=agent.transform.localScale;entity.color=agent is IRunSaveColor appearance?appearance.SavedColor:Color.white;
+                entity.state=_runSaveBuffers.Capture(agent);
+                if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner)
+                { entity.hasProjectileOwner = true; entity.projectileOwnerIndex = liveEnemies.IndexOf(bullet.SourceOwner); }
+                if (agent is EnemyAgent2D)
+                {
+                    entity.variant = ((EnemyAgent2D)agent).SourceVisualVariant;
+                    var boss = agent.GetComponent<BossCombatAgent2D>();
+                    if (boss != null) entity.auxiliary = _runSaveBuffers.Capture(boss);
+                }
+                save.entities.Add(entity);
+            }
+            return save;
+        }
         private void ContinueSavedRun()
         {
             var save = LoadRunSnapshot(); if (save == null) return;
+            RestoreRunSnapshot(save);
+        }
+        private void RestoreRunSnapshot(SavedRun save)
+        {
             // Stop old entity updates immediately; Unity's deferred Destroy happens after this frame.
-            foreach (var agent in FindObjectsByType<MonoBehaviour>().OrderBy(agent=>agent.ExistingObjectId()))
+            foreach (var agent in _simulationAgents.Where(agent=>agent!=null&&agent.gameObject.activeInHierarchy).OrderBy(agent=>agent.ExistingObjectId()).ToArray())
             {
                 if (agent is SphereAttackAgent || agent is EnemyAgent2D || agent is ProjectileAgent || agent is BossProjectileAgent2D ||
                     agent is AbilityDroneAgent2D || agent is ExperienceOrbAgent || agent is HealthPackAgent2D || agent is RuneAgent2D ||

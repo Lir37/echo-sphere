@@ -341,3 +341,54 @@ entity-shell-*, region-data-*. Нет новых APK/device FPS или полн�
 Открыты: оставшиеся transient effect builders (Impact/Pulse и др.), packet geometry/
 retained topology, save scratch, raster graph/reference isolation и полная
 проверка lifecycle/сохранённого забега/Android. План НЕ DONE.
+
+## Группа 8 — raster geometry, topology и save buffers (2026-10-28)
+
+5a1b3685 (группа7) прошёл CI893 SUCCESS.
+
+Clear, ordered geometry, одиночные и атласные shadow masks теперь записываются
+через AddRasterRenderPass/SetRenderAttachment и RasterCommandBuffer. Старые
+Unsafe реализации этих операций удалены. Matrix state остаётся явным: меши
+используют Unity view/projection matrices; ни render-target binding, ни
+texture lifetime этих проходов больше не устанавливаются вручную. Общая
+подготовка instancing используется обоими backend без повторения алгоритма.
+Blur/copy/composite/present пока остаются Unsafe с прежними shader bindings;
+нельзя объявлять весь RenderGraph переведённым на raster или все globals удалёнными.
+
+Реальный URP GPU parity:6 cases, каждый действительно выполнил4 raster nodes,
+maxdelta0. Дополнительные12 atlas/cache comparisons после raster AtlasMask:
+maxdelta0, новых Console errors нет; прогретый retained кадр без blur/transientRT.
+Прозрачный порядок, blend, kernels, padding, разрешение/MSAA сохранены.
+
+NativeWorldRegion сохраняет triangle topology, пока индексы/число вершин не
+изменились; обновляет vertices/colors/UV и bounds. Его live/removed collections
+переиспользуются. 361 checks на120 меняющихся геометриях: точное равенство
+vertices/colors/UV/indices с принудительным полным rebuild; reset/empty cases PASS.
+Это устранение лишней topology upload, не доказательство отсутствия всех GC.
+
+Удалён ещё один неиспользуемый renderer-контур сети: LineRenderer glow/link/
+highlight и SpriteRenderer comets. NativeWorldNetwork с исходными packets/trails
+и модель _networkState не менялись. Native network projection1440 и core view1215
+checks PASS; preflight теперь проверяет активные packet speed/trail/width.
+
+Save buffers повторно используют SavedRun/SavedEntity envelopes и entity list;
+каждый record сбрасывает variant/auxiliary/owner, неиспользуемые записи освобождают
+ссылки на старые snapshots. CaptureRunSnapshot отделён от записи PlayerPrefs,
+но SaveCurrentRun по-прежнему синхронно сериализует/записывает, с прежними ключом,
+версией2, частотой и pause/focus гарантиями. Проверка14 PASS: object reuse,
+стабильный JSON, owner indices, смена типа record, очистка spare references.
+
+RestoreRunSnapshot отделён от чтения PlayerPrefs. Удаляются только активные
+сущности собственного simulation registry в прежнем ObjectId-порядке; прежний
+global FindObjectsByType затрагивал бы второй runtime. Полный actual Play
+capture→JSON→restore→capture:114 checks,12 entities всех11 типов, gameplay states,
+envelopes, игрок, POI, RNG и отдельный foreign owner PASS. Null/empty strings
+сравниваются после стандартной JsonUtility канонизации, без изменения codec.
+Fixture не читает/перезаписывает пользовательский run save. Это не тест записи
+PlayerPrefs на телефон и не полный старый APK-save/end-to-end tutorial.
+
+Production pointer53 и populated modal420 checks/270frames PASS без новых
+Console errors. Core12462/parity47389/Node272/preflight PASS;344+6C# чисто.
+Остаток: transient effect paths (особенно SpherePulse), remaining fullscreen
+graph bindings, reference isolation, full cold tutorial/20 transitions memory
+и Android/white pause/15-minute acceptance. План IN PROGRESS.

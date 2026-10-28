@@ -366,17 +366,6 @@ namespace EchoSphere.Runtime
         private readonly List<int> _resonanceRingNodes = new List<int>();
         private string _message = "RIGHT HALF: MOVE. LEFT HALF: PLACE / DRAG SPHERES. TAP SPHERE: REMOVE.";
         private GUIStyle _box, _label, _button, _title, _sphereDescriptionStyle;
-        private readonly List<LineRenderer> _networkGlowRenderers = new List<LineRenderer>();
-        private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
-        private readonly List<LineRenderer> _networkHighlightRenderers = new List<LineRenderer>();
-        private readonly List<NetworkCometVisual> _networkComets = new List<NetworkCometVisual>();
-        private Material _networkLineMaterial;
-
-        private sealed class NetworkCometVisual
-        {
-            public SpriteRenderer Head;
-            public SpriteRenderer Tail;
-        }
         private SphereNetworkState _networkState;
         private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
         private SphereNetworkFormation _preferredDominantFormation = SphereNetworkFormation.None;
@@ -6532,7 +6521,6 @@ namespace EchoSphere.Runtime
             if (_networkState.DominantFormation != null)
                 _previousDominantFormation = _networkState.DominantFormation.Type;
             TrackArchitectFormationChange();
-            UpdateNetworkLinkVisuals();
             var dominant = _networkState.DominantFormation;
             if (dominant != null && dominant.Active && _resonanceKnownFormationKeys.Add(GetFormationKey(dominant)))
                 AddResonanceChargeFromSource(ResonanceRules.GeometryCharge, true);
@@ -6583,178 +6571,6 @@ namespace EchoSphere.Runtime
             ShowMessage("SECONDARY: " + next.ToString().ToUpperInvariant());
         }
 
-        private void UpdateNetworkLinkVisuals()
-        {
-            if (UsesSourcePresentation) return;
-            if (_networkState == null) return;
-            if (_networkLineMaterial == null)
-            {
-                var shader = Shader.Find("Sprites/Default");
-                if (shader != null) _networkLineMaterial = new Material(shader);
-            }
-
-            EnsureNetworkCometVisuals(_networkState.Links.Count * 3);
-            for (var cometIndex = 0; cometIndex < _networkComets.Count; cometIndex++)
-            {
-                var comet = _networkComets[cometIndex];
-                if (comet.Head != null) comet.Head.enabled = false;
-                if (comet.Tail != null) comet.Tail.enabled = false;
-            }
-
-            while (_networkLinkRenderers.Count < _networkState.Links.Count)
-            {
-                _networkGlowRenderers.Add(CreateNetworkLineRenderer("Sphere Network Glow", 4));
-                _networkLinkRenderers.Add(CreateNetworkLineRenderer("Sphere Network Link", 5));
-                _networkHighlightRenderers.Add(CreateNetworkLineRenderer("Sphere Network Highlight", 6));
-            }
-
-            for (var i = 0; i < _networkLinkRenderers.Count; i++)
-            {
-                var line = _networkLinkRenderers[i];
-                var glowLine = _networkGlowRenderers[i];
-                var highlightLine = _networkHighlightRenderers[i];
-                if (i >= _networkState.Links.Count)
-                {
-                    line.enabled = glowLine.enabled = highlightLine.enabled = false;
-                    continue;
-                }
-
-                var link = _networkState.Links[i];
-                if (!TryGetNetworkNodePosition(link.A, out var from) ||
-                    !TryGetNetworkNodePosition(link.B, out var to))
-                {
-                    line.enabled = glowLine.enabled = highlightLine.enabled = false;
-                    continue;
-                }
-
-                line.enabled = glowLine.enabled = highlightLine.enabled = true;
-                const int segments = 24;
-                line.positionCount = glowLine.positionCount = highlightLine.positionCount = segments + 1;
-                var delta = to - from;
-                var length = Mathf.Max(0.0001f, delta.magnitude);
-                var normal = new Vector2(-delta.y / length, delta.x / length);
-                var pixelScale = SpherePlacementRules.SourcePixelsToWorld;
-                var amplitude = Mathf.Min(6.2f * pixelScale, 2.2f * pixelScale + length * 0.008f);
-                var lineShape = _networkState.GetFormation(SphereNetworkFormation.Line);
-                var squareShape = _networkState.GetFormation(SphereNetworkFormation.Square);
-                var triangleShape = _networkState.GetFormation(SphereNetworkFormation.Triangle);
-                var clusterShape = _networkState.GetFormation(SphereNetworkFormation.Cluster);
-                var isLine = lineShape != null && lineShape.Active && IsFormationLink(lineShape, link.A, link.B);
-                var isSquare = IsFormationLink(squareShape, link.A, link.B);
-                var isTriangle = triangleShape != null && triangleShape.Active && IsFormationLink(triangleShape, link.A, link.B);
-                var isCluster = IsFormationLink(clusterShape, link.A, link.B);
-                var active = isLine || isSquare || isTriangle || isCluster;
-                var seed = link.A * 17.13f + link.B * 29.71f;
-                var phase = _runTime * (active ? 1.9f : 1.35f) + seed;
-                for (var point = 0; point <= segments; point++)
-                {
-                    var p = point / (float)segments;
-                    var wave = Mathf.Sin(phase + p * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * p);
-                    var position = from + delta * p + normal * wave;
-                    line.SetPosition(point, position);
-                    glowLine.SetPosition(point, position);
-                    highlightLine.SetPosition(point, position);
-                }
-
-                var pulse = 0.84f + Mathf.Sin(_runTime * 4.2f) * 0.10f;
-                var color = new Color(0.388f, 0.725f, 1f, 0.27f * pulse);
-                if (isLine) color = new Color(0.388f, 0.902f, 1f, 0.50f * pulse);
-                else if (isTriangle) color = new Color(1f, 0.722f, 0.302f, 0.54f * pulse);
-                else if (isCluster) color = new Color(0.702f, 0.549f, 1f, 0.44f * pulse);
-                else if (isSquare) color = new Color(0.412f, 0.718f, 1f, 0.48f * pulse);
-
-                var glowColor = color; glowColor.a *= active ? 0.22f : 0.12f;
-                var mainColor = color; mainColor.a *= active ? 0.82f : 0.64f;
-                var highlightColor = color; highlightColor.a *= active ? 0.72f : 0.58f;
-                glowLine.startWidth = glowLine.endWidth = (active ? 5.8f : 3.6f) * pixelScale;
-                line.startWidth = line.endWidth = (active ? 2.55f : 1.95f) * pixelScale;
-                highlightLine.startWidth = highlightLine.endWidth = (active ? 0.92f : 0.70f) * pixelScale;
-                glowLine.startColor = glowLine.endColor = glowColor;
-                line.startColor = line.endColor = mainColor;
-                highlightLine.startColor = highlightLine.endColor = highlightColor;
-                UpdateNetworkCometVisuals(i, from, to, color, active, seed, amplitude);
-            }
-        }
-
-        private LineRenderer CreateNetworkLineRenderer(string objectName, int sortingOrder)
-        {
-            var go = new GameObject(objectName);
-            go.transform.SetParent(transform, false);
-            var line = go.AddComponent<LineRenderer>();
-            line.useWorldSpace = true;
-            line.positionCount = 25;
-            line.startWidth = 0.020f;
-            line.endWidth = 0.020f;
-            line.numCapVertices = 2;
-            line.numCornerVertices = 2;
-            line.sortingOrder = sortingOrder;
-            if (_networkLineMaterial != null) line.sharedMaterial = _networkLineMaterial;
-            return line;
-        }
-
-        private void EnsureNetworkCometVisuals(int count)
-        {
-            while (_networkComets.Count < count)
-            {
-                var headObject = new GameObject("Sphere Network Comet Head");
-                headObject.transform.SetParent(transform, false);
-                var head = headObject.AddComponent<SpriteRenderer>();
-                head.sprite = RuntimeSpriteFactory.NetworkCometHead;
-                head.sortingOrder = 8;
-                head.enabled = false;
-
-                var tailObject = new GameObject("Sphere Network Comet Tail");
-                tailObject.transform.SetParent(transform, false);
-                var tail = tailObject.AddComponent<SpriteRenderer>();
-                tail.sprite = RuntimeSpriteFactory.NetworkCometTail;
-                tail.sortingOrder = 7;
-                tail.enabled = false;
-                _networkComets.Add(new NetworkCometVisual { Head = head, Tail = tail });
-            }
-        }
-
-        private void UpdateNetworkCometVisuals(int linkIndex, Vector2 from, Vector2 to, Color linkColor, bool active, float seed, float amplitude)
-        {
-            var delta = to - from;
-            var length = Mathf.Max(0.0001f, delta.magnitude);
-            var normal = new Vector2(-delta.y / length, delta.x / length);
-            var packetSpeed = active ? 0.34f : 0.27f;
-            var tailDistance = active ? 0.075f : 0.06f;
-            var alpha = linkColor.a;
-            var pixelScale = SpherePlacementRules.SourcePixelsToWorld;
-            for (var packet = 0; packet < 3; packet++)
-            {
-                var index = linkIndex * 3 + packet;
-                if (index < 0 || index >= _networkComets.Count) continue;
-                var visual = _networkComets[index];
-                if (visual.Head == null || visual.Tail == null) continue;
-                var raw = ((_runTime * packetSpeed + seed + packet / 3f) % 1f + 1f) % 1f;
-                var p = packet % 2 == 0 ? raw : 1f - raw;
-                var tailP = Mathf.Max(0f, p - tailDistance);
-                var phase = _runTime * (active ? 1.9f : 1.35f) + seed;
-                var headWave = Mathf.Sin(phase + p * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * p);
-                var tailWave = Mathf.Sin(phase + tailP * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * tailP);
-                var headPosition = from + delta * p + normal * headWave;
-                var tailPosition = from + delta * tailP + normal * tailWave;
-                var angle = Mathf.Atan2(headPosition.y - tailPosition.y, headPosition.x - tailPosition.x) * Mathf.Rad2Deg;
-                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-                visual.Head.enabled = visual.Tail.enabled = true;
-                visual.Head.transform.position = new Vector3(headPosition.x + direction.x * 1.15f * pixelScale, headPosition.y + direction.y * 1.15f * pixelScale, -0.04f);
-                visual.Head.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-                visual.Head.transform.localScale = new Vector3(12.7f * pixelScale, 6f * pixelScale, 1f);
-                visual.Head.color = new Color(0.973f, 1f, 1f, (active ? 0.86f : 0.62f) * alpha);
-                var tailSpritePosition = headPosition - direction * (8.25f * pixelScale);
-                visual.Tail.transform.position = new Vector3(tailSpritePosition.x, tailSpritePosition.y, -0.035f);
-                visual.Tail.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-                visual.Tail.transform.localScale = new Vector3(13.5f * pixelScale, 3.4f * pixelScale, 1f);
-                var tailColor = linkColor; tailColor.a *= active ? 0.48f : 0.34f;
-                visual.Tail.color = tailColor;
-            }
-        }
-
-        private static bool IsFormationLink(SphereNetworkShape shape, int a, int b) =>
-            shape != null && shape.Contains(a) && shape.Contains(b);
-
         private void OnDestroy()
         {
             _nativeTransientPools?.Dispose();_nativeTransientPools=null;
@@ -6783,7 +6599,7 @@ namespace EchoSphere.Runtime
             if(_nativeCharacterScreen!=null)Destroy(_nativeCharacterScreen.gameObject);
             if(_nativeArchiveScreen!=null)Destroy(_nativeArchiveScreen.gameObject);
             if(_nativeRunDocument!=null)Destroy(_nativeRunDocument.gameObject);
-            if(_worldSurface!=null)Destroy(_worldSurface.gameObject); if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
+            if(_worldSurface!=null)Destroy(_worldSurface.gameObject);
             if (_uiPanelTexture != null) Destroy(_uiPanelTexture);
             if (_uiButtonTexture != null) Destroy(_uiButtonTexture);
             if (_uiButtonHoverTexture != null) Destroy(_uiButtonHoverTexture);

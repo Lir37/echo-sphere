@@ -80,10 +80,11 @@ namespace EchoSphere.Presentation
         {
             var page=_shadowPages[data.First];var output=((RTHandle)data.Output).nameID;
             commands.SetGlobalFloat(ShadowAtlasId,0);
-            if(data.Operation!=GraphOperation.AtlasMask){
-                SetShadowKernel(commands,page.Sigma);commands.SetGlobalVector(ShadowDirectionId,data.Operation==GraphOperation.AtlasHorizontal?new Vector4(1f/page.Width,0,0,0):new Vector4(0,1f/page.Height,0,0));commands.Blit(((RTHandle)data.Input).nameID,output,_blurMaterial,0);return;
-            }
-            commands.SetRenderTarget(output);commands.ClearRenderTarget(false,true,Color.clear);
+            SetShadowKernel(commands,page.Sigma);commands.SetGlobalVector(ShadowDirectionId,data.Operation==GraphOperation.AtlasHorizontal?new Vector4(1f/page.Width,0,0,0):new Vector4(0,1f/page.Height,0,0));commands.Blit(((RTHandle)data.Input).nameID,output,_blurMaterial,0);
+        }
+        private void ExecuteRasterAtlasMask(GraphData data,RasterCommandBuffer commands)
+        {
+            var page=_shadowPages[data.First];commands.ClearRenderTarget(false,true,Color.clear);
             float px=_viewport.width/_target.width,py=_viewport.height/_target.height;
             foreach(int index in page.Items){var plan=_shadowPlans[index];var area=plan.Placement.Area;var packed=plan.Packed;var batch=_batches[index];
                 commands.SetViewport(new Rect(packed.x,packed.y,packed.width,packed.height));commands.EnableScissorRect(new Rect(packed.x,packed.y,packed.width,packed.height));
