@@ -48,7 +48,7 @@ namespace EchoSphere.Runtime
    var sphere=ProjectNativeSphereVisual(component);double r=Math.Max(15,Math.Min(25,sphere.Radius*.19+sphere.Tier*.8)),scale=r/24;
    if(sphere.Type==SphereId.Standard){
     if(!DrawNativeStandardAssembly(sphere,r,time)){DrawNativeViewGroundShadow(r*1.05,r*.24,4);_worldSurface.Save();NativeWorldTranslate(sphere.X,sphere.Y);_nativeWorldFeedback.StandardFallback(r);_worldSurface.Restore();}
-    DrawNativeSphereMutation(sphere,time,scale);if(sphere.AttackActive)_nativeWorldStandardSphere.DrawAttack(_worldSurface,sphere.X,sphere.Y,double.IsNaN(sphere.Rotation)?0:sphere.Rotation,r,sphere.AttackTimer);DrawNativeSphereElements(sphere,time,scale);DrawNativeSphereModifiers(sphere,time,scale);DrawNativeSphereDisabled(sphere,time);return;
+    DrawNativeSphereMutation(sphere,time,scale);_nativeWorldStandardSphere.DrawAttack(_worldSurface,sphere.X,sphere.Y,double.IsNaN(sphere.Rotation)?0:sphere.Rotation,r,sphere.AttackTimer,sphere.AttackActive);DrawNativeSphereElements(sphere,time,scale);DrawNativeSphereModifiers(sphere,time,scale);DrawNativeSphereDisabled(sphere,time);return;
    }
    if(sphere.Type==SphereId.Orbital)DrawNativeOrbitalSphere(sphere,time,scale,NativeOrbitalRadiusScale(sphere),false);
    else if(sphere.Type==SphereId.Sniper||sphere.Type==SphereId.Shotgun||sphere.Type==SphereId.Prism||sphere.Type==SphereId.Void){DrawNativeSphereMutation(sphere,time,scale);DrawNativeSphereFamily(sphere,time,scale);}

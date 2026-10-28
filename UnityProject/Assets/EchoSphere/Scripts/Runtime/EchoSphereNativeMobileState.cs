@@ -12,20 +12,20 @@ namespace EchoSphere.Runtime
         private string NativeMobileText(string key)=>NativeText(key,IsRussianUi);
         private void NativeMobileControl(string id)
         {
-            if(id=="pause"){NativeMobileHaptic(6);if(_tutorialStep>=0||_levelUp||_stellaRewardPending)return;bool next=!_paused;SetUserPaused(next);RefreshNativeCommandModels();}
-            else if(id=="lock"){NativeSetSphereMovementLocked(!_sphereMovementLocked);NativeMobileHaptic(6);}
+            if(id=="pause"){if(_tutorialStep>=0||_levelUp||_stellaRewardPending)return;bool next=!_paused;SetUserPaused(next);RefreshNativeCommandModels();}
+            else if(id=="lock"){NativeSetSphereMovementLocked(!_sphereMovementLocked);}
             else if(id=="follow"){
                 if(_gameOver)return;
-                if(_follow){NativeSetFormationFollow(false);NativeMobileFlash("FOLLOW отключён","FOLLOW OFF",.7,"#7f9bb8");NativeMobileHaptic(6);}
-                else if(!NativeCanActivateFollow()||!NativeSetFormationFollow(true)){NativeMobileFlash("Подойдите к центру формации","Move closer to Formation Centroid",1,"#ffb84d");NativeMobileHaptic(22);}
-                else {NativeMobileFlash("FORMATION FOLLOW","FORMATION FOLLOW",.8,"#63e6ff");NativeMobileHaptic(12);}
+                if(_follow){NativeSetFormationFollow(false);NativeMobileFlash("FOLLOW отключён","FOLLOW OFF",.7,"#7f9bb8");}
+                else if(!NativeCanActivateFollow()||!NativeSetFormationFollow(true)){NativeMobileFlash("Подойдите к центру формации","Move closer to Formation Centroid",1,"#ffb84d");}
+                else {NativeMobileFlash("FORMATION FOLLOW","FORMATION FOLLOW",.8,"#63e6ff");}
             }
             else if(id=="dash"){
-                if(_gameOver||_paused||_follow)return;NativeMobileClearKeys();NativeMobileSetDirection(_nativeMobileLastX,_nativeMobileLastY);NativeMobileHaptic(16);NativeActivateDash();NativeMobileClearKeys();
+                if(_gameOver||_paused||_follow)return;NativeMobileClearKeys();NativeMobileSetDirection(_nativeMobileLastX,_nativeMobileLastY);NativeActivateDash();NativeMobileClearKeys();
             }
-            else if(id.StartsWith("sphere:",StringComparison.Ordinal)){NativeMobileHaptic(6);NativeSelectSphere(id.Substring(7));}
+            else if(id.StartsWith("sphere:",StringComparison.Ordinal)){NativeSelectSphere(id.Substring(7));}
             else if(id.StartsWith("ability:",StringComparison.Ordinal)){
-                if(_gameOver||_paused||_levelUp||_stellaRewardPending)return;NativeMobileHaptic(12);NativeActivateHotkey(id.Substring(8).Split('-')[0]);
+                if(_gameOver||_paused||_levelUp||_stellaRewardPending)return;NativeActivateHotkey(id.Substring(8).Split('-')[0]);
             }
             NativeMobileEventCompleted();
         }

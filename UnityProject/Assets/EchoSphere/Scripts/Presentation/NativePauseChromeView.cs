@@ -75,7 +75,7 @@ namespace EchoSphere.Presentation
             var copy = Box(row, "pause-chrome-copy"); copy.style.flexShrink = 1; copy.style.marginRight = 12;
             _eyebrow = Text(copy, "pause-chrome-eyebrow", 10, "#64849b", spacing: 2);
             _title = Text(copy, "pause-chrome-title", 20, "#dcecff", "700", 28d / 20); _title.style.overflow = Overflow.Hidden; _title.style.textOverflow = TextOverflow.Ellipsis;
-            _subtitle = Text(copy, "pause-chrome-subtitle", 12, "#64849b", line: 16d / 12); _subtitle.style.marginTop = 2;
+            _subtitle = Text(copy, "pause-chrome-subtitle", 12, "#64849b", line: 16d / 12); _subtitle.style.marginTop = 2; FitText(_subtitle);_subtitle.style.unityTextAlign=TextAnchor.MiddleLeft;
             _close = Button(row, "pause-chrome-close", resume); Icon(_close, "X", 18, "#c5dbeb");
             var tabs = Box(_header, "pause-chrome-tabs", true); tabs.style.marginTop = 12;
             string[] icons = { "BarChart3", "Sparkles", "Package", "Network" };
@@ -85,14 +85,21 @@ namespace EchoSphere.Presentation
                 _tabs[i] = Button(tabs, "pause-chrome-tab", _tabClicks[i]); _tabs[i].name += "-" + i;
                 if (i > 0) _tabs[i].style.marginLeft = 6;
                 _icons[i] = Icon(_tabs[i], icons[i], 15, "#64849b"); _icons[i].style.marginRight = 4;
-                _tabTexts[i] = Text(_tabs[i], "pause-chrome-tab-text-" + i, 10, "#64849b", "700");
+                _tabTexts[i] = Text(_tabs[i], "pause-chrome-tab-text-" + i, 10, "#64849b", "700");FitText(_tabTexts[i]);
             }
             _footer.style.justifyContent = Justify.Center;
             _resume = Button(_footer, "pause-chrome-resume", resume); _resume.style.marginRight = 8;
             _resumeText = Text(_resume, "pause-chrome-resume-text", 16, "#c5dbeb", "700");
             _return = Button(_footer, "pause-chrome-return", exit); _returnText = Text(_return, "pause-chrome-return-text", 16, "#cfe7f3");
+            foreach(var button in new[]{_resume,_return}){button.style.flexShrink=1;button.style.flexGrow=1;button.style.flexBasis=0;button.style.minWidth=0;}FitText(_resumeText);FitText(_returnText);
             _buttons = new[] { _close, _tabs[0], _tabs[1], _tabs[2], _tabs[3], _resume, _return };
             _geometryFrame = Time.frameCount;
+        }
+        private static void FitText(Label text)
+        {
+            text.style.flexShrink=1;text.style.minWidth=0;text.style.maxWidth=Length.Percent(100);
+            text.style.whiteSpace=WhiteSpace.Normal;text.style.height=StyleKeyword.Auto;
+            text.style.unityTextAlign=TextAnchor.MiddleCenter;
         }
         private static Button Button(VisualElement parent, string name, Action clicked)
         {

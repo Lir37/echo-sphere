@@ -50,6 +50,11 @@ namespace EchoSphere.Presentation
             else {
                 if(model.Icon!=null){item.Icon=Box(b,"icon");item.Icon.style.width=item.Icon.style.height=model.Id=="pause"?18:dash?20:14;item.Icon.style.unityBackgroundImageTintColor=C("#dff7ff");if(row)item.Icon.style.marginRight=4;}
                 if(model.Id!="pause")item.Name=Text(b,"label",model.Id.StartsWith("ability:")?9:dash?8:9,model.Id.StartsWith("ability:")?"#7f9bb8":"#dff7ff",model.Id.StartsWith("ability:")?"400":"700");
+                if(item.Name!=null&&!model.Id.StartsWith("ability:")){
+                    item.Name.style.maxWidth=Length.Percent(100);item.Name.style.minWidth=0;
+                    item.Name.style.flexShrink=1;item.Name.style.whiteSpace=WhiteSpace.Normal;
+                    item.Name.style.height=StyleKeyword.Auto;item.Name.style.unityTextAlign=TextAnchor.MiddleCenter;
+                }
                 if(model.Id.StartsWith("ability:")){item.Name.style.maxWidth=54;item.Name.style.overflow=Overflow.Hidden;item.Name.style.textOverflow=TextOverflow.Ellipsis;item.Detail=Text(b,"cooldown",8,"#b6c9de99");item.Bar=Box(b,"cooldown-progress");item.Bar.style.position=Position.Absolute;item.Bar.style.bottom=0;item.Bar.style.left=0;item.Bar.style.height=4;item.Bar.style.backgroundColor=A(255,77,93,.7f);b.style.overflow=Overflow.Hidden;}
             }
             return item;
@@ -59,7 +64,7 @@ namespace EchoSphere.Presentation
             foreach(var s in _surfaces)s.Dispose();_surfaces.Clear();_items.Clear();_glyphShadow.Clear();Root.Clear();
             Control Find(string id)=>state.Controls.Find(c=>c.Id==id);
             Button(Root,Find("pause"),48,48);
-            var toggles=Box(Root,"toggles",true);toggles.style.marginTop=8;Button(toggles,Find("lock"),48,40,true).Button.style.marginRight=6;Button(toggles,Find("follow"),48,40,true);
+            var toggles=Box(Root,"toggles",true);toggles.style.marginTop=8;Button(toggles,Find("lock"),64,48).Button.style.marginRight=6;Button(toggles,Find("follow"),64,48);
             _abilities=Box(Root,"abilities",true);_abilities.style.marginTop=8;_abilities.style.width=134;_abilities.style.flexWrap=Wrap.Wrap;
             int i=0;foreach(var c in state.Controls)if(c.Id.StartsWith("ability:")){var b=Button(_abilities,c,64,48).Button;b.style.marginRight=i%2==0?6:0;b.style.marginTop=i>=2?6:0;i++;}
             _strainBox=Box(Root,"strain");_strainBox.style.marginTop=8;_strainBox.style.paddingLeft=_strainBox.style.paddingRight=8;_strainBox.style.paddingTop=_strainBox.style.paddingBottom=4;Surface(_strainBox,new NativeMenuBrush.Paint {Radius=6,Border=1,BorderColor=C("#243b55"),Fill=A(13,23,38,.8f)});_strain=Text(_strainBox,"strain-label",8,"#7f9bb8","700");_strain.style.letterSpacing=16;

@@ -5982,3 +5982,9 @@ maxdelta1,alpha0,0Console errors. Результаты совпадают с п�
 Физический бой с HUD75% возобновился; screenshot показывает уменьшенные HUD
 острова при неизменном поле. До окончательной установки восстановлен свежий
 17-key PlayerPrefs побайтно. Новая упаковка/phone filter comparison впереди.
+
+2026-10-28 followup пользователя: production haptics удалены полностью;
+Standard weapon всегда видим, idle геометрия стабильна, attack animation только
+после атаки. Исправлены выходящие подписи control/pause buttons, chrome высота
+адаптивна. GPU/layout75checks +actualrun17checks PASS. 2848aa3a CI904 SUCCESS,
+phone pause8.741FPS,p95132.82ms — производительность НЕ DONE.

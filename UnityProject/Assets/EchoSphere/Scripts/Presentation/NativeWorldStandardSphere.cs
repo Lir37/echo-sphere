@@ -53,9 +53,10 @@ namespace EchoSphere.Presentation
             double size=r*1.34*(1+energy*.022);sprites.Draw(s,resolve("sphere-standard-upper-crystal"),0,-r*.62-energy*r*.010,size,0,1,true,false,false,root);sprites.Draw(s,resolve("sphere-standard-upper-crystal"),0,r*.66+energy*r*.010,size,0,1,true,false,true,root);
             if(targetPulse>.55){var rig=Get(s,(float)r);s.DrawNativeMesh(rig.Accent,_solid,Properties(C(217,251,255)),root,opacity:(float)(.14+targetPulse*.12),inheritShadow:true,additive:true);}return true;
         }
-        internal void DrawAttack(NativeWorldSurface s,double x,double y,double rotation,double r,double timer)
+        internal void DrawAttack(NativeWorldSurface s,double x,double y,double rotation,double r,double timer,bool attacking=true)
         {
-            double charge=Math.Max(0,Math.Min(1,1-timer/1.2));if(charge<.04)return;double reach=r*(1.02+charge*.84);float width=(float)(1.35+charge*.45);var local=Transform(x,y,rotation);var color=C(99,230,255);
+            // Keep the authored weapon at its resting pose between actual attacks.
+            double charge=attacking?Math.Max(0,Math.Min(1,1-timer/1.2)):0;double reach=r*(1.02+charge*.84);float width=(float)(1.35+charge*.45);var local=Transform(x,y,rotation);var color=C(99,230,255);
             void Stroke(BezierContour path,double alpha){s.DrawNativeMesh(Dynamic(s,path,width),_solid,Properties(color),local,opacity:(float)alpha,inheritShadow:true,additive:true);}
             Stroke(QuadraticContour(P(reach*.68,-r*.18),false,P(reach*.90,-r*.32),P(reach,-r*.08),P(reach*1.08,0),P(reach,r*.08),P(reach*.90,r*.32),P(reach*.68,r*.18)),.20+charge*.24);
             Stroke(QuadraticContour(P(reach*.74,-r*.13),false,P(reach*.94,0),P(reach*1.02,-r*.03),P(reach*1.10,0),P(reach*1.02,r*.03),P(reach*.94,0),P(reach*.74,r*.13)),.34+charge*.32);

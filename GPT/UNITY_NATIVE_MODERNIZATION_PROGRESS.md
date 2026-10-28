@@ -2204,3 +2204,9 @@ PASS, C#5profiles PASS, Core12462+47389 comparisons PASS, Node272PASS. Журн�
 жестом и все4pause-tabs проверены. Следующий точный Gaussian fast interior
 kernel candidate прошёл actual GPU9cases, maxdelta1,alpha0; Android pending.
 Детали/backup17keys: UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.
+
+2026-10-28 followup пользователя: production haptics удалены полностью;
+Standard weapon всегда видим, idle геометрия стабильна, attack animation только
+после атаки. Исправлены выходящие подписи control/pause buttons, chrome высота
+адаптивна. GPU/layout75checks +actualrun17checks PASS. 2848aa3a CI904 SUCCESS,
+phone pause8.741FPS,p95132.82ms — производительность НЕ DONE.

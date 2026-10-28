@@ -24,7 +24,7 @@ namespace EchoSphere.Presentation
             Root.style.minWidth = Root.style.minHeight = 0; Root.style.flexShrink = 1;
             Root.style.opacity = 0; parent.Add(Root);
             Header = Host("native-pause-screen-header", 16, 16, 12);
-            Header.style.height = 135; Header.style.borderBottomWidth = 1;
+            Header.style.height = StyleKeyword.Auto; Header.style.borderBottomWidth = 1;
             Header.style.borderBottomColor = new Color(76/255f,165/255f,214/255f,.16f);
             Body = new ScrollView(ScrollViewMode.Vertical) { name = "native-pause-screen-body" };
             Body.style.flexGrow = 1; Body.style.flexShrink = 1; Body.style.minHeight = 0;
@@ -33,7 +33,7 @@ namespace EchoSphere.Presentation
             ConfigureMobileScroll(Body);
             Root.Add(Body);
             Footer = Host("native-pause-screen-footer", 16, 12, 12);
-            Footer.style.height = 71; Footer.style.borderTopWidth = 1;
+            Footer.style.height = StyleKeyword.Auto; Footer.style.borderTopWidth = 1;
             Footer.style.borderTopColor = new Color(76/255f,165/255f,214/255f,.16f);
             Footer.style.backgroundColor = new Color(6/255f,17/255f,29/255f,1);
         }
@@ -60,7 +60,7 @@ namespace EchoSphere.Presentation
             // Original max-height: min(92vh,780px), including shell borders.
             float limit = Mathf.Max(1, Mathf.Min(viewportHeight * .92f, 780) - 2);
             if (contentReady && float.IsFinite(Body.contentContainer.layout.height))
-                Root.style.height = Mathf.Min(limit, 206 + Mathf.Max(32, Body.contentContainer.layout.height));
+                Root.style.height = Mathf.Min(limit, Mathf.Max(1,Header.layout.height+Footer.layout.height) + Mathf.Max(32, Body.contentContainer.layout.height));
             else Root.style.height = limit;
             Root.SendToBack(); // Original artifact detail blocks native controls.
             if (!contentReady) return;

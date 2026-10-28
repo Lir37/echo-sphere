@@ -15,6 +15,7 @@ namespace EchoSphere.Presentation
         private readonly Material _material;
         private readonly FilterFunctionDefinition _definition;
         private readonly float _sigma;
+        private int _pauseContextSamples;
 #if UNITY_EDITOR
         internal static bool DisablePairedSamplingForValidation=false;
 #endif
@@ -34,7 +35,11 @@ namespace EchoSphere.Presentation
         }
         private void ApplySettings(MaterialPropertyBlock properties,FilterPassContext context)
         {
-            float density=context.scaledPixelsPerPoint;var matrix=_element.worldTransform;var inverse=matrix.inverse;var bounds=_element.worldBound;
+            float density=context.scaledPixelsPerPoint;
+            // Two bounded observations of the real pause filter input, not an
+            // assumption about Gamma project settings or the GPU bottleneck.
+            if(_element.name=="native-pause-overlay"&&_pauseContextSamples<2){_pauseContextSamples++;Debug.Log($"[EchoSphere.PauseFilter] sample={_pauseContextSamples} density={density} sigma={_sigma} readsGamma={context.readsGamma}");}
+            var matrix=_element.worldTransform;var inverse=matrix.inverse;var bounds=_element.worldBound;
             properties.SetFloat("_Sigma",_sigma);properties.SetFloat("_CssDpr",density);properties.SetFloat("_CssReadsGamma",context.readsGamma?1:0);
             properties.SetFloat("_BackdropPairing",1);
 #if UNITY_EDITOR

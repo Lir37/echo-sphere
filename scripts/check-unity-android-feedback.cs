@@ -44,6 +44,13 @@ tick=()=>{try{
   var left=(UnityEngine.UIElements.VisualElement)hud.GetType().GetField("_left",f).GetValue(hud);
   Check(System.Math.Abs(left.resolvedStyle.scale.value.x-.75f)<.0001,"Combat HUD did not use 75% scale");
   Check(left.worldBound.xMin>=-.1f,"HUD escaped left screen edge");
+  var dock=type.GetField("_nativeMobileDock",f).GetValue(r);
+  var dockRoot=(UnityEngine.UIElements.VisualElement)dock.GetType().GetProperty("Root",f).GetValue(dock);
+  foreach(var label in UnityEngine.UIElements.UQueryExtensions.Query<UnityEngine.UIElements.Label>(dockRoot).ToList()){
+   UnityEngine.UIElements.Button button=null;for(var node=label.parent;node!=null;node=node.parent)if(node is UnityEngine.UIElements.Button found){button=found;break;}
+   if(button==null)continue;var bounds=label.worldBound;var box=button.worldBound;
+   Check(bounds.xMin>=box.xMin-.5&&bounds.xMax<=box.xMax+.5&&bounds.yMin>=box.yMin-.5&&bounds.yMax<=box.yMax+.5,"Mobile control label escaped its button: "+button.name);
+  }
   built=Count();stage=1;frames=0;return;
  }
  if(stage==1&&frames>=20){Check(Count()==built,"Paused world rebuilt without state/layout changes");
