@@ -1907,7 +1907,7 @@ namespace EchoSphere.Runtime
             agent.Initialize(this, _player, hp, speed, xpReward,
                 visualVariant, "", isElite, archetype, isPhaseRole,
                 role, roleDamage, roleRadius, eliteVariant, damage); agent.SetSourceVisualTier(_bossesDefeated);
-            _enemies.Add(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent);
         }
         private bool HasActiveBoss()
         {
@@ -2031,7 +2031,7 @@ namespace EchoSphere.Runtime
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
                 BossCombatRules.GetVisualVariant(type), type); agent.SetSourceVisualTier(Mathf.FloorToInt(wave/10f));
-            _enemies.Add(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent);
             var combat = root.AddComponent<BossCombatAgent2D>();
             combat.Initialize(this, _player, agent, type, wave, speed, damage, tint);
             agent.SetBossCombat(combat);
@@ -2045,7 +2045,7 @@ namespace EchoSphere.Runtime
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant, damage: 8f);
             agent.SetSourceRadius(10f);
-            _enemies.Add(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent);
             return agent;
         }
 
@@ -2138,9 +2138,10 @@ namespace EchoSphere.Runtime
         {
             EnemyAgent2D best = null;
             var bestDistance = range * range;
-            for (var i = 0; i < _enemies.Count; i++)
+            var candidates = EnemyQuery(from,range);
+            for (var i = 0; i < candidates.Count; i++)
             {
-                var e = _enemies[i];
+                var e = candidates[i];
                 if (e == null || !e.IsAlive) continue;
                 var distance = ((Vector2)e.transform.position - from).sqrMagnitude;
                 if (distance < bestDistance) { best = e; bestDistance = distance; }
@@ -2259,9 +2260,10 @@ namespace EchoSphere.Runtime
         {
             var found = new List<EnemyAgent2D>();
             var maxDistance = range * range;
-            for (var i = 0; i < _enemies.Count; i++)
+            var candidates = EnemyQuery(from,range);
+            for (var i = 0; i < candidates.Count; i++)
             {
-                var enemy = _enemies[i];
+                var enemy = candidates[i];
                 if (enemy == null || !enemy.IsAlive) continue;
                 if (((Vector2)enemy.transform.position - from).sqrMagnitude <= maxDistance) found.Add(enemy);
             }
@@ -2294,9 +2296,10 @@ namespace EchoSphere.Runtime
         {
             var found = new List<EnemyAgent2D>();
             var maxDistance = radius * radius;
-            for (var i = 0; i < _enemies.Count; i++)
+            var candidates = EnemyQuery(center,radius);
+            for (var i = 0; i < candidates.Count; i++)
             {
-                var enemy = _enemies[i];
+                var enemy = candidates[i];
                 if (enemy != null && enemy.IsAlive &&
                     ((Vector2)enemy.transform.position - center).sqrMagnitude <= maxDistance)
                     found.Add(enemy);
@@ -2306,9 +2309,10 @@ namespace EchoSphere.Runtime
 
         public EnemyAgent2D TryHitEnemy(Vector2 position, float radius, HashSet<int> ignoredIds = null)
         {
-            for (var i = 0; i < _enemies.Count; i++)
+            var candidates = EnemyQuery(position,radius,true);
+            for (var i = 0; i < candidates.Count; i++)
             {
-                var e = _enemies[i];
+                var e = candidates[i];
                 var combined = radius + (e != null ? e.SourceRadius * SpherePlacementRules.SourcePixelsToWorld : 0f);
                 if (e != null && e.IsAlive && (ignoredIds == null || !ignoredIds.Contains(e.ExistingObjectId())) &&
                     ((Vector2)e.transform.position - position).sqrMagnitude < combined * combined) return e;
@@ -3229,6 +3233,7 @@ namespace EchoSphere.Runtime
                         if (distance <= 0.0001f || distance > 240f * scale) continue;
                         var pull = Mathf.Min(90f * scale, distance * 0.55f);
                         enemy.transform.position += (Vector3)(delta / distance * pull);
+                        RefreshEnemyQuery(enemy);
                     }
                     break;
             }
@@ -3449,6 +3454,7 @@ namespace EchoSphere.Runtime
                         if (delta.magnitude > 150f * SpherePlacementRules.SourcePixelsToWorld) continue;
                         var direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
                         enemy.transform.position += (Vector3)(direction * (36f * SpherePlacementRules.SourcePixelsToWorld));
+                        RefreshEnemyQuery(enemy);
                     }
                 }
                 for (var i = 0; i < 12; i++) SpawnSourceParticle(PlayerPosition,
@@ -4862,6 +4868,7 @@ namespace EchoSphere.Runtime
                         if (delta.magnitude > 150f * scale) continue;
                         var direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
                         enemy.transform.position += (Vector3)(direction * 42f * scale);
+                        RefreshEnemyQuery(enemy);
                         enemy.ApplyFreeze(_timeStopTimer + 0.45f);
                     }
             }
@@ -4887,6 +4894,7 @@ namespace EchoSphere.Runtime
                         if (delta.magnitude > 155f * scale) continue;
                         var direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
                         enemy.transform.position += (Vector3)(direction * 58f * scale);
+                        RefreshEnemyQuery(enemy);
                         enemy.ReceiveDamage((12f + level * 3f) * 0.55f);
                     }
                 }
@@ -4919,6 +4927,7 @@ namespace EchoSphere.Runtime
                         if (delta.magnitude > 125f * scale) continue;
                         var direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
                         enemy.transform.position += (Vector3)(direction * 58f * scale);
+                        RefreshEnemyQuery(enemy);
                     }
                 }
 

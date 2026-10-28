@@ -43,6 +43,7 @@ namespace EchoSphere.Runtime
         public void SetSourceRadius(float radius)
         {
             _sourceRadiusOverride = radius;
+            _runtime?.RefreshEnemyQuery(this);
         }
         private float _roleActionTimer;
         private EnemyArchetype _archetype = EnemyArchetype.Normal;
@@ -326,6 +327,7 @@ namespace EchoSphere.Runtime
             var away = ((Vector2)transform.position - center).normalized;
             if (away.sqrMagnitude <= 0.0001f) away = Vector2.up;
             transform.position += (Vector3)(away * Mathf.Max(0f, distance) * _runtime.GetRegionRepulsionMultiplier());
+            _runtime?.RefreshEnemyQuery(this);
         }
 
         public void MoveSourceRadial(Vector2 center, float signedDistance)
@@ -333,18 +335,21 @@ namespace EchoSphere.Runtime
             var delta = (Vector2)transform.position - center;
             var distance = delta.magnitude;
             if (distance > 0f) transform.position += (Vector3)(delta / distance * signedDistance);
+            _runtime?.RefreshEnemyQuery(this);
         }
 
         public void PullByDistance(Vector2 center, float distance)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
             transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance));
+            _runtime?.RefreshEnemyQuery(this);
         }
 
         public void PullToward(Vector2 center, float distance)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
             transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance) * 0.22f);
+            _runtime?.RefreshEnemyQuery(this);
         }
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, float xpReward = 1f,
@@ -465,6 +470,7 @@ namespace EchoSphere.Runtime
             if (_eliteVariant == "phantom_hunter" && distanceToPlayer > 180f * SpherePlacementRules.SourcePixelsToWorld) speedMultiplier *= 1.35f;
             if (_eliteVariant == "scavenger_prime" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
             transform.position += (Vector3)(directionToPlayer * _moveSpeed * speedMultiplier * dt);
+            _runtime?.RefreshEnemyQuery(this);
             if (_role == "leech" && distanceToPlayer < 160f * SpherePlacementRules.SourcePixelsToWorld)
                 _hp = Mathf.Min(_maxHp, _hp + 3f * dt);
 
@@ -520,6 +526,7 @@ namespace EchoSphere.Runtime
                 var awayFromPlayer = -directionToPlayer;
                 if (awayFromPlayer.sqrMagnitude > 0.0001f)
                     transform.position += (Vector3)(awayFromPlayer * 10f * SpherePlacementRules.SourcePixelsToWorld);
+                _runtime?.RefreshEnemyQuery(this);
             }
         }
 
@@ -731,5 +738,6 @@ namespace EchoSphere.Runtime
                 _linkBreakerLines[i].startColor = _linkBreakerLines[i].endColor = color;
         }
 
+        private void OnDestroy(){if(_runtime!=null)_runtime.RemoveEnemyQuery(this);}
     }
 }

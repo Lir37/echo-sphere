@@ -137,6 +137,7 @@ namespace EchoSphere.Runtime
                 if (direction.sqrMagnitude > 0.0001f)
                 {
                     target.transform.position += (Vector3)(direction.normalized * (16f * scaleWorld));
+                    _runtime.RefreshEnemyQuery(target);
                 }
             }
 

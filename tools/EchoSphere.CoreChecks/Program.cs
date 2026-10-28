@@ -12,6 +12,8 @@ internal static class Program
             var failures = new List<Exception>();
             void Check(Action action) { try { action(); } catch (Exception error) { failures.Add(error); } }
             Check(CheckRng);
+            Check(()=>_assertions += SpatialIndexChecks.Run());
+            Check(()=>_assertions += CollisionScratchChecks.Run());
             Check(CheckCombatRules);
             Check(CheckFormationFollow);
             Check(CheckCatalogAndRewardedContracts);

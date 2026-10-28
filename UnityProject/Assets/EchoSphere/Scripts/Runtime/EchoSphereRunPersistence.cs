@@ -47,6 +47,7 @@ namespace EchoSphere.Runtime
         }
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
+            "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
             "_nativeNetworkProjection",
             "_nativeTransientPools",
             "_simulationTypes", "_simulationPhases",
@@ -70,7 +71,7 @@ namespace EchoSphere.Runtime
             "_nativeTutorial", "_nativeTutorialTarget", "_nativeTutorialTargetAt", "_nativeTutorialTargetKey",
             "_nativeHudBoundVersion", "_nativeHudIsland", "_nativeHudPilot", "_nativeMainMenuEnabled", "_nativeMainMenuScreen",
             "_nativeMainMenuWasActive", "_nativeMenuCharacterColor", "_nativeMenuModelVersion", "_nativeMenuShownVersion",
-            "_nativeMenuState", "_nativePauseAbilitiesBoundVersion", "_nativePauseAbilitiesIsland", "_nativePauseAbilitiesPilot",
+            "_maximumEnemyQueryRadius", "_nativeMenuState", "_nativePauseAbilitiesBoundVersion", "_nativePauseAbilitiesIsland", "_nativePauseAbilitiesPilot",
             "_nativePauseArtifactsBoundVersion", "_nativePauseArtifactsIsland", "_nativePauseArtifactsPilot",
             "_nativePauseChromeComposition", "_nativePauseChromeIsland", "_nativePauseChromePilot",
             "_nativePauseScreen", "_nativePauseScreenPilot",
@@ -172,7 +173,7 @@ namespace EchoSphere.Runtime
                     agent is ArtifactChestAgent2D || agent is StellaChestAgent2D || agent is SourceParticle2D)
                 { agent.gameObject.SetActive(false); Destroy(agent.gameObject); }
             }
-            _spheres.Clear(); _enemies.Clear(); _abilityDrones.Clear();
+            _spheres.Clear(); _enemies.Clear(); _enemyQueries?.Clear(); _maximumEnemyQueryRadius=0; _enemyQueryListCount=-1; _abilityDrones.Clear();
             // Old snapshots may contain UI ownership flags. Apply the same boundary
             // while reading as while writing so a live menu cannot be orphaned.
             RunSnapshotCodec.Restore(save.runtime, GetType(), this, field => !NonRunFields.Contains(field.Name));
@@ -222,7 +223,7 @@ namespace EchoSphere.Runtime
                     RunSnapshotCodec.Restore(entity.auxiliary, typeof(BossCombatAgent2D), boss);
                     enemy.SetBossCombat(boss);
                 }
-                _enemies.Add(enemy); agent = enemy;
+                _enemies.Add(enemy); RegisterEnemyQuery(enemy); agent = enemy;
             }
             else if (entity.kind == nameof(ProjectileAgent))
                 agent = SpawnProjectile(entity.position, RunSnapshotCodec.Read(state, "_direction", Vector2.right),
@@ -270,6 +271,7 @@ namespace EchoSphere.Runtime
             if (agent is SourceParticle2D restoredParticle) restoredParticle.RestoreSavedColor(entity.color);
             if (agent is ProjectileAgent projectile) projectile.ResetRestoredSourceReferences();
             agent.transform.position = entity.position; agent.transform.localScale = entity.scale;
+            if(agent is EnemyAgent2D restoredEnemy)RefreshEnemyQuery(restoredEnemy);
         }
     }
 }

@@ -14,6 +14,17 @@ namespace EchoSphere.Core
     // including source Y direction; no Unity physics, frame ordering or RNG is involved.
     public static class SpaceCollisionRules
     {
+        internal sealed class Workspace
+        {
+            private readonly Dictionary<(int, int), List<int>> _grid=new Dictionary<(int,int),List<int>>();
+            private readonly Stack<List<int>> _free=new Stack<List<int>>();
+            internal Dictionary<(int,int),List<int>> BeginPass()
+            {
+                foreach(var bucket in _grid.Values){bucket.Clear();if(_free.Count<256)_free.Push(bucket);}
+                _grid.Clear();return _grid;
+            }
+            internal List<int> Rent()=>_free.Count>0?_free.Pop():new List<int>();
+        }
         private static Vec2 Normal(float x, float y)
         {
             var length = (float)Math.Sqrt(x * x + y * y);
@@ -22,14 +33,20 @@ namespace EchoSphere.Core
         private static float Distance(float x, float y) => (float)Math.Sqrt(x * x + y * y);
         private static Vec2 Add(Vec2 a, Vec2 b, float scale) => new Vec2(a.X + b.X * scale, a.Y + b.Y * scale);
         public static Vec2 Resolve(Vec2 player, IList<CollisionBody> enemies, IList<Vec2> towers, float dt, bool follow, float width = 2400f, float height = 2400f)
+            => ResolveCore(player,enemies,towers,dt,follow,width,height,null);
+        internal static Vec2 ResolveRetained(Vec2 player,IList<CollisionBody> enemies,IList<Vec2> towers,float dt,bool follow,Workspace workspace)
+            => ResolveCore(player,enemies,towers,dt,follow,2400f,2400f,workspace);
+        private static Vec2 ResolveCore(Vec2 player,IList<CollisionBody> enemies,IList<Vec2> towers,float dt,bool follow,float width,float height,Workspace workspace)
         {
             for (var pass = 0; pass < 2; pass++)
             {
-                foreach (var enemy in enemies)
+                for (var enemyIndex=0;enemyIndex<enemies.Count;enemyIndex++)
                 {
+                    var enemy=enemies[enemyIndex];
                     if (follow && enemy.FollowBreach) continue;
-                    foreach (var tower in towers)
+                    for (var towerIndex=0;towerIndex<towers.Count;towerIndex++)
                     {
+                        var tower=towers[towerIndex];
                         var dx = enemy.Position.X - tower.X;
                         var dy = enemy.Position.Y - tower.Y;
                         var minimum = enemy.Radius + 20f;
@@ -57,12 +74,12 @@ namespace EchoSphere.Core
                     }
                 }
                 // Preserve source grid traversal and mass-weighted separation order.
-                var grid = new Dictionary<(int, int), List<int>>();
+                var grid = workspace?.BeginPass() ?? new Dictionary<(int, int), List<int>>();
                 for (var i = 0; i < enemies.Count; i++)
                 {
                     var p = enemies[i].Position;
                     var key = ((int)Math.Floor(p.X / 80f), (int)Math.Floor(p.Y / 80f));
-                    if (!grid.TryGetValue(key, out var bucket)) grid[key] = bucket = new List<int>();
+                    if (!grid.TryGetValue(key, out var bucket)) grid[key] = bucket = workspace?.Rent() ?? new List<int>();
                     bucket.Add(i);
                 }
                 for (var i = 0; i < enemies.Count; i++)
@@ -85,14 +102,16 @@ namespace EchoSphere.Core
                         }
                     }
                 }
-                foreach (var tower in towers)
+                for (var towerIndex=0;towerIndex<towers.Count;towerIndex++)
                 {
+                    var tower=towers[towerIndex];
                     var dx = player.X - tower.X; var dy = player.Y - tower.Y; var distance = Distance(dx, dy);
                     if (distance < 36f) player = Add(player, Normal(dx, dy), 36f - distance);
                 }
                 var push = Vec2.Zero;
-                foreach (var enemy in enemies)
+                for (var enemyIndex=0;enemyIndex<enemies.Count;enemyIndex++)
                 {
+                    var enemy=enemies[enemyIndex];
                     var dx = player.X - enemy.Position.X; var dy = player.Y - enemy.Position.Y;
                     var distance = Distance(dx, dy); var minimum = enemy.Radius + 16f;
                     if (distance >= minimum) continue;
@@ -104,7 +123,7 @@ namespace EchoSphere.Core
                 player = Add(player, push, pushLength > 14f ? 14f / pushLength : 1f);
             }
             player = Clamp(player, width / 2f - 16f, height / 2f - 16f);
-            foreach (var enemy in enemies) enemy.Position = Clamp(enemy.Position, width / 2f - enemy.Radius, height / 2f - enemy.Radius);
+            for(var i=0;i<enemies.Count;i++){var enemy=enemies[i];enemy.Position=Clamp(enemy.Position,width/2f-enemy.Radius,height/2f-enemy.Radius);}
             return player;
         }
         private static Vec2 Clamp(Vec2 p, float x, float y) => new Vec2(Math.Max(-x, Math.Min(x, p.X)), Math.Max(-y, Math.Min(y, p.Y)));

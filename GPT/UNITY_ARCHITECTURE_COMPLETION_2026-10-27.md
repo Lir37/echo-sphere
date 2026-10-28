@@ -189,3 +189,58 @@ https://github.com/Lir37/echo-sphere/actions/runs/40585054541 .
 деформируемые контуры/rig topology, пакетная геометрия частиц; raster API и
 reference isolation, полный lifecycle/память20циклов и device acceptance.
 План целиком, P1/P2 и 60FPS НЕ объявляются DONE.
+
+## Группа 5 — spatial broad phase и буферы столкновений (2026-10-28)
+
+Группа4 опубликована как 2fdbceeb4514009d17af1a961673f7deb4400867,
+CI #890 SUCCESS: https://github.com/Lir37/echo-sphere/actions/runs/40633757560 .
+
+OrderedSpatialIndex предварительно отбирает кандидатов для FindNearestEnemy,
+FindNearestEnemies, FindEnemiesInRadius и TryHitEnemy. Окончательные squared
+distance predicates, строгие/нестрогие границы, ignored IDs, сортировка и выбор
+равнозначных целей остаются прежними. Кандидаты возвращаются в исходном порядке
+списка врагов; перемещение между ячейками не меняет порядок. Большой радиус и
+нечисловые координаты возвращают полный список для прежней точной проверки.
+Публичные методы со списком по-прежнему возвращают отдельный принадлежащий
+вызывающему список: он может пережить вложенные запросы при обработке урона.
+Unbounded FindNearestUnhitEnemy и циклы с побочными эффектами не заменялись.
+
+Индекс обновляется при birth/restore, движении EnemyAgent, притяжении/отталкивании,
+гравитационном ударе дрона, раздвигании тел, движении/рывке/телепорте босса и
+изменении радиуса; Destroy удаляет запись. Restore пересобирает индекс из модели.
+Индекс, его scratch list и верхняя граница радиуса не входят в формат сохранения.
+Нет Unity Physics, FixedUpdate или изменения RNG/порядка игровых фаз.
+
+ResolveSourceSpaceCollisions теперь повторно использует списки агентов/башен,
+описания CollisionBody и grid buckets двух исходных проходов. Каждое используемое
+поле тела заново заполняется. Scratch исключён из runtime snapshot. Решатель
+сохранил обход соседей/пар, массу, два прохода и clamp; IList foreach заменён
+индексным обходом того же порядка, чтобы не выделять enumerators.
+
+Проверки:
+- Core: 12462 assertions PASS, включая 3605 spatial и 7474 collision checks;
+  TypeScript→C# parity 47389 PASS. 2000 разнесённых объектов: локальный запрос
+  возвращает менее20 кандидатов; все точные результаты/порядок сохраняются.
+- 240 collision fixtures сравнивают свежие и retained buffers при изменении
+  числа тел/башен, follow, границ и массы; позиции совпадают точно.
+- .NET GC.GetAllocatedBytesForCurrentThread, 100 прогретых вызовов решателя:
+  текущий путь со свежей сеткой 718400 bytes; retained workspace 0 bytes.
+  Это отдельный CPU fixture, НЕ GC всего Editor/Android кадра и НЕ FPS.
+- Реальный Editor runtime fixture: 4826 проверки исходных linear predicates,
+  nearest group/ties, перемещений, изменения радиуса, birth/removal, раздвигания
+  тел, рывка/телепорта босса и отсутствия scratch в save schema — PASS.
+  При сравнении Unity Transform значения явно сохраняются в float Vector3,
+  как в production; расширенная точность промежуточных Mono locals не является
+  изменением игровой формулы. Fixture не записывает PlayerPrefs.
+- C# player/editor: 343 runtime +6 Editor, 0 errors/compiler warnings.
+  272 Node regression tests и Unity project preflight PASS.
+- Editor Play запущен; production UI pointer/callback fixture 53 PASS,
+  runtime query/collision fixture PASS; 0 новых Console errors. Сохранение
+  enemy/particle ownership отдельно 30 PASS. Это не полный tutorial/device run.
+
+Остаток: явные save adapters остальных сущностей; retained topology/rig для
+деформируемых контуров и дальнейшая пакетная геометрия/частицы; raster RenderGraph
+и изоляция Editor reference; полный cold region/tutorial и память20 переходов;
+белая пауза и финальная Android-приёмка/15минут. Телефон не подключён, APK в этой
+группе не собирался. Качество, визуальные эффекты и настройки пользователя
+не снижались; new-desing не менялся. Общий план остаётся IN PROGRESS.

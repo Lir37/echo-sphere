@@ -2102,3 +2102,13 @@ Desktop compile/GPU/lifecycle checks passed; Android shader bundle compiled.
 No new APK/device performance claim. Spatial queries, remaining save adapters,
 dynamic geometry/particle batching, render-pass/reference cleanup and complete
 phone/memory acceptance remain open. Full plan/P1/P2 NOT DONE.
+
+2026-10-28, group5: ordered spatial broad phase for four pure target/hit queries,
+with immediate movement/radius/lifecycle updates and unchanged exact predicates;
+retained collision bodies/lists/two-pass grid, no save-schema additions. Core12462,
+TS/C#47389, Editor runtime4826 and ownership30 PASS. Production pointer Play53
+PASS; no new Console errors. A warmed .NET collision-only fixture allocates0
+bytes for100 calls with retained workspace (fresh grid718400); not device GC/FPS.
+Previous published group4 2fdbceeb passed CI890 SUCCESS. See architecture report
+for limitations. Remaining save adapters, topology/particle batching, graph/reference
+cleanup, full lifecycle and Android acceptance stay open; no new APK/quality cut.

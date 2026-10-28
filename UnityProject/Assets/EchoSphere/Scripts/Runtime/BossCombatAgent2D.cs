@@ -52,6 +52,7 @@ namespace EchoSphere.Runtime
             var toPlayer = playerPos - (Vector2)transform.position;
             var distance = toPlayer.magnitude;
             transform.position = Vector2.MoveTowards(transform.position, playerPos, _moveSpeed * _agent.MovementSlowMultiplier * dt);
+            _runtime.RefreshEnemyQuery(_agent);
             if (distance < _agent.SourceRadius * SpherePlacementRules.SourcePixelsToWorld + BossCombatRules.PlayerRadiusWorld) _runtime.TryDamagePlayer(_damage);
 
             if (_bossType == "charger")
@@ -62,6 +63,7 @@ namespace EchoSphere.Runtime
                     if (_chargeTimer <= BossCombatRules.ChargerCommitSeconds)
                     {
                         transform.position += (Vector3)(_chargeDirection * _moveSpeed * 3f * dt);
+                        _runtime.RefreshEnemyQuery(_agent);
                         if (Vector2.Distance(transform.position, playerPos) < BossCombatRules.BossRadiusWorld + BossCombatRules.PlayerRadiusWorld)
                         {
                             _runtime.TryDamagePlayer(_damage * 1.5f);
@@ -142,6 +144,7 @@ namespace EchoSphere.Runtime
                         _summonTimer = 7f;
                         var a = _runtime.NextRunRandom() * Mathf.PI * 2f;
                         transform.position = playerPos + new Vector2(Mathf.Cos(a), -Mathf.Sin(a)) * BossCombatRules.ToWorldUnits(360f);
+                        _runtime.RefreshEnemyQuery(_agent);
                         _runtime.DrainResonance(12f);
                         _runtime.ShowBossMessage("GEOMETRY SHIFT");
                     }

@@ -8,6 +8,11 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private int _mutationStage;
+        private readonly List<EnemyAgent2D> _spaceCollisionAgents=new List<EnemyAgent2D>();
+        private readonly List<CollisionBody> _spaceCollisionBodies=new List<CollisionBody>();
+        private readonly List<CollisionBody> _spaceCollisionBodyPool=new List<CollisionBody>();
+        private readonly List<Vec2> _spaceCollisionTowers=new List<Vec2>();
+        private readonly SpaceCollisionRules.Workspace _spaceCollisionWorkspace=new SpaceCollisionRules.Workspace();
         private float _chaosOrbTimer, _chaosOrbBuffTimer, _buffTimer, _deathTimer;
         private string _chaosOrbBuff;
         private float ChaosOrbMultiplier(string kind) => _chaosOrbBuff == kind && _chaosOrbBuffTimer > 0f ? 1.2f : 1f;
@@ -88,19 +93,23 @@ namespace EchoSphere.Runtime
         {
             if (_mainMenu || _playerCore == null) return;
             var scale = SpherePlacementRules.SourcePixelsToWorld;
-            var agents = new List<EnemyAgent2D>(); var bodies = new List<CollisionBody>();
+            var agents = _spaceCollisionAgents; var bodies = _spaceCollisionBodies;
+            agents.Clear();bodies.Clear();
             foreach (var e in _enemies)
             {
                 if (e == null || !e.IsAlive) continue;
                 agents.Add(e);
-                bodies.Add(new CollisionBody { Position = new Vec2(e.transform.position.x / scale, -e.transform.position.y / scale),
-                    Radius = e.SourceRadius, Speed = e.SourceSpeed, Mass = e.CollisionMass, FollowBreach = e.Role == "charger" || e.Role == "phase" });
+                if(_spaceCollisionBodyPool.Count<=bodies.Count)_spaceCollisionBodyPool.Add(new CollisionBody());
+                var body=_spaceCollisionBodyPool[bodies.Count];
+                body.Position=new Vec2(e.transform.position.x / scale, -e.transform.position.y / scale);
+                body.Radius=e.SourceRadius;body.Speed=e.SourceSpeed;body.Mass=e.CollisionMass;body.FollowBreach=e.Role=="charger"||e.Role=="phase";
+                bodies.Add(body);
             }
-            var towers = new List<Vec2>();
+            var towers = _spaceCollisionTowers;towers.Clear();
             foreach (var s in _spheres) if (s != null) towers.Add(new Vec2(s.transform.position.x / scale, -s.transform.position.y / scale));
-            var p = SpaceCollisionRules.Resolve(new Vec2(_player.position.x / scale, -_player.position.y / scale), bodies, towers, dt, _follow);
+            var p = SpaceCollisionRules.ResolveRetained(new Vec2(_player.position.x / scale, -_player.position.y / scale), bodies, towers, dt, _follow,_spaceCollisionWorkspace);
             _player.position = new Vector3(p.X * scale, -p.Y * scale, _player.position.z);
-            for (var i = 0; i < agents.Count; i++) agents[i].transform.position = new Vector3(bodies[i].Position.X * scale, -bodies[i].Position.Y * scale, agents[i].transform.position.z);
+            for (var i = 0; i < agents.Count; i++){agents[i].transform.position = new Vector3(bodies[i].Position.X * scale, -bodies[i].Position.Y * scale, agents[i].transform.position.z);RefreshEnemyQuery(agents[i]);}
             if (_follow) foreach (var sphere in _spheres) if (sphere != null) sphere.SyncFollowPosition();
         }
         public void SpawnSourceParticle(Vector2 position, Vector2 sourceVelocity, float life, float size, string htmlColor, float maxLife = 0f)
@@ -122,7 +131,7 @@ namespace EchoSphere.Runtime
                 var child = go.AddComponent<EnemyAgent2D>();
                 child.Initialize(this, _player, hp, parent.SourceSpeed * 1.15f * SpherePlacementRules.SourcePixelsToWorld,
                     elite ? 2 : 1, "skitter", "", false, EnemyArchetype.Fast, false, elite ? "grunt" : "swarmer", 1f, 1f, "", parent.ContactDamage * 0.45f);
-                child.SetSourceRadius(radius);child.SetSourceVisualTier(parent.SourceVisualTier); _enemies.Add(child);
+                child.SetSourceRadius(radius);child.SetSourceVisualTier(parent.SourceVisualTier); _enemies.Add(child); RegisterEnemyQuery(child);
             }
             if (elite) ShowTimedCombatMessage("SPLITTER", 0.6f);
         }
