@@ -46,7 +46,7 @@ namespace EchoSphere.Runtime
             string id=EchoSphere.Core.CharacterRules.ToSourceId(_sphereCharacterId);var point=NativeSourcePixels(PlayerPosition);ColorUtility.TryParseHtmlString(EchoSphere.Core.CharacterRules.Get(_sphereCharacterId).ColorHex,out var color);
             return new NativeWorldPlayer.State {X=point.x,Y=point.y,Radius=NativePlayerRadiusPixels,Time=_runTime,Hp=_playerCore.CurrentHp,ContactCooldown=_playerCore.ContactGraceTimer,ShieldTimer=_shieldTimer,ShieldCharges=_playerCore.ShieldCharges,DashTimer=_playerCore.DashTimer,DeathTimer=_deathTimer,Character=id,Color=color};
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private NativeWorldPlayer.State LegacyPlayerState(V player)
         {
             var raw=player["characterId"];string id=raw.Truth&&EchoSphere.Core.CharacterRules.TryParseSourceId(raw.Text,out _)?raw.Text:"spherist";EchoSphere.Core.CharacterRules.TryParseSourceId(id,out var character);ColorUtility.TryParseHtmlString(EchoSphere.Core.CharacterRules.Get(character).ColorHex,out var color);
@@ -70,7 +70,7 @@ namespace EchoSphere.Runtime
             Vector2 targetPosition=target==null?Vector2.zero:(Vector2)target.transform.position;
             return new NativeWorldCreatures.EnemyView {Identity=enemy,X=x,Y=y,Radius=enemy.SourceRadius,HasRotation=true,Rotation=enemy.SourceProjectionRotation,HitFlash=enemy.SourceProjectionHitFlash,Tier=enemy.SourceVisualTier,Hp=enemy.CurrentHp,MaxHp=enemy.MaxHp,Boss=boss,Elite=enemy.IsElite,Fire=enemy.SourceProjectionFireTimer>0,Poison=enemy.SourceProjectionPoisonTimer>0,Freeze=enemy.SourceProjectionFreezeTimer>0,Variant=boss?type:enemy.SourceVisualVariant,BossName=name,Color=color,Signal=signal,LinkTarget=target!=null,LinkTimer=enemy.SourceProjectionLinkBreakerTelegraphTimer,LinkX=target==null?double.NaN:targetPosition.x/scale,LinkY=target==null?double.NaN:-targetPosition.y/scale,LinkWindow=.75};
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static NativeWorldCreatures.BossSignal NativeBossSignal(V e,V target)
         {
             var windows=Visual_bossBalance.Scope["BOSS_TELEGRAPH_WINDOWS"];

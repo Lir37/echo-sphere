@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,7 +18,7 @@ namespace EchoSphere.Presentation
         private readonly Func<VisualElement,Action<MeshGenerationContext>> _paint;
         private readonly SourceUiReplicaSnapshotCache _snapshots;
         private readonly bool _boundToArea;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static bool DisableBoundsForValidation=false;
 #endif
         private static bool HasFilter(VisualElement e){if(e.resolvedStyle.filter!=null)foreach(var unused in e.resolvedStyle.filter)return true;return false;}
@@ -68,7 +68,7 @@ namespace EchoSphere.Presentation
         internal void Update(VisualElement root,VisualElement stop,VisualElement parent,Rect area)
         {
             bool bounded=_boundToArea;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             if(DisableBoundsForValidation)bounded=false;
 #endif
             _childOrder.Clear();

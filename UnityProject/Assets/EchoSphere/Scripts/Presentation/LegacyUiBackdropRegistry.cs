@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +26,7 @@ internal sealed class LegacyUiBackdropRegistry : INativeUiBackdrops,IDisposable
         internal int DynamicRepaintCount {get;private set;}
         internal int CapturePrepareCount {get;private set;}
         internal int RetainedFallbackCount {get;private set;}
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal bool DisableLayoutCacheForValidation=false;
         internal bool DisableExplicitLayersForValidation=false;
 #endif
@@ -51,11 +51,11 @@ internal sealed class LegacyUiBackdropRegistry : INativeUiBackdrops,IDisposable
         {
             if(!_bindings.TryGetValue(element,out var binding))return;
             bool explicitLayers=_explicitLayers;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             if(DisableExplicitLayersForValidation)explicitLayers=false;
 #endif
             bool retain=_retainLayout;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             if(DisableLayoutCacheForValidation)retain=false;
 #endif
             ulong version=retain?NativeMenuPaintVersion.ReadLayoutPrefix(prefixRoot,element,binding.Sigma):0;
@@ -66,7 +66,7 @@ internal sealed class LegacyUiBackdropRegistry : INativeUiBackdrops,IDisposable
                 // A moving clip must not repeatedly retire/recreate filter IDs.
                 // Once compatibility is needed, retain that backend for its owner.
                 if(!explicitLayers&&!binding.RetainedCompatibility){binding.RetainedCompatibility=true;
-#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS) || UNITY_INCLUDE_INSTRUMENTATION
                     if(NativeDeviceReplay.Active)Debug.Log("[EchoSphere.Replay] effect-mode=retained element="+element.name);
 #endif
                 }

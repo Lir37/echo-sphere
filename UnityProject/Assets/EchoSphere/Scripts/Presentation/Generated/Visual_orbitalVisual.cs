@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/spheres/orbitalVisual.ts; sha256 5f6a998ffb026a4c89085cf636725b199c3d3ce5c31a039fe1fbfd20ce49a101.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

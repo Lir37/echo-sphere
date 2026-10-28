@@ -92,7 +92,7 @@ for(const bossType of ['shooter','charger','summoner','aura','conductor','archit
 }
 function cs(value) {if(value===null)return 'VisualJs.Null';if(Array.isArray(value))return 'VisualJs.Arr('+value.map(cs).join(',')+')';if(typeof value==='object')return 'VisualJs.Obj('+Object.entries(value).flatMap(([k,v])=>[cs(k),cs(v)]).join(',')+')';return typeof value==='number'?'new V('+value+'d)':typeof value==='string'?'new V('+JSON.stringify(value)+')':'new V('+value+')';}
 const statePath='UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/VisualInitialState.cs';
-const stateCode='#if UNITY_EDITOR\n// Generated from engineState.ts:createInitialState, not hand-authored defaults.\nnamespace EchoSphere.Presentation { public static class VisualInitialState { public static V Create()=>'+cs(initialState)+'; } }\n#endif\n';
+const stateCode='#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS\n// Generated from engineState.ts:createInitialState, not hand-authored defaults.\nnamespace EchoSphere.Presentation { public static class VisualInitialState { public static V Create()=>'+cs(initialState)+'; } }\n#endif\n';
 if(process.argv.includes('--check')){if(readFileSync(statePath,'utf8').replaceAll('\r\n','\n')!==stateCode)throw new Error('Source initial render state changed');}else writeFileSync(statePath,stateCode);
 const output='tools/EchoSphere.VisualChecks/source-visual-fixtures.json';const text=JSON.stringify(scenarios)+'\n';
 if(process.argv.includes('--check')) {if(readFileSync(output,'utf8').replaceAll('\r\n','\n')!==text)throw new Error('Source visual command fixtures changed');}else writeFileSync(output,text);

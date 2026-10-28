@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,10 +21,10 @@ namespace EchoSphere.Presentation
         private Rect _area;
         private Matrix4x4 _toPanel,_toScreen;
         private Vector2 _panelSize;
-#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS) || UNITY_INCLUDE_INSTRUMENTATION
         private Vector4 _reportedKernel=new Vector4(-1,-1,-1,-1);
 #endif
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static bool DisableKernelCacheForValidation=false;
 #endif
         internal VisualElement Foreground=>_foreground;
@@ -91,11 +91,11 @@ namespace EchoSphere.Presentation
             float sigma=context.filterFunction.GetParameter(0).floatValue,density=context.scaledPixelsPerPoint;
             properties.SetFloat("_Sigma",sigma);properties.SetFloat("_CssDpr",density);properties.SetFloat("_CssReadsGamma",context.readsGamma?1f:0f);
             float kernelSigma=Mathf.Max(0,sigma*density);bool cached=NativeGaussianWeights.TryGet(kernelSigma,out var weights);
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             if(DisableKernelCacheForValidation)cached=false;
 #endif
             properties.SetInt("_BackdropWeightCount",cached?Mathf.CeilToInt(4*kernelSigma)+1:0);if(cached)properties.SetVectorArray("_BackdropWeights",weights);
-#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS) || UNITY_INCLUDE_INSTRUMENTATION
             var diagnostic=new Vector4(sigma,density,_area.width,_area.height);
             if(NativeDeviceReplay.Active&&_reportedKernel!=diagnostic){_reportedKernel=diagnostic;Debug.Log("[EchoSphere.Replay] backdrop="+_original.name+" sigma="+sigma+" density="+density+" area="+_area.width+"x"+_area.height+" cached="+cached);}
 #endif

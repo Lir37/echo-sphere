@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace EchoSphere.Presentation
 {
-    #if UNITY_EDITOR
+    #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
     public sealed class VisualCssNode
     {
         public string Tag,Text,Pseudo;
@@ -31,7 +31,7 @@ namespace EchoSphere.Presentation
         internal IEnumerable<string> Classes {get{HasClass("");return _classes;}}
         public string Attribute(string name) {var value=Properties[name=="class"?"className":name];if(value.Undefined)return null;if(value.Raw is bool flag&&!flag&&new[]{"disabled","checked","hidden","multiple","readonly","required","selected","autofocus"}.Contains(name))return null;return value.Text;}
         public int ElementIndex=>Parent==null?0:Parent.Children.Where(child=>child.Tag!="#text"&&child.Pseudo==null).ToList().IndexOf(this);
-        #if UNITY_EDITOR
+        #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         public static VisualCssNode Build(V tree)
         {
             var root=new VisualCssNode {Tag="html"};var body=new VisualCssNode {Tag="body",Parent=root};root.Children.Add(body);
@@ -55,7 +55,7 @@ namespace EchoSphere.Presentation
     #endif
     public sealed class VisualCss
     {
-        #if UNITY_EDITOR
+        #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private sealed class Rule {public string Selector;public V Conditions,Declarations;public int Specificity,Order;public bool Enabled;}
         private sealed class ParsedSelector {public List<string> Parts;public List<char> Relations;}
         private static readonly Dictionary<string,ParsedSelector> SelectorCache=new Dictionary<string,ParsedSelector>();
@@ -145,7 +145,7 @@ namespace EchoSphere.Presentation
             for(var i=0;i<text.Length;i++){var c=text[i];if(escape){escape=false;continue;}if(c=='\\'){escape=true;continue;}if(quote!='\0'){if(c==quote)quote='\0';continue;}if(c=='\''||c=='"'){quote=c;continue;}if(c=='('||c=='[')depth++;if(c==')'||c==']')depth--;if(c==separator&&depth==0){parts.Add(text.Substring(start,i-start));start=i+1;}}
             parts.Add(text.Substring(start));return parts;
         }
-        #if UNITY_EDITOR
+        #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static int Close(string text,int start)
         {var depth=0;for(var i=start;i<text.Length;i++){if(text[i]=='(')depth++;else if(text[i]==')'&&--depth==0)return i;}return -1;}
         private static int AttributeEnd(string text,int start){char quote='\0';var escape=false;for(var i=start;i<text.Length;i++){var c=text[i];if(escape){escape=false;continue;}if(c=='\\'){escape=true;continue;}if(quote!='\0'){if(c==quote)quote='\0';continue;}if(c=='\''||c=='"'){quote=c;continue;}if(c==']')return i;}return -1;}

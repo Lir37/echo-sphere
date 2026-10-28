@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
             }
             return new NativePauseAbilitiesState {ActiveHeading=ru?"Активные способности":"Active abilities",PassiveHeading=ru?"Пассивные":"Passive",Active=active,Passive=passive};
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static NativePauseAbilitiesState ProjectNativePauseAbilitiesState(V scene,bool ru)
         {
             var active=new List<NativePauseAbilitiesState.Ability>();

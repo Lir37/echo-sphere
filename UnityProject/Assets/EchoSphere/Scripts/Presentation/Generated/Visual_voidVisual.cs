@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/spheres/voidVisual.ts; sha256 f08f03434a25ec804f07608e518ecfadcb0cfc169059392469c6f567811ac142.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

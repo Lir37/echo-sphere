@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/bossBalance.ts; sha256 2389625a32b78059ab102c2d7e95ad11bd17bb3404e8fe10c38e68258537b11e.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/EchoMapScreen.tsx; sha256 4c9c3b7b2b67f95f175b4612c47dc1bbe3f3e038a4117a397b762bce748b2fb3.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

@@ -7042,7 +7042,7 @@ namespace EchoSphere.Runtime
             _userPaused = false;
             _messageTimer = 0f;
             _runTime = 0f;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             _sourceRenderState=default;_sourceRenderEntities.Clear();
 #endif
             _nativePresentedDominant=_nativePresentedSecondary=null;

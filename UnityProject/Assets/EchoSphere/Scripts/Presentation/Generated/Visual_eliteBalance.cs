@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/eliteBalance.ts; sha256 441ea7ce2718d378eac434d6696bf57ad01a9f79cf8feee38655ceb7477fd08e.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

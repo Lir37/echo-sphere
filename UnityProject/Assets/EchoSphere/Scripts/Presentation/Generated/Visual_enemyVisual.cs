@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/enemies/enemyVisual.ts; sha256 237da35ae87e4bc71f640107e1b8fa2d5d3050828a12d2a85b0ceae8846c2288.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
     bool discovered=completed.Contains(definition.SetId);rows.Add(new NativeProtocolState(definition,discovered,discovered&&condition));
    }return rows;
   }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
   internal static IReadOnlyList<NativeDiagnosticRow> NativeBuildDiagnostics(V scene,bool ru)
   {
    var catalog=NativeRunCatalog.Instance;var player=scene["player"];var abilities=player["abilities"];var rows=new List<NativeDiagnosticRow>();

@@ -9,7 +9,7 @@ namespace EchoSphere.Presentation
     // portable checks. No screen capture, frame history or Unity native calls.
     public static class VisualBackdrop
     {
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         public static double Sigma(VisualCss sheet,VisualCssNode node)
         {
             var value=sheet.Get(node,"backdrop-filter",sheet.Get(node,"-webkit-backdrop-filter","none")).Trim();
@@ -19,7 +19,7 @@ namespace EchoSphere.Presentation
             return Math.Max(0d,sheet.Length(match.Groups[1].Value.Length==0?"0":match.Groups[1].Value,node.Width));
         }
 #endif
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         public static bool IsRoot(VisualCss sheet,VisualCssNode node)
         {
             if(node.Parent==null)return true;

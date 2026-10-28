@@ -77,7 +77,7 @@ namespace EchoSphere.Runtime
             sections.Add(new NativePauseSynergiesState.Section { Id = "artifacts", Heading = ru ? "Синергии артефактов" : "Artifact synergies", Cards = cards });
             return new NativePauseSynergiesState { Sections = sections, EmptySignals = ru ? "Признаки пока не сформированы" : "No active signals yet" };
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static NativePauseSynergiesState ProjectNativePauseSynergiesState(V scene, bool ru)
         {
             string lang = ru ? "ru" : "en";

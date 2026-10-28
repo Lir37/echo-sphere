@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/TutorialOverlay.tsx; sha256 fcbaf8e953003e58fee957fec589c713b2f983b764ea68f9df42be7651af2ac4.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

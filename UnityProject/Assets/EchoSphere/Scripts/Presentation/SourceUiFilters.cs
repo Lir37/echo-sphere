@@ -39,7 +39,7 @@ namespace EchoSphere.Presentation
             }
             element.style.filter=filters;
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal void Apply(VisualCss sheet,VisualCssNode node,VisualElement element,float dpr,bool surfaceFiltered=false)
         {
             var source=surfaceFiltered?"none":sheet.Get(node,"filter","none");var opacity=sheet.Get(node,"opacity","1");var key=source+"|"+opacity+"|"+sheet.Get(node,"color","#000000");

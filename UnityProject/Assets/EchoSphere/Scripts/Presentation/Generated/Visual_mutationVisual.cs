@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/spheres/mutationVisual.ts; sha256 1a770c3b29ff7ab749c951a8737e5a265954fc2e8dc586e4474130351ce4b654.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

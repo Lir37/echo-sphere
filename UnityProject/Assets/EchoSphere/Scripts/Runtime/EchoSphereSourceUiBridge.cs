@@ -18,7 +18,7 @@ namespace EchoSphere.Runtime
         {
             if(_sourceUi==null){
                 _sourceUi=new NativeUiDataContext();
-                #if UNITY_EDITOR
+                #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
                 var environment=_sourceUi;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;
                 environment.WriteStorage=(key,value)=>{PlayerPrefs.SetString(key,value.Text);PlayerPrefs.Save();};
@@ -34,14 +34,14 @@ namespace EchoSphere.Runtime
             // is no generated JSX/DOM fallback in the active runtime anymore.
 
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private void UpdateSourceUiState()
         {
             EnsureShopSaveLoaded();var scene=_sourceRenderState;
             var hotkeys=VisualJs.Obj();foreach(var pair in _activeAbilityHotkeys)hotkeys[pair.Value.ToString().Replace("Alpha","").ToLowerInvariant()]=SourceAbilityId(pair.Key);scene["activeKeyMap"]=hotkeys;
             scene["selectedSphereType"]=_selectedSphereType.ToString().ToLowerInvariant();var player=scene["player"];player["sphereMovementLocked"]=_sphereMovementLocked;
             scene["bossActive"]=VisualJs.Null;foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){scene["bossActive"]=RenderEntity(enemy);break;}
-            #if UNITY_EDITOR
+            #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             var choices=new List<V>();
             if(_levelUp){
                 if(_choosingEvolution){
@@ -64,7 +64,7 @@ namespace EchoSphere.Runtime
             #endif
         }
 #endif
-        #if UNITY_EDITOR
+        #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private V SourceUiBinding(string module,string name)
         {
             if(module=="global")return _sourceUi.Get(name);
@@ -107,7 +107,7 @@ namespace EchoSphere.Runtime
             });
         }
         #endif
-        #if UNITY_EDITOR
+        #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private void ApplySourceUiWrites()
         {
             if(_sourceRenderState.Undefined)return;_sphereMovementLocked=_sourceRenderState["player"]["sphereMovementLocked"].Truth;

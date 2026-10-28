@@ -11,7 +11,7 @@ namespace EchoSphere.Runtime
     {
         private NativeWorldSurface _worldSurface;
         public bool UsesSourcePresentation=>true;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private V _sourceRenderState;
 #endif
         [Serializable] private sealed class SourceLightningVisual {public Vector2 from,to;public float life;public string sphereType;}
@@ -20,7 +20,7 @@ namespace EchoSphere.Runtime
         {_sourceLightningVisuals.Add(new SourceLightningVisual {from=from,to=to,life=life,sphereType=type.HasValue?type.Value.ToString().ToLowerInvariant():null});}
         private void TickSourceLightningVisuals(float dt)
         {for(var i=_sourceLightningVisuals.Count-1;i>=0;i--){_sourceLightningVisuals[i].life-=dt;if(_sourceLightningVisuals[i].life<=0f)_sourceLightningVisuals.RemoveAt(i);}if(_sourceLightningVisuals.Count>36)_sourceLightningVisuals.RemoveRange(0,_sourceLightningVisuals.Count-36);}
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private readonly Dictionary<MonoBehaviour,V> _sourceRenderEntities=new Dictionary<MonoBehaviour,V>();
         private static V SourcePoint(Vector2 world)=>VisualJs.Obj("x",world.x/SpherePlacementRules.SourcePixelsToWorld,"y",-world.y/SpherePlacementRules.SourcePixelsToWorld);
         private static V SourcePoint(Vec2 world)=>VisualJs.Obj("x",world.X/SpherePlacementRules.SourcePixelsToWorld,"y",-world.Y/SpherePlacementRules.SourcePixelsToWorld);
@@ -171,7 +171,7 @@ namespace EchoSphere.Runtime
             _nativeTransientPools?.Flush();
             try{
             if(_playerCore==null||_camera==null)return;
-            #if UNITY_EDITOR
+            #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             VisualBindings.Locale=IsRussianUi?"ru":"en";
             #endif
             if(_mainMenu){_nativeRunDocument?.Hide();_worldSurface?.CancelGraphFrame();}

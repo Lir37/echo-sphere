@@ -94,7 +94,7 @@ namespace EchoSphere.Runtime
             }
             result.Spheres=cards;return result;
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static NativePauseStatsState ProjectNativePauseStatsState(V scene,bool ru)
         {
             var lang=ru?"ru":"en";var player=scene["player"];

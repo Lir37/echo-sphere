@@ -17,7 +17,7 @@ namespace EchoSphere.Presentation
         private static readonly Dictionary<string,FontAsset> Fonts=new Dictionary<string,FontAsset>();
         private static readonly Dictionary<string,string> Faces=new Dictionary<string,string>();
         private static bool _initialized;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static FontAsset Resolve(VisualCss sheet,VisualCssNode node,float size)
         {
             var family=sheet.Get(node,"font-family","system-ui,sans-serif");
@@ -98,7 +98,7 @@ namespace EchoSphere.Presentation
             }
             Faces[key]=null;return null;
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static void Apply(VisualCss sheet,VisualCssNode node,VisualElement element,float size)
         {
             var asset=Resolve(sheet,node,size);

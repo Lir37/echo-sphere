@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/spheres/shotgunVisual.ts; sha256 74371764d179af03329a80d554a560e1d71cb8fe7af85b5dbf318d7cf90c5a6c.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/engineBalanceConstants.ts; sha256 412c575c9fd05fc2223785425c1800cd92befea103272567df3d002eb809459a.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

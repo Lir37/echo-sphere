@@ -38,7 +38,7 @@ namespace EchoSphere.Presentation
             var index=_cursor++;if(index==_targets.Count)_targets.Add(null);var target=_targets[index];
             if(target==null||target.width!=width||target.height!=height||target.sRGB!=srgb){if(target!=null){target.Release();UnityEngine.Object.Destroy(target);}target=new RenderTexture(Math.Max(1,width),Math.Max(1,height),0,RenderTextureFormat.ARGB32,srgb?RenderTextureReadWrite.sRGB:RenderTextureReadWrite.Linear){filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp,name="Source CSS surface filter"};target.Create();_targets[index]=target;}return target;
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal Texture Render(Texture source,Rect bounds,string filters,VisualCss sheet,VisualCssNode node,float scale)
         {
             _cursor=0;Bounds=bounds;var previous=RenderTexture.active;var gamma=GL.sRGBWrite;

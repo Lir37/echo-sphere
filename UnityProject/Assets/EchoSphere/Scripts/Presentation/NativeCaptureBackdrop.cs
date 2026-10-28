@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +26,7 @@ namespace EchoSphere.Presentation
         private Material _blur;
         private Rect _area;private Matrix4x4 _matrix;
         private float _scale,_sigma;private int _layer=-1;private bool _disposed;
-#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS) || UNITY_INCLUDE_INSTRUMENTATION
         private Vector2Int _reportedSize;
 #endif
         internal bool Scheduled;
@@ -107,7 +107,7 @@ namespace EchoSphere.Presentation
             var previous=RenderTexture.active;bool srgb=GL.sRGBWrite;
             try{
                 using(CaptureMarker.Auto()){if(!_capture.TryRender(_source))return;}
-#if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS) || UNITY_INCLUDE_INSTRUMENTATION
                 var size=new Vector2Int(_source.width,_source.height);if(NativeDeviceReplay.Active&&_reportedSize!=size){_reportedSize=size;Debug.Log("[EchoSphere.Replay] effect-render=native element="+_original.name+" pixels="+size.x+"x"+size.y+" sigma="+_sigma+" density="+_scale);}
 #endif
                 GL.sRGBWrite=false;_blur.SetFloat("_Sigma",_sigma*_scale);_blur.SetFloat("_Density",_scale);_blur.SetVector("_Roi",new Vector4(_area.x,_area.y,_area.width,_area.height));

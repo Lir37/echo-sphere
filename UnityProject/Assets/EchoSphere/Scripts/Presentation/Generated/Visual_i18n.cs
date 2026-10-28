@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/i18n.ts; sha256 d8edeadb23257a3dfcea62faed69c00fbe878a0509ce7c273ddd544face9d305.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

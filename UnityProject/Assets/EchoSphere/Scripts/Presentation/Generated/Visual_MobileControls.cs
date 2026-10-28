@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/MobileControls.tsx; sha256 0e11e0339075151f0e5f1e37254fcff045b2842b218c0da7cbf0262c1f9b8bad.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

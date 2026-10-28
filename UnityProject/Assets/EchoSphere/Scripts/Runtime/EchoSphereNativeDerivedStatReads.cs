@@ -4,7 +4,7 @@ namespace EchoSphere.Runtime
 {
  public sealed partial class EchoSphereRuntime
  {
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
   private static double NativeOrZero(V value)=>value.Truth?value.Number:0;
   private static double NativeArtifactEffectTotal(V scene,string effect){double total=0;foreach(var id in scene["player"]["artifacts"].Items){var artifact=NativeRunCatalog.Instance.GetArtifact(id.Text);if(artifact!=null)total+=artifact.Effect(effect);}return total;}
 #endif
@@ -21,7 +21,7 @@ namespace EchoSphere.Runtime
    if(NativeLiveAbilityLevel("momentum")!=0&&(double)_playerCore.DashTimer>0)speed*=1+(double)NativeLiveAbilityLevel("momentum")*.05;
    return speed;
   }  private double NativeLiveXpPlannerMultiplier(){double mult=1+GetShopUpgradeLevel("xp")*.05;foreach(var id in _ownedArtifacts){var artifact=NativeRunCatalog.Instance.GetArtifact(id);if(artifact!=null)mult+=artifact.Effect("xpGain");}return mult;}
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
   internal static double NativePlannerCritChance(V scene)=>Math.Min(.75,.05+NativeOrZero(scene["player"]["abilities"]["crit"])*.1+NativeOrZero(scene["shopUpgrades"]["crit"])*.05+NativeArtifactEffectTotal(scene,"critChance"));
   internal static double NativePlannerDodgeChance(V scene)=>Math.Min(.75,NativeOrZero(scene["player"]["abilities"]["dodge"])*.1+NativeArtifactEffectTotal(scene,"dodgeChance"));
   internal static double NativePlannerVampire(V scene)=>NativeOrZero(scene["player"]["abilities"]["vampire"])*.03+NativeArtifactEffectTotal(scene,"vampire");

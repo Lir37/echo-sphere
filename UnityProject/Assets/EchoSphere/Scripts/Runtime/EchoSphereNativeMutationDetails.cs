@@ -6,7 +6,7 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private static Color NativeMutationColor(string text){var c=VisualCssColor.Parse(text);return new Color(Mathf.Clamp01((float)c.R),Mathf.Clamp01((float)c.G),Mathf.Clamp01((float)c.B),Mathf.Clamp01((float)c.A));}
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static double NativeMutationFinal(V player,string family)
         {
             foreach(var evolution in player["evolutions"].Items){if(!evolution.Text.StartsWith("sphere:"+family+":7:",System.StringComparison.Ordinal))continue;var parts=evolution.Text.Split(':');double n=VisualJs.Number(parts[parts.Length-1]).Number;return double.IsNaN(n)||double.IsInfinity(n)?-1:n;}return -1;
@@ -27,7 +27,7 @@ namespace EchoSphere.Runtime
             return new NativeWorldSphereFamilies.ProjectileView {X=point.x,Y=point.y,Vx=velocity.x,Vy=velocity.y,Radius=projectile.SourceProjectionRadius,Color=color,Family=owner==null?null:owner.Type.ToString().ToLowerInvariant(),Branch=owner==null?null:GetSphereBranch(owner.Type),Final=owner==null?-1:NativeSphereFinalIndex(owner.Type)};
         }
         private void DrawNativeProjectileLayer(){foreach(var agent in _simulationAgents)if(agent is ProjectileAgent projectile&&projectile!=null&&projectile.gameObject.activeInHierarchy)_nativeWorldSphereFamilies.DrawProjectile(_worldSurface,ProjectNativeProjectile(projectile));}
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static NativeWorldSphereFamilies.ProjectileView ProjectLegacyProjectile(V projectile,V player)
         {
             var type=projectile["sourceSphere"]["type"];ColorUtility.TryParseHtmlString(projectile["color"].Text,out var color);return new NativeWorldSphereFamilies.ProjectileView {X=projectile["pos"]["x"].Number,Y=projectile["pos"]["y"].Number,Vx=projectile["vel"]["x"].Number,Vy=projectile["vel"]["y"].Number,Radius=projectile["radius"].Number,Color=color,Family=type.Truth?type.Text:null,Branch=type.Truth?player["sphereBranches"][type].Text:null,Final=type.Truth?NativeMutationFinal(player,type.Text):-1};

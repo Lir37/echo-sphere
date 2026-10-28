@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/spheres/elementalVisual.ts; sha256 bf1eb3f594fb42019064c227d0b690aede810df4c2391a72f958add6b526cee5.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

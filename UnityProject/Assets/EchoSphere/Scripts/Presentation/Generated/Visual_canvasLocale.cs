@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/canvasLocale.ts; sha256 1ea3cc18318e080c433cdcd966a80ce921b2a36555a30827f99e8f49b9936660.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

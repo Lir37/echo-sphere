@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/spheres/prismVisual.ts; sha256 f596abdee3d79802a2692ae220ca109285ff9f966db606a6cf1cda6cf93539c3.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

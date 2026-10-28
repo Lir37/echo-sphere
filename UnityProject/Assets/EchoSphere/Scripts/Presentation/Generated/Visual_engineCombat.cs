@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/engineCombat.ts; sha256 a4129556873bcf8d6afb05aad0cc7145edc1431e6bf9c14af3dd619fd5f9cf5b.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

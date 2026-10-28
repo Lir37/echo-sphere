@@ -29,7 +29,7 @@ namespace EchoSphere.Runtime
             }
             NativeMobileEventCompleted();
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static double NativeMobileCooldown(V player,string ability)
         {
             string field;

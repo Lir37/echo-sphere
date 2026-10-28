@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/renderScale.ts; sha256 485ba817b4abe2101a849d138cf2b170725ac0b7b582dee2848fbe5b42d49a2d.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

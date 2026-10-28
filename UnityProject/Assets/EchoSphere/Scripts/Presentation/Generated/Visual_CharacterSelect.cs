@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/CharacterSelect.tsx; sha256 95829e78d5dddf0b1d313fc783b0517ac611a12393977343e7808a2fce163599.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

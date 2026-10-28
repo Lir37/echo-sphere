@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/persistence.ts; sha256 3c0774dd38bb536b94f5a47b0e59b8d66a8ebbb1c244b7c9edeb39c8f81d7cd1.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

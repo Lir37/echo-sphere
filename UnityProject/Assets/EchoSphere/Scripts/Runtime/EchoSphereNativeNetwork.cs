@@ -6,10 +6,10 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        #if UNITY_EDITOR
+        #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static NativeWorldNetwork.Node NativeNetworkPoint(V position)=>new NativeWorldNetwork.Node {X=position["x"].Number,Y=position["y"].Number};
         #endif
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static SphereNetworkState NativeAnalyzeSphereNetwork(V spheres)
         {
             // Logical source axes keep preview perimeter ordering; lengths use
@@ -75,7 +75,7 @@ namespace EchoSphere.Runtime
             NativeWorldNetwork.Formation Formation(SphereNetworkFormation kind){var shape=state.GetFormation(kind);if(shape==null)return null;var indexes=shape.NodeIndexes.Where(SphereIndex).ToArray();return indexes.Length>=2?new NativeWorldNetwork.Formation {Nodes=indexes,Active=shape.Active}:null;}
             return (new NativeWorldNetwork.Network {NodeCount=state.Nodes.Count(SphereIndex),Spheres=spheres,Links=state.Links.Where(SphereLink).Select(Link).ToArray(),Line=Formation(SphereNetworkFormation.Line),Triangle=Formation(SphereNetworkFormation.Triangle),Square=Formation(SphereNetworkFormation.Square),Cluster=Formation(SphereNetworkFormation.Cluster),Ring=Formation(SphereNetworkFormation.Ring),Lattice=Formation(SphereNetworkFormation.Lattice),Fractal=Formation(SphereNetworkFormation.Fractal)},state.Links.Where(link=>!SphereLink(link)).Select(Link).ToArray());
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static (NativeWorldNetwork.Network Network,NativeWorldNetwork.Node?[] RuntimeNodes,NativeWorldNetwork.Link[] ExternalLinks) ProjectNativeNetwork(V scene,V source)
         {
             int sphereCount=(int)scene["spheres"]["length"].Number;

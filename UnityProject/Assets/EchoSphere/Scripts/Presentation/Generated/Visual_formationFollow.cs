@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/formationFollow.ts; sha256 d4d0fdbf1db1a5d2a89ddc68f4f2fe1f9edf538bbce8c85fe016590c89756e40.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

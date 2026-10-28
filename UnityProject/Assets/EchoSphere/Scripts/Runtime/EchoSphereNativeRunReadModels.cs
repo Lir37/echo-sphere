@@ -14,7 +14,7 @@ namespace EchoSphere.Runtime
                 case "ring":return ru?"КОЛЬЦО":"RING";case "lattice":return ru?"РЕШЁТКА":"LATTICE";
                 case "fractal":return ru?"ФРАКТАЛ":"FRACTAL";default:return type.ToUpperInvariant();}
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static double NativeXpPlannerMultiplier(V scene)
         {
             var xp=scene["shopUpgrades"]["xp"];double mult=1+(xp.Truth?xp.Number:0)*.05;
@@ -22,7 +22,7 @@ namespace EchoSphere.Runtime
             return mult;
         }
 #endif
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static IReadOnlyList<NativeHudView.TooltipLine> NativeNetworkTooltipLines(string label,V scene,bool ru,V network)
         {
             var activeTypes=new HashSet<string>(StringComparer.Ordinal);foreach(var sphere in scene["spheres"].Items)if(sphere["alive"].Truth)activeTypes.Add(sphere["type"].Text);

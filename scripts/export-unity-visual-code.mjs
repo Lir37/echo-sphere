@@ -286,7 +286,7 @@ for(const unit of units.values()) {
     if(unit.effects?.has(n))initializers.push(stmt(n,s));
   }
   const output=target+'/'+unit.id+'.cs';
-  const code=`#if UNITY_EDITOR\n// Generated from ${repositoryPath(unit.file)}; sha256 ${hash(readFileSync(unit.file,'utf8'))}.\n// Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.\nusing System;\nusing System.Linq;\nnamespace EchoSphere.Presentation {\ninternal static class ${unit.id} {\npublic static readonly V Scope=VisualJs.Obj();\nstatic ${unit.id}() {\n${initializers.join('\n')}\n}\n${methods.join('\n')}\n}\n}\n#endif\n`;
+  const code=`#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS\n// Generated from ${repositoryPath(unit.file)}; sha256 ${hash(readFileSync(unit.file,'utf8'))}.\n// Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.\nusing System;\nusing System.Linq;\nnamespace EchoSphere.Presentation {\ninternal static class ${unit.id} {\npublic static readonly V Scope=VisualJs.Obj();\nstatic ${unit.id}() {\n${initializers.join('\n')}\n}\n${methods.join('\n')}\n}\n}\n#endif\n`;
   mkdirSync(dirname(output),{recursive:true});writeFileSync(output,code);outputs[output]=hash(code);
 }
  writeFileSync(manifestPath,JSON.stringify({sources:Object.fromEntries([...new Set([...units.values()].map(({file})=>repositoryPath(file)).concat(['scripts/export-unity-visual-code.mjs','scripts/source-ui-view.cjs','package-lock.json']))].map(file=>[file,hash(readFileSync(file,'utf8'))])),outputs},null,2)+'\n');

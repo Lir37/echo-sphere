@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
 using System;
 using System.Collections.Generic;
 using UnityEngine;

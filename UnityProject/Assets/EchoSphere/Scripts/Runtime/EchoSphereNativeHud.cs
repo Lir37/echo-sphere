@@ -70,7 +70,7 @@ namespace EchoSphere.Runtime
                 PlayerX=position.x,PlayerY=position.y,Enemies=enemies,Pois=pois,Boss=boss,BossLabel=T("bossWave").ToUpperInvariant(),Region=config.Name(ru),Phase=NativeRunCatalog.Instance.RegionPhases[NativeRegionPhaseIndex(time)].Name(ru),Pocket=pocket.Name(ru)+" · "+mode
             };
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         // Explicit display inputs allow source parity checks without changing
         // runtime state, language preferences or the authoritative simulation.
         internal static NativeHudView.State ProjectNativeHudState(V scene,bool ru)

@@ -7,7 +7,7 @@ namespace EchoSphere.Presentation
     internal sealed class NativeUiDataContext
     {
         internal bool Dirty=true;
-        #if UNITY_EDITOR
+        #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal Func<string,V> ReadStorage;
         internal Action<string,V> WriteStorage;
         internal Action<string> RemoveStorage;

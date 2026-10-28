@@ -67,7 +67,7 @@ namespace EchoSphere.Runtime
             var camera=NativeSourcePixels((Vector2)(_camera.transform.position-_lastHunterScreenShakeOffset));var size=_worldSurface!=null?_worldSurface.LogicalSize:rect.size;wx=(x-rect.xMin)/rect.width*size.x-size.x/2+camera.x;wy=(y-rect.yMin)/rect.height*size.y-size.y/2+camera.y;return true;
         }
         private static double NativeMobileDistance(double x,double y)=>Math.Sqrt(x*x+y*y);
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static double NativeMobileDistance(V pos,double x,double y)=>NativeMobileDistance(pos["x"].Number-x,pos["y"].Number-y);
 #endif
         // Preview and commit share the existing native placement gate.
@@ -114,7 +114,7 @@ namespace EchoSphere.Runtime
             int count=NativeMobileSphereCount;NativePlaceOrRemoveSphere(wx,wy);
             if(NativeMobileSphereCount>count){NativeMobileHaptic(8);_nativeMobilePlacement=new Vector2((float)x,(float)y);_nativeMobilePlacementAt=Time.unscaledTimeAsDouble;_nativeMobilePlacementColor=NativeRunCatalog.Instance.GetSphere(_selectedSphereType.ToString().ToLowerInvariant()).Color;}
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static V NativeMobilePreviewNetwork(V spheres,double x,double y,int movingIndex,out int candidateIndex)
         {
             int count=(int)spheres["length"].Number;candidateIndex=movingIndex>=0&&movingIndex<count?movingIndex:count;if(count==0)return VisualJs.Null;

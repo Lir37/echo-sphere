@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/spheres/gravityVisual.ts; sha256 dc851b56c7044eb7985933817ef1af70f84b3a0d9bbf75cdadd6c9fcca2583a1.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

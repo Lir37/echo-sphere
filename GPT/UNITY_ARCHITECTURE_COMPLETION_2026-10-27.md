@@ -425,3 +425,44 @@ size/life, exactly14 draws; scene preview types отсутствуют. 50 hit c
 Новый APK/device FPS не измерен. Остаток: fullscreen graph globals, комплексная
 reference isolation и финальная lifecycle/tutorial/device приёмка; общий план
 по-прежнему не объявляется DONE.
+
+## Группа 10 — изоляция reference и retained particles (2026-10-28)
+
+383764a5: CI895 SUCCESS. Старый V/VisualJs/generated UI/canvas interpreter
+теперь компилируется только с UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS.
+Обычный Editor использует production native UI, как Android; фактически V и
+Visual_* types отсутствуют. Сравнительные средства сохранены как opt-in build
+configuration до окончательной приёмки, не выданы за отдельную готовую DLL.
+Генераторы и provenance manifest обновлены вместе с guards. Android JNI остаётся
+под !UNITY_EDITOR, native diagnostics доступны в обычном Editor. Typecheck
+проверяет пять конфигураций, включая оба opt-in reference assemblies: 0 errors/
+warnings,341 runtime +6 Editor C#. Provenance52modules/13outputs и preflight PASS.
+
+Particle feedback использует один retained diamond mesh и переиспользуемые
+properties. Реальные GPU18 cases:64 последовательные совместимые частицы дают
+1 instanced draw вместо64. Mesh строится один раз.9 случаев pixel-exact; в9
+отличается один edge pixel (MSAA rounding при matrix scaling), максимум63/255
+на этом пикселе, full-frame mean<=.0006364/255. Не заявляется maxdelta0.
+Проверены normal/additive/screen и запрошенные DPR1/1.75/2.75 (cap1.75 сохранён).
+Форма, цвета, alpha, скорость/жизнь/seed не менялись.
+
+Actual Editor tutorial fixture исправлен для ожидания однократной async scene
+activation; проверяет новый runtime, а не старый region screen в pending frame.
+Добавлен routed touch вариант input, существующий mouse вариант сохранён.
+20 последовательных полных touch-сценариев PASS: запуск региона, tutorial,
+Up/Down, точный tap/drag, upgrade, pause/resume, chest/reward, duplicate command,
+death/result, intended region/home. Ни одного нового Console error в этих
+проходах. Это Editor callbacks, не физический touchscreen/Android приёмка.
+До этого mouse серия остановилась на10-м ходе: input Right вместо Down;
+влияние внешнего mouse не доказано. Touch серия полностью повторена20 раз.
+
+После каждого цикла UnloadUnusedAssets + GC: game-named textures34,meshes34,
+materials55; runtime/world owners1/1 и RenderTextures96 остаются постоянными.
+Все textures колебались1318..1327 без монотонного роста. Это выборка native
+owners и game-named ресурсов, не доказательство отсутствия любых утечек памяти.
+Evidence: UnityEvaluations/ECHO-SPHERE-architecture-20261028/twenty-native-lifecycles.json.
+Все10 исходных Editor PlayerPrefs восстановлены и проверены; фоновые настройки
+возвращены. Новые checks не меняют пользовательское сохранение.
+
+Остаток: fullscreen graph blit/copy/composite globals и финальная Android
+визуальная/white-pause/15-minute производительность; план IN PROGRESS.

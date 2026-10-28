@@ -20,7 +20,15 @@ namespace EchoSphere.Presentation
         private readonly Stack<NativeWorldLabel> _freeEventLabels=new Stack<NativeWorldLabel>();
         private readonly List<object> _expiredLabels=new List<object>();private ulong _frame;
         private int _used,_labelUsed;private NativeWorldSurface _surface;
+        private Mesh _particleMesh;
+        private readonly List<MaterialPropertyBlock> _particleProperties=new List<MaterialPropertyBlock>();
+        private int _particleUsed;
+        internal int ParticleMeshBuilds {get;private set;}
+#if UNITY_EDITOR
+        internal bool ReferenceParticleGeometryForValidation=false;
+#endif
         internal void BeginFrame(NativeWorldSurface surface){_used=0;_labelUsed=0;_surface=surface;_frame++;
+            _particleUsed=0;
             _expiredLabels.Clear();foreach(var pair in _eventLabels)if(pair.Value.Frame+1<_frame)_expiredLabels.Add(pair.Key);
             foreach(var key in _expiredLabels){var label=_eventLabels[key].Label;if(_freeEventLabels.Count<256)_freeEventLabels.Push(label);else label.Dispose();_eventLabels.Remove(key);}}
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
@@ -51,7 +59,14 @@ namespace EchoSphere.Presentation
         internal void Particle(double x,double y,double size,double alpha,double vx,double vy,Color color)
         {
             double s=size*(.55+alpha*.65);color.a=(float)Math.Max(0,Math.Min(1,alpha*.82));
-            Paint(PolylineContour(true,P(s*1.8,0),P(0,-s*.55),P(-s*1.2,0),P(0,s*.55)),0,color,T(x,y,Math.Atan2(vy,vx)));
+#if UNITY_EDITOR
+            if(ReferenceParticleGeometryForValidation){Paint(PolylineContour(true,P(s*1.8,0),P(0,-s*.55),P(-s*1.2,0),P(0,s*.55)),0,color,T(x,y,Math.Atan2(vy,vx)));return;}
+#endif
+            if(_particleMesh==null){_particleMesh=Tessellate(PolylineContour(true,P(1.8,0),P(0,-.55),P(-1.2,0),P(0,.55)),0);ParticleMeshBuilds++;}
+            if(_particleUsed==_particleProperties.Count)_particleProperties.Add(new MaterialPropertyBlock());
+            var props=_particleProperties[_particleUsed++];props.SetVector("_NativeColor",new Vector4(color.r,color.g,color.b,color.a));
+            var transform=T(x,y,Math.Atan2(vy,vx))*Matrix4x4.Scale(new Vector3((float)s,(float)s,1));
+            _surface.DrawNativeMesh(_particleMesh,_solid,props,transform,inheritBlend:true,inheritShadow:true);
         }
         internal void BossArrow(double x,double y,double angle)
         {
@@ -78,6 +93,6 @@ namespace EchoSphere.Presentation
         }
         internal void Text(string text,double x,double y,Color color,float size)
         {if(_labelUsed==_labels.Count)_labels.Add(new NativeWorldLabel());_labels[_labelUsed++].Draw(_surface,text,P(x,y),color,fontSize:size,inheritBlend:true,inheritShadow:true,baseline:_surface.NativeTextBaseline);}
-        public void Dispose(){foreach(var entry in _eventLabels.Values)entry.Label.Dispose();_eventLabels.Clear();_expiredLabels.Clear();foreach(var label in _freeEventLabels)label.Dispose();_freeEventLabels.Clear();foreach(var art in _art)if(art.Mesh!=null)UnityEngine.Object.Destroy(art.Mesh);foreach(var label in _labels)label.Dispose();UnityEngine.Object.Destroy(_solid);UnityEngine.Object.Destroy(_background);UnityEngine.Object.Destroy(_backgroundMaterial);}
+        public void Dispose(){foreach(var entry in _eventLabels.Values)entry.Label.Dispose();_eventLabels.Clear();_expiredLabels.Clear();foreach(var label in _freeEventLabels)label.Dispose();_freeEventLabels.Clear();foreach(var art in _art)if(art.Mesh!=null)UnityEngine.Object.Destroy(art.Mesh);foreach(var label in _labels)label.Dispose();UnityEngine.Object.Destroy(_particleMesh);_particleProperties.Clear();UnityEngine.Object.Destroy(_solid);UnityEngine.Object.Destroy(_background);UnityEngine.Object.Destroy(_backgroundMaterial);}
     }
 }

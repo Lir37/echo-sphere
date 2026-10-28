@@ -25,7 +25,7 @@ namespace EchoSphere.Runtime
         {if(Enum.TryParse<SphereId>(id,true,out var type)){_selectedSphereType=type;SourceAudio2D.Play("place");}RefreshNativeCommandModels();}
         private void NativePlaceOrRemoveSphere(double x,double y)
         {TryPlaceOrRemoveSphereAt(new Vector2((float)x,-(float)y)*SpherePlacementRules.SourcePixelsToWorld);RefreshNativeCommandModels();}
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private SphereAttackAgent NativeSphereForView(V view)=>_spheres.Find(agent=>agent!=null&&RenderEntity(agent)==view);
 #endif
         private bool NativeRepositionSphere(SphereAttackAgent sphere,double x,double y)

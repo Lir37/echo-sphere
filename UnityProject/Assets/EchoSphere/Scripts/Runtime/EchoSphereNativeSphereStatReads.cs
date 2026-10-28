@@ -83,7 +83,7 @@ namespace EchoSphere.Runtime
    if((double)_darkRitualOverloadTimer>0)delay*=.72;if((double)_fireTrailTimer>0&&sphere!=null&&(double)GetSourceSphereModifiers(sphere.Type).fire>0)delay*=.78;
    if(sphere!=null){double cluster=NativeLiveFormationBonus("cluster",sphere);if(cluster>0)delay*=1-.10*cluster;}return delay;
   }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
   private static double NativeLogicalDistance(V a,V b)=>NativeMobileDistance(a["x"].Number-b["x"].Number,a["y"].Number-b["y"].Number);
   private static List<V> NativeLocalSpheres(V scene)=>scene["spheres"].Items.Where(sphere=>sphere["alive"].Truth&&NativeLogicalDistance(sphere["pos"],scene["player"]["pos"])<=420).OrderBy(sphere=>NativeLogicalDistance(sphere["pos"],scene["player"]["pos"])).Take(8).ToList();
   private static double NativeMastery(V player)=>player["characterMasteryLevel"].Truth?player["characterMasteryLevel"].Number:1;

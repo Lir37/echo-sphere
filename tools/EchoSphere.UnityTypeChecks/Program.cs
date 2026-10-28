@@ -32,13 +32,14 @@ if (File.Exists(provenance))
 }
 var results = new List<object>();
 var failures = 0;
-byte[] runtimeImage = null;
-foreach (var configuration in new[] { "Android player", "Android editor runtime", "Android editor assembly" })
+byte[] runtimeImage = null, referenceRuntimeImage = null;
+foreach (var configuration in new[] { "Android player", "Android editor runtime", "Android editor assembly", "Editor reference runtime", "Editor reference assembly" })
 {
     var editor = configuration != "Android player";
-    var editorAssembly = configuration == "Android editor assembly";
+    var editorAssembly = configuration == "Android editor assembly" || configuration == "Editor reference assembly";
     var symbols = new List<string> { "UNITY_6000_6_OR_NEWER", "UNITY_6000_3_OR_NEWER", "UNITY_6000_0_OR_NEWER", "UNITY_2023_1_OR_NEWER", "UNITY_2022_1_OR_NEWER", "UNITY_2021_1_OR_NEWER", "UNITY_ANDROID", "ENABLE_IL2CPP", "NET_STANDARD_2_1", "NET_STANDARD", "ENABLE_LEGACY_INPUT_MANAGER" };
     if (editor) symbols.AddRange(new[] { "UNITY_EDITOR", "UNITY_EDITOR_LINUX" });
+    if(configuration.StartsWith("Editor reference",StringComparison.Ordinal))symbols.AddRange(new[]{"ECHO_SPHERE_REFERENCE_VISUALS","ECHO_SPHERE_SCENE_REFERENCE"});
     var parse = new CSharpParseOptions(LanguageVersion.CSharp9, preprocessorSymbols: symbols);
     var trees = sources.Where(file => Path.GetRelativePath(Path.Combine(project,"Assets"), file).Split(Path.DirectorySeparatorChar).Contains("Editor") == editorAssembly)
         .Select(file => CSharpSyntaxTree.ParseText(File.ReadAllText(file), parse, file)).ToArray();
@@ -60,19 +61,20 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
     }
     if (editorAssembly)
     {
-        if (runtimeImage == null) { Console.Error.WriteLine("Editor assembly check requires a successful editor runtime compilation."); failures++; continue; }
-        references.Add(MetadataReference.CreateFromImage(runtimeImage));
+        var image=configuration=="Editor reference assembly"?referenceRuntimeImage:runtimeImage;
+        if (image == null) { Console.Error.WriteLine("Editor assembly check requires a successful editor runtime compilation."); failures++; continue; }
+        references.Add(MetadataReference.CreateFromImage(image));
     }
     var compilation = CSharpCompilation.Create(editorAssembly ? "Assembly-CSharp-Editor" : "Assembly-CSharp", trees, references,
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release, warningLevel: 4, allowUnsafe: false));
-    if(configuration=="Android player")
+    if(configuration=="Android player"||configuration=="Android editor runtime")
     {
         foreach(var name in new[]{"V","VisualJs","VisualJson","IVisualHost","IVisualCallable","SourceCanvasImage","SourceCanvasArtIndex","NativeRunSnapshotDefaults","SourceUiDocument","SourceCanvasSurface","SourceUiBackdrop","SourceUiReplica","SourceUiReplicaStyle","SourceUiReplicaSnapshotCache","SourceUiFrame","NativeCaptureBackdrop","NativeUiCapturePanel","LegacyMenuGlass","LegacyUiBackdropRegistry","NativeBackdropEngineProbe","NativeMenuEngineProbe"})
-            if(compilation.GetTypeByMetadataName("EchoSphere.Presentation."+name)!=null)throw new InvalidOperationException("Retired presentation compatibility type leaked into Android player: "+name);
+            if(!(configuration=="Android editor runtime"&&name.EndsWith("Probe",StringComparison.Ordinal))&&compilation.GetTypeByMetadataName("EchoSphere.Presentation."+name)!=null)throw new InvalidOperationException("Retired presentation compatibility type leaked into Android player: "+name);
         var runtime=compilation.GetTypeByMetadataName("EchoSphere.Runtime.EchoSphereRuntime");
         foreach(var name in new[]{"_sourceRenderState","_sourceRenderEntities","UpdateSourceRenderState","UpdateSourceUiState","ApplySourceUiWrites"})
             if(runtime?.GetMembers(name).Length>0)throw new InvalidOperationException("Retired scene snapshot member leaked into Android player: "+name);
-        Console.WriteLine("Native presentation retirement: PASS (value emulator, old UI/canvas and scene snapshot absent from Android player).");
+        Console.WriteLine($"Native presentation retirement: PASS (value emulator, old UI/canvas and scene snapshot absent from {configuration}).");
     }
     using var output = new MemoryStream();
     var diagnostics = compilation.Emit(output).Diagnostics.Concat(NativeInitializers(compilation)).Where(d => d.Severity == DiagnosticSeverity.Error || d.Severity == DiagnosticSeverity.Warning).OrderBy(d => d.Location.SourceTree?.FilePath).ThenBy(d => d.Location.SourceSpan.Start).ToArray();
@@ -80,6 +82,7 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
     var warnings = diagnostics.Length - errors;
     failures += errors + warnings;
     if (configuration == "Android editor runtime" && errors == 0) runtimeImage = output.ToArray();
+    if(configuration=="Editor reference runtime"&&errors==0)referenceRuntimeImage=output.ToArray();
     Console.WriteLine($"{configuration}: {trees.Length} C# files, {errors} errors, {warnings} compiler warnings ({(editorAssembly ? "Unity .NET Framework references" : ".NET Standard 2.1")}; real Unity API DLLs; no Unity execution).");
     foreach (var diagnostic in diagnostics.OrderByDescending(d => d.Severity).Take(30)) Console.WriteLine(diagnostic);
     if (editorAssembly) Console.WriteLine("URP API reference: " + compilation.GetTypeByMetadataName("UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset")?.ContainingAssembly.Identity);

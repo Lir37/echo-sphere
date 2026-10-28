@@ -31,7 +31,7 @@ namespace EchoSphere.Presentation
         private readonly List<RenderTexture> _temporary=new List<RenderTexture>();
         private RenderTexture _target;
         private bool _disposed;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal bool AnalyticBlurForValidation=false;
 #endif
         public RenderTexture Texture=>_target;
@@ -63,7 +63,7 @@ namespace EchoSphere.Presentation
 #if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
                 if(NativeDeviceReplay.Active)DiagnosticBlurReads+=(long)w*h*2*(cached?2*((radius+1)/2)+1:2*radius+1);
 #endif
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
                 if(AnalyticBlurForValidation)cached=false;
 #endif
                 _material.SetInt("_KernelWeightCount",cached?radius+1:0);if(cached){_material.SetVectorArray("_KernelWeights",weights);mask.filterMode=FilterMode.Bilinear;}

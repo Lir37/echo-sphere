@@ -91,7 +91,7 @@ namespace EchoSphere.Presentation
         internal void End(float dpr)
         {
             foreach(var p in _paint)p.Prepare(dpr);
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             if(NativeBackdropValidation.UseLegacy){
                 _backdrops.BeginFrame();
                 void Visit(VisualElement e){if(e.style.visibility==Visibility.Hidden||e.resolvedStyle.display==DisplayStyle.None)return;if(_backdrops.Contains(e)){var prefix=_root;for(var parent=e.parent;parent!=null;parent=parent.parent)if(parent==_pause||parent==_rewards){prefix=parent;break;}_backdrops.Prepare(e,prefix,dpr);}foreach(var child in e.Children())if(child.userData!=SourceUiBackdrop.ReplicaTag&&!(child.userData is SourceUiBackdrop.ClipTag))Visit(child);}

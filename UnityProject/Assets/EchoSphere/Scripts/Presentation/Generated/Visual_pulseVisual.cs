@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/spheres/pulseVisual.ts; sha256 8eec4eeb885b50f2912e49c4a502bed3005978569ca8751a9f10aaba855c5337.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/KnowledgeBase.tsx; sha256 21698232173d04527976e731a7ab8b5e89bfe637a017cc0e1d0b7842f376475f.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

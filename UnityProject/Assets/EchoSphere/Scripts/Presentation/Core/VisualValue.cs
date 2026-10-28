@@ -24,7 +24,7 @@ namespace EchoSphere.Presentation
             return text.Substring(0,index)+"e"+(power>=0?"+":"")+power.ToString(CultureInfo.InvariantCulture);
         }
     }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
     // Editor-only value model for mechanically translated reference expressions.
     // The Android player does not compile these types or their callable objects.
     public readonly struct V : IEquatable<V>

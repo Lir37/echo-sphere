@@ -81,7 +81,7 @@ namespace EchoSphere.Runtime
             }
             return new NativeUpgradeView.State {Russian=ru,Title=title,Reroll=L("Перебросить","Reroll")+" · "+rerolls,ShowReroll=choices.Count==3&&routine,CanReroll=rerolls>0,Signature=signature.ToString(),Choices=choices};
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private NativeUpgradeView.State LegacyReadNativeUpgradeState(bool ru)
         {
             string lang=ru?"ru":"en";string L(string a,string b)=>ru?a:b;string T(string key)=>NativeText(key,lang=="ru");

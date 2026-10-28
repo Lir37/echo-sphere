@@ -29,7 +29,7 @@ namespace EchoSphere.Runtime
             if(_nativePauseArtifactsIsland.Ready){body?.HideLegacy(true);_nativePauseArtifactsIsland.UseFlowLayout(true);if(!ready)anchors.Invalidate?.Invoke();}
         }
         public NativePauseArtifactsState ReadNativePauseArtifactsState()=>ProjectNativeArtifactList(_ownedArtifacts,IsRussianUi,_ownedArtifacts);
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static NativePauseArtifactsState ProjectNativePauseArtifactsState(V scene,bool ru)=>ProjectNativeArtifacts(scene,ru,scene["player"]["artifacts"].Items);
         private static NativePauseArtifactsState ProjectNativeArtifacts(V scene,bool ru,IEnumerable<V> ids)=>ProjectNativeArtifactList(scene["player"]["artifacts"].Items.Select(item=>item.Text).ToArray(),ru,ids.Select(item=>item.Text));
 #endif

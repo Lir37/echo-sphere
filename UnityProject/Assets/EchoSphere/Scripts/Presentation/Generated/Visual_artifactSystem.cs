@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 // Generated from src/artifactSystem.ts; sha256 d28d45c1adea81bd6d3376aad0fcad70bfb21be2a4c3dd8a933b8707008be96c.
 // Do not hand-edit authored drawing expressions. Run export-unity-visual-code.mjs.
 using System;

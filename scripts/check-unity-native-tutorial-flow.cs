@@ -7,7 +7,7 @@ if(!(bool)initial.GetType().GetField("_mainMenu",flags).GetValue(initial))throw 
 if(string.IsNullOrEmpty(UnityEditor.SessionState.GetString("EchoGameplayPrefsBackup","")))throw new System.Exception("Preference backup required");
 UnityEngine.PlayerPrefs.SetInt("echosphere_tutorial_completed_v1",0);
 UnityEngine.Application.runInBackground=true;
-int phase=0,checks=0,errors=0,last=-1;double deadline=UnityEditor.EditorApplication.timeSinceStartup+180;
+int phase=0,checks=0,errors=0,last=-1,loadingFrames=0;ulong launchOwner=0;bool enteredRun=false;double deadline=UnityEditor.EditorApplication.timeSinceStartup+180;
 var stages=new List<object>();UnityEngine.Vector2 startPoint=default,dragPoint=default,expectedPlacement=default;
 UnityEngine.Vector3 movementStart=default;bool reversed=false;EchoSphere.Runtime.SphereAttackAgent placed=null;
 UnityEngine.UIElements.VisualElement dragTarget=null;int beforeCount=0,rewardBefore=0;string rewardId=null;
@@ -22,7 +22,14 @@ UnityEngine.UIElements.Button Find(string name){foreach(var doc in UnityEngine.O
  if(b!=null&&b.enabledInHierarchy&&Visible(b)&&b.worldBound.width>0&&b.worldBound.height>0){var picked=b.panel.Pick(b.worldBound.center);if(picked==b||b.Contains(picked))return b;}
  }return null;}
 bool Submit(string name){var b=Find(name);if(b==null)return false;using(var e=UnityEngine.UIElements.NavigationSubmitEvent.GetPooled()){e.target=b;b.SendEvent(e);}checks++;return true;}
-void Pointer(UnityEngine.UIElements.VisualElement e,string kind,UnityEngine.Vector2 point){var raw=new UnityEngine.Event{type=kind=="down"?UnityEngine.EventType.MouseDown:kind=="move"?UnityEngine.EventType.MouseMove:UnityEngine.EventType.MouseUp,button=0,mousePosition=point};
+void Pointer(UnityEngine.UIElements.VisualElement e,string kind,UnityEngine.Vector2 point){
+ if(UnityEditor.SessionState.GetBool("EchoPointerTouchEvents",false)){
+  var touch=new UnityEngine.Touch {fingerId=0,position=point,phase=kind=="down"?UnityEngine.TouchPhase.Began:kind=="up"?UnityEngine.TouchPhase.Ended:UnityEngine.TouchPhase.Moved};
+  if(kind=="down"){using(var ev=UnityEngine.UIElements.PointerDownEvent.GetPooled(touch,UnityEngine.EventModifiers.None)){ev.target=e;e.SendEvent(ev);}}
+  else if(kind=="move"){using(var ev=UnityEngine.UIElements.PointerMoveEvent.GetPooled(touch,UnityEngine.EventModifiers.None)){ev.target=e;e.SendEvent(ev);}}
+  else{using(var ev=UnityEngine.UIElements.PointerUpEvent.GetPooled(touch,UnityEngine.EventModifiers.None)){ev.target=e;e.SendEvent(ev);}}
+  return;
+ }var raw=new UnityEngine.Event{type=kind=="down"?UnityEngine.EventType.MouseDown:kind=="move"?UnityEngine.EventType.MouseMove:UnityEngine.EventType.MouseUp,button=0,mousePosition=point};
  if(kind=="down"){using(var p=UnityEngine.UIElements.PointerDownEvent.GetPooled(raw)){p.target=e;e.SendEvent(p);}}
  else if(kind=="move"){using(var p=UnityEngine.UIElements.PointerMoveEvent.GetPooled(raw)){p.target=e;e.SendEvent(p);}}
  else{using(var p=UnityEngine.UIElements.PointerUpEvent.GetPooled(raw)){p.target=e;e.SendEvent(p);}}}
@@ -32,7 +39,7 @@ UnityEngine.UIElements.VisualElement Gesture(EchoSphere.Runtime.EchoSphereRuntim
 bool PickField(EchoSphere.Runtime.EchoSphereRuntime r,UnityEngine.Vector2 point,out UnityEngine.UIElements.VisualElement picked){var gesture=Gesture(r);picked=gesture?.panel?.Pick(point);return picked!=null&&(picked==gesture||gesture.Contains(picked));}
 List<EchoSphere.Runtime.SphereAttackAgent> Spheres(EchoSphere.Runtime.EchoSphereRuntime r)=>(List<EchoSphere.Runtime.SphereAttackAgent>)Read(r,"_spheres");
 void Advance(){stages.Add(new{phase,frame=UnityEngine.Time.frameCount});phase++;UnityEditor.SessionState.SetString("EchoNativeTutorialFlow","RUNNING phase="+phase);}
-void Finish(string result){UnityEditor.EditorApplication.update-=tick;UnityEngine.Application.logMessageReceived-=errorHandler;UnityEditor.EditorApplication.isPaused=true;UnityEditor.SessionState.SetString("EchoNativeTutorialFlow",Newtonsoft.Json.JsonConvert.SerializeObject(new{result,phase,checks,errors,stages,width=UnityEngine.Screen.width,height=UnityEngine.Screen.height,scope="Real tutorial, gameplay Update, UI submissions and routed pointer callbacks in Editor; preferences require restoration; not physical touch/device acceptance"}));}
+void Finish(string result){UnityEditor.EditorApplication.update-=tick;UnityEngine.Application.logMessageReceived-=errorHandler;UnityEditor.EditorApplication.isPaused=true;UnityEditor.SessionState.SetString("EchoNativeTutorialFlow",Newtonsoft.Json.JsonConvert.SerializeObject(new{result,phase,checks,errors,loadingFrames,stages,width=UnityEngine.Screen.width,height=UnityEngine.Screen.height,scope="Real tutorial, gameplay Update, UI submissions and routed pointer callbacks in Editor; preferences require restoration; not physical touch/device acceptance"}));}
 UnityEditor.SessionState.SetString("EchoNativeTutorialFlow","RUNNING");
 tick=()=>{try{
  if(!UnityEditor.EditorApplication.isPlaying||UnityEditor.EditorApplication.timeSinceStartup>deadline)throw new System.Exception("Tutorial deadline at phase "+phase);
@@ -40,7 +47,8 @@ tick=()=>{try{
  var r=UnityEngine.Object.FindAnyObjectByType<EchoSphere.Runtime.EchoSphereRuntime>();if(r==null)return;
  Require(errors==0,"New Unity Console error");
  if(phase==0){if(Submit("open-map"))Advance();return;}
- if(phase==1){if(Submit("start-resonance_basin"))Advance();return;}
+ if(phase==1){if(Submit("start-resonance_basin")){launchOwner=UnityEngine.EntityId.ToULong(r.GetEntityId());Advance();}return;}
+ if(phase==2&&!enteredRun){if(UnityEngine.EntityId.ToULong(r.GetEntityId())==launchOwner||Read(r,"_playerCore")==null){loadingFrames++;return;}enteredRun=true;}
  int step=(int)Read(r,"_tutorialStep");
  if(phase<19)Require(!(bool)Read(r,"_regionSelect")&&!(bool)Read(r,"_mainMenu"),"Unexpected menu/region during run");
  if(phase==2){if(step!=0)return;if(Submit("tutorial-next"))Advance();return;}

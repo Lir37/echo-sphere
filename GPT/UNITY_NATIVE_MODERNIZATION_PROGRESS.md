@@ -2148,3 +2148,13 @@ Extra invisible scene impact/cataclysm rings isolated behind Editor-only
 ECHO_SPHERE_SCENE_REFERENCE; native hit flash/feedback unchanged, API retained.
 Fixture76, pools21 and full run-data114 PASS;341+6 C# clean. Previous CI894 SUCCESS.
 Full reference isolation/fullscreen graph and final acceptance remain open.
+
+2026-10-28 group10: ordinary Editor excludes V/generated canvas/UI interpreter;
+reference comparisons opt in via ECHO_SPHERE_REFERENCE_VISUALS. Five typecheck
+configs clean; actual normal Editor has no reference V/Visual_* types. Particle
+diamond retained once,64 compatible particles->1 instanced draw;18 GPU cases,
+9 exact and9 with one MSAA edge pixel difference (mean<=.0006364/255).
+20 real tutorial->battle->pause/reward->death->home routed-touch cycles PASS,
+no new errors. Post-unload game textures/meshes/materials34/34/55, runtime/world
+owners1/1, RT96 constant. Original10 prefs restored. CI895 SUCCESS for383764a5.
+Fullscreen graph globals and Android/white pause/final acceptance remain open.

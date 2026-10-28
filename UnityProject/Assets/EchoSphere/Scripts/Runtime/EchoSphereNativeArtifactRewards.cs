@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
             foreach(var id in _ownedArtifacts)signature.Append('|').Append(id);
             return new NativeArtifactRewardView.State {Russian=ru,Signature=signature.ToString(),Choices=choices};
         }
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private NativeArtifactRewardView.State LegacyReadNativeArtifactRewardState(bool ru)
         {
             string lang=ru?"ru":"en";var choices=new List<NativeArtifactRewardView.Choice>();var active=new HashSet<string>();foreach(var synergy in NativeArtifactSynergies(_sourceRenderState))active.Add(synergy.Id);

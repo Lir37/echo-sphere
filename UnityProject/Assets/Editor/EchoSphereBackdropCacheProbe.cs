@@ -1,3 +1,4 @@
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 using System;
 using System.Reflection;
 using EchoSphere.Presentation;
@@ -109,3 +110,5 @@ public sealed class EchoSphereBackdropCacheProbe : IDisposable
         if(_input!=null){_input.Release();Destroy(_input);}if(_output!=null){_output.Release();Destroy(_output);}if(Current==this)Current=null;
     }
 }
+
+#endif

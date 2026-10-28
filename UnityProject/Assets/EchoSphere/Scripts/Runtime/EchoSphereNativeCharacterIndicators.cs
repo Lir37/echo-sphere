@@ -9,7 +9,7 @@ namespace EchoSphere.Runtime
     {
         private const double NativePlayerRadiusPixels=16;
         private string NativeCharacterCanvasText(string text)=>_worldSurface.LocalizeCanvasText?NativeLocalizationCatalog.Instance.CanvasText(text,IsRussianUi):text;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static string NativeCharacterWorldId(V scene)
         {var raw=scene["player"]["characterId"];return raw.Truth&&CharacterRules.TryParseSourceId(raw.Text,out _)?raw.Text:"spherist";}
 #endif

@@ -56,7 +56,7 @@ namespace EchoSphere.Presentation
         private RenderTexture _premultiplied,_result;
         internal Rect Bounds;
         internal SourceUiDepth(){_material=new Material(Resources.Load<Shader>("EchoSphere/SourceUiDepth"));}
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static Matrix4x4 Transform(VisualCss sheet,VisualCssNode node)
         {
             var values=VisualCssTransform.Parse(sheet,node,origin:true);var matrix=new Matrix4x4();
