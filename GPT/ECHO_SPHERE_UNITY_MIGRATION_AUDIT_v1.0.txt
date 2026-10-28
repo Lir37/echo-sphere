@@ -5974,3 +5974,11 @@ PASS, C#5profiles PASS, Core12462+47389 comparisons PASS, Node272PASS. Журн�
 жестом и все4pause-tabs проверены. Следующий точный Gaussian fast interior
 kernel candidate прошёл actual GPU9cases, maxdelta1,alpha0; Android pending.
 Детали/backup17keys: UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.
+
+2026-10-28: ea665cc0 CI903 SUCCESS. Android shader compiler выявил derivative
+warnings внутри нового divergent kernel. Captured UI surfaces имеют один mip;
+выборки переведены на explicit LOD0. Повторный actual GPU9-case check22:55 PASS,
+maxdelta1,alpha0,0Console errors. Результаты совпадают с предыдущей проверкой.
+Физический бой с HUD75% возобновился; screenshot показывает уменьшенные HUD
+острова при неизменном поле. До окончательной установки восстановлен свежий
+17-key PlayerPrefs побайтно. Новая упаковка/phone filter comparison впереди.

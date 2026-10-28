@@ -158,3 +158,11 @@ sigma2/6/12,density1/1.75/2.75,поворот/atlas neighbours/positive control 
 maxRGBA delta1/255, alpha delta0,0новых Console errors. Новый результат записан
 22:51, старый файл7:40 не использован как подтверждение свежей правки.
 Этот shader-кандидат ещё нужно проверить на Android, ускорение пока не заявлено.
+
+2026-10-28: ea665cc0 CI903 SUCCESS. Android shader compiler выявил derivative
+warnings внутри нового divergent kernel. Captured UI surfaces имеют один mip;
+выборки переведены на explicit LOD0. Повторный actual GPU9-case check22:55 PASS,
+maxdelta1,alpha0,0Console errors. Результаты совпадают с предыдущей проверкой.
+Физический бой с HUD75% возобновился; screenshot показывает уменьшенные HUD
+острова при неизменном поле. До окончательной установки восстановлен свежий
+17-key PlayerPrefs побайтно. Новая упаковка/phone filter comparison впереди.

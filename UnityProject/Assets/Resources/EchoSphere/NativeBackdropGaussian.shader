@@ -26,7 +26,9 @@ Shader "EchoSphere/NativeBackdropGaussian"
    // UI Toolkit packs independent filter surfaces into an atlas. Never sample
    // neighbouring panels. UIR supplies premultiplied pixels, not straight RGBA.
    if(any(uv<rect.xy)||any(uv>rect.xy+rect.zw))return float4(0,0,0,0);
-   float4 c=tex2D(_MainTex,uv);
+   // Filter captures have one mip level; explicit LOD keeps derivatives
+   // out of the divergent interior/edge kernel branches.
+   float4 c=tex2Dlod(_MainTex,float4(uv,0,0));
    if(_CssReadsGamma<.5)c.rgb=c.a>0?LinearToGammaSpace(c.rgb/c.a)*c.a:0;
    return c;
   }
@@ -44,7 +46,7 @@ Shader "EchoSphere/NativeBackdropGaussian"
     // Pair only the linear, texel-centred interior. Reflections, atlas edges,
     // fractional phases and gamma conversion retain the original two taps.
     if(interior&&all(abs(phase-round(phase))<.001)&&(!mirror||(all(localA>=0)&&all(localA<=_PanelSize.xy)&&all(localB>=0)&&all(localB<=_PanelSize.xy)))){
-     value=tex2D(_MainTex,(uvA*a+uvB*b)/(a+b))*(a+b);paired=true;
+     value=tex2Dlod(_MainTex,float4((uvA*a+uvB*b)/(a+b),0,0))*(a+b);paired=true;
     }
    }
    if(!paired){value=Read(uvA,rect,mirror,screenA)*a;if(b>0)value+=Read(uvA+delta,rect,mirror,screenA+cssStep)*b;}
@@ -73,7 +75,7 @@ Shader "EchoSphere/NativeBackdropGaussian"
      [loop]for(int offset=1;offset<=radius;offset+=2){int next=min(offset+1,radius);
       float a=_BackdropWeights[offset>>2][offset&3],b=offset<radius?_BackdropWeights[next>>2][next&3]:0;
       float weight=a+b;float distance=offset+b/weight;
-      result+=(tex2D(_MainTex,i.uv+delta*distance)+tex2D(_MainTex,i.uv-delta*distance))*weight;
+      result+=(tex2Dlod(_MainTex,float4(i.uv+delta*distance,0,0))+tex2Dlod(_MainTex,float4(i.uv-delta*distance,0,0)))*weight;
       normalization+=2*weight;
      }
     }else if(_BackdropPairing>.5&&_BackdropWeightCount>radius){
