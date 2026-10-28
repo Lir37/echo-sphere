@@ -12,7 +12,7 @@ namespace EchoSphere.Runtime
     {
         private static bool EntitySnapshotField(FieldInfo field) =>
             !(field.DeclaringType == typeof(EnemyAgent2D) && field.Name == "_visualVariant") &&
-            !(field.DeclaringType == typeof(SourceParticle2D) && field.Name == "_savedColor");
+            !(typeof(IRunSaveColor).IsAssignableFrom(field.DeclaringType) && field.Name == "_savedColor");
         private const string RunSnapshotKey = "echosphere_active_run_v1";
         private float _runSaveAccumulator;
         private sealed class RunSaveBuffers
@@ -143,9 +143,9 @@ namespace EchoSphere.Runtime
                         type != typeof(HealthPackAgent2D) && type != typeof(RuneAgent2D) && type != typeof(ArtifactChestAgent2D) &&
                         type != typeof(StellaChestAgent2D) && type != typeof(SourceParticle2D)) continue;
                     if (agent is EnemyAgent2D enemy && !enemy.IsAlive) continue;
-                    var sprite = agent.GetComponentInChildren<SpriteRenderer>();
+                    var sprite = agent is IRunSaveColor ? null : agent.GetComponentInChildren<SpriteRenderer>();
                     var entity = new SavedEntity { kind = type.Name, name = agent.name, position = agent.transform.position,
-                        scale = agent.transform.localScale, color = agent is SourceParticle2D particleColor ? particleColor.SavedColor : sprite != null ? sprite.color : Color.white,
+                        scale = agent.transform.localScale, color = agent is IRunSaveColor appearance ? appearance.SavedColor : sprite != null ? sprite.color : Color.white,
                         state = _runSaveBuffers.Capture(agent) };
                     if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner)
                     { entity.hasProjectileOwner = true; entity.projectileOwnerIndex = liveEnemies.IndexOf(bullet.SourceOwner); }
@@ -246,19 +246,16 @@ namespace EchoSphere.Runtime
                 { var chest = go.AddComponent<StellaChestAgent2D>(); chest.Initialize(this, entity.position); agent = chest; }
                 else
                 {
-                    var sprite = go.AddComponent<SpriteRenderer>(); sprite.color = entity.color; sprite.sortingOrder = 8;
-                    sprite.sprite = RuntimeSpriteFactory.Disc;
                     if (entity.kind == nameof(ExperienceOrbAgent))
-                    { var amount = RunSnapshotCodec.Read(state, "_amount", 1); sprite.sprite = amount >= 5 ? RuntimeSpriteFactory.Star : amount >= 3 ? RuntimeSpriteFactory.Hexagon : RuntimeSpriteFactory.Disc; var orb = go.AddComponent<ExperienceOrbAgent>(); orb.Initialize(this, _player, amount); agent = orb; }
+                    { var amount = RunSnapshotCodec.Read(state, "_amount", 1); var orb = go.AddComponent<ExperienceOrbAgent>(); orb.Initialize(this, _player, amount); agent = orb; }
                     else if (entity.kind == nameof(HealthPackAgent2D))
-                    { sprite.sprite = RuntimeSpriteFactory.Star; var health = go.AddComponent<HealthPackAgent2D>(); health.Initialize(this); agent = health; }
+                    { var health = go.AddComponent<HealthPackAgent2D>(); health.Initialize(this); agent = health; }
                     else if (entity.kind == nameof(ArtifactChestAgent2D))
-                    { sprite.sprite = RuntimeSpriteFactory.Hexagon; var chest = go.AddComponent<ArtifactChestAgent2D>(); chest.Initialize(this); agent = chest; }
+                    { var chest = go.AddComponent<ArtifactChestAgent2D>(); chest.Initialize(this); agent = chest; }
                     else if (entity.kind == nameof(RuneAgent2D))
-                    { sprite.sprite = RuntimeSpriteFactory.Diamond; var rune = go.AddComponent<RuneAgent2D>(); rune.Initialize(this, RunSnapshotCodec.Read(state, "_type", "overdrive"), entity.position, RunSnapshotCodec.Read(state, "_life", 22f)); agent = rune; }
+                    { var rune = go.AddComponent<RuneAgent2D>(); rune.Initialize(this, RunSnapshotCodec.Read(state, "_type", "overdrive"), entity.position, RunSnapshotCodec.Read(state, "_life", 22f)); agent = rune; }
                     else if (entity.kind == nameof(AbilityDroneAgent2D))
                     {
-                        sprite.sprite = RuntimeSpriteFactory.Hexagon;
                         var drone = go.AddComponent<AbilityDroneAgent2D>();
                         drone.Initialize(this, RunSnapshotCodec.Read(state, "_anchorType", SphereId.Standard), GetAbilityLevel(RunUpgradeKind.Minion),
                             RunSnapshotCodec.Read(state, "_remaining", 1f), RunSnapshotCodec.Read(state, "_branch", ""), RunSnapshotCodec.Read(state, "_final", ""), RunSnapshotCodec.Read(state, "_ordinal", 0));
@@ -268,7 +265,7 @@ namespace EchoSphere.Runtime
             }
             if (agent == null) throw new FormatException("Unknown run entity " + entity.kind);
             RunSnapshotCodec.Restore(state, agent.GetType(), agent);
-            if (agent is SourceParticle2D restoredParticle) restoredParticle.RestoreSavedColor(entity.color);
+            if (agent is IRunSaveColor restoredAppearance) restoredAppearance.RestoreSavedColor(entity.color);
             if (agent is ProjectileAgent projectile) projectile.ResetRestoredSourceReferences();
             agent.transform.position = entity.position; agent.transform.localScale = entity.scale;
             if(agent is EnemyAgent2D restoredEnemy)RefreshEnemyQuery(restoredEnemy);

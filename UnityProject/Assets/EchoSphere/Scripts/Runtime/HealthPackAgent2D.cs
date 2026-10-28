@@ -2,8 +2,11 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class HealthPackAgent2D : MonoBehaviour, ISourceSimulationAgent
+    public sealed class HealthPackAgent2D : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
     {
+        private Color _savedColor = new Color(0.36f,0.9f,0.42f);
+        Color IRunSaveColor.SavedColor => _savedColor;
+        void IRunSaveColor.RestoreSavedColor(Color color) => _savedColor = color;
         private EchoSphereRuntime _runtime;
         private Vector3 _origin;
 

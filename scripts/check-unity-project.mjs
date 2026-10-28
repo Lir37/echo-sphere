@@ -390,7 +390,7 @@ assert.equal((artifactRules.match(/new ArtifactRewardDefinition\(/g) || []).leng
 const stellaChest = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs'), 'utf8');
 assert.ok(stellaChest.includes('renderer.ts:drawStellaChest') && stellaChest.includes('engineLoop.ts chest proximity collection'), 'Stella chest must map to live source renderer/pickup path');
 assert.ok(stellaChest.includes('BossCombatRules.PlayerRadiusSourceUnits+28f') && stellaChest.includes('CollectStellaChest(this)'), 'Stella source pickup distance/event hook missing');
-assert.ok(stellaChest.includes('MarkDynamic') && stellaChest.includes('_vertices.Clear()') && stellaChest.includes('_triangles.Clear()'), 'Stella dynamic mesh must reuse buffers');
+assert.ok(!stellaChest.includes('new Mesh') && !stellaChest.includes('TextMesh') && readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeEntityLayers.cs'), 'utf8').includes('_nativeWorldPickableViews.DrawChest'), 'Stella must use the active retained presentation without a hidden mesh');
 assert.ok(runtimeArt.includes('SpawnStellaChest(position)') && runtimeArt.includes('CollectStellaChest(StellaChestAgent2D chest)'), 'boss death must produce a collectible Stella cache');
 assert.ok(runtimeArt.includes('ArtifactRewardRules.IsLegendaryStellaWindow') && runtimeArt.includes('PickChoices(_ownedArtifacts, _rng.NextFloat, true') && runtimeArt.includes('PickChoices(_ownedArtifacts, _rng.NextFloat, false'), 'Stella rarity-window selection/fallback is missing');
 assert.ok(runtimeArt.includes('GetStellaChoiceCount(_ownedArtifacts)') && artifactRules.includes('Contains(owned,"quantum_fold")'), 'Quantum Fold must add a fourth Stella choice');
@@ -488,17 +488,14 @@ assert.ok(runtime.includes('IncreaseMaxHp(6f)') && runtime.includes('IncreaseMax
 const experienceOrb = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ExperienceOrbAgent.cs'), 'utf8');
 assert.ok(experienceOrb.includes('GetExperienceMagnetRadiusWorld()'), 'Magnet Level-Up must affect XP orb attraction');
 const xpOrbVisualRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
-const xpSpriteFactory = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs'), 'utf8');
-assert.ok(xpOrbVisualRuntime.includes('RuntimeSpriteFactory.ExperienceShard') &&
-  xpOrbVisualRuntime.includes('RuntimeSpriteFactory.ExperienceShardOutline') &&
-  xpOrbVisualRuntime.includes('XP Shard Highlight') &&
-  xpOrbVisualRuntime.includes('2.2f * 6f * SpherePlacementRules.SourcePixelsToWorld') &&
-  !xpOrbVisualRuntime.includes('xpReward >= 5 ? RuntimeSpriteFactory.Star'),
-  'XP pickup visual must match the source fixed-size cyan shard, near-white outline and highlight rather than XP-tier-dependent generic sprites');
-assert.ok(xpSpriteFactory.includes('CreateFlatPolygonSprite("ES_ExperienceShard"') &&
-  xpSpriteFactory.includes('CreatePolygonOutlineSprite("ES_ExperienceShardOutline"') &&
-  xpSpriteFactory.includes('0.62f / 1.1f') && xpSpriteFactory.includes('0.52f / 1.1f'),
-  'XP shard shape must retain the six-point source renderer geometry');
+const xpNativeArt = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Presentation/NativeWorldPickups.cs'), 'utf8');
+const xpNativeLayer = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeEntityLayers.cs'), 'utf8');
+assert.ok(xpNativeLayer.includes('6,NativeExperienceColor,orb.SourceProjectionRotation') &&
+  xpNativeLayer.includes('NativeMutationColor("#63e6ff")') && xpNativeArt.includes('A(230,253,255,.82f)') &&
+  xpNativeArt.includes('A(255,255,255,.58f)'), 'active XP view must retain fixed size, cyan body, white outline and highlight');
+assert.ok(xpNativeArt.includes('r*.62f,-r*.35f') && xpNativeArt.includes('r*.52f,r*.68f') &&
+  xpNativeArt.includes('-r*.52f,r*.68f') && xpNativeArt.includes('-r*.62f,-r*.35f'),
+  'active XP shard must retain the six-point source geometry');
 const enemyAbilitySlowCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 const enemySlowCombatRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/CombatRules.cs'), 'utf8');
 assert.ok(enemyAbilitySlowCheck.includes('GetEnemyAbilitySpeedMultiplier(distanceToPlayer, _slowMultiplier)') &&

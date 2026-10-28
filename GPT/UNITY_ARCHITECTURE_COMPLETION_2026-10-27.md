@@ -244,3 +244,57 @@ ResolveSourceSpaceCollisions теперь повторно использует 
 белая пауза и финальная Android-приёмка/15минут. Телефон не подключён, APK в этой
 группе не собирался. Качество, визуальные эффекты и настройки пользователя
 не снижались; new-desing не менялся. Общий план остаётся IN PROGRESS.
+
+## Группа 6 — данные pickup/save и удаление скрытых мешей (2026-10-28)
+
+Группа5 8d211009e37912847cf8e31afffac6713eb062f2: CI #891 SUCCESS.
+
+Подтверждены два дополнительных старых построителя: BossProjectileAgent2D
+создавал Mesh/Material и Rebuild после каждого движения, StellaChestAgent2D —
+Mesh/Material/TextMesh и Rebuild каждый tick. Камера production имеет cullingMask0,
+а фактические виды уже рисуются EchoSphereNativeEntityLayers через native
+projectile/pickable views. Старые построители, массивы и material/label lifetime
+удалены из агентов. Поля движения, damage/radius, source owner, time/collection,
+порядок simulation и пороги сохранены. В baseline реальные скрытые меши имели
+258 и268 вершин соответственно; теперь оба агента не создают Renderer/MeshFilter.
+
+Массивы старых мешей сериализовались RunSnapshotCodec. На снятых до правки
+состояниях снаряд имел2784 snapshot nodes, Stella2917; после удаления presentation
+полей —15 и3 соответственно. Это измерение размера структур, НЕ задержек save,
+GC целого кадра или FPS. Старые state nodes неизвестных теперь полей штатно
+пропускаются Restore. Версия2, ключ PlayerPrefs, SavedEntity envelope/идентификаторы,
+игровые поля и sync save/focus policy сохранены. Presentation-only nodes больше
+не записываются; нельзя называть новый JSON побайтово идентичным старому.
+
+IRunSaveColor переносит прежний SavedEntity.color в данные XP/health/artifact
+pickup, дрона, руны и частицы. Руна хранит прежнее затухание alpha. Новый цвет
+исключён из reflected entity state: используется существующее поле envelope.
+При restore даже нестандартный цвет старого envelope сохраняется до следующего
+обычного обновления. Рождение/restore этих объектов больше не создаёт скрытые
+SpriteRenderer, XP outline/highlight дочерние объекты тоже удалены. Реальная
+геометрия и цвета NativeWorldPickups/NativeWorldPickableViews не менялись.
+Enemy/Sphere ещё используют старые оболочки: их граница данных остаётся открытой.
+
+Проверки:
+- Editor запущен заново Unity6000.6.1f1, Pipeline7800 подтверждён.
+- Entity data fixture49 PASS в Editor и Play: birth colors, legacy envelope,
+  renderer-free restore/tick, rune fade, отсутствие второго color в state.
+  Загружены настоящие snapshots с массивами мешей, снятые до изменения кода;
+  скорость/урон/радиус/time восстановлены. PlayerPrefs тест не записывает.
+- Native transient projection35 PASS: source-owner порядок, counts, поля
+  projectile view совпадают с reference; transient V dictionaries отсутствуют.
+- Enemy/particle ownership30 PASS; Core12462/parity47389 и Node272 PASS.
+- Player/editor compile344 runtime+6 Editor: 0 errors/compiler warnings.
+- Реальный URP graph6 GPU cases PASS, max pixel delta0, errors0.
+  Это проверка compositor, а не полная визуальная/телефонная приёмка всех pickup.
+- Preflight больше не требует мёртвых Stella/XP mesh paths; проверки перенесены
+  на активные native outline/highlight/6-point shape и chest layer.
+
+Evidence: Documents/UnityEvaluations/ECHO-SPHERE-architecture-20261028,
+retired-mesh-baseline.json и entity-data-boundary.json. Отсутствующие после очистки
+Library baseline можно взять оттуда; fixture явно выводит legacyBaseline.
+Recovery-файлы пользователя сохранены. APK не собирался, телефона нет.
+Остаток: Enemy/Sphere data boundary и снятие оставшихся старых presentation
+зависимостей; retained deform topology/particle batching; raster graph/reference
+изоляция; cold tutorial/full save-run roundtrip/20 transitions memory и Android.
+Общий план остаётся IN PROGRESS.

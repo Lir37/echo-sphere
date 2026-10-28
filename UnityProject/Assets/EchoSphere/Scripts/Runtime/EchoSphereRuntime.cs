@@ -3286,27 +3286,6 @@ namespace EchoSphere.Runtime
             go.transform.position = position;
             // Source drawModernXp uses radius 6 for every orb, regardless of XP value.
             go.transform.localScale = Vector3.one * (2.2f * 6f * SpherePlacementRules.SourcePixelsToWorld);
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = RuntimeSpriteFactory.ExperienceShard;
-            sr.color = new Color(99f / 255f, 230f / 255f, 1f);
-            sr.sortingOrder = 7;
-
-            var outline = new GameObject("XP Shard Outline");
-            outline.transform.SetParent(go.transform, false);
-            var outlineRenderer = outline.AddComponent<SpriteRenderer>();
-            outlineRenderer.sprite = RuntimeSpriteFactory.ExperienceShardOutline;
-            outlineRenderer.color = new Color(230f / 255f, 253f / 255f, 1f, 0.82f);
-            outlineRenderer.sortingOrder = 8;
-
-            var highlight = new GameObject("XP Shard Highlight");
-            highlight.transform.SetParent(go.transform, false);
-            highlight.transform.localPosition = new Vector3(-0.0909f, 0.1364f, -0.01f);
-            highlight.transform.localScale = Vector3.one * 0.12f;
-            var highlightRenderer = highlight.AddComponent<SpriteRenderer>();
-            highlightRenderer.sprite = RuntimeSpriteFactory.Disc;
-            highlightRenderer.color = new Color(1f, 1f, 1f, 0.58f);
-            highlightRenderer.sortingOrder = 9;
-
             // The source rounds enemy XP * combo multiplier once, at orb creation.
             var comboExperience = ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier);
             var orbVelocity = new Vector2(-40f + _rng.NextFloat() * 80f, 40f - _rng.NextFloat() * 80f);
@@ -3320,10 +3299,6 @@ namespace EchoSphere.Runtime
                 var health = new GameObject("Health Pack");
                 health.transform.position = position;
                 health.transform.localScale = Vector3.one * 0.22f;
-                var healthRenderer = health.AddComponent<SpriteRenderer>();
-                healthRenderer.sprite = RuntimeSpriteFactory.Star;
-                healthRenderer.color = new Color(0.36f, 0.9f, 0.42f);
-                healthRenderer.sortingOrder = 8;
                 health.AddComponent<HealthPackAgent2D>().Initialize(this);
             }
 
@@ -3335,10 +3310,6 @@ namespace EchoSphere.Runtime
                 var rune = new GameObject("Tactical Rune · " + runeType);
                 rune.transform.position = position;
                 rune.transform.localScale = Vector3.one * 0.26f;
-                var runeRenderer = rune.AddComponent<SpriteRenderer>();
-                runeRenderer.sprite = RuntimeSpriteFactory.Diamond;
-                runeRenderer.color = RuneAgent2D.GetRuneColor(runeType);
-                runeRenderer.sortingOrder = 9;
                 rune.AddComponent<RuneAgent2D>().Initialize(this, runeType, position, 22f);
             }
 
@@ -3348,10 +3319,6 @@ namespace EchoSphere.Runtime
                 var chest = new GameObject("Artifact Cache");
                 chest.transform.position = position;
                 chest.transform.localScale = Vector3.one * 0.28f;
-                var chestRenderer = chest.AddComponent<SpriteRenderer>();
-                chestRenderer.sprite = RuntimeSpriteFactory.Hexagon;
-                chestRenderer.color = new Color(1f, 0.76f, 0.3f);
-                chestRenderer.sortingOrder = 8;
                 chest.AddComponent<ArtifactChestAgent2D>().Initialize(this);
             }
         }
@@ -5850,10 +5817,6 @@ namespace EchoSphere.Runtime
                 var drone = new GameObject("Echo Drone");
                 drone.transform.position = spawnPosition;
                 drone.transform.localScale = Vector3.one * 0.28f;
-                var renderer = drone.AddComponent<SpriteRenderer>();
-                renderer.sprite = RuntimeSpriteFactory.Diamond;
-                renderer.color = new Color(0.35f, 0.83f, 1f, 0.95f);
-                renderer.sortingOrder = 16;
                 var agent = drone.AddComponent<AbilityDroneAgent2D>();
                 agent.Initialize(this, nearest != null ? nearest.Type : SphereId.Standard, level,
                     10f + (level >= 5 ? 2f : 0f), branch, final, i);

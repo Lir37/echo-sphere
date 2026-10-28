@@ -4,11 +4,14 @@ using EchoSphere.Core;
 namespace EchoSphere.Runtime
 {
     /// <summary>Temporary minion that follows the source anchor Sphere and uses its source attack profile.</summary>
-    public sealed class AbilityDroneAgent2D : MonoBehaviour, ISourceSimulationAgent
+    public sealed class AbilityDroneAgent2D : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
     {
         internal float SourceProjectionRemaining => _remaining;
         internal float SourceProjectionRotation => _rotation;
         internal SphereId SourceProjectionAnchorType => _anchorType;
+        private Color _savedColor = new Color(0.35f,0.83f,1f,0.95f);
+        Color IRunSaveColor.SavedColor => _savedColor;
+        void IRunSaveColor.RestoreSavedColor(Color color) => _savedColor = color;
         private EchoSphereRuntime _runtime;
         private SphereId _anchorType;
         private float _remaining;

@@ -2,8 +2,11 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class ArtifactChestAgent2D : MonoBehaviour, ISourceSimulationAgent
+    public sealed class ArtifactChestAgent2D : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
     {
+        private Color _savedColor = new Color(1f,0.76f,0.3f);
+        Color IRunSaveColor.SavedColor => _savedColor;
+        void IRunSaveColor.RestoreSavedColor(Color color) => _savedColor = color;
         private EchoSphereRuntime _runtime;
         private Vector3 _origin;
 

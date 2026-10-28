@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class RuneAgent2D : MonoBehaviour, ISourceSimulationAgent
+    public sealed class RuneAgent2D : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
     {
         internal string SourceProjectionType => _type;
         internal float SourceProjectionLife => _life;
@@ -12,11 +12,13 @@ namespace EchoSphere.Runtime
             "fortify", "hunt", "echo", "gravity"
         };
 
+        private Color _savedColor = Color.white;
+        Color IRunSaveColor.SavedColor => _savedColor;
+        void IRunSaveColor.RestoreSavedColor(Color color) => _savedColor = color;
         private EchoSphereRuntime _runtime;
         private string _type;
         private float _life;
         private Vector3 _origin;
-        private SpriteRenderer _renderer;
 
         public void Initialize(EchoSphereRuntime runtime, string type, Vector2 position, float lifetime)
         {
@@ -25,8 +27,7 @@ namespace EchoSphere.Runtime
             _type = type;
             _life = Mathf.Max(0f, lifetime);
             _origin = new Vector3(position.x, position.y, transform.position.z);
-            _renderer = GetComponent<SpriteRenderer>();
-            if (_renderer != null) _renderer.color = GetRuneColor(type);
+            _savedColor = GetRuneColor(type);
         }
 
         public void SimulationTick(float dt)
@@ -43,12 +44,9 @@ namespace EchoSphere.Runtime
             transform.position -= Vector3.up * (Mathf.Sin(phase) * dt * 3f * EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld);
             var pulse = 1f + Mathf.Sin(phase * 1.35f) * 0.08f;
             transform.localScale = Vector3.one * (0.26f * pulse);
-            if (_renderer != null)
-            {
-                var tint = GetRuneColor(_type);
-                tint.a = Mathf.Clamp01(Mathf.Min(1f, _life / 2f));
-                _renderer.color = tint;
-            }
+            var tint = GetRuneColor(_type);
+            tint.a = Mathf.Clamp01(Mathf.Min(1f, _life / 2f));
+            _savedColor = tint;
             if (Vector2.Distance(transform.position, _runtime.PlayerPosition) <= 31f * EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld)
             {
                 _runtime.ActivateRunePickup(_type, transform.position);

@@ -2,9 +2,12 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class ExperienceOrbAgent : MonoBehaviour, ISourceSimulationAgent
+    public sealed class ExperienceOrbAgent : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
     {
         internal float SourceProjectionRotation => _rotation;
+        private Color _savedColor = new Color(99f/255f,230f/255f,1f);
+        Color IRunSaveColor.SavedColor => _savedColor;
+        void IRunSaveColor.RestoreSavedColor(Color color) => _savedColor = color;
         private EchoSphereRuntime _runtime;
         private Transform _player;
         private int _amount = 1;

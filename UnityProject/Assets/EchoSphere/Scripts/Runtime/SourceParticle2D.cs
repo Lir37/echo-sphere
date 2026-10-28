@@ -1,7 +1,7 @@
 using UnityEngine;
 namespace EchoSphere.Runtime
 {
-    public sealed class SourceParticle2D : MonoBehaviour, ISourceSimulationAgent
+    public sealed class SourceParticle2D : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
     {
         internal float SourceProjectionLife => _life;
         internal float SourceProjectionMaxLife => _maxLife;
@@ -13,6 +13,8 @@ namespace EchoSphere.Runtime
         private float _life, _maxLife, _sourceSize;
         private Color _color;
         private Color _savedColor;
+        Color IRunSaveColor.SavedColor => _savedColor;
+        void IRunSaveColor.RestoreSavedColor(Color color) => RestoreSavedColor(color);
         internal Color SavedColor => _savedColor;
         internal void RestoreSavedColor(Color color) => _savedColor = color;
         public void Initialize(EchoSphereRuntime runtime, Vector2 velocity, float life, Color color, float maxLife = 0f,float sourceSize=0f)

@@ -2112,3 +2112,13 @@ bytes for100 calls with retained workspace (fresh grid718400); not device GC/FPS
 Previous published group4 2fdbceeb passed CI890 SUCCESS. See architecture report
 for limitations. Remaining save adapters, topology/particle batching, graph/reference
 cleanup, full lifecycle and Android acceptance stay open; no new APK/quality cut.
+
+2026-10-28 group6: removed unused BossProjectile/Stella mesh builders and mesh
+arrays from simulation/save. Captured legacy states restore successfully; node
+counts2784->15 and2917->3 (structure size only, not FPS). XP/health/artifact/drone/
+rune/particle own legacy SavedEntity.color via IRunSaveColor; birth/restore no
+longer creates their hidden SpriteRenderers. Native view geometry unchanged.
+Editor49 boundary/35 projection/30 ownership checks and URP6 pixel cases PASS;
+344+6 C# clean, Core12462/parity47389/Node272 PASS. Previous CI891 SUCCESS.
+Enemy/Sphere legacy data/presentation boundary and remaining architecture/device
+acceptance still open. Details: UNITY_ARCHITECTURE_COMPLETION_2026-10-27.md.
