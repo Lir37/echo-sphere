@@ -392,3 +392,36 @@ Console errors. Core12462/parity47389/Node272/preflight PASS;344+6C# чисто.
 Остаток: transient effect paths (особенно SpherePulse), remaining fullscreen
 graph bindings, reference isolation, full cold tutorial/20 transitions memory
 и Android/white pause/15-minute acceptance. План IN PROGRESS.
+
+## Группа 9 — source pulse и неактивные scene effects (2026-10-28)
+
+ae8b2f87 прошёл CI894 SUCCESS.
+Подтверждено по src/engineCombat.ts:1145: emitSpherePulse после урона создаёт14
+частиц с одним RNG angle каждая, velocity90, life/maxLife .35, size3. Unity
+вместо этого создавал непроецируемый SpherePulseVfx2D MeshRenderer. Теперь
+рождаются те же source particles в существующем пуле/typed native frame, с
+конверсией source Y и прежними14 RNG draws. Damage/slow и порядок вызовов не
+менялись. Это восстановление подтверждённого исходником эффекта, не новый VFX
+или новая игровая механика. Частицы теперь участвуют в обычной simulation/save
+как в source; старая отдельная Update-анимация больше не используется.
+
+Удалены SpherePulseVfx2D и уже невызываемые HunterParticleVfx2D/EngineerRelayVfx2D
+с .meta. GUID-ссылки в сценах/prefab/assets/json проверены — отсутствуют. Hunter
+уже использовал SourceParticle; Engineer — AddSourceLightningVisual/native bolts.
+Их source shape/motion/range/timing guards перенесены на активный код.
+
+Дополнительные Unity-only ImpactVfx2D/PulseEffect2D rings находились вне camera
+cullingMask и не читались native frame. Они, их создание и Cataclysm scene ring
+теперь доступны только при UNITY_EDITOR && ECHO_SPHERE_SCENE_REFERENCE. В обычном
+Editor и Player нет этих types, per-hit GameObject/Mesh/Update allocations.
+Публичный SpawnImpact сохранён для API совместимости, обычные native hit flash
+и EmitSourceHitFeedback не отключены. Это начало изоляции scene-preview средств,
+НЕ утверждение, что весь V/generated reference уже выделен в отдельную assembly.
+
+Actual fixture76 PASS:14 pooled particles, exact seed/order/velocity, birth center,
+size/life, exactly14 draws; scene preview types отсутствуют. 50 hit calls дают
+прежний HP и flash .15, не создают новых GameObject. Play pools21/50reuse/cap220
+и полный run-data roundtrip114 PASS. C#341+6:0 errors/compiler warnings.
+Новый APK/device FPS не измерен. Остаток: fullscreen graph globals, комплексная
+reference isolation и финальная lifecycle/tutorial/device приёмка; общий план
+по-прежнему не объявляется DONE.

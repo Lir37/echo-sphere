@@ -1,3 +1,4 @@
+#if UNITY_EDITOR && ECHO_SPHERE_SCENE_REFERENCE
 using UnityEngine;
 
 namespace EchoSphere.Runtime
@@ -35,3 +36,5 @@ namespace EchoSphere.Runtime
         }
     }
 }
+
+#endif

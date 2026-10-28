@@ -53,8 +53,6 @@ const required = [
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs',
   'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs',
-  'Assets/EchoSphere/Scripts/Runtime/EngineerRelayVfx2D.cs',
-  'Assets/EchoSphere/Scripts/Runtime/EngineerRelayVfx2D.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs',
   'Assets/Editor/EchoSphereSvgImportSettings.cs',
   'Assets/Resources/EchoSphere/Art/player.svg',
@@ -551,7 +549,7 @@ assert.ok(existsSync(join(root, impactVisualPath)), 'source-mapped hit impact co
 const impactVisual = readFileSync(join(root, impactVisualPath), 'utf8');
 assert.ok(impactVisual.includes('src/renderer.ts') && impactVisual.includes('Impact Ring and Shards') && impactVisual.includes('MarkDynamic'), 'hit impact must retain the source particle/ring mapping');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(impactVisual), 'impact presentation must not consume gameplay RNG');
-assert.ok(runtime.includes('impactVfx.Initialize(color)'), 'hit resolution must connect the layered impact visual');
+assert.ok(impactVisual.startsWith('#if UNITY_EDITOR && ECHO_SPHERE_SCENE_REFERENCE') && nativeEnemyView.includes('e.HitFlash/.15') && enemyRuntime.includes('EmitSourceHitFeedback'), 'legacy scene preview must be isolated while active hit flash/particles remain connected');
 const sourcePresentation=readFileSync(join(root,'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs'),'utf8');
 assert.ok(sourcePresentation.includes('AddSourceLightningVisual')&&readFileSync(join(root,'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeFrame.cs'),'utf8').includes('foreach(var lightning in _sourceLightningVisuals)'), 'chain-lightning events must enter the native component frame');
 assert.ok(runtime.includes('SpawnCombatArc(Vector2 from, Vector2 to') && runtime.includes('AddSourceLightningVisual(from,to,duration,family)'), 'combat arc events must feed the original Canvas drawing path');
@@ -765,7 +763,7 @@ for (const token of [
 assert.ok(menuRuntime.includes('if (enemy.IsElite && _characterMasteryLevel >= 5') &&
   menuRuntime.includes('_hunterTrophyTimer = 4f') && menuRuntime.includes('_hunterMarkTarget == enemy'),
   'Hunter mastery V Trophy requires killing the active marked Elite and lasts four seconds');
-const hunterParticleRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/HunterParticleVfx2D.cs'), 'utf8');
+const hunterParticleRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Presentation/NativeWorldFeedback.cs'), 'utf8');
 for (const token of [
   'new Color32(184, 71, 90, 255)', 'i < 10', '0.35f, 2.5f',
   'new Color32(196, 69, 61, 255)', 'i < 18', '0.5f, 3f',
@@ -776,14 +774,13 @@ for (const token of [
   assert.ok(menuRuntime.includes(token) || hunterParticleRuntime.includes(token),
     `source Hunter visual/shake behavior missing: ${token}`);
 }
-assert.ok(hunterParticleRuntime.includes('SpherePlacementRules.SourcePixelsToWorld') &&
-  hunterParticleRuntime.includes('size * 1.8f') && hunterParticleRuntime.includes('size * 0.55f'),
-  'Hunter particles must retain source pixel scaling and elongated diamond silhouettes');
+assert.ok(hunterParticleRuntime.includes('P(s*1.8,0)') && hunterParticleRuntime.includes('P(0,-s*.55)') && menuRuntime.includes('SpawnSourceParticle(worldPosition'),
+  'active Hunter particles must retain elongated diamonds and simulation-owned pixel conversion');
 
 // Engineer Relay source contracts: duration/range, exact consumer Sphere set,
 // one-shot 1.25x damage, and a Canvas-scaled drawEnergyBolt presentation.
 const engineerRelayRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/EngineerRelayRules.cs'), 'utf8');
-const engineerRelayVfxSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EngineerRelayVfx2D.cs'), 'utf8');
+const engineerRelayVfxSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Presentation/NativeWorldEnergyBolts.cs'), 'utf8');
 assert.ok(engineerRelayRulesSource.includes('masteryLevel >= 6 ? 260 : masteryLevel >= 2 ? 240 : 220') &&
   engineerRelayRulesSource.includes('masteryLevel >= 4 ? 0.55f : 0.40f') &&
   engineerRelayRulesSource.includes('1.25f'),
@@ -834,15 +831,9 @@ assert.ok(sphereAttack.includes('EngineerRelayRules.ConsumesOnAttack(_type)') &&
   sphereAttack.includes('private bool DamageSourceArea') &&
   sphereAttack.includes('if (hitSomething) _runtime.TriggerEngineerRelay(this)'),
   'Engineer relay must be applied once to eligible attacks and trigger from actual field/orbital activity');
-assert.ok(engineerRelayVfxSource.includes('src/renderer.ts:drawEnergyBolt') &&
-  engineerRelayVfxSource.includes('Mathf.Clamp01(_duration / SourceAlphaLifetime)') &&
-  engineerRelayVfxSource.includes('_duration = Mathf.Max(0.01f, duration)') &&
-  menuRuntime.includes('SpawnEngineerRelayLightning(from, to, 0.28f)') &&
-  engineerRelayVfxSource.includes('SpherePlacementRules.SourcePixelsToWorld') &&
-  engineerRelayVfxSource.includes('Mathf.Min(26f * SpherePlacementRules.SourcePixelsToWorld, length * 0.08f)') &&
-  engineerRelayVfxSource.includes('0.28f * alpha') &&
-  engineerRelayVfxSource.includes('0.90f * alpha'),
-  'Engineer relay bolt must preserve source wobble, source-pixel thickness and alpha layers');
+assert.ok(menuRuntime.includes('SpawnEngineerRelayLightning(from, to, 0.28f)') &&
+  engineerRelayVfxSource.includes('Math.Min(26,len*.08)') && engineerRelayVfxSource.includes('.28*alpha') &&
+  engineerRelayVfxSource.includes('.9*alpha'), 'active Engineer bolt must retain source wobble and alpha layers');
 
 // CI-only workflow guards. The Unity Editor/APK cloud build is intentionally
 // disabled; this workflow must keep validating contracts and project structure
@@ -1285,18 +1276,14 @@ assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('(15f - Mathf.Min(4, (level - 1) * 2)) * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('220f') && runtimeArt.includes('700f') && runtimeArt.includes('300f'),
   'Time Stop / Teleport must preserve source cooldowns, duration scaling and level-III target range');
-const spherePulseVfxSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SpherePulseVfx2D.cs'), 'utf8');
 assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)') &&
   activeAbilityEnemy.includes('public void SetFreezeDuration(float duration)') &&
   runtimeArt.includes('enemy.SetFreezeDuration(freezeDuration)') &&
   runtimeArt.includes('EmitSourceSpherePulse(nearest, nearest.transform.position, pulseRadius, pulseDamage') &&
-  runtimeArt.includes('var angles = new float[14];') &&
-  runtimeArt.includes('angles[i] = _rng.NextFloat() * Mathf.PI * 2f;') &&
-  runtimeArt.includes('pulse.AddComponent<SpherePulseVfx2D>().Initialize(color, SpherePlacementRules.SourcePixelsToWorld, angles)') &&
+  runtimeArt.includes('for(var i=0;i<14;i++)') &&
+  runtimeArt.includes('float angle=_rng.NextFloat()*Mathf.PI*2f;') &&
+  runtimeArt.includes('SpawnSourceParticle(center,new Vector2(Mathf.Cos(angle),-Mathf.Sin(angle))*90f,.35f,3f,htmlColor,.35f)') &&
   !runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
-  spherePulseVfxSource.includes('SourceLife = 0.35f') &&
-  spherePulseVfxSource.includes('(90f * _sourceScale)') &&
-  spherePulseVfxSource.includes('3f * _sourceScale') &&
   runtimeArt.includes('enemy.ApplySlow(1.2f, 0.6f)') &&
   runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
   'Time Stop must preserve source freeze semantics, seeded 14-particle pulse behavior, slow rider support and feedback');

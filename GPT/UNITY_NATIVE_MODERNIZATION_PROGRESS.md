@@ -2140,3 +2140,11 @@ restore separated from PlayerPrefs; restore only owns its simulation registry.
 Actual version2 JSON full12-entity/11-kind roundtrip114 checks, RNG/player/POI and
 foreign owner PASS; pool14 PASS. UI pointer53/modal420 PASS, compile/core/Node clean.
 CI893 SUCCESS for preceding5a1b3685. Full plan/device acceptance remain open.
+
+2026-10-28 group9: source-confirmed emitSpherePulse now creates14 pooled native
+particles (velocity90, life.35,size3, exactly14 seeded draws), replacing invisible
+SpherePulseVfx2D. Uncalled Hunter/Engineer mesh ports removed after GUID audit.
+Extra invisible scene impact/cataclysm rings isolated behind Editor-only
+ECHO_SPHERE_SCENE_REFERENCE; native hit flash/feedback unchanged, API retained.
+Fixture76, pools21 and full run-data114 PASS;341+6 C# clean. Previous CI894 SUCCESS.
+Full reference isolation/fullscreen graph and final acceptance remain open.

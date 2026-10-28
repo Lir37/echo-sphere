@@ -2496,6 +2496,7 @@ namespace EchoSphere.Runtime
                 target.ReceiveDamage(directDamage * splash);
             }
             SpawnImpact(center, new Color(0.85f, 0.28f, 0.24f, 0.92f));
+#if UNITY_EDITOR && ECHO_SPHERE_SCENE_REFERENCE
             var effect = new GameObject("Cataclysm Shatter");
             effect.transform.position = center;
             effect.transform.localScale = Vector3.one * radius * 1.8f;
@@ -2504,6 +2505,7 @@ namespace EchoSphere.Runtime
             sr.color = new Color(1f, 0.3f, 0.22f, 0.55f);
             sr.sortingOrder = 17;
             effect.AddComponent<PulseEffect2D>().Initialize(sr.color, 0.24f, 1.15f);
+#endif
             if (finalId == "shotgun_cataclysm_final_3")
             {
                 primary.ApplySlow(0.8f, 0.65f);
@@ -2594,10 +2596,14 @@ namespace EchoSphere.Runtime
 
         public void SpawnImpact(Vector2 position, Color color)
         {
+            // The active world owns hit flash and source particles. This extra
+            // scene-only preview was outside the production camera's culling mask.
+#if UNITY_EDITOR && ECHO_SPHERE_SCENE_REFERENCE
             var go = new GameObject("Impact Pulse");
             go.transform.position = position;
             var impactVfx = go.AddComponent<ImpactVfx2D>();
             impactVfx.Initialize(color);
+#endif
         }
 
         private void SpawnStellaChest(Vector2 position)
@@ -5024,11 +5030,11 @@ namespace EchoSphere.Runtime
             DamageEnemiesNearFromSphere(source, center, radiusWorld, damage, color, slow);
             // Source emitSpherePulse deals damage first, then consumes one seeded
             // random angle for each of its 14 radial particles.
-            var angles = new float[14];
-            for (var i = 0; i < angles.Length; i++) angles[i] = _rng.NextFloat() * Mathf.PI * 2f;
-            var pulse = new GameObject("Sphere Pulse Particles");
-            pulse.transform.position = center;
-            pulse.AddComponent<SpherePulseVfx2D>().Initialize(color, SpherePlacementRules.SourcePixelsToWorld, angles);
+            var htmlColor="#"+ColorUtility.ToHtmlStringRGB(color);
+            for(var i=0;i<14;i++){
+                float angle=_rng.NextFloat()*Mathf.PI*2f;
+                SpawnSourceParticle(center,new Vector2(Mathf.Cos(angle),-Mathf.Sin(angle))*90f,.35f,3f,htmlColor,.35f);
+            }
         }
 
         private void DamageEnemiesNearFromSphere(

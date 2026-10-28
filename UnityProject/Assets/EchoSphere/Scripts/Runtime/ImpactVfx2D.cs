@@ -1,3 +1,4 @@
+#if UNITY_EDITOR && ECHO_SPHERE_SCENE_REFERENCE
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -179,3 +180,4 @@ namespace EchoSphere.Runtime
         }
     }
 }
+#endif
