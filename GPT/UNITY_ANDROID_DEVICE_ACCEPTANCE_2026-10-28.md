@@ -199,3 +199,18 @@ Actual Editor/GPU followup75checks PASS: idle-оружие видимо, поб�
 390/640 вru/en остаются внутри,высота строк достаточна. Actual run17checks PASS,
 включая bounds всех текущих мобильных текстовых кнопок и предыдущие save/cache
 контракты. Node272PASS,Editor Console0errors. Новая Android-проверка впереди.
+
+2026-10-28: e0f2984f CI905 SUCCESS,ordinary APK0errors/2warnings,142.42s,
+78,839,224bytes,installed. Compiled PlayerScriptAssemblies содержит0references
+к Vibration/Haptic API. Phone pause context подтверждён: density2.75,sigma4,
+readsGamma=True для обоих начальных проходов. Gamma conversion на входе не
+является объяснением этого случая; не добавлять предположительный prepass.
+
+Phone visual review уточнил текстовую правку: arbitrary word-break в названиях
+вкладок заменён на stacked icon/whole-word text в узком chrome; очень узкий
+shell292 (viewport320) включён в проверку. Lock-кнопка80x48 вместо64x48,чтобы
+«ПЕРЕМЕЩЕНИЕ» не оставляло одну букву отдельной строкой; Follow64x48,полные слова.
+Actual GPU/layout89checks PASS на292/320/360/390/640,ru/en,включая preferred
+width непереносимых слов. Actual native run19checks PASS,включая mobile whole
+words,weapon event/save и paused world invalidation. Повторная phone-проверка
+обновлённой компоновки и отсутствия новых vibrator events ещё впереди.

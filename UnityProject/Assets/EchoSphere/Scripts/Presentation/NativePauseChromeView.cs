@@ -49,6 +49,8 @@ namespace EchoSphere.Presentation
         }
         private double _transitionStart;
         private bool _bound, _disposed, _flow;
+        private bool? _stackedTabs;
+        private float _tabLabelSize;
         private int _geometryFrame;
         public VisualElement Header => _header;
         public VisualElement Footer => _footer;
@@ -171,9 +173,22 @@ namespace EchoSphere.Presentation
                 if (flow) root.style.left = root.style.top = StyleKeyword.Auto; else root.style.left = root.style.top = 0;
             }
         }
+        private void LayoutTabLabels()
+        {
+            if(_header.layout.width<=0)return;
+            bool stacked=_header.layout.width<500;float size=stacked?(_header.layout.width<300?8:9):10;
+            if(_stackedTabs==stacked&&_tabLabelSize==size)return;_stackedTabs=stacked;_tabLabelSize=size;
+            for(int i=0;i<4;i++){
+                _tabs[i].style.flexDirection=stacked?FlexDirection.Column:FlexDirection.Row;
+                _tabs[i].style.paddingLeft=_tabs[i].style.paddingRight=stacked?2:8;
+                _icons[i].style.marginRight=stacked?0:4;_icons[i].style.marginBottom=stacked?3:0;
+                _tabTexts[i].style.fontSize=size;
+                _tabTexts[i].style.whiteSpace=WhiteSpace.NoWrap;
+            }
+        }
         public void Prepare()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(NativePauseChromeView)); if (!_bound) return; PaintTabs();
+            if (_disposed) throw new ObjectDisposedException(nameof(NativePauseChromeView)); if (!_bound) return; LayoutTabLabels(); PaintTabs();
             if (!_flow) { WarmBounds(_header); WarmBounds(_footer); }
             if (!Ready && float.IsFinite(_header.layout.height + _footer.layout.height) && _header.layout.width > 0 && _header.layout.height > 0 && _footer.layout.height > 0 && Time.frameCount - _geometryFrame >= 2)
             { Ready = true; _header.style.opacity = _footer.style.opacity = 1; }

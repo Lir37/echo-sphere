@@ -50,6 +50,7 @@ tick=()=>{try{
    UnityEngine.UIElements.Button button=null;for(var node=label.parent;node!=null;node=node.parent)if(node is UnityEngine.UIElements.Button found){button=found;break;}
    if(button==null)continue;var bounds=label.worldBound;var box=button.worldBound;
    Check(bounds.xMin>=box.xMin-.5&&bounds.xMax<=box.xMax+.5&&bounds.yMin>=box.yMin-.5&&bounds.yMax<=box.yMax+.5,"Mobile control label escaped its button: "+button.name);
+   if(label.resolvedStyle.whiteSpace==UnityEngine.UIElements.WhiteSpace.NoWrap){var needed=label.MeasureTextSize(label.text,0,UnityEngine.UIElements.VisualElement.MeasureMode.Undefined,0,UnityEngine.UIElements.VisualElement.MeasureMode.Undefined);Check(needed.x<=label.contentRect.width+1,"Mobile word does not fit: "+button.name);}
   }
   built=Count();stage=1;frames=0;return;
  }
