@@ -39,8 +39,10 @@ namespace EchoSphere.Presentation
         internal NativeWorldPickableViews PickableViews=>_PickableViews??=new NativeWorldPickableViews();
         private NativeWorldPlayer _Player;
         internal NativeWorldPlayer Player=>_Player??=new NativeWorldPlayer();
+        internal ulong FrameBuilds {get;private set;}
         internal void BeginFrame(NativeWorldSurface surface)
         {
+            FrameBuilds++;
             Feedback.BeginFrame(surface);
             _=Field;_=Ambient;
             Pickups.BeginFrame();Minions.BeginFrame();EnergyBolts.BeginFrame();Sprites.BeginFrame();

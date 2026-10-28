@@ -35,7 +35,7 @@ namespace EchoSphere.Presentation
             _document=_panelLease.Document;_panel=_panelLease.Panel;_root=_document.rootVisualElement;Fill(_root);_root.pickingMode=PickingMode.Ignore;_root.name="native-region-root";
             _root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));
             _background=new NativeMainMenuBackground(_root,"EchoSphere/NativeRegionBackground");
-            _header=_root.Q<VisualElement>("region-header");_scroll=_root.Q<ScrollView>("region-scroll");
+            _header=_root.Q<VisualElement>("region-header");_scroll=_root.Q<ScrollView>("region-scroll");NativePauseScreenView.ConfigureMobileScroll(_scroll);
             _scroll.contentContainer.style.alignItems=Align.Center;_content=_root.Q<VisualElement>("region-content");
             _content.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
         }

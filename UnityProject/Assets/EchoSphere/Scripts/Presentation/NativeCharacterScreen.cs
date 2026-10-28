@@ -40,7 +40,7 @@ namespace EchoSphere.Presentation
             _root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));_background=new NativeMainMenuBackground(_root,"EchoSphere/NativeAppBackground");
             _page=_root.Q<VisualElement>("native-character-page");_heading=_root.Q<VisualElement>("character-heading");_message=_root.Q<VisualElement>("character-message");
             _scroll=_root.Q<ScrollView>("character-scroll");
-            _body=_scroll.contentContainer;
+            _body=_scroll.contentContainer;NativePauseScreenView.ConfigureMobileScroll(_scroll);
             _page.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
         }
         public void Show(State state,float scale,Action back,Action<string> choose,Action<string> expand)

@@ -33,6 +33,7 @@ namespace EchoSphere.Presentation
                 Document.panelSettings=Panel;
                 if(layout!=null&&Document.visualTreeAsset!=layout)Document.visualTreeAsset=layout;
                 Document.enabled=true;
+                Document.rootVisualElement.style.overflow=Overflow.Hidden;
             }catch{UnityEngine.Object.Destroy(Panel);throw;}
         }
         public void Dispose()

@@ -8,7 +8,7 @@ namespace EchoSphere.Runtime
         private void DrawNativeOrbitalSphere(NativeSphereVisual sphere,double time,double scale,double radiusScale,bool attackers)
         {
             bool disabled=sphere.DisabledTimer>0||!sphere.Alive;if(attackers&&disabled)return;
-            var state=new NativeWorldSphereFamilies.State {Family="orbital",X=sphere.X,Y=sphere.Y,Rotation=sphere.Rotation,Time=time,Scale=scale,Disabled=disabled,Resonance=sphere.Resonance};
+            var state=new NativeWorldSphereFamilies.State {Family="orbital",X=sphere.X,Y=sphere.Y,Rotation=sphere.Rotation,Time=time,Scale=scale,Disabled=disabled,Resonance=sphere.Resonance,AttackActive=sphere.AttackActive};
             var input=new NativeWorldSphereFamilies.OrbitalInput {Identity=sphere.Identity,View=state,AuraTimer=sphere.AuraTimer,RadiusScale=radiusScale};
             if(attackers){var branch=sphere.Branch;input.Blade=branch=="orbital_blade";input.Element=sphere.Element;if(input.Element!=null)ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetElement(input.Element).Color,out input.ElementColor);
                 bool crown=_ownedArtifacts.Contains("orbital_crown"),dance=branch=="orbital_dance"&&sphere.Final==2;
@@ -30,7 +30,7 @@ namespace EchoSphere.Runtime
         }
         private void DrawNativeSphereFamily(NativeSphereVisual sphere,double time,double scale)
         {
-            var state=new NativeWorldSphereFamilies.State {Family=sphere.Family,X=sphere.X,Y=sphere.Y,Rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,Time=time,Scale=scale,Disabled=sphere.DisabledTimer>0||!sphere.Alive,Resonance=sphere.Resonance};
+            var state=new NativeWorldSphereFamilies.State {Family=sphere.Family,X=sphere.X,Y=sphere.Y,Rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,Time=time,Scale=scale,Disabled=sphere.DisabledTimer>0||!sphere.Alive,Resonance=sphere.Resonance,AttackActive=sphere.AttackActive};
             if(sphere.Type==EchoSphere.Core.SphereId.Prism&&sphere.Branch=="prism_spectrum")state.HasPrismElement=ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetElement(sphere.Element).Color,out state.PrismElement);
             _nativeWorldSphereFamilies.DrawFamily(_worldSurface,_nativeWorldStandardSphere,state);
         }

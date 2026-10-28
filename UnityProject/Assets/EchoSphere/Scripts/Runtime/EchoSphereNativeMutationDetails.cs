@@ -15,7 +15,7 @@ namespace EchoSphere.Runtime
         private void DrawNativeSphereMutation(NativeSphereVisual sphere,double time,double scale)
         {
             string branch=sphere.Branch;if(string.IsNullOrEmpty(branch))return;double rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,finite=double.IsInfinity(rotation)?0:rotation;
-            var definition=NativeRunCatalog.Instance.GetSphere(sphere.Family);_nativeWorldSphereFamilies.DrawMutation(_worldSurface,new NativeWorldSphereFamilies.MutationView {X=sphere.X,Y=sphere.Y,Radius=24*scale,Time=time,Rotation=rotation,FiniteRotation=finite,Final=sphere.Final,AttackDelay=sphere.AttackDelay!=0?sphere.AttackDelay:1,AttackTimer=sphere.AttackTimer,Branch=branch,Color=NativeMutationColor(definition.Color),Directed=definition.Projectile,Emitter=(NativeRunCatalog.Instance.GetSphere(branch.Split('_')[0])?.Projectile??false)});
+            var definition=NativeRunCatalog.Instance.GetSphere(sphere.Family);_nativeWorldSphereFamilies.DrawMutation(_worldSurface,new NativeWorldSphereFamilies.MutationView {X=sphere.X,Y=sphere.Y,Radius=24*scale,Time=time,Rotation=rotation,FiniteRotation=finite,Final=sphere.Final,AttackDelay=sphere.AttackDelay!=0?sphere.AttackDelay:1,AttackTimer=sphere.AttackTimer,AttackActive=sphere.AttackActive,Branch=branch,Color=NativeMutationColor(definition.Color),Directed=definition.Projectile,Emitter=(NativeRunCatalog.Instance.GetSphere(branch.Split('_')[0])?.Projectile??false)});
         }
         private double NativeSphereFinalIndex(EchoSphere.Core.SphereId type)
         {

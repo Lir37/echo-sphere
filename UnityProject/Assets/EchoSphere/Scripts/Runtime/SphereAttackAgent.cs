@@ -43,6 +43,9 @@ namespace EchoSphere.Runtime
         private float _networkDisabledTimer;
         private float _resonancePulseTimer;
         private int _formationHitCount;
+        // Presentation signal only: an empty cadence is not an attack. Never saved.
+        private bool _presentationAttackActive;
+        public bool PresentationAttackActive => _presentationAttackActive;
         public float AttackTimer => _attackTimer;
         public void ResetAttackTimer() => _attackTimer = 0f;
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
@@ -101,6 +104,7 @@ namespace EchoSphere.Runtime
             AttackRange = (130f * SpherePlacementRules.SourcePixelsToWorld) * _profile.RangeMultiplier * _runtime.GetSphereRadiusMultiplier() * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
             _attackTimer = 0f;
+            _presentationAttackActive = false;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
             Color tint;
             if (ColorUtility.TryParseHtmlString(GetColor(type), out tint))
@@ -239,6 +243,7 @@ namespace EchoSphere.Runtime
                     break;
             }
 
+            _presentationAttackActive = target != null || _type == SphereId.Aura || _type == SphereId.Gravity || _type == SphereId.Pulse;
             if (triggeredEngineerRelay) _runtime.TriggerEngineerRelay(this);
             if (target != null && (_type == SphereId.Standard || _type == SphereId.Sniper || _type == SphereId.Shotgun || _type == SphereId.Chain || _type == SphereId.Void)) SourceAudio2D.Play("shoot");
             _attackTimer = GetSourceCadenceInterval();

@@ -171,6 +171,13 @@ namespace EchoSphere.Presentation
             foreach(var button in _formationButtons){button.style.paddingTop=button.style.paddingBottom=width<=640?5:6;button.style.paddingLeft=button.style.paddingRight=width<=640?6:7;}
             foreach(var label in _formationNames){float size=width<=640?8:9;label.style.fontSize=size;label.style.height=size*1.5f;SetSpacing(label,width<=640?.64f:.72f,size);}
         }
+        public void SetInterfaceScale(float scale)
+        {
+            scale=Mathf.Clamp(scale,.75f,1.25f);
+            _left.style.transformOrigin=new TransformOrigin(Length.Percent(0),Length.Percent(0));
+            _right.style.transformOrigin=new TransformOrigin(Length.Percent(100),Length.Percent(0));
+            _left.style.scale=_right.style.scale=new Scale(new Vector3(scale,scale,1));
+        }
         public void SetSafeArea(float left,float right,float top){if(left==_safeLeft&&right==_safeRight&&top==_safeTop)return;_safeLeft=left;_safeRight=right;_safeTop=top;Layout(_parent.contentRect.width);}
         private static void Set(Label label,string text){if(label.text!=text)label.text=text??"";}
         public void Bind(State state)

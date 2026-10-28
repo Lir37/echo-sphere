@@ -24,7 +24,10 @@ test('Settings uses native UI Toolkit controls and existing runtime callbacks', 
   const commands = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeUiPreferences.cs');
   assert.match(commands, /ClearRunSnapshot\(\);PlayerPrefs\.Save\(\)/);
   assert.match(bridge, /case "resetAll":NativeResetAllProgress\(\);return default/);
-  assert.match(owner, /_nativeSettingsScreen\.Show\(SourceDevicePixelRatio\*scale/);
+  assert.match(owner, /_nativeSettingsScreen\.Show\(SourceDevicePixelRatio,/);
+  assert.doesNotMatch(owner, /SourceDevicePixelRatio\s*\*\s*scale/);
+  const hud = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeHud.cs');
+  assert.match(hud, /SetInterfaceScale\(\(float\)NativeInterfaceScale\)/);
 
   assert.match(layout, /name="settings-confirmation"[\s\S]*name="cancel"[\s\S]*name="ok"/);
   assert.match(layout, /class="settings-pair"><ui:Button name="ru"[^\n]+name="en"/);

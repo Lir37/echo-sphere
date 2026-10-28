@@ -8,6 +8,7 @@ namespace EchoSphere.Presentation
     {
         private void MutationAttack(MutationRig rig,MutationView s)
         {
+            if(s.Directed&&!s.AttackActive)return;
             double delay=Math.Max(.15,s.AttackDelay),progress=Math.Max(0,Math.Min(1,1-s.AttackTimer/delay)),p=Math.Exp(-Math.Pow((progress-.95)/.07,2));if(!Finite(p)||p<.03)return;
             double r=s.Radius,t=s.Time,f=s.Final,strength=.28+.72*p;var c=s.Color;string b=s.Branch;const double tau=Math.PI*2;
             if(b=="standard_resonator"){for(int i=0;i<3;i++){double a=t*.55+i*tau/3;rig.Fin(Math.Cos(a)*r*1.18,Math.Sin(a)*r*.72,r*.44,r*.13,c,a+.2,.45+.4*p);}rig.Pulse(r*1.25,c,t);}

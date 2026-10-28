@@ -10,7 +10,7 @@ namespace EchoSphere.Presentation
     internal sealed class NativeRouteJournal
     {
         private readonly Queue<string> _events=new Queue<string>(64);
-        private bool _seen,_menu,_region,_paused;private int _page,_tutorial;private SceneHandle _scene;
+        private bool _seen,_menu,_region,_paused;private int _page,_tutorial,_blockers,_choices;private SceneHandle _scene;
         internal bool RegionLaunchPending;
         private AsyncOperation _regionLoad;
         internal void LoadRegionScene(int buildIndex)
@@ -20,11 +20,11 @@ namespace EchoSphere.Presentation
             catch{RegionLaunchPending=false;throw;}
         }
         internal string[] Events=>_events.ToArray();
-        internal void Observe(int runtime,SceneHandle scene,bool menu,bool region,int page,int tutorial,bool paused,string reason)
+        internal void Observe(int runtime,SceneHandle scene,bool menu,bool region,int page,int tutorial,bool paused,string reason,int blockers=0,double runTime=0,int choices=0)
         {
-            bool changed=!_seen||scene!=_scene||menu!=_menu||region!=_region||page!=_page||tutorial!=_tutorial||paused!=_paused;
+            bool changed=!_seen||scene!=_scene||menu!=_menu||region!=_region||page!=_page||tutorial!=_tutorial||paused!=_paused||blockers!=_blockers||choices!=_choices;
             if(!changed&&reason=="state")return;
-            _seen=true;_scene=scene;_menu=menu;_region=region;_page=page;_tutorial=tutorial;_paused=paused;
+            _seen=true;_scene=scene;_menu=menu;_region=region;_page=page;_tutorial=tutorial;_paused=paused;_blockers=blockers;_choices=choices;
             var documents=new System.Text.StringBuilder();
             bool HasContent(VisualElement element){
                 if(element.style.visibility==Visibility.Hidden||element.style.display==DisplayStyle.None||(element.style.opacity.keyword==StyleKeyword.Undefined&&element.style.opacity.value<=0))return false;
@@ -35,7 +35,7 @@ namespace EchoSphere.Presentation
                 var root=document.rootVisualElement;if(root==null||!HasContent(root))continue;
                 if(documents.Length>0)documents.Append(',');documents.Append(document.gameObject.name).Append('#').Append(document.ExistingObjectId());
             }
-            string entry=$"[EchoSphere.Route] frame={Time.frameCount} runtime={runtime} scene={scene} menu={menu} region={region} page={page} tutorial={tutorial} paused={paused} documents=[{documents}] reason={reason}";
+            string entry=$"[EchoSphere.Route] frame={Time.frameCount} runtime={runtime} scene={scene} menu={menu} region={region} page={page} tutorial={tutorial} paused={paused} blockers={blockers} runTime={runTime:F3} choices={choices} documents=[{documents}] reason={reason}";
             if(_events.Count==64)_events.Dequeue();_events.Enqueue(entry);Debug.Log(entry);
         }
     }

@@ -166,6 +166,9 @@ namespace EchoSphere.Runtime
             foreach(var entity in new List<MonoBehaviour>(_sourceRenderEntities.Keys))if(entity==null)_sourceRenderEntities.Remove(entity);
         }
 #endif
+        // The simulation and its visual clock are stationary during user pause.
+        // Retain the completed world image; UI filters still see that same image.
+        private (Texture Texture, Vector3 Camera, Vector2 Size, float Density, double Time)? _nativePausedWorldFrame;
         private void LateUpdate()
         {
             _nativeTransientPools?.Flush();
@@ -174,7 +177,7 @@ namespace EchoSphere.Runtime
             #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             VisualBindings.Locale=IsRussianUi?"ru":"en";
             #endif
-            if(_mainMenu){_nativeRunDocument?.Hide();_worldSurface?.CancelGraphFrame();}
+            if(_mainMenu){_nativePausedWorldFrame=null;_nativeRunDocument?.Hide();_worldSurface?.CancelGraphFrame();}
             bool nativeHome=TryDrawNativeMainMenu();
             bool nativeProgression=TryDrawNativeProgression();
             bool nativeSettings=TryDrawNativeSettings();
@@ -200,8 +203,17 @@ namespace EchoSphere.Runtime
             _worldSurface.BindCamera(_camera);
             _worldSurface.SetViewport(width,height,dpr);
             _worldSurface.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
-            _worldSurface.Begin(new Vector2(width*.5f,height*.5f));
-            RenderNativeWorldFrame(width,height);_worldSurface.End();
+            var pausedFrame=_nativePausedWorldFrame;
+            bool reuse=_userPaused&&_sourceUi!=null&&!_sourceUi.Dirty&&pausedFrame.HasValue&&
+                pausedFrame.Value.Texture==_worldSurface.UiTexture&&pausedFrame.Value.Camera==_camera.transform.position&&
+                pausedFrame.Value.Size==new Vector2(width,height)&&pausedFrame.Value.Density==dpr&&pausedFrame.Value.Time==_runTime&&
+                _worldSurface.UiTexture is RenderTexture retained&&retained.IsCreated();
+            if(reuse)_worldSurface.CancelGraphFrame();
+            else {
+                _worldSurface.Begin(new Vector2(width*.5f,height*.5f));
+                RenderNativeWorldFrame(width,height);_worldSurface.End();
+            }
+            _nativePausedWorldFrame=_userPaused?(_worldSurface.UiTexture,_camera.transform.position,new Vector2(width,height),dpr,(double)_runTime):null;
             }
             // The retained UI Toolkit document composites the native world
             // texture beneath the HUD and authored material/filter treatments.

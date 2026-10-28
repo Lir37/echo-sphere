@@ -12,7 +12,7 @@ namespace EchoSphere.Presentation
             internal double X,Y,Radius,Time,Rotation,FiniteRotation,Final,AttackDelay,AttackTimer;
             internal string Branch;
             internal Color Color;
-            internal bool Directed,Emitter;
+            internal bool Directed,Emitter,AttackActive;
         }
         // A typed authored layer: Unity owns meshes/tessellation/materials. Each
         // layer states its original transform and stroke/composition settings.

@@ -55,7 +55,7 @@ namespace EchoSphere.Presentation
             _root=_document.rootVisualElement;_root.name="native-progression-root";Fill(_root);_root.pickingMode=PickingMode.Ignore;
             _root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));
             _background=new NativeMainMenuBackground(_root,"EchoSphere/NativeAppBackground");
-            _scroll=_root.Q<ScrollView>("progression-scroll");
+            _scroll=_root.Q<ScrollView>("progression-scroll");NativePauseScreenView.ConfigureMobileScroll(_scroll);
             _scroll.contentContainer.style.alignItems=Align.Center;_scroll.contentContainer.style.minHeight=Length.Percent(100);_scroll.contentContainer.style.justifyContent=Justify.Center;
             _content=_root.Q<VisualElement>("progression-content");
             _content.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);

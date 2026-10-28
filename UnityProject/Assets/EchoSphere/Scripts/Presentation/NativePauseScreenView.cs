@@ -30,12 +30,21 @@ namespace EchoSphere.Presentation
             Body.style.flexGrow = 1; Body.style.flexShrink = 1; Body.style.minHeight = 0;
             Body.contentContainer.style.paddingLeft = Body.contentContainer.style.paddingRight = 16;
             Body.contentContainer.style.paddingTop = Body.contentContainer.style.paddingBottom = 16;
-            // Keep the existing ScrollView policy pending device parity checks.
+            ConfigureMobileScroll(Body);
             Root.Add(Body);
             Footer = Host("native-pause-screen-footer", 16, 12, 12);
             Footer.style.height = 71; Footer.style.borderTopWidth = 1;
             Footer.style.borderTopColor = new Color(76/255f,165/255f,214/255f,.16f);
             Footer.style.backgroundColor = new Color(6/255f,17/255f,29/255f,1);
+        }
+        internal static void ConfigureMobileScroll(ScrollView scroll)
+        {
+            scroll.mode = ScrollViewMode.Vertical;
+            scroll.horizontalScrollerVisibility = scroll.verticalScrollerVisibility = ScrollerVisibility.Hidden;
+            scroll.style.minWidth = 0;
+            scroll.contentContainer.style.width = Length.Percent(100);
+            scroll.contentContainer.style.minWidth = 0;
+            scroll.contentContainer.style.maxWidth = Length.Percent(100);
         }
         private VisualElement Host(string name, float x, float top, float bottom)
         {

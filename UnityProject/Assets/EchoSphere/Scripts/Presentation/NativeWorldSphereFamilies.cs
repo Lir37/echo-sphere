@@ -11,7 +11,7 @@ namespace EchoSphere.Presentation
         internal struct State
         {
             internal double X,Y,Rotation,Time,Scale;
-            internal bool Disabled,Resonance;
+            internal bool Disabled,Resonance,AttackActive;
             internal string Family;
             internal Color PrismElement;
             internal bool HasPrismElement;

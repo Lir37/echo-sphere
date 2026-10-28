@@ -37,6 +37,7 @@ namespace EchoSphere.Runtime
             // field/mobile controls below HUD, combo/modal/tutorial layers above.
             _nativeHudIsland.Root.PlaceInFront(rightBox);
             if(_nativeHudBoundVersion!=anchors.Version){_nativeHudIsland.Bind(ReadNativeHudState());_nativeHudBoundVersion=anchors.Version;}
+            _nativeHudIsland.SetInterfaceScale((float)NativeInterfaceScale);
             var dpr=SourceDevicePixelRatio;var safe=Screen.safeArea;
             _nativeHudIsland.SetSafeArea(safe.xMin/dpr,(Screen.width-safe.xMax)/dpr,(Screen.height-safe.yMax)/dpr);
             var ready=_nativeHudIsland.Ready;_nativeHudIsland.Prepare(dpr);

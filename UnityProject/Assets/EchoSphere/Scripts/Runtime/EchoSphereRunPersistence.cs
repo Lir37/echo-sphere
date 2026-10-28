@@ -11,6 +11,7 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private static bool EntitySnapshotField(FieldInfo field) =>
+            !(field.DeclaringType == typeof(SphereAttackAgent) && field.Name == "_presentationAttackActive") &&
             !(field.DeclaringType == typeof(EnemyAgent2D) && field.Name == "_visualVariant") &&
             !(typeof(IRunSaveColor).IsAssignableFrom(field.DeclaringType) && field.Name == "_savedColor");
         private const string RunSnapshotKey = "echosphere_active_run_v1";
@@ -56,7 +57,7 @@ namespace EchoSphere.Runtime
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
             "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
-            "_nativeNetworkProjection",
+            "_nativeNetworkProjection", "_nativePausedWorldFrame",
             "_nativeTransientPools",
             "_simulationTypes", "_simulationPhases",
             "_runSaveBuffers",
@@ -185,6 +186,7 @@ namespace EchoSphere.Runtime
         }
         private void RestoreRunSnapshot(SavedRun save)
         {
+            _nativePausedWorldFrame=null;
             // Stop old entity updates immediately; Unity's deferred Destroy happens after this frame.
             foreach (var agent in _simulationAgents.Where(agent=>agent!=null&&agent.gameObject.activeInHierarchy).OrderBy(agent=>agent.ExistingObjectId()).ToArray())
             {

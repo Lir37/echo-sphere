@@ -2185,3 +2185,16 @@ Diagnostic IL2CPP built, but USB disappeared before installation/Profiler attach
 Original phone-data backup exists; RESTORATION STILL PENDING USB. Details and
 exact next steps: UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md. No game-code fix
 or GPU/GC attribution claimed; no15-minute acceptance or completed plan claim.
+
+
+2026-10-28 — исправления по новой проверке Xiaomi. Пользователь прошёл30минут,
+бой субъективно плавный; остаются тормоза паузы, повтор атак без целей, масштаб
+и desktop scrollbars. Пустые каденции отделены от visual-атак (без изменения
+механик/save); масштаб ограничен combat HUD/controls, настройки не масштабируются;
+ScrollView переведены на жесты без полос/горизонтальной прокрутки. Неизменная
+user pause повторно использует world image, invalidation сохранена. Editor14checks
+PASS, C#5profiles PASS, Core12462+47389 comparisons PASS, Node272PASS. Журнал
+переходов дополнен blockers/choices/runTime для неустановленного зависания3:29.
+Полные измерения/статусы: GPT/UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.
+Предыдущий diagnostic Profiler записан, оригинальный PlayerPrefs и обычный APK
+возвращены; временное USB-awake восстановлено. Новая Android-приёмка pending.

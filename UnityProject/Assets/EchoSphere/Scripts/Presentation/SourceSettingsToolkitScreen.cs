@@ -61,7 +61,7 @@ namespace EchoSphere.Presentation
         private T Require<T>(string name) where T:VisualElement=>_document.rootVisualElement.Q<T>(name)??throw new InvalidOperationException("Native settings layout is missing "+name);
         private void Build()
         {
-            _scroll=Require<ScrollView>("settings-scroll");_scroll.contentContainer.style.alignItems=Align.Center;
+            _scroll=Require<ScrollView>("settings-scroll");NativePauseScreenView.ConfigureMobileScroll(_scroll);_scroll.contentContainer.style.alignItems=Align.Center;
             _content=Require<VisualElement>("settings-content");_scale=Require<Slider>("interface-scale");
             _scaleValue=Require<Label>("settings-scale-value");_confirmation=Require<VisualElement>("settings-confirmation");_resetPrompt=Require<Label>("settings-reset-prompt");
             foreach(var key in new[]{"settingsTitle","language","sound","handedness","interfaceScale","controls","moveControls","placeSphere","activeAbilities","dashAbility"})_labels[key]=Require<Label>(key);

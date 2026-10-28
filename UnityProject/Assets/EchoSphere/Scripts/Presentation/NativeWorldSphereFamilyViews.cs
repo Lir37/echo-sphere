@@ -23,7 +23,7 @@ namespace EchoSphere.Presentation
                 case "shotgun":{
                     var tip=Get(110,r,0,1.1,()=>new[]{PolylineContour(true,P(-r*.02,-r*.10),P(r*.22,-r*.11),P(r*.30,0),P(r*.22,r*.11),P(-r*.02,r*.10))},true);var bore=Get(111,r,0,1.1,()=>new[]{EllipseContour(P(r*.25,0),(float)(r*.055),(float)(r*.055))});for(int i=-1;i<=1;i++){var local=aim*T(r*1.18,i*r*.25);Paint(tip,local,dark,color,d?.12:.92);Paint(bore,local,null,Color.white,d?.07:.72);}
                     var ray=Get(112,r,0,.8,()=>new[]{Line(-r*.10,0,r*.10,0)});for(int i=0;i<3;i++){double a=t*(.34+i*.035)+i*Math.PI*2/3;var p=Point(r,a,.34,1.12);Paint(ray,aim*T(p.x,p.y),null,color,d?.08:.48*p.depth);}
-                    if(Math.Sin(t*8)>.6)Paint(Get(113,r,0,.9,()=>new[]{EllipseContour(P(r*1.43,0),(float)(r*.11),(float)(r*.11))}),aim,null,color,d?.05:.22);break;}
+                    if(s.AttackActive&&Math.Sin(t*8)>.6)Paint(Get(113,r,0,.9,()=>new[]{EllipseContour(P(r*1.43,0),(float)(r*.11),(float)(r*.11))}),aim,null,color,d?.05:.22);break;}
                 case "chain":{
                     var conductor=Get(120,r,0,Math.Max(.8,r*.032),()=>new[]{PolylineContour(false,P(-r*.08,0),P(-r*.01,-r*.07),P(r*.07,r*.03),P(r*.14,-r*.02),P(r*.21,r*.06))});for(int i=0;i<4;i++){double a=i*Math.PI/2+t*.28;var p=Point(r,a,.34,1.10);Paint(conductor,root*T(p.x,p.y,a+Math.PI/2),null,color,(d?.10:.56)*p.depth);}
                     double q=.5+.5*Math.Sin(t*10),rr=r*(1.04+q*.08);Paint(Dynamic(new[]{EllipseContour(Vector2.zero,(float)rr,(float)rr)},1),root,null,color,d?.06:.20+q*.16);break;}
