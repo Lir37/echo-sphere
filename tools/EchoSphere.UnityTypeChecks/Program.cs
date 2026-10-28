@@ -72,6 +72,8 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
         foreach(var name in new[]{"V","VisualJs","VisualJson","IVisualHost","IVisualCallable","SourceCanvasImage","SourceCanvasArtIndex","NativeRunSnapshotDefaults","SourceUiDocument","SourceCanvasSurface","SourceUiBackdrop","SourceUiReplica","SourceUiReplicaStyle","SourceUiReplicaSnapshotCache","SourceUiFrame","NativeCaptureBackdrop","NativeUiCapturePanel","LegacyMenuGlass","LegacyUiBackdropRegistry","NativeBackdropEngineProbe","NativeMenuEngineProbe"})
             if(!(configuration=="Android editor runtime"&&name.EndsWith("Probe",StringComparison.Ordinal))&&compilation.GetTypeByMetadataName("EchoSphere.Presentation."+name)!=null)throw new InvalidOperationException("Retired presentation compatibility type leaked into Android player: "+name);
         var runtime=compilation.GetTypeByMetadataName("EchoSphere.Runtime.EchoSphereRuntime");
+        foreach(var name in new[]{"SourceBackdrop2D","EnemyCreatureVisual2D","BossPresentationVfx2D","SpherePulseVfx2D","HunterParticleVfx2D","EngineerRelayVfx2D","ImpactVfx2D","PulseEffect2D"})
+            if(compilation.GetTypeByMetadataName("EchoSphere.Runtime."+name)!=null)throw new InvalidOperationException("Retired scene renderer leaked into "+configuration+": "+name);
         foreach(var name in new[]{"_sourceRenderState","_sourceRenderEntities","UpdateSourceRenderState","UpdateSourceUiState","ApplySourceUiWrites"})
             if(runtime?.GetMembers(name).Length>0)throw new InvalidOperationException("Retired scene snapshot member leaked into Android player: "+name);
         Console.WriteLine($"Native presentation retirement: PASS (value emulator, old UI/canvas and scene snapshot absent from {configuration}).");

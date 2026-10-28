@@ -2167,3 +2167,11 @@ PASS (10 exact,2 alpha/premultiplied delta1/255; raw RGB76 near transparent edge
 Pointer53/modal420/tutorial261/full save114 PASS, prefs restored. Core12462,
 parity47389/Node272 and five C# configs clean. Reference CI wiring/manifests fixed,
 39af483b CI898 SUCCESS. Final Android visual/white-pause/performance remains open.
+
+2026-10-28 group12: removed unreachable SourceBackdrop2D + shader, factory and
+unused enemy sprite selector after caller/string/GUID checks. Active retained
+field/ambient unchanged;16 retired types absent in actual Editor. Typecheck340+6,
+five configs clean; GPU graph6 exact/global isolation PASS.2ad45a15 CI899 SUCCESS.
+Current ownership/active/reference/resource registry: UNITY_NATIVE_SYSTEM_REGISTRY.md.
+Shared CanvasArt GUIDs retained. Physical final reference/IMGUI removal follows
+visual acceptance; Android white pause/performance/15-minute checks remain open.

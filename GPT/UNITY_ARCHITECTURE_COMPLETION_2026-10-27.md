@@ -505,3 +505,25 @@ errors0. Исходные10 prefs восстановлены. Backup/restore hel
 сохраняют исходные background settings, не принуждают их в false.
 Core12462/parity47389/Node272 PASS;341+6 C# пять конфигураций чисто.
 Android FPS/GC и white pause пока не проверены. Общая приёмка IN PROGRESS.
+
+## Группа 12 — остаточный fallback и реестр (2026-10-28)
+
+2ad45a15: CI899 SUCCESS. Удалены SourceBackdrop2D, SourceBackdrop shader и их
+meta; CreateStarfield dead factory и невызываемый GetEnemySprite. Factory
+всегда завершался на UsesSourcePresentation=true. До удаления проверены callers,
+Resources string path и оба GUID по сценам/prefab/assets/json/ProjectSettings:
+ссылок нет. NativeWorldField/Ambient/Background остаются прежними. Это очистка
+неактивной реализации, не заявленный FPS gain.
+
+Actual inactive-presentation fixture теперь проверяет отсутствие16 retired
+types и legacy backdrop objects и наличие активных retained field/ambient;
+больше не создаёт210 renderer stars ради теста старого fallback. PASS.
+Typecheck запрещает возвращение removed runtime types в обычные Player/Editor
+assemblies;340+6 C#, все5 конфигураций0 errors/warnings. Повторный GPU graph6
+comparisons maxdelta0/global-state isolation PASS.
+
+Реестр владельцев и оставшейся приёмки: UNITY_NATIVE_SYSTEM_REGISTRY.md.
+Shared CanvasArt assets сохранены: NativeWorldArtCatalog имеет прямые GUID
+ссылки на player/standard sphere PNG. Остаточные private IMGUI helpers и
+opt-in reference tools не объявлены физически удалёнными. Их окончательное
+удаление — после визуальной приёмки по согласованному плану.

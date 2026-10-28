@@ -1002,7 +1002,6 @@ namespace EchoSphere.Runtime
             _leaderboardEntries = LoadLeaderboardEntries();
             _unlockedAchievementIds = LoadUnlockedAchievementIds();
             ConfigureCamera();
-            CreateStarfield();
             var savedRegionValue = PlayerPrefs.GetInt(SelectedRegionPreferenceKey, (int)EchoRegionId.ResonanceBasin);
             _selectedRegion = (EchoRegionId)Mathf.Clamp(savedRegionValue, (int)EchoRegionId.ResonanceBasin, (int)EchoRegionId.SpectralRift);
             if (!IsRegionAvailable(_selectedRegion)) _selectedRegion = EchoRegionId.ResonanceBasin;
@@ -1195,13 +1194,6 @@ namespace EchoSphere.Runtime
                 if (listener == null) listener = _camera.gameObject.AddComponent<AudioListener>();
                 listener.enabled = true;
             }
-        }
-
-        private void CreateStarfield()
-        {
-            if (UsesSourcePresentation) return;
-            var field = new GameObject("Source Backdrop").AddComponent<SourceBackdrop2D>();
-            field.Initialize(this, _camera);
         }
 
         private void CreatePlayer()
@@ -1625,10 +1617,6 @@ namespace EchoSphere.Runtime
         private static string GetEnemyName(EnemyArchetype archetype)
         {
             switch (archetype) { case EnemyArchetype.Fast: return "Rift Skirmisher"; case EnemyArchetype.Tank: return "Abyss Bulwark"; case EnemyArchetype.Elite: return "Fracture Elite"; default: return "Echo Wraith"; }
-        }
-        private static Sprite GetEnemySprite(EnemyArchetype archetype)
-        {
-            switch (archetype) { case EnemyArchetype.Fast: return RuntimeSpriteFactory.Diamond; case EnemyArchetype.Tank: return RuntimeSpriteFactory.Hexagon; case EnemyArchetype.Elite: return RuntimeSpriteFactory.Star; default: return RuntimeSpriteFactory.Shard; }
         }
         private static Color GetEnemyTint(EnemyArchetype archetype)
         {
