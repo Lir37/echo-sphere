@@ -466,3 +466,42 @@ Evidence: UnityEvaluations/ECHO-SPHERE-architecture-20261028/twenty-native-lifec
 
 Остаток: fullscreen graph blit/copy/composite globals и финальная Android
 визуальная/white-pause/15-minute производительность; план IN PROGRESS.
+
+## Группа 11 — raster filters без общих shader uniforms (2026-10-28)
+
+После изоляции reference CI896/897 выявил две пропущенные зависимости проверок:
+VisualChecks должен явно включать ECHO_SPHERE_REFERENCE_VISUALS; manifest
+generated outputs/index должен учитывать изменившиеся guards. Исправлено без
+изменения source/assets/выражений;52 output bodies сверены с383764a5 (разница
+только header guard). 39af483b: CI898 SUCCESS. Локально полный VisualChecks и
+все восемь exporter/provenance checks PASS.
+
+Horizontal/vertical blur, atlas blur, ordered shadow composite и world->UI
+present переведены с Unsafe+CommandBuffer.Blit на raster attachment passes.
+Их source texture, sigma, cached weights, direction, tint, offset, rectangle и
+atlas bounds передаются через переиспользуемый MaterialPropertyBlock. Нет
+SetGlobal для параметров фильтра. Сохранены normal/additive/screen, MSAA4x,
+разрешение, gaussian и ограничение области composite. Fullscreen quad сохраняется
+у владельца и уничтожается с ним; его UV следуют graphicsUVStartsAtTop.
+Shader vertex branch включается только native draw property block; прежние
+Blit callers/reference сохраняют vert_img path.
+
+Точный CopyTexture/subregion из atlas в retained mask оставлен отдельным transfer
+Unsafe-pass (API копирования), с явными read/write dependencies, без изменения
+global state. Это не фильтр и не скрытый fullscreen blit. Geometry использует
+матрицы Unity; Present восстанавливает camera matrices. Не утверждается полное
+отсутствие global state: matrices нужны существующим mesh shaders.
+
+Реальный Editor GPU:6 world comparisons maxdelta0,8..11 raster nodes и0..1
+copy transfer; каждый node учтён. Дополнительно намеренно испорчены глобальные
+filter uniforms: изображение то же, глобальные значения остаются неизменными.
+12 atlas/retention comparisons PASS:10 exact,2 с alpha/premultiplied delta1/255
+(raw unpremultiplied RGB max76/255 у почти прозрачного края). Прогретые25 mask
+cache hits,0 blur passes/0 transient RT. Не выдано за универсальный maxdelta0.
+
+После финальных фильтров actual pointer53, modal420/270frames и полный routed
+touch tutorial261 checks PASS; run-data JSON roundtrip114 PASS, Console новых
+errors0. Исходные10 prefs восстановлены. Backup/restore helpers теперь также
+сохраняют исходные background settings, не принуждают их в false.
+Core12462/parity47389/Node272 PASS;341+6 C# пять конфигураций чисто.
+Android FPS/GC и white pause пока не проверены. Общая приёмка IN PROGRESS.

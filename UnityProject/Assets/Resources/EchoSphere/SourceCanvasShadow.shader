@@ -4,6 +4,8 @@ Shader "EchoSphere/SourceCanvasShadow" {
         Cull Off ZWrite Off ZTest Always
         HLSLINCLUDE
         #include "UnityCG.cginc"
+        float _SourceFullscreen;
+        v2f_img SourceFullscreenVertex(appdata_img v){v2f_img o=vert_img(v);if(_SourceFullscreen>.5)o.pos=v.vertex;return o;}
         sampler2D _MainTex;float4 _SourceShadowDirection,_SourceShadowColor,_SourceShadowOffset,_SourceShadowRect;float _SourceShadowSigma;
         float4 _SourceShadowWeights[128];int _SourceShadowWeightCount;
         float _SourceShadowAtlas;float4 _SourceShadowSampleRect;
@@ -23,26 +25,26 @@ Shader "EchoSphere/SourceCanvasShadow" {
         float4 tint(v2f_img input):SV_Target {float alpha=Alpha(_SourceShadowRect.xy+input.uv*_SourceShadowRect.zw-_SourceShadowOffset.xy)*_SourceShadowColor.a;return float4(_SourceShadowColor.rgb*alpha,alpha);}
         ENDHLSL
         Pass { HLSLPROGRAM
-            #pragma vertex vert_img
+            #pragma vertex SourceFullscreenVertex
             #pragma fragment gaussian
             #pragma target 3.5
             ENDHLSL
         }
         Pass { Blend One OneMinusSrcAlpha
             HLSLPROGRAM
-            #pragma vertex vert_img
+            #pragma vertex SourceFullscreenVertex
             #pragma fragment tint
             ENDHLSL
         }
         Pass { Blend One One
             HLSLPROGRAM
-            #pragma vertex vert_img
+            #pragma vertex SourceFullscreenVertex
             #pragma fragment tint
             ENDHLSL
         }
         Pass { Blend One OneMinusSrcColor, One OneMinusSrcAlpha
             HLSLPROGRAM
-            #pragma vertex vert_img
+            #pragma vertex SourceFullscreenVertex
             #pragma fragment tint
             ENDHLSL
         }

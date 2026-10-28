@@ -2158,3 +2158,12 @@ diamond retained once,64 compatible particles->1 instanced draw;18 GPU cases,
 no new errors. Post-unload game textures/meshes/materials34/34/55, runtime/world
 owners1/1, RT96 constant. Original10 prefs restored. CI895 SUCCESS for383764a5.
 Fullscreen graph globals and Android/white pause/final acceptance remain open.
+
+2026-10-28 group11: all world blur/atlas/composite/present are raster attachment
+passes, filter values/textures use per-draw properties, not global uniforms.
+Only exact retained-mask CopyTexture remains Unsafe transfer; matrices still
+explicit Unity state. GPU6 exact incl poisoned global-filter isolation; atlas12
+PASS (10 exact,2 alpha/premultiplied delta1/255; raw RGB76 near transparent edge).
+Pointer53/modal420/tutorial261/full save114 PASS, prefs restored. Core12462,
+parity47389/Node272 and five C# configs clean. Reference CI wiring/manifests fixed,
+39af483b CI898 SUCCESS. Final Android visual/white-pause/performance remains open.

@@ -1,6 +1,9 @@
 // Run before diagnostic Play entry; never prints preference or save values.
 if(UnityEditor.EditorApplication.isPlaying)throw new System.Exception("Back up preferences in Edit Mode");
 if(UnityEngine.Application.companyName!="Lir37"||UnityEngine.Application.productName!="ECHO SPHERE")throw new System.Exception("Preference helper requires the main ECHO SPHERE profile");
+UnityEditor.SessionState.SetBool("EchoDiagnosticOriginalAppBackground",UnityEngine.Application.runInBackground);
+UnityEditor.SessionState.SetBool("EchoDiagnosticOriginalPlayerBackground",UnityEditor.PlayerSettings.runInBackground);
+UnityEditor.SessionState.SetBool("EchoDiagnosticBackgroundCaptured",true);
 using(var registry=Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Unity\UnityEditor\Lir37\ECHO SPHERE")){
  var rows=new System.Collections.Generic.List<object>();
  if(registry!=null)foreach(var name in registry.GetValueNames()){

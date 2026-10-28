@@ -12,7 +12,7 @@ namespace EchoSphere.Presentation
         {
             internal NativeWorldSurface World;
             internal GraphOperation Operation;
-            internal TextureHandle Input,Output,CameraColor;
+            internal TextureHandle Input,Output;
             internal int First,End;
             internal RectInt Area;
             internal Matrix4x4 View,Projection;
@@ -23,37 +23,46 @@ namespace EchoSphere.Presentation
         internal int GraphResourceNodeCount {get;private set;}
         internal int GraphTransientShadowTextures {get;private set;}
         internal int GraphRasterNodeCount {get;private set;}
+        internal int GraphTransferNodeCount {get;private set;}
         private void GraphNode(RenderGraph graph,GraphOperation operation,TextureHandle input,TextureHandle output,int first,int end,RectInt area,TextureHandle cameraColor,Matrix4x4 view,Matrix4x4 projection,Rect viewport)
         {
             string name=operation switch {GraphOperation.AtlasMask=>"ECHO shadow atlas masks",GraphOperation.AtlasHorizontal=>"ECHO shadow atlas horizontal",GraphOperation.AtlasVertical=>"ECHO shadow atlas vertical",GraphOperation.Clear=>"ECHO world clear",GraphOperation.Geometry=>"ECHO ordered geometry",GraphOperation.Mask=>"ECHO shadow mask",GraphOperation.Horizontal=>"ECHO shadow horizontal",GraphOperation.Vertical=>"ECHO shadow vertical",GraphOperation.CacheCopy=>"ECHO retained shadow write",GraphOperation.Composite=>"ECHO shadow composite",_=>"ECHO world UI copy"};
-            if(operation==GraphOperation.Clear||operation==GraphOperation.Geometry||operation==GraphOperation.Mask||operation==GraphOperation.AtlasMask){
-                using(var builder=graph.AddRasterRenderPass<GraphData>(name,out var data)){
-                    data.World=this;data.Operation=operation;data.Input=input;data.Output=output;data.First=first;data.End=end;data.Area=area;
-                    builder.SetRenderAttachment(output,0,operation==GraphOperation.Geometry?AccessFlags.ReadWrite:AccessFlags.WriteAll);
-                    // These draws use Unity's view/projection shader matrices.
-                    // The attachment and its load/store lifetime belong to RG.
-                    builder.AllowGlobalStateModification(true);builder.AllowPassCulling(false);
-                    builder.SetRenderFunc(static (GraphData pass,RasterGraphContext context)=>pass.World.ExecuteRasterGeometry(pass,context.cmd));
+            if(operation==GraphOperation.CacheCopy){
+                // CopyTexture supports exact atlas subregions; it is a transfer,
+                // not a raster draw, and requires no global shader state.
+                using(var builder=graph.AddUnsafePass<GraphData>(name,out var data)){
+                    data.World=this;data.Input=input;data.Output=output;data.Area=area;
+                    builder.UseTexture(input,AccessFlags.Read);builder.UseTexture(output,AccessFlags.WriteAll);
+                    builder.AllowPassCulling(false);
+                    builder.SetRenderFunc(static (GraphData pass,UnsafeGraphContext context)=>{
+                        var commands=CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
+                        var source=((RTHandle)pass.Input).nameID;var destination=((RTHandle)pass.Output).nameID;
+                        if(pass.Area.width>0)commands.CopyTexture(source,0,0,pass.Area.x,pass.Area.y,pass.Area.width,pass.Area.height,destination,0,0,0,0);
+                        else commands.CopyTexture(source,destination);
+                    });
                 }
-                GraphResourceNodeCount++;GraphRasterNodeCount++;return;
+                GraphResourceNodeCount++;GraphTransferNodeCount++;return;
             }
-            using(var builder=graph.AddUnsafePass<GraphData>(name,out var data)){
-                data.World=this;data.Operation=operation;data.Input=input;data.Output=output;data.First=first;data.End=end;data.Area=area;data.CameraColor=cameraColor;data.View=view;data.Projection=projection;data.Viewport=viewport;
+            using(var builder=graph.AddRasterRenderPass<GraphData>(name,out var data)){
+                data.World=this;data.Operation=operation;data.Input=input;data.Output=output;data.First=first;data.End=end;data.Area=area;data.View=view;data.Projection=projection;data.Viewport=viewport;
                 if(input.IsValid())builder.UseTexture(input,AccessFlags.Read);
-                builder.UseTexture(output,operation==GraphOperation.Geometry||operation==GraphOperation.Composite?AccessFlags.ReadWrite:AccessFlags.WriteAll);
-                if(cameraColor.IsValid())builder.UseTexture(cameraColor,AccessFlags.ReadWrite);
-                // Exact ordered blending and global shader bindings remain
-                // explicit barriers. Texture lifetimes are now graph resources.
-                builder.AllowGlobalStateModification(true);builder.AllowPassCulling(false);
-                builder.SetRenderFunc(static (GraphData pass,UnsafeGraphContext context)=>pass.World.ExecuteGraphNode(pass,CommandBufferHelpers.GetNativeCommandBuffer(context.cmd)));
+                builder.SetRenderAttachment(output,0,operation==GraphOperation.Geometry||operation==GraphOperation.Composite?AccessFlags.ReadWrite:AccessFlags.WriteAll);
+                // Only geometry and final camera matrix restoration touch Unity
+                // view/projection state. Filter uniforms are per-draw properties.
+                if(operation==GraphOperation.Geometry||operation==GraphOperation.Mask||operation==GraphOperation.AtlasMask||operation==GraphOperation.Present)builder.AllowGlobalStateModification(true);
+                builder.AllowPassCulling(false);
+                builder.SetRenderFunc(static (GraphData pass,RasterGraphContext context)=>{
+                    if(pass.Operation==GraphOperation.Clear||pass.Operation==GraphOperation.Geometry||pass.Operation==GraphOperation.Mask||pass.Operation==GraphOperation.AtlasMask)pass.World.ExecuteRasterGeometry(pass,context.cmd);
+                    else pass.World.ExecuteRasterFilter(pass,context.cmd);
+                });
             }
-            GraphResourceNodeCount++;
+            GraphResourceNodeCount++;GraphRasterNodeCount++;
         }
         internal void RecordResourceGraph(RenderGraph graph,TextureHandle cameraColor,Matrix4x4 view,Matrix4x4 projection,Rect viewport)
         {
             using var frame=FrameMarker.Auto();
             PrepareFrameGlyphs();
-            ShadowPixelCount=0;ShadowPassCount=0;ShadowCompositePixelCount=0;ShadowCompositeCount=0;CulledBatchCount=0;ShadowCacheHits=0;GeometryDrawCalls=0;InstancedPrimitiveCount=0;GraphResourceNodeCount=0;GraphTransientShadowTextures=0;GraphRasterNodeCount=0;
+            ShadowPixelCount=0;ShadowPassCount=0;ShadowCompositePixelCount=0;ShadowCompositeCount=0;CulledBatchCount=0;ShadowCacheHits=0;GeometryDrawCalls=0;InstancedPrimitiveCount=0;GraphResourceNodeCount=0;GraphTransientShadowTextures=0;GraphRasterNodeCount=0;GraphTransferNodeCount=0;
             _shadowCache.Begin();_graphAreas.Clear();_graphShadows.Clear();
             var target=graph.ImportTexture(GraphTarget);var ui=graph.ImportTexture(GraphUi);var none=default(TextureHandle);
             GraphNode(graph,GraphOperation.Clear,none,target,0,0,default,none,default,default,default);
@@ -100,40 +109,65 @@ namespace EchoSphere.Presentation
                 else{commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,pass,batch.NativeProperties);GeometryDrawCalls++;}
             }
         }
-        private void ExecuteGraphNode(GraphData data,CommandBuffer commands)
+        private Mesh _graphFullscreenMesh;
+        private MaterialPropertyBlock _graphFilterProperties;
+        private static readonly int GraphMainTextureId=Shader.PropertyToID("_MainTex"),GraphFullscreenId=Shader.PropertyToID("_SourceFullscreen");
+        private Mesh GraphFullscreenMesh {
+            get{
+                if(_graphFullscreenMesh!=null)return _graphFullscreenMesh;
+                _graphFullscreenMesh=new Mesh{name="Native world fullscreen quad"};
+                _graphFullscreenMesh.vertices=new[]{new Vector3(-1,-1,0),new Vector3(1,-1,0),new Vector3(1,1,0),new Vector3(-1,1,0)};
+                // Match Unity's render-texture quad UV convention on D3D/Vulkan
+                // and GL without a camera/object projection dependency.
+                float bottom=SystemInfo.graphicsUVStartsAtTop?1:0,top=1-bottom;
+                _graphFullscreenMesh.uv=new[]{new Vector2(0,bottom),new Vector2(1,bottom),new Vector2(1,top),new Vector2(0,top)};
+                _graphFullscreenMesh.triangles=new[]{0,1,2,0,2,3};_graphFullscreenMesh.UploadMeshData(true);return _graphFullscreenMesh;
+            }
+        }
+        private void SetRasterShadowKernel(MaterialPropertyBlock properties,float sigma)
         {
-            if(data.Operation==GraphOperation.AtlasHorizontal||data.Operation==GraphOperation.AtlasVertical){ExecuteShadowAtlas(data,commands);return;}
-            commands.SetGlobalFloat(ShadowAtlasId,0);
-            var output=((RTHandle)data.Output).nameID;
+            properties.SetFloat(ShadowSigmaId,sigma);int radius=Mathf.CeilToInt(sigma*4);
+            bool cached=NativeGaussianWeights.TryGet(sigma,out var weights);
+#if UNITY_EDITOR
+            if(FullShadowViewportForValidation)cached=false;
+#endif
+            properties.SetInt(ShadowWeightCountId,cached?radius+1:0);
+            if(cached)properties.SetVectorArray(ShadowWeightsId,weights);
+        }
+        private void ExecuteRasterFilter(GraphData data,RasterCommandBuffer commands)
+        {
+            var properties=_graphFilterProperties??(_graphFilterProperties=new MaterialPropertyBlock());properties.Clear();properties.SetTexture(GraphMainTextureId,data.Input);properties.SetFloat(GraphFullscreenId,1);properties.SetFloat(ShadowAtlasId,0);
             if(data.Operation==GraphOperation.Present){
-                commands.SetGlobalInt(ShadowWeightCountId,0);commands.Blit(((RTHandle)data.Input).nameID,output,_presentMaterial,2);
-                commands.SetRenderTarget(((RTHandle)data.CameraColor).nameID);commands.SetViewport(data.Viewport);commands.SetViewProjectionMatrices(data.View,data.Projection);
+                commands.DrawMesh(GraphFullscreenMesh,Matrix4x4.identity,_presentMaterial,0,2,properties);
+                commands.SetViewProjectionMatrices(data.View,data.Projection);
                 GraphPending=false;GraphPassCount++;LastGraphFrame=Time.frameCount;return;
             }
-            if(data.Operation==GraphOperation.CacheCopy){if(data.Area.width>0)commands.CopyTexture(((RTHandle)data.Input).nameID,0,0,data.Area.x,data.Area.y,data.Area.width,data.Area.height,output,0,0,0,0);else commands.CopyTexture(((RTHandle)data.Input).nameID,output);return;}
-            if(data.Operation==GraphOperation.Horizontal||data.Operation==GraphOperation.Vertical){
-                SetShadowKernel(commands,(float)VisualCanvasShadowViewport.Sigma(_batches[data.First].Blur));
-                commands.SetGlobalVector(ShadowDirectionId,data.Operation==GraphOperation.Horizontal?new Vector4(1f/data.Area.width,0,0,0):new Vector4(0,1f/data.Area.height,0,0));
-                commands.Blit(((RTHandle)data.Input).nameID,output,_blurMaterial,0);return;
+            if(data.Operation==GraphOperation.Horizontal||data.Operation==GraphOperation.Vertical||data.Operation==GraphOperation.AtlasHorizontal||data.Operation==GraphOperation.AtlasVertical){
+                bool atlas=data.Operation==GraphOperation.AtlasHorizontal||data.Operation==GraphOperation.AtlasVertical;
+                float sigma=atlas?_shadowPages[data.First].Sigma:(float)VisualCanvasShadowViewport.Sigma(_batches[data.First].Blur);
+                int width=atlas?_shadowPages[data.First].Width:data.Area.width,height=atlas?_shadowPages[data.First].Height:data.Area.height;
+                SetRasterShadowKernel(properties,sigma);
+                bool horizontal=data.Operation==GraphOperation.Horizontal||data.Operation==GraphOperation.AtlasHorizontal;
+                properties.SetVector(ShadowDirectionId,horizontal?new Vector4(1f/width,0,0,0):new Vector4(0,1f/height,0,0));
+                commands.DrawMesh(GraphFullscreenMesh,Matrix4x4.identity,_blurMaterial,0,0,properties);return;
             }
-            commands.SetRenderTarget(output);
             if(data.Operation==GraphOperation.Composite){
                 var batch=_batches[data.First];var area=data.Area;var placement=_graphShadows[data.First];
-                commands.SetGlobalColor(ShadowColorId,batch.Shadow);commands.SetGlobalVector(ShadowOffsetId,new Vector4(batch.X/area.width,-batch.Y/area.height,0,0));commands.SetGlobalVector(ShadowRectId,new Vector4(-(area.x+placement.Translation.x)/area.width,-(area.y+placement.Translation.y)/area.height,(float)_target.width/area.width,(float)_target.height/area.height));
+                properties.SetColor(ShadowColorId,batch.Shadow);properties.SetVector(ShadowOffsetId,new Vector4(batch.X/area.width,-batch.Y/area.height,0,0));properties.SetVector(ShadowRectId,new Vector4(-(area.x+placement.Translation.x)/area.width,-(area.y+placement.Translation.y)/area.height,(float)_target.width/area.width,(float)_target.height/area.height));
                 var plan=_shadowPlans[data.First];
                 if(plan.Page>=0&&!plan.Retained.IsValid()){
                     var page=_shadowPages[plan.Page];var packed=plan.Packed;
-                    commands.SetGlobalFloat(ShadowAtlasId,1);commands.SetGlobalVector(ShadowSampleRectId,new Vector4((float)packed.x/page.Width,(float)packed.y/page.Height,(float)packed.xMax/page.Width,(float)packed.yMax/page.Height));
-                    commands.SetGlobalVector(ShadowOffsetId,new Vector4(batch.X/page.Width,-batch.Y/page.Height,0,0));
-                    commands.SetGlobalVector(ShadowRectId,new Vector4((packed.x-area.x-placement.Translation.x)/page.Width,(packed.y-area.y-placement.Translation.y)/page.Height,(float)_target.width/page.Width,(float)_target.height/page.Height));
+                    properties.SetFloat(ShadowAtlasId,1);properties.SetVector(ShadowSampleRectId,new Vector4((float)packed.x/page.Width,(float)packed.y/page.Height,(float)packed.xMax/page.Width,(float)packed.yMax/page.Height));
+                    properties.SetVector(ShadowOffsetId,new Vector4(batch.X/page.Width,-batch.Y/page.Height,0,0));
+                    properties.SetVector(ShadowRectId,new Vector4((packed.x-area.x-placement.Translation.x)/page.Width,(packed.y-area.y-placement.Translation.y)/page.Height,(float)_target.width/page.Width,(float)_target.height/page.Height));
                 }
                 var rect=ShadowCompositeRect(batch,placement);
 #if UNITY_EDITOR
                 if(FullShadowCompositeForValidation)rect=new Rect(0,0,_target.width,_target.height);
 #endif
-                if(rect.width>0&&rect.height>0){commands.EnableScissorRect(rect);commands.Blit(((RTHandle)data.Input).nameID,output,_blurMaterial,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1);commands.DisableScissorRect();ShadowCompositeCount++;ShadowCompositePixelCount+=(long)rect.width*(long)rect.height;}return;
+                if(rect.width>0&&rect.height>0){commands.EnableScissorRect(rect);commands.DrawMesh(GraphFullscreenMesh,Matrix4x4.identity,_blurMaterial,0,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1,properties);commands.DisableScissorRect();ShadowCompositeCount++;ShadowCompositePixelCount+=(long)rect.width*(long)rect.height;}return;
             }
-            throw new System.InvalidOperationException("Unexpected unsafe world operation: "+data.Operation);
+            throw new System.InvalidOperationException("Unexpected raster world operation: "+data.Operation);
         }
     }
 }

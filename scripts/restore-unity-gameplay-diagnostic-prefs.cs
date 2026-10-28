@@ -7,5 +7,8 @@ using(var registry=Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Un
 foreach(var row in rows){var key=(string)row["key"];var value=(string)row["value"];var kind=(string)row["kind"];if(kind=="float")UnityEngine.PlayerPrefs.SetFloat(key,float.Parse(value,System.Globalization.CultureInfo.InvariantCulture));else if(kind=="int")UnityEngine.PlayerPrefs.SetInt(key,int.Parse(value));else UnityEngine.PlayerPrefs.SetString(key,value);}
 UnityEngine.PlayerPrefs.Save();int checkedKeys=0;
 foreach(var row in rows){var key=(string)row["key"];var kind=(string)row["kind"];var value=kind=="float"?UnityEngine.PlayerPrefs.GetFloat(key).ToString("R",System.Globalization.CultureInfo.InvariantCulture):kind=="int"?UnityEngine.PlayerPrefs.GetInt(key).ToString():UnityEngine.PlayerPrefs.GetString(key);if(value!=(string)row["value"])throw new System.Exception("Diagnostic preferences restoration mismatch");checkedKeys++;}
-UnityEngine.Application.runInBackground=false;UnityEditor.PlayerSettings.runInBackground=false;
+if(UnityEditor.SessionState.GetBool("EchoDiagnosticBackgroundCaptured",false)){
+ UnityEngine.Application.runInBackground=UnityEditor.SessionState.GetBool("EchoDiagnosticOriginalAppBackground",false);
+ UnityEditor.PlayerSettings.runInBackground=UnityEditor.SessionState.GetBool("EchoDiagnosticOriginalPlayerBackground",false);
+}
 return new{status="PASS restored original game preferences",checkedKeys};

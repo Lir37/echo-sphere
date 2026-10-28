@@ -76,12 +76,6 @@ namespace EchoSphere.Presentation
                 GraphNode(graph,GraphOperation.AtlasVertical,ping,page.Blur,i,0,default,default,default,default,default);
             }
         }
-        private void ExecuteShadowAtlas(GraphData data,CommandBuffer commands)
-        {
-            var page=_shadowPages[data.First];var output=((RTHandle)data.Output).nameID;
-            commands.SetGlobalFloat(ShadowAtlasId,0);
-            SetShadowKernel(commands,page.Sigma);commands.SetGlobalVector(ShadowDirectionId,data.Operation==GraphOperation.AtlasHorizontal?new Vector4(1f/page.Width,0,0,0):new Vector4(0,1f/page.Height,0,0));commands.Blit(((RTHandle)data.Input).nameID,output,_blurMaterial,0);
-        }
         private void ExecuteRasterAtlasMask(GraphData data,RasterCommandBuffer commands)
         {
             var page=_shadowPages[data.First];commands.ClearRenderTarget(false,true,Color.clear);

@@ -2,10 +2,15 @@ Shader "EchoSphere/SourceCanvasPresent" {
     Properties {_MainTex ("Source Canvas",2D)="black" {}}
     SubShader {
         Tags {"Queue"="Transparent" "RenderType"="Transparent" "RenderPipeline"="UniversalPipeline"}
+        HLSLINCLUDE
+        #include "UnityCG.cginc"
+        float _SourceFullscreen;
+        v2f_img SourceFullscreenVertex(appdata_img v){v2f_img o=vert_img(v);if(_SourceFullscreen>.5)o.pos=v.vertex;return o;}
+        ENDHLSL
         Pass {
             ZWrite Off Cull Off Blend One OneMinusSrcAlpha
             HLSLPROGRAM
-            #pragma vertex vert_img
+            #pragma vertex SourceFullscreenVertex
             #pragma fragment frag
             #include "UnityCG.cginc"
             sampler2D _MainTex;
@@ -23,7 +28,7 @@ Shader "EchoSphere/SourceCanvasPresent" {
         Pass {
             ZWrite Off Cull Off Blend Off
             HLSLPROGRAM
-            #pragma vertex vert_img
+            #pragma vertex SourceFullscreenVertex
             #pragma fragment uiFragment
             #include "UnityCG.cginc"
             sampler2D _MainTex;
@@ -41,7 +46,7 @@ Shader "EchoSphere/SourceCanvasPresent" {
         Pass {
             ZWrite Off Cull Off Blend Off
             HLSLPROGRAM
-            #pragma vertex vert_img
+            #pragma vertex SourceFullscreenVertex
             #pragma fragment nativeFieldFragment
             #include "UnityCG.cginc"
             sampler2D _MainTex;

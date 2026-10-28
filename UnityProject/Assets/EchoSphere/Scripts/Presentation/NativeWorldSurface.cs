@@ -345,6 +345,6 @@ namespace EchoSphere.Presentation
         }
         private static void DestroyOwned(UnityEngine.Object value){if(Application.isPlaying)UnityEngine.Object.Destroy(value);else UnityEngine.Object.DestroyImmediate(value);}
         private static void Release(ref RenderTexture target){if(target==null)return;target.Release();DestroyOwned(target);target=null;}
-        private void OnDestroy(){_renderGraphLease?.Dispose();_renderGraphLease=null;_graphTarget?.Release();_graphUi?.Release();_commands?.Release();_shadowCache.Dispose();Release(ref _target);Release(ref _uiTarget);if(_blurMaterial!=null)DestroyOwned(_blurMaterial);if(_presentMaterial!=null)DestroyOwned(_presentMaterial);}
+        private void OnDestroy(){if(_graphFullscreenMesh!=null)DestroyOwned(_graphFullscreenMesh);_renderGraphLease?.Dispose();_renderGraphLease=null;_graphTarget?.Release();_graphUi?.Release();_commands?.Release();_shadowCache.Dispose();Release(ref _target);Release(ref _uiTarget);if(_blurMaterial!=null)DestroyOwned(_blurMaterial);if(_presentMaterial!=null)DestroyOwned(_presentMaterial);}
     }
 }
