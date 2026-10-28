@@ -5948,3 +5948,10 @@ region-flash mesh prep gated, POI gameplay intact. 49 GPU cases max 3/255, point
 12 Vulkan/GLES3 linked programs PASS, 0 messages; C#/VisualChecks PASS. Ten original
 prefs restored, owned materials 0 after Stop. No new APK; device FPS/GC/menu and
 compressed-strip acceptance still OPEN. Details: UNITY_BATTLE_UI_SHADOW_REWORK_2026-10-26.md.
+
+2026-10-28 XIAOMI11T REGULAR APK CHECK (code fae7b1da): performance NOT ACCEPTED.
+Measured present FPS: menu11.15, characters21.12, resumed battle20.53, tutorial20.06.
+White HUD/right block reproduced after tutorial replay; exact cause unproven.
+Dark pause/full-width new-region startup observed in limited checks only.
+Diagnostic APK built; phone disconnected before install/Profiler. Original app-data
+backup preserved, restoration still pending USB. See UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.

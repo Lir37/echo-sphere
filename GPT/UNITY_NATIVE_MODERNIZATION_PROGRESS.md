@@ -2175,3 +2175,13 @@ five configs clean; GPU graph6 exact/global isolation PASS.2ad45a15 CI899 SUCCES
 Current ownership/active/reference/resource registry: UNITY_NATIVE_SYSTEM_REGISTRY.md.
 Shared CanvasArt GUIDs retained. Physical final reference/IMGUI removal follows
 visual acceptance; Android white pause/performance/15-minute checks remain open.
+
+2026-10-28 actual Xiaomi11T acceptance on regular fae7b1da APK: FAIL performance.
+SurfaceFlinger present FPS menu11.15 / characters21.12 / resumed battle20.53 /
+tutorial20.06; p95 100.07/50.72/66.34/66.21ms. No video during measurements.
+Dark pause and full-width new region observed, not universal acceptance. Persistent
+white HUD/right panel reproduced after replay tutorial; full touch/tutorial not PASS.
+Diagnostic IL2CPP built, but USB disappeared before installation/Profiler attach.
+Original phone-data backup exists; RESTORATION STILL PENDING USB. Details and
+exact next steps: UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md. No game-code fix
+or GPU/GC attribution claimed; no15-minute acceptance or completed plan claim.
