@@ -7,7 +7,7 @@
     "postcss.config.js": "e32657baf631d7c5f4dc67b4b2ee0ec8e7d5b3c41860e09cddce7c0377cd80bc",
     "scripts/export-unity-animation-fixtures.cjs": "6bef77581fa95c708bc9fb4e5a2800ab744d9f8be9c3a151fd95cc39571c555e",
     "scripts/export-unity-backdrop-fixtures.cjs": "4bab47a9220d7c01be6823195133368f5789845a54bac26efc3b0db0297974fb",
-    "scripts/export-unity-canvas-art.cjs": "2b324b2734e956e30defb7a6308074782eadcb9fa932b8f9a2ac3c4fd8534637",
+    "scripts/export-unity-canvas-art.cjs": "a9f7c00ef19a2545fc0dbeaf467cb1c47012e6e321449b41feeb274ba21d2b34",
     "scripts/export-unity-canvas-image-fixtures.cjs": "3c610d35caca442af20d84d05707bea7bf3e0577a32de40414f1e780e15af0b1",
     "scripts/export-unity-canvas-shadow-fixtures.cjs": "9952632deac1913524c45df1f9aee01cc32f48e2ef3a56809fb90f9d303ba9ab",
     "scripts/export-unity-control-art.cjs": "3328e3544bc9743860d2dae4c1b1e13ab289f03113b59f99ef0c0bc01bf4fc77",
