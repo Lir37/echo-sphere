@@ -298,3 +298,46 @@ Recovery-файлы пользователя сохранены. APK не соб
 зависимостей; retained deform topology/particle batching; raster graph/reference
 изоляция; cold tutorial/full save-run roundtrip/20 transitions memory и Android.
 Общий план остаётся IN PROGRESS.
+
+## Группа 7 — оставшиеся оболочки сущностей и POI data (2026-10-28)
+
+База f75e3d9db25a8602fad4377db5be4a8a9da5fcca, CI892 SUCCESS.
+CreatePlayer/CreateSphere, обычные/elite враги, боссы, minions, splitter children
+и restore врагов создают только логические корни. Удалены невидимые Glow/Shell/
+Inner Frame/Core Light, старые Standard/Orbital sprite construction и невызываемый
+TickSphereArtAnimation. Действующие NativeWorldPlayer/StandardSphere/Families/
+EnemyView не менялись. Удалён старый LinkBreaker LineRenderer-построитель;
+цель, таймеры, сетевое отключение и активный NativeWorldEnemyView сохранены.
+
+Enemy _baseColor теперь получает исходный tint явно от всех production factories,
+не читает Shell. Sphere/Enemy присоединились к IRunSaveColor. Проверены прежние
+alpha .89 для Standard, .11 Orbital и .18 остальных сфер/врагов; RGB сфер берётся
+из существующего GetColor. Restore принимает прежний envelope color отдельно.
+SaveCurrentRun вообще больше не обращается к SpriteRenderer: для оставшихся
+Projectile/BossProjectile/Stella прежним значением был white, он сохранён.
+Orbital collision anchors остаются Transform по существующему публичному
+контракту; удалены только их отключённые renderer и glow child. Позиции и sweep
+calculation не менялись.
+
+RegionFieldVisuals сохраняет deterministic POI model/планирование и существующий
+формат PoiSnapshot. Удалены скрытые pocket ring/seams/markers и POI root/glow/
+diamond/TextMesh, их покадровые обновления. Данные больше не зависят от наличия
+Sprites/Default shader. До правки fixture обнаруживал78 скрытых Renderer;
+после ни Renderer, ни вспомогательных объектов региона нет. Старый IMGUI radar
+остаётся только в Editor и выделяет текстуры лишь по явному вызову; обычный
+Editor/Android путь их не загружает. Живой NativeWorldRegion/HUD не изменён.
+
+Проверки: снятые до изменений baseline обоих регионов и всех10 сфер/minion:
+44 shell checks PASS (точные gameplay snapshots и legacy colors); 56 POI checks
+PASS (14 временных/региональных состояний, cadence/position/expiry/restore).
+4826 query/collision/movement checks PASS. Реальный Editor Play native enemy
+GPU/culling:350 envelopes/1904832 vertices/140 comparisons, maxdelta0. Core12462,
+TS/C#47389, Node272 и обновлённый preflight PASS. C#344+6:0 errors/warnings.
+Предыдущие статические guards старых sprite construction заменены guards
+активных Standard/family/player/region views; игровые проверки сохранены.
+
+Baseline/evidence в Documents/UnityEvaluations/ECHO-SPHERE-architecture-20261028:
+entity-shell-*, region-data-*. Нет новых APK/device FPS или полной phone приёмки.
+Открыты: оставшиеся transient effect builders (Impact/Pulse и др.), packet geometry/
+retained topology, save scratch, raster graph/reference isolation и полная
+проверка lifecycle/сохранённого забега/Android. План НЕ DONE.

@@ -1114,11 +1114,6 @@ namespace EchoSphere.Runtime
             }
             _placementFlashTimer = Mathf.Max(0f, _placementFlashTimer - dt);
             var input = ReadMovement();
-            var playerShell = _player != null ? _player.Find("Shell") : null;
-            var playerSprite = playerShell != null ? playerShell.GetComponent<SpriteRenderer>() : null;
-            // The authored three-quarter Spherist faces left; mirror only while
-            // travelling right, matching the active Canvas renderer contract.
-            if (playerSprite != null && Mathf.Abs(input.x) > 0.05f) playerSprite.flipX = input.x > 0f;
             if (input.sqrMagnitude > 0.0001f) _playerCore.RememberMoveDirection(input);
             var requested = new Vec2(input.x, input.y);
             var followMultiplier = _follow ? FormationFollowRules.GetMovementMultiplier(true, _formationStrain, _lastDirection, requested) : 1f;
@@ -1222,25 +1217,7 @@ namespace EchoSphere.Runtime
 
         private void CreatePlayer()
         {
-            var tint = new Color(0.2f, 0.91f, 1f);
-            var go = CreateOrb("Spherist", Vector2.zero, 1f, tint, Color.white, 10);
-
-            // In the source renderer, player.svg is the Core glyph. The actual
-            // playable character is the authored three-quarter Spherist art.
-            // Use that production sprite and do not stack primitive rings/core
-            // layers over its already-authored shell and energy ring.
-            var authoredCharacter = RuntimeSpriteFactory.LoadAuthored("character-spherist-3q");
-            if (!ApplyAuthoredShellVisual(go, authoredCharacter, 0.62f))
-                ApplyShellVisual(go, RuntimeSpriteFactory.Faceted, 0.95f);
-
-            var glow = go.transform.Find("Glow");
-            if (glow != null)
-            {
-                glow.localScale = Vector3.one * 1.16f;
-                var glowRenderer = glow.GetComponent<SpriteRenderer>();
-                if (glowRenderer != null) glowRenderer.color = new Color(tint.r, tint.g, tint.b, 0.09f);
-            }
-
+            var go=CreateEntityRoot("Spherist",Vector2.zero,1f);
             _player = go.transform;
             _playerCore = go.AddComponent<PlayerCoreController2D>();
             _playerCore.IncreaseMaxHp(PersistentUpgradeRules.GetStartingHpBonus(GetShopUpgradeLevel("hp")));
@@ -1263,8 +1240,7 @@ namespace EchoSphere.Runtime
             var radius = 0.9f + 0.12f * (_spheres.Count % 3);
             var position = explicitPosition ?? ((Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
             var definition = GameCatalog.Spheres[(int)type];
-            var go = CreateOrb(definition.DisplayName + " Sphere", position, 1.05f, SphereColor(type), Color.white, 8);
-            ApplySphereVisual(go, type, level);
+            var go = CreateEntityRoot(definition.DisplayName + " Sphere", position, 1.05f);
             var agent = go.AddComponent<SphereAttackAgent>();
             agent.Initialize(this, _player, type, 12f);
             _spheres.Add(agent);
@@ -1299,33 +1275,6 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private static void ApplyShellVisual(GameObject root, Sprite sprite, float scale)
-        {
-            var shell = root.transform.Find("Shell");
-            if (shell == null) return;
-            var renderer = shell.GetComponent<SpriteRenderer>();
-            if (renderer == null) return;
-            renderer.sprite = sprite;
-            shell.localScale = Vector3.one * scale;
-        }
-
-        private static bool ApplyAuthoredShellVisual(GameObject root, Sprite sprite, float scale)
-        {
-            if (root == null || sprite == null) return false;
-            var shell = root.transform.Find("Shell");
-            if (shell == null) return false;
-            var renderer = shell.GetComponent<SpriteRenderer>();
-            if (renderer == null) return false;
-            renderer.sprite = sprite;
-            renderer.color = Color.white;
-            shell.localScale = Vector3.one * scale;
-            var frame = root.transform.Find("Inner Frame");
-            if (frame != null) frame.gameObject.SetActive(false);
-            var core = root.transform.Find("Core Light");
-            if (core != null) core.gameObject.SetActive(false);
-            return true;
-        }
-
         private static Sprite GetAuthoredSphereArtwork(SphereId type)
         {
             switch (type)
@@ -1347,384 +1296,6 @@ namespace EchoSphere.Runtime
             }
         }
 
-
-        private static float GetStandardSphereLocalRadius(Transform root, int visualTier)
-        {
-            // Source renderer.ts: clamp(sphere.radius * 0.19 + visualTier * 0.8, 15, 25).
-            // The Standard Sphere's base gameplay radius is 130 source pixels.
-            var sourcePixels = Mathf.Clamp(130f * 0.19f + Mathf.Max(0, visualTier) * 0.8f, 15f, 25f);
-            var rootScale = root == null ? 1f : Mathf.Max(0.0001f, Mathf.Abs(root.localScale.x));
-            return sourcePixels * SpherePlacementRules.SourcePixelsToWorld / rootScale;
-        }
-
-        private static bool ApplyStandardSphereArtwork(GameObject root, int visualTier)
-        {
-            if (root == null) return false;
-
-            // Active new-desing draws the core and the orbit ring procedurally.
-            // The only authored component used by the live Standard assembly is
-            // upper-crystal.png, drawn twice with the lower copy mirrored.
-            var upper = RuntimeSpriteFactory.LoadAuthored("standard-sphere/upper-crystal");
-            var shell = root.transform.Find("Shell");
-            var frame = root.transform.Find("Inner Frame");
-            var core = root.transform.Find("Core Light");
-            if (shell == null || frame == null || core == null) return false;
-
-            var upperRenderer = shell.GetComponent<SpriteRenderer>();
-            var ringRenderer = frame.GetComponent<SpriteRenderer>();
-            var coreRenderer = core.GetComponent<SpriteRenderer>();
-            if (upperRenderer == null || ringRenderer == null || coreRenderer == null) return false;
-
-            var radius = GetStandardSphereLocalRadius(root.transform, visualTier);
-            var coreGlow = root.transform.Find("Glow");
-            if (coreGlow != null)
-            {
-                coreGlow.localScale = Vector3.one * (1.16f * radius);
-                var glowRenderer = coreGlow.GetComponent<SpriteRenderer>();
-                if (glowRenderer != null)
-                {
-                    glowRenderer.sprite = RuntimeSpriteFactory.StandardCoreGlow;
-                    glowRenderer.color = new Color(1f, 1f, 1f, 0.89f);
-                    glowRenderer.sortingOrder = 7;
-                }
-            }
-
-            coreRenderer.sprite = RuntimeSpriteFactory.Disc;
-            coreRenderer.color = new Color(30f / 255f, 135f / 255f, 232f / 255f, 0.72f);
-            coreRenderer.sortingOrder = 8;
-            core.localScale = Vector3.one * (0.84f * radius / Mathf.Max(0.0001f, coreRenderer.sprite.bounds.size.x));
-            core.gameObject.SetActive(true);
-
-            var outline = root.transform.Find("Standard Core Outline");
-            if (outline == null)
-            {
-                var outlineObject = new GameObject("Standard Core Outline");
-                outlineObject.transform.SetParent(root.transform, false);
-                outline = outlineObject.transform;
-            }
-            var outlineRenderer = outline.GetComponent<SpriteRenderer>();
-            if (outlineRenderer == null) outlineRenderer = outline.gameObject.AddComponent<SpriteRenderer>();
-            outlineRenderer.sprite = RuntimeSpriteFactory.StandardCoreOutline;
-            outlineRenderer.color = new Color(182f / 255f, 247f / 255f, 1f, 0.90f);
-            outlineRenderer.sortingOrder = 9;
-            outline.localScale = Vector3.one * (0.84f * radius / (0.73f * Mathf.Max(0.0001f, outlineRenderer.sprite.bounds.size.x)));
-            outline.gameObject.SetActive(true);
-
-            ringRenderer.sprite = RuntimeSpriteFactory.StandardOrbitRing;
-            ringRenderer.color = new Color(48f / 255f, 214f / 255f, 1f, 0.82f);
-            ringRenderer.sortingOrder = 10;
-            frame.localScale = new Vector3(
-                2f * 1.18f * 0.98f * radius / (0.73f * Mathf.Max(0.0001f, ringRenderer.sprite.bounds.size.x)),
-                2f * 1.18f * 0.34f * radius / (0.73f * Mathf.Max(0.0001f, ringRenderer.sprite.bounds.size.y)),
-                1f);
-            frame.gameObject.SetActive(true);
-
-            if (upper != null)
-            {
-                var crystalScale = 1.34f * radius / Mathf.Max(0.0001f, upper.bounds.size.x);
-                upperRenderer.sprite = upper;
-                upperRenderer.color = Color.white;
-                upperRenderer.sortingOrder = 11;
-                shell.localPosition = new Vector3(0f, 0.62f * radius, 0f);
-                shell.localScale = Vector3.one * crystalScale;
-                shell.gameObject.SetActive(true);
-
-                var lowerObject = root.transform.Find("Standard Lower Crystal");
-                if (lowerObject == null)
-                {
-                    var lowerGo = new GameObject("Standard Lower Crystal");
-                    lowerGo.transform.SetParent(root.transform, false);
-                    lowerObject = lowerGo.transform;
-                }
-                lowerObject.localPosition = new Vector3(0f, -0.66f * radius, 0f);
-                lowerObject.localRotation = Quaternion.identity;
-                lowerObject.localScale = Vector3.one * crystalScale;
-                var lowerRenderer = lowerObject.GetComponent<SpriteRenderer>();
-                if (lowerRenderer == null) lowerRenderer = lowerObject.gameObject.AddComponent<SpriteRenderer>();
-                lowerRenderer.sprite = upper;
-                lowerRenderer.color = Color.white;
-                lowerRenderer.flipY = true;
-                lowerRenderer.sortingOrder = 12;
-                lowerObject.gameObject.SetActive(true);
-            }
-            else
-            {
-                // Upstream upper-crystal.png has a corrupt DEFLATE payload in
-                // both branches. Do not replace it with an invented silhouette:
-                // the source renderer itself falls back to core + ring when it
-                // cannot load the crystal.
-                shell.gameObject.SetActive(false);
-                var lowerObject = root.transform.Find("Standard Lower Crystal");
-                if (lowerObject != null) lowerObject.gameObject.SetActive(false);
-            }
-
-            return true;
-        }
-
-        private static void ApplyOrbitalSphereVisual(GameObject root)
-        {
-            var shell = root.transform.Find("Shell");
-            var frame = root.transform.Find("Inner Frame");
-            var core = root.transform.Find("Core Light");
-            if (shell == null || core == null) return;
-
-            // The source has no single orbital SVG. Its identity is a 2.5D core,
-            // crossing rings and crystal terminals. Do not use the old static mock.
-            var shellRenderer = shell.GetComponent<SpriteRenderer>();
-            if (shellRenderer != null)
-            {
-                shellRenderer.sprite = RuntimeSpriteFactory.Faceted;
-                shellRenderer.color = new Color(0.12f, 0.30f, 0.43f, 1f);
-                shellRenderer.sortingOrder = 8;
-                shell.localScale = Vector3.one * 0.78f;
-            }
-            if (frame != null) frame.gameObject.SetActive(false);
-
-            var coreRenderer = core.GetComponent<SpriteRenderer>();
-            if (coreRenderer != null)
-            {
-                coreRenderer.sprite = RuntimeSpriteFactory.Disc;
-                coreRenderer.color = new Color(0.56f, 0.94f, 1f, 1f);
-                coreRenderer.sortingOrder = 9;
-            }
-            core.localScale = Vector3.one * 0.31f;
-
-            var glow = root.transform.Find("Glow");
-            if (glow != null)
-            {
-                glow.localScale = Vector3.one * 1.45f;
-                var glowRenderer = glow.GetComponent<SpriteRenderer>();
-                if (glowRenderer != null) glowRenderer.color = new Color(0.30f, 0.87f, 1f, 0.11f);
-            }
-
-            // Animated Orbital contours/terminals are owned by NativeWorldSphereFamilies.
-            // Remove the old static rail/node layer to avoid doubled rings.
-        }
-
-        private void TickSphereArtAnimation(float deltaTime)
-        {
-            for (var i = 0; i < _spheres.Count; i++)
-            {
-                var sphere = _spheres[i];
-                if (sphere == null || sphere.Type != SphereId.Standard) continue;
-
-                var tier = Mathf.Max(0, sphere.ProgressionLevel);
-                var radius = GetStandardSphereLocalRadius(sphere.transform, tier);
-                var sourceX = sphere.transform.position.x / SpherePlacementRules.SourcePixelsToWorld;
-                var sourceY = sphere.transform.position.y / SpherePlacementRules.SourcePixelsToWorld;
-                var breathe = Mathf.Sin(_runTime * 2.2f + sourceX * 0.013f) * 0.028f;
-                var energyPulse = 0.5f + 0.5f * Mathf.Sin(_runTime * 4.6f + sourceY * 0.009f);
-
-                // Source renderer.ts: targetPulse only affects the visual assembly,
-                // not the Sphere's gameplay transform or attack calculations.
-                var sourceTargetRange = 130f * SphereCombatRules.GetProfile(sphere.Type).RangeMultiplier *
-                    SpherePlacementRules.SourcePixelsToWorld;
-                var hasTarget = false;
-                for (var enemyIndex = 0; enemyIndex < _enemies.Count; enemyIndex++)
-                {
-                    var enemy = _enemies[enemyIndex];
-                    if (enemy == null || !enemy.IsAlive) continue;
-                    if (Vector2.Distance((Vector2)enemy.transform.position, sphere.transform.position) >= sourceTargetRange) continue;
-                    hasTarget = true;
-                    break;
-                }
-                var targetPulse = hasTarget ? 0.5f + 0.5f * Mathf.Sin(_runTime * 11f) : 0f;
-                var attackScale = 1f + targetPulse * 0.025f;
-                var xScale = attackScale + breathe * 0.18f;
-                var yScale = attackScale - breathe * 0.12f;
-                var crystalPulse = 1f + energyPulse * 0.022f;
-
-                var frame = sphere.transform.Find("Inner Frame");
-                if (frame != null && frame.gameObject.activeSelf)
-                {
-                    frame.Rotate(0f, 0f,
-                        Mathf.Rad2Deg * (0.22f + tier * 0.018f) * deltaTime, Space.Self);
-                    var frameRenderer = frame.GetComponent<SpriteRenderer>();
-                    if (frameRenderer != null && frameRenderer.sprite != null)
-                    {
-                        frameRenderer.color = new Color(48f / 255f, 214f / 255f, 1f, 0.82f * (0.72f + targetPulse * 0.20f));
-                        frame.localScale = new Vector3(
-                            2f * 1.18f * 0.98f * radius / (0.73f * frameRenderer.sprite.bounds.size.x) * xScale,
-                            2f * 1.18f * 0.34f * radius / (0.73f * frameRenderer.sprite.bounds.size.y) * yScale,
-                            1f);
-                    }
-                }
-
-                var glow = sphere.transform.Find("Glow");
-                if (glow != null && glow.gameObject.activeSelf)
-                {
-                    glow.localPosition = Vector3.zero;
-                    glow.localScale = new Vector3(
-                        1.16f * radius * (1f + energyPulse * 0.035f) * xScale,
-                        1.16f * radius * (1f + energyPulse * 0.035f) * yScale,
-                        1f);
-                    var glowRenderer = glow.GetComponent<SpriteRenderer>();
-                    if (glowRenderer != null)
-                        glowRenderer.color = new Color(1f, 1f, 1f, 0.82f + energyPulse * 0.14f);
-                }
-
-                var core = sphere.transform.Find("Core Light");
-                if (core != null && core.gameObject.activeSelf)
-                {
-                    core.localPosition = Vector3.zero;
-                    var coreRenderer = core.GetComponent<SpriteRenderer>();
-                    if (coreRenderer != null && coreRenderer.sprite != null)
-                    {
-                        var scale = 0.84f * radius * (1f + energyPulse * 0.035f) /
-                            Mathf.Max(0.0001f, coreRenderer.sprite.bounds.size.x);
-                        core.localScale = new Vector3(scale * xScale, scale * yScale, 1f);
-                    }
-                }
-
-                var outline = sphere.transform.Find("Standard Core Outline");
-                if (outline != null && outline.gameObject.activeSelf)
-                {
-                    outline.localPosition = Vector3.zero;
-                    var outlineRenderer = outline.GetComponent<SpriteRenderer>();
-                    if (outlineRenderer != null && outlineRenderer.sprite != null)
-                    {
-                        var scale = 0.84f * radius / (0.73f * Mathf.Max(0.0001f, outlineRenderer.sprite.bounds.size.x));
-                        outline.localScale = new Vector3(scale * xScale, scale * yScale, 1f);
-                    }
-                }
-
-                var upper = sphere.transform.Find("Shell");
-                if (upper != null && upper.gameObject.activeSelf)
-                {
-                    var upperRenderer = upper.GetComponent<SpriteRenderer>();
-                    if (upperRenderer != null && upperRenderer.sprite != null)
-                    {
-                        upper.localPosition = new Vector3(0f, 0.62f * radius * yScale, 0f);
-                        var scale = 1.34f * radius * crystalPulse / Mathf.Max(0.0001f, upperRenderer.sprite.bounds.size.x);
-                        upper.localScale = new Vector3(scale * xScale, scale * yScale, 1f);
-                    }
-                }
-
-                var lower = sphere.transform.Find("Standard Lower Crystal");
-                if (lower != null && lower.gameObject.activeSelf)
-                {
-                    var lowerRenderer = lower.GetComponent<SpriteRenderer>();
-                    if (lowerRenderer != null && lowerRenderer.sprite != null)
-                    {
-                        lower.localPosition = new Vector3(0f, -0.66f * radius * yScale, 0f);
-                        var scale = 1.34f * radius * crystalPulse / Mathf.Max(0.0001f, lowerRenderer.sprite.bounds.size.x);
-                        lower.localScale = new Vector3(scale * xScale, scale * yScale, 1f);
-                    }
-                }
-            }
-        }
-
-        private void ApplySphereVisual(GameObject root, SphereId type, int visualTier)
-        {
-            var shell = root.transform.Find("Shell");
-            var core = root.transform.Find("Core Light");
-            if (shell == null || core == null) return;
-
-            if (type == SphereId.Standard && ApplyStandardSphereArtwork(root, visualTier)) return;
-            if (type == SphereId.Orbital)
-            {
-                ApplyOrbitalSphereVisual(root);
-                return;
-            }
-
-            var authored = GetAuthoredSphereArtwork(type);
-            if (ApplyAuthoredShellVisual(root, authored, 1.04f)) return;
-
-            var renderer = shell.GetComponent<SpriteRenderer>();
-            switch (type)
-            {
-                case SphereId.Standard: renderer.sprite = RuntimeSpriteFactory.Faceted; break;
-                case SphereId.Sniper: renderer.sprite = RuntimeSpriteFactory.Diamond; break;
-                case SphereId.Shotgun: renderer.sprite = RuntimeSpriteFactory.Star; break;
-                case SphereId.Chain: renderer.sprite = RuntimeSpriteFactory.Hexagon; break;
-                case SphereId.Aura: renderer.sprite = RuntimeSpriteFactory.Ring; break;
-                case SphereId.Orbital: renderer.sprite = RuntimeSpriteFactory.Faceted; break;
-                case SphereId.Prism: renderer.sprite = RuntimeSpriteFactory.Prism; break;
-                case SphereId.Gravity: renderer.sprite = RuntimeSpriteFactory.Diamond; break;
-                case SphereId.Pulse: renderer.sprite = RuntimeSpriteFactory.Star; break;
-                case SphereId.Void: renderer.sprite = RuntimeSpriteFactory.Shard; break;
-                default: renderer.sprite = RuntimeSpriteFactory.Faceted; break;
-            }
-            shell.localScale = Vector3.one * (type == SphereId.Aura ? 1.18f : 1.02f);
-            core.localScale = Vector3.one * (type == SphereId.Aura ? 0.24f : type == SphereId.Prism ? 0.20f : 0.27f);
-            var coreRenderer = core.GetComponent<SpriteRenderer>();
-            if (coreRenderer != null)
-            {
-                switch (type)
-                {
-                    case SphereId.Gravity: coreRenderer.color = new Color(0.73f, 0.56f, 1f); break;
-                    case SphereId.Void: coreRenderer.color = new Color(0.84f, 0.72f, 1f); break;
-                    case SphereId.Chain: coreRenderer.color = new Color(1f, 0.97f, 0.76f); break;
-                    case SphereId.Prism: coreRenderer.color = new Color(1f, 0.88f, 0.98f); break;
-                    case SphereId.Pulse: coreRenderer.color = new Color(1f, 0.96f, 0.72f); break;
-                    default: coreRenderer.color = Color.white; break;
-                }
-            }
-
-            // Procedural fallback is only used if a source asset fails to import.
-            switch (type)
-            {
-                case SphereId.Sniper:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.91f, 0.78f, 1f), 2, 0.78f, 0.15f, 11, Mathf.PI * 0.5f);
-                    AddOrbitRail(root.transform, new Color(0.83f, 0.62f, 1f, 0.72f), new Vector3(1.52f, 0.30f, 1f), 0f, 6);
-                    break;
-                case SphereId.Chain:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(1f, 0.92f, 0.46f), 3, 0.78f, 0.17f, 11, Mathf.PI * 0.5f);
-                    break;
-                case SphereId.Shotgun:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(1f, 0.76f, 0.37f), 5, 0.76f, 0.11f, 11, Mathf.PI * 0.5f);
-                    break;
-                case SphereId.Aura:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(0.67f, 1f, 0.86f), 4, 0.78f, 0.12f, 11, Mathf.PI * 0.25f);
-                    AddOrbitRail(root.transform, new Color(0.34f, 0.95f, 0.76f, 0.45f), new Vector3(1.72f, 0.78f, 1f), 18f, 6);
-                    break;
-                case SphereId.Prism:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Prism, new Color(1f, 0.78f, 0.95f), 3, 0.78f, 0.14f, 11, Mathf.PI * 0.5f);
-                    AddOrbitRail(root.transform, new Color(1f, 0.58f, 0.88f, 0.65f), new Vector3(1.55f, 0.38f, 1f), 60f, 6);
-                    break;
-                case SphereId.Gravity:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Hexagon, new Color(0.79f, 0.68f, 1f), 4, 0.79f, 0.12f, 11, Mathf.PI * 0.25f);
-                    AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.55f, 0.62f, 1f), 28f, 6);
-                    break;
-                case SphereId.Pulse:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(1f, 0.9f, 0.54f), 4, 0.78f, 0.13f, 11, Mathf.PI * 0.25f);
-                    AddOrbitRail(root.transform, new Color(1f, 0.82f, 0.32f, 0.62f), new Vector3(1.62f, 0.64f, 1f), -45f, 6);
-                    break;
-                case SphereId.Void:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Shard, new Color(0.85f, 0.72f, 1f), 3, 0.79f, 0.14f, 11, Mathf.PI * 0.5f);
-                    AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.55f, 0.62f, 1f), -22f, 6);
-                    break;
-            }
-        }
-
-
-        private static void AddOrbitRail(Transform parent, Color tint, Vector3 scale, float angle, int order)
-        {
-            var rail = new GameObject("Visual Orbit Rail");
-            rail.transform.SetParent(parent, false);
-            rail.transform.localScale = scale;
-            rail.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
-            var renderer = rail.AddComponent<SpriteRenderer>();
-            renderer.sprite = RuntimeSpriteFactory.Ring;
-            renderer.color = new Color(tint.r, tint.g, tint.b, Mathf.Min(tint.a, 0.78f));
-            renderer.sortingOrder = order;
-        }
-
-        private static void AddRadialNodes(Transform parent, Sprite sprite, Color tint, int count, float radius, float size, int order, float phase = 0f)
-        {
-            for (var i = 0; i < count; i++)
-            {
-                var angle = phase + Mathf.PI * 2f * i / count;
-                var node = new GameObject("Sphere Signature Node");
-                node.transform.SetParent(parent, false);
-                node.transform.localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0f);
-                node.transform.localScale = Vector3.one * size;
-                var renderer = node.AddComponent<SpriteRenderer>();
-                renderer.sprite = sprite;
-                renderer.color = tint;
-                renderer.sortingOrder = order;
-            }
-        }
 
         private static Sprite GetSphereIcon(SphereId type)
         {
@@ -1775,40 +1346,10 @@ namespace EchoSphere.Runtime
             GUI.color = previous;
         }
 
-        private GameObject CreateOrb(string name, Vector2 position, float scale, Color tint, Color coreTint, int order)
+        private static GameObject CreateEntityRoot(string name,Vector2 position,float scale)
         {
-            var root = new GameObject(name);
-            root.transform.position = position;
-            root.transform.localScale = Vector3.one * scale;
-            var glow = new GameObject("Glow");
-            glow.transform.SetParent(root.transform, false);
-            glow.transform.localScale = Vector3.one * 1.75f;
-            var glowRenderer = glow.AddComponent<SpriteRenderer>();
-            glowRenderer.sprite = RuntimeSpriteFactory.Disc;
-            glowRenderer.color = new Color(tint.r, tint.g, tint.b, 0.18f);
-            glowRenderer.sortingOrder = order - 2;
-            var shell = new GameObject("Shell");
-            shell.transform.SetParent(root.transform, false);
-            var shellRenderer = shell.AddComponent<SpriteRenderer>();
-            shellRenderer.sprite = RuntimeSpriteFactory.Ring;
-            shellRenderer.color = tint;
-            shellRenderer.sortingOrder = order;
-            var innerFrame = new GameObject("Inner Frame");
-            innerFrame.transform.SetParent(root.transform, false);
-            innerFrame.transform.localScale = Vector3.one * 0.66f;
-            var frameRenderer = innerFrame.AddComponent<SpriteRenderer>();
-            frameRenderer.sprite = RuntimeSpriteFactory.Ring;
-            frameRenderer.color = new Color(tint.r * 0.68f, tint.g * 0.78f, tint.b, 0.9f);
-            frameRenderer.sortingOrder = order + 1;
-
-            var core = new GameObject("Core Light");
-            core.transform.SetParent(root.transform, false);
-            core.transform.localScale = Vector3.one * 0.30f;
-            var coreRenderer = core.AddComponent<SpriteRenderer>();
-            coreRenderer.sprite = RuntimeSpriteFactory.Disc;
-            coreRenderer.color = coreTint;
-            coreRenderer.sortingOrder = order + 2;
-            return root;
+            var root=new GameObject(name);root.transform.position=position;
+            root.transform.localScale=Vector3.one*scale;return root;
         }
 
         private void SpawnEnemy()
@@ -1880,33 +1421,11 @@ namespace EchoSphere.Runtime
             var visualArchetype = isElite ? EnemyArchetype.Elite : archetype;
             var visualScale = profile.VisualScale * (profile.Radius + eliteRadiusBonus) / profile.Radius;
             var tint = GetEnemyTint(visualArchetype);
-            var go = CreateOrb(GetEnemyName(visualArchetype), position,
-                0.72f * visualScale * roleRadius, tint, Color.white, 4);
-            ApplyShellVisual(go, GetEnemySprite(visualArchetype),
-                visualArchetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
-            var enemyCore = go.transform.Find("Core Light");
-            if (enemyCore != null) enemyCore.localScale = Vector3.one * (archetype == EnemyArchetype.Tank ? 0.29f : 0.22f);
-            AddOrbitRail(go.transform, new Color(tint.r, tint.g, tint.b, 0.65f),
-                new Vector3(1.7f, 0.62f, 1f), visualArchetype == EnemyArchetype.Fast ? -28f : 38f, 3);
-            switch (visualArchetype)
-            {
-                case EnemyArchetype.Fast:
-                    AddRadialNodes(go.transform, RuntimeSpriteFactory.Diamond, new Color(1f, 0.78f, 0.5f), 2, 0.78f, 0.15f, 7, Mathf.PI * 0.5f);
-                    break;
-                case EnemyArchetype.Tank:
-                    AddOrbitRail(go.transform, new Color(0.88f, 0.65f, 1f, 0.62f), new Vector3(1.36f, 1.12f, 1f), -18f, 5);
-                    AddRadialNodes(go.transform, RuntimeSpriteFactory.Hexagon, new Color(0.88f, 0.72f, 1f), 4, 0.8f, 0.13f, 7, Mathf.PI * 0.25f);
-                    break;
-                case EnemyArchetype.Elite:
-                    AddOrbitRail(go.transform, new Color(1f, 0.44f, 0.78f, 0.82f), new Vector3(1.28f, 1.28f, 1f), 0f, 5);
-                    AddRadialNodes(go.transform, RuntimeSpriteFactory.Star, new Color(1f, 0.76f, 0.9f), 3, 0.82f, 0.13f, 7, Mathf.PI * 0.5f);
-                    break;
-            }
-
+            var go=CreateEntityRoot(GetEnemyName(visualArchetype),position,.72f*visualScale*roleRadius);
             var agent = go.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, xpReward,
                 visualVariant, "", isElite, archetype, isPhaseRole,
-                role, roleDamage, roleRadius, eliteVariant, damage); agent.SetSourceVisualTier(_bossesDefeated);
+                role, roleDamage, roleRadius, eliteVariant, damage); agent.SetSourceAppearance(tint); agent.SetSourceVisualTier(_bossesDefeated);
             _enemies.Add(agent); RegisterEnemyQuery(agent);
         }
         private bool HasActiveBoss()
@@ -2027,10 +1546,10 @@ namespace EchoSphere.Runtime
             var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier;
             var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier;
             var damage = BossCombatRules.GetContactDamage(wave) * difficulty.EnemyDamageMultiplier;
-            var root = CreateOrb("ECHO SPHERE Boss / " + type, position, 1.23f, tint, Color.white, 4);
+            var root = CreateEntityRoot("ECHO SPHERE Boss / " + type, position, 1.23f);
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
-                BossCombatRules.GetVisualVariant(type), type); agent.SetSourceVisualTier(Mathf.FloorToInt(wave/10f));
+                BossCombatRules.GetVisualVariant(type), type); agent.SetSourceAppearance(tint); agent.SetSourceVisualTier(Mathf.FloorToInt(wave/10f));
             _enemies.Add(agent); RegisterEnemyQuery(agent);
             var combat = root.AddComponent<BossCombatAgent2D>();
             combat.Initialize(this, _player, agent, type, wave, speed, damage, tint);
@@ -2041,10 +1560,10 @@ namespace EchoSphere.Runtime
         public EnemyAgent2D SpawnBossMinion(Vector2 position, float hp, float moveSpeed, int xpReward, string visualVariant, Color tint)
         {
             if (_player == null || _gameOver) return null;
-            var root = CreateOrb("Boss Minion", position, 0.38f, tint, Color.white, 4);
+            var root = CreateEntityRoot("Boss Minion", position, .38f);
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant, damage: 8f);
-            agent.SetSourceRadius(10f);
+            agent.SetSourceAppearance(tint); agent.SetSourceRadius(10f);
             _enemies.Add(agent); RegisterEnemyQuery(agent);
             return agent;
         }

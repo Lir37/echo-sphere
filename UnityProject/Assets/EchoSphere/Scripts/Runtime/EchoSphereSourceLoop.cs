@@ -127,11 +127,11 @@ namespace EchoSphere.Runtime
             {
                 var a = _rng.NextFloat() * Mathf.PI * 2f;
                 var position = (Vector2)parent.transform.position + new Vector2(Mathf.Cos(a), -Mathf.Sin(a)) * (offset * SpherePlacementRules.SourcePixelsToWorld);
-                var go = CreateOrb("Splitter Child", position, radius * 2f * SpherePlacementRules.SourcePixelsToWorld, new Color(0.54f, 0.35f, 0.54f), Color.white, 4);
+                var go = CreateEntityRoot("Splitter Child", position, radius * 2f * SpherePlacementRules.SourcePixelsToWorld);
                 var child = go.AddComponent<EnemyAgent2D>();
                 child.Initialize(this, _player, hp, parent.SourceSpeed * 1.15f * SpherePlacementRules.SourcePixelsToWorld,
                     elite ? 2 : 1, "skitter", "", false, EnemyArchetype.Fast, false, elite ? "grunt" : "swarmer", 1f, 1f, "", parent.ContactDamage * 0.45f);
-                child.SetSourceRadius(radius);child.SetSourceVisualTier(parent.SourceVisualTier); _enemies.Add(child); RegisterEnemyQuery(child);
+                child.SetSourceAppearance(new Color(.54f,.35f,.54f)); child.SetSourceRadius(radius);child.SetSourceVisualTier(parent.SourceVisualTier); _enemies.Add(child); RegisterEnemyQuery(child);
             }
             if (elite) ShowTimedCombatMessage("SPLITTER", 0.6f);
         }

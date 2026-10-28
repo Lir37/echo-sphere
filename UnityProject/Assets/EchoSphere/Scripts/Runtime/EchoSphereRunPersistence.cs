@@ -143,9 +143,8 @@ namespace EchoSphere.Runtime
                         type != typeof(HealthPackAgent2D) && type != typeof(RuneAgent2D) && type != typeof(ArtifactChestAgent2D) &&
                         type != typeof(StellaChestAgent2D) && type != typeof(SourceParticle2D)) continue;
                     if (agent is EnemyAgent2D enemy && !enemy.IsAlive) continue;
-                    var sprite = agent is IRunSaveColor ? null : agent.GetComponentInChildren<SpriteRenderer>();
                     var entity = new SavedEntity { kind = type.Name, name = agent.name, position = agent.transform.position,
-                        scale = agent.transform.localScale, color = agent is IRunSaveColor appearance ? appearance.SavedColor : sprite != null ? sprite.color : Color.white,
+                        scale = agent.transform.localScale, color = agent is IRunSaveColor appearance ? appearance.SavedColor : Color.white,
                         state = _runSaveBuffers.Capture(agent) };
                     if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner)
                     { entity.hasProjectileOwner = true; entity.projectileOwnerIndex = liveEnemies.IndexOf(bullet.SourceOwner); }
@@ -208,7 +207,7 @@ namespace EchoSphere.Runtime
             else if (entity.kind == nameof(EnemyAgent2D))
             {
                 var baseColor = RunSnapshotCodec.Read(state, "_baseColor", entity.color);
-                var go = CreateOrb(entity.name, entity.position, 1f, baseColor, Color.white, 4);
+                var go = CreateEntityRoot(entity.name,entity.position,1f);
                 var enemy = go.AddComponent<EnemyAgent2D>();
                 var bossType = RunSnapshotCodec.Read(state, "_bossType", "");
                 enemy.Initialize(this, _player, RunSnapshotCodec.Read(state, "_maxHp", 1f), RunSnapshotCodec.Read(state, "_moveSpeed", 1f),
@@ -216,6 +215,7 @@ namespace EchoSphere.Runtime
                     RunSnapshotCodec.Read(state, "_archetype", EnemyArchetype.Normal), RunSnapshotCodec.Read(state, "_isPhaseRole", false),
                     RunSnapshotCodec.Read(state, "_role", "grunt"), RunSnapshotCodec.Read(state, "_roleDamageMultiplier", 1f),
                     RunSnapshotCodec.Read(state, "_roleRadiusMultiplier", 1f), RunSnapshotCodec.Read(state, "_eliteVariant", ""), RunSnapshotCodec.Read(state, "_damage", 1f));
+                enemy.SetSourceAppearance(baseColor);
                 if (entity.auxiliary != null)
                 {
                     var boss = go.AddComponent<BossCombatAgent2D>();

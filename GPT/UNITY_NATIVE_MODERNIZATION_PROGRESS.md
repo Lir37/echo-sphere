@@ -2122,3 +2122,12 @@ Editor49 boundary/35 projection/30 ownership checks and URP6 pixel cases PASS;
 344+6 C# clean, Core12462/parity47389/Node272 PASS. Previous CI891 SUCCESS.
 Enemy/Sphere legacy data/presentation boundary and remaining architecture/device
 acceptance still open. Details: UNITY_ARCHITECTURE_COMPLETION_2026-10-27.md.
+
+2026-10-28 group7: player/enemy/Sphere hidden sprite shells and LinkBreaker
+LineRenderers retired; all entity save colors now model-owned (remaining neutral
+envelopes white); no Renderer reads in run save. Orbital collision Transform anchors
+retained without disabled graphics. Region POI data no longer creates hidden
+renderers/labels or updates them; legacy radar lazy and Editor-only. Pre-removal
+baselines: shell44/POI56 PASS; query4826 and native enemy140GPU PASS(maxdelta0).
+C#344+6 clean, Core12462/parity47389/Node272 PASS. Remaining transient effects,
+geometry/save scratch, graph/reference cleanup and full acceptance stay open.

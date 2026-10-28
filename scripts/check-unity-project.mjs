@@ -171,7 +171,7 @@ assert.ok(nativeEnemyView.includes('e.HitFlash/.15') && nativeCreatures.includes
 assert.ok(nativeWorld.includes('enemy.SourceVisualVariant'), 'enemy variant must come from the gameplay entity');
 for (const retired of ['EnemyCreatureVisual2D.cs', 'BossPresentationVfx2D.cs']) assert.ok(!existsSync(join(root, 'Assets/EchoSphere/Scripts/Runtime', retired)), 'retired presentation must not return: ' + retired);
 const sphereAttackRuntimeVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
-assert.ok(runtimeArt.includes('position, 1.05f, SphereColor(type)') &&
+assert.ok(runtimeArt.includes('CreateEntityRoot(definition.DisplayName + " Sphere", position, 1.05f)') &&
   runtimeArt.includes('NormalEnemyVisualVariants = { "wisp", "leech", "serpent", "stalker", "prism" }') &&
   runtimeArt.includes('FastEnemyVisualVariants = { "moth", "skitter", "stalker" }') &&
   runtimeArt.includes('_rng.NextInt(variants.Length)'),
@@ -189,10 +189,11 @@ for (const pocket of [
   'AddPocket("Hollow Contour", -480f, 430f, 330f, "#9b7cff", false)',
   'AddPocket("Pressure Field", -520f, -300f, 330f, "#ffb84d", false)',
 ]) assert.ok(regionVisuals.includes(pocket), `canonical source region pocket missing: ${pocket}`);
-assert.ok(regionVisuals.includes('CircleSegments = 96') && regionVisuals.includes('SeamSegments = 10'), 'Region Field ring/seam geometry resolution regressed');
-assert.ok(regionVisuals.includes('pocket.Seams.Add') && regionVisuals.includes('pocket.Markers.Add'), 'Region Field fold seams and boundary markers are required');
+const regionNativeArt=readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldRegion.cs'),'utf8');
+assert.ok(regionNativeArt.includes('i<6') && regionNativeArt.includes('i<8') && regionNativeArt.includes('_pockets.Circle') && regionNativeArt.includes('_pockets.Triangle'), 'active region fold seams and markers required');
+assert.ok(!regionVisuals.includes('AddComponent<LineRenderer>') && !regionVisuals.includes('AddComponent<SpriteRenderer>'), 'region gameplay must not allocate hidden renderer objects');
 assert.ok(!/\b_rng\b|UnityEngine\.Random|Random\.Range/.test(regionVisuals), 'presentation-only region visuals must not consume gameplay RNG');
-assert.ok(runtimeArt.includes('LoadAuthored("character-spherist-3q")'), 'the active player must use the source Spherist character, not the Core glyph');
+assert.ok(readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldPlayer.cs'),'utf8').includes('player-spherist'), 'the active player must use the authored Spherist');
 const sourceSphereRenderer = readFileSync(join(root, '..', 'src/renderer.ts'), 'utf8');
 const activeStandardAssembly = sourceSphereRenderer.slice(
   sourceSphereRenderer.indexOf('function drawStandardSphereAssembly('),
@@ -206,15 +207,13 @@ assert.ok(activeStandardAssembly.includes('drawStandardSphereCore(ctx, coreRadiu
   !activeStandardAssembly.includes("'sphere-standard-ring'") &&
   !activeStandardAssembly.includes("'sphere-standard-lower-crystal'"),
   'active source Standard Sphere assembly is core/ring procedural and draws the upper crystal twice, mirrored');
-assert.ok(runtimeArt.includes('LoadAuthored("standard-sphere/upper-crystal")') &&
-  runtimeArt.includes('RuntimeSpriteFactory.StandardCoreGlow') &&
-  runtimeArt.includes('lowerRenderer.flipY = true') &&
-  runtimeArt.includes('GetStandardSphereLocalRadius') &&
-  !runtimeArt.includes('LoadAuthored("standard-sphere/energy-core")') &&
-  !runtimeArt.includes('LoadAuthored("standard-sphere/stabilization-ring")') &&
-  !runtimeArt.includes('LoadAuthored("standard-sphere/lower-crystal")'),
-  'Unity Standard Sphere must mirror the active source assembly and avoid broken/non-active PNG dependencies');
-assert.ok(runtimeArt.includes('TickSphereArtAnimation') && runtimeArt.includes('ApplyOrbitalSphereVisual'), 'authored Sphere animation and the native Orbital construction are required');
+const retainedStandard = readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldStandardSphere.cs'),'utf8');
+const retainedFamilies = readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldSphereFamilyViews.cs'),'utf8')+readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldSphereElements.cs'),'utf8');
+const retainedPlayer = readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldPlayer.cs'),'utf8');
+assert.equal((retainedStandard.match(/resolve\("sphere-standard-upper-crystal"\)/g)||[]).length,2,'native Standard must draw the same upper crystal twice');
+assert.ok(retainedStandard.includes('true,false,true,root') && retainedStandard.includes('Mathf.Max(.9f,r*.045f)') && retainedStandard.includes('Mathf.Max(.55f,r*.022f)'), 'native Standard must retain mirrored lower crystal and ring thickness');
+assert.ok(retainedFamilies.includes('orbital') && retainedStandard.includes('Math.Sin(time'), 'active Sphere animation and Orbital view required');
+
 assert.ok(!runtimeArt.includes('LoadAuthored("sphere-standard")') && !runtimeArt.includes('LoadAuthored("sphere-orbital")'), 'the flat prototype SVG substitutions must not be used as source art');
 assert.ok(!existsSync(join(root, 'Assets/Resources/EchoSphere/Art/sphere-standard.svg')), 'obsolete flattened Standard Sphere SVG must be removed');
 assert.ok(!existsSync(join(root, 'Assets/Resources/EchoSphere/Art/sphere-orbital.svg')), 'obsolete static Orbital mock SVG must be removed');
@@ -227,7 +226,7 @@ assert.ok(runtime.includes('GetEnemyVisualVariant(archetype)') && runtime.includ
 const spriteFactory = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs'), 'utf8');
 assert.ok(runtime.includes('DrawSphereRoster'), 'active Sphere roster HUD is missing');
 assert.ok(runtime.includes('DrawSpriteIcon'), 'Sphere choice UI must render visual icons');
-assert.ok(runtime.includes('ApplySphereVisual'), 'Sphere archetypes must use distinct visual silhouettes');
+assert.ok(retainedFamilies.includes('sniper') && retainedFamilies.includes('orbital'), 'active Sphere archetypes must use distinct views');
 assert.ok(runtime.includes('SetUserPaused'), 'pause/resume state handling is missing');
 const networkRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereNetworkRules.cs'), 'utf8');
 assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal') && networkRules.includes('GetFormationBonusMultiplier'), 'Network/Geometry analysis contract is missing');
@@ -253,26 +252,16 @@ assert.ok(spriteFactory.includes('Resources.Load<Sprite>') && runtime.includes('
 const svgImportSettings = readFileSync(join(root, 'Assets/Editor/EchoSphereSvgImportSettings.cs'), 'utf8');
 assert.ok(svgImportSettings.includes('SVGType.TexturedSprite') && svgImportSettings.includes('void OnPreprocessAsset()'), 'SVG artwork must be configured as textured Sprites before import');
 assert.ok(!svgImportSettings.includes('SaveAndReimport') && !svgImportSettings.includes('OnPostprocessAllAssets'), 'SVG importer must not recursively reimport assets from a postprocess callback');
-assert.ok(runtime.includes('LoadAuthored("character-spherist-3q")') && runtime.includes('character-spherist-3q'), 'the playable Spherist must use the canonical authored character sprite, not the Core glyph');
-assert.ok(runtime.includes('ApplyStandardSphereArtwork') && runtime.includes('ApplyOrbitalSphereVisual') &&
-  runtime.includes('RuntimeSpriteFactory.StandardCoreGlow') && runtime.includes('RuntimeSpriteFactory.StandardCoreOutline') &&
-  runtime.includes('RuntimeSpriteFactory.StandardOrbitRing') && spriteFactory.includes('EvaluateStandardCoreGradient') &&
-  spriteFactory.includes('CreateStandardOrbitRing') && spriteFactory.includes('CreateThinRing("ES_StandardCoreOutline", 0.73f, 0.0304f)'),
-  'source-mapped Standard core, thin outlines/orbit strokes and native Orbital 2.5D art paths are missing');
+assert.ok(retainedPlayer.includes('player-spherist') && retainedPlayer.includes('characterArt??resolve'), 'active player must use authored character art');
+assert.ok(retainedStandard.includes('CorePath=EllipseContour') && retainedStandard.includes('ArcPath=EllipseContour') && retainedFamilies.includes('orbital'), 'active Standard core/rings and Orbital views required');
 assert.ok(sourceSphereRenderer.includes('ctx.lineWidth = Math.max(0.9, r * 0.045)') &&
   sourceSphereRenderer.includes('ctx.lineWidth = Math.max(0.55, r * 0.022)') &&
   sourceSphereRenderer.includes('ctx.ellipse(0, 0, r * 0.88, r * 0.27, 0, Math.PI * 0.10, Math.PI * 1.92)') &&
   spriteFactory.includes('outerHalfWidth = 0.0142f') && spriteFactory.includes('innerHalfWidth = 0.0069f'),
   'the Standard Sphere ring strokes must preserve source radii, thickness and partial-arc gap');
-assert.ok(runtime.includes('SphereCombatRules.GetProfile(sphere.Type).RangeMultiplier') &&
-  !runtime.includes('GameCatalog.Spheres[(int)sphere.Type].RangeMultiplier') &&
-  runtime.includes('0.22f + tier * 0.018f') &&
-  runtime.includes('0.82f * (0.72f + targetPulse * 0.20f)') &&
-  runtime.includes('Mathf.Sin(_runTime * 2.2f + sourceX * 0.013f) * 0.028f') &&
-  runtime.includes('Mathf.Sin(_runTime * 4.6f + sourceY * 0.009f)') &&
-  runtime.includes('Mathf.Sin(_runTime * 11f)') &&
-  !runtime.includes('frame.Rotate(0f, 0f, 12.6f * deltaTime'),
-  'the Standard Sphere must use source tier rotation, source-space breath/core pulse and target-reactive ring opacity');
+assert.ok(retainedStandard.includes('time*(.22+tier*.018)') && retainedStandard.includes('.72+targetPulse*.20') &&
+  retainedStandard.includes('Math.Sin(time*2.2+x*.013)*.028') && retainedStandard.includes('Math.Sin(time*4.6+y*.009)') &&
+  retainedStandard.includes('Math.Sin(time*11)'), 'active Standard must retain source tier rotation, breathing and target pulse');
 assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Prism') && spriteFactory.includes('ES_Shard'), 'distinct archetype silhouettes are missing');
 const resonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs'), 'utf8');
 assert.ok(resonanceRules.includes('BaseCap = 100f') && resonanceRules.includes('OverflowCap = 150f'), 'Resonance charge contract is missing');
@@ -1377,7 +1366,7 @@ assert.ok(linkBreakerEnemy.includes('260f') && linkBreakerEnemy.includes('0.75f'
   linkBreakerEnemy.includes('GetNetworkDisableDuration(2f)'),
   'Link Breaker must retain source range, telegraph/cooldown timing and base disable duration');
 assert.ok(linkBreakerEnemy.includes('SpherePlacementRules.SourcePixelsToWorld') &&
-  linkBreakerEnemy.includes('NETWORK BREAK') && linkBreakerEnemy.includes('UpdateLinkBreakerLines()'),
+  linkBreakerEnemy.includes('NETWORK BREAK') && nativeEnemyView.includes('private void LinkBreaker('),
   'Link Breaker must use source distance calibration and render telegraph/impact cues');
 assert.ok(linkBreakerRuntime.includes('FindNearestLinkBreakerTarget') &&
   linkBreakerRuntime.includes('!sphere.NetworkDisabled') &&

@@ -5,11 +5,14 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed partial class SphereAttackAgent : MonoBehaviour, ISourceSimulationAgent
+    public sealed partial class SphereAttackAgent : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
     {
         internal float SourceProjectionOrbitalContactCheckTimer => _orbitalContactCheckTimer;
         internal float SourceProjectionOrbitAngle => _orbitAngle;
         internal float SourceProjectionNetworkDisabledTimer => _networkDisabledTimer;
+        private Color _savedColor=Color.white;
+        Color IRunSaveColor.SavedColor=>_savedColor;
+        void IRunSaveColor.RestoreSavedColor(Color color)=>_savedColor=color;
         private EchoSphereRuntime _runtime;
         private Transform _player;
         private Vector2 _followOffset;
@@ -102,13 +105,8 @@ namespace EchoSphere.Runtime
             Color tint;
             if (ColorUtility.TryParseHtmlString(GetColor(type), out tint))
             {
-                var renderers = GetComponentsInChildren<SpriteRenderer>();
-                for (var i = 0; i < renderers.Length; i++)
-                {
-                    if (renderers[i].sortingOrder > 8) continue;
-                    var alpha = renderers[i].color.a;
-                    renderers[i].color = new Color(tint.r, tint.g, tint.b, alpha);
-                }
+                tint.a=type==SphereId.Standard?.89f:type==SphereId.Orbital?.11f:.18f;
+                _savedColor=tint;
             }
         }
 
@@ -403,21 +401,8 @@ namespace EchoSphere.Runtime
                 var go = new GameObject("Orbital Combat Element " + (index + 1));
                 go.transform.SetParent(transform, false);
                 go.transform.localScale = Vector3.one * (index % 2 == 0 ? 0.24f : 0.20f);
-                var renderer = go.AddComponent<SpriteRenderer>();
-                // NativeWorldSphereFamilies owns this visual; keep
-                // the legacy Disc prototype disabled as elements are created at runtime.
-                renderer.enabled = false;
-                renderer.sprite = RuntimeSpriteFactory.Disc;
-                renderer.color = new Color(0.45f, 0.94f, 1f, 1f);
-                renderer.sortingOrder = 13;
-                var glow = new GameObject("Orbital Element Glow");
-                glow.transform.SetParent(go.transform, false);
-                glow.transform.localScale = Vector3.one * 2.2f;
-                var glowRenderer = glow.AddComponent<SpriteRenderer>();
-                glowRenderer.enabled = false;
-                glowRenderer.sprite = RuntimeSpriteFactory.Disc;
-                glowRenderer.color = new Color(0.35f, 0.82f, 1f, 0.30f);
-                glowRenderer.sortingOrder = 12;
+                // Logical collision anchors retain their public Transform contract.
+                // Their visible bodies are owned by NativeWorldSphereFamilies.
                 _orbitalElements.Add(go.transform);
             }
         }

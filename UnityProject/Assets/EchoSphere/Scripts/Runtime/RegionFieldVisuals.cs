@@ -15,8 +15,6 @@ namespace EchoSphere.Runtime
     public sealed class RegionFieldVisuals : MonoBehaviour
     {
         private const float SourcePixelsToWorld = 12.6f / 720f;
-        private const int CircleSegments = 96;
-        private const int SeamSegments = 10;
 
         private sealed class PocketVisual
         {
@@ -24,8 +22,6 @@ namespace EchoSphere.Runtime
             public float Radius;
             public Color Accent;
             public bool Active;
-            public readonly List<LineRenderer> Seams = new List<LineRenderer>();
-            public readonly List<SpriteRenderer> Markers = new List<SpriteRenderer>();
         }
 
         private sealed class PoiVisual
@@ -34,10 +30,6 @@ namespace EchoSphere.Runtime
             public string Type;
             public Vector2 Position;
             public float ExpiresAt;
-            public GameObject Root;
-            public SpriteRenderer Glow;
-            public LineRenderer Diamond;
-            public TextMesh Label;
         }
         [Serializable] public sealed class PoiState
         { public int id; public string type; public Vector2 position; public float expiresAt; }
@@ -60,7 +52,6 @@ namespace EchoSphere.Runtime
         {
             if (save == null) return;
             _nextPoiAt = save.nextPoiAt;
-            foreach (var poi in new List<PoiVisual>(_pois)) RemovePoi(poi);
             _pois.Clear();
             foreach (var poi in save.pois) CreatePoi(poi.id, poi.type, poi.position, poi.expiresAt);
         }
@@ -69,10 +60,10 @@ namespace EchoSphere.Runtime
         private readonly List<PoiVisual> _pois = new List<PoiVisual>();
         private float _nextPoiAt = 70f;
         private EchoSphereRuntime _runtime;
-        private Material _lineMaterial;
+#if UNITY_EDITOR
         private Texture2D _radarTexture;
         private Texture2D _radarPixel;
-        private Transform _fieldRoot;
+#endif
         private bool _initialized;
         public EchoRegionId ActiveRegionId { get; private set; } = EchoRegionId.ResonanceBasin;
 
@@ -80,41 +71,13 @@ namespace EchoSphere.Runtime
         {
             if (runtime == null) return;
             _runtime = runtime;
-            if (!_initialized)
-            {
-                var shader = Shader.Find("Sprites/Default");
-                if (shader == null) return;
-
-                _lineMaterial = new Material(shader)
-                {
-                    name = "ECHO SPHERE / Region Field Lines",
-                    hideFlags = HideFlags.DontSave
-                };
-                var root = new GameObject("Region Field Root");
-                root.transform.SetParent(transform, false);
-                _fieldRoot = root.transform;
-                _radarTexture = CreateRadarTexture();
-                _radarPixel = new Texture2D(1, 1, TextureFormat.RGBA32, false)
-                {
-                    name = "ECHO SPHERE / Radar Pixel",
-                    hideFlags = HideFlags.DontSave
-                };
-                _radarPixel.SetPixel(0, 0, Color.white);
-                _radarPixel.Apply();
-                _initialized = true;
-            }
+            _initialized=true;
             SetRegion(regionId);
         }
 
         public void SetRegion(EchoRegionId regionId)
         {
-            if (!_initialized || _fieldRoot == null) return;
-            for (var i = _fieldRoot.childCount - 1; i >= 0; i--)
-            {
-                var child = _fieldRoot.GetChild(i).gameObject;
-                if (Application.isPlaying) Destroy(child);
-                else DestroyImmediate(child);
-            }
+            if (!_initialized) return;
             _pockets.Clear();
             _pois.Clear();
             _nextPoiAt = 70f;
@@ -147,55 +110,7 @@ namespace EchoSphere.Runtime
             var radius = sourceRadius * SourcePixelsToWorld;
             var pocket = new PocketVisual { Center = center, Radius = radius, Accent = accent, Active = active };
 
-            var ring = CreateLine(id + " / Boundary", WithAlpha(accent, active ? 0.13f : 0.035f),
-                active ? 0.0315f : 0.0175f, -18, true);
-            ring.gameObject.SetActive(false);
-            ring.positionCount = CircleSegments;
-            for (var i = 0; i < CircleSegments; i++)
-            {
-                var angle = i * Mathf.PI * 2f / CircleSegments;
-                ring.SetPosition(i, center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
-            }
-
-            for (var i = 0; i < 6; i++)
-                pocket.Seams.Add(CreateLine(id + " / Fold Seam " + i,
-                    WithAlpha(accent, active ? 0.16f : 0.045f), 0.0175f, -17, false));
-
-            for (var i = 0; i < 8; i++)
-            {
-                var marker = new GameObject(id + " / Boundary Marker " + i);
-                marker.transform.SetParent(_fieldRoot, false);
-                var sprite = marker.AddComponent<SpriteRenderer>();
-                sprite.sprite = RuntimeSpriteFactory.Prism;
-                sprite.color = WithAlpha(accent, active ? 0.24f : 0.055f);
-                sprite.sortingOrder = -16;
-                marker.transform.localScale = Vector3.one * (7f * SourcePixelsToWorld);
-                pocket.Markers.Add(sprite);
-            }
-
-            foreach (var seam in pocket.Seams) seam.gameObject.SetActive(false);
-            foreach (var marker in pocket.Markers) marker.gameObject.SetActive(false);
             _pockets.Add(pocket);
-        }
-
-        private LineRenderer CreateLine(string objectName, Color color, float width, int sortingOrder, bool loop)
-        {
-            var lineObject = new GameObject(objectName);
-            lineObject.transform.SetParent(_fieldRoot, false);
-            var line = lineObject.AddComponent<LineRenderer>();
-            line.useWorldSpace = true;
-            line.loop = loop;
-            line.alignment = LineAlignment.View;
-            line.textureMode = LineTextureMode.Stretch;
-            line.sharedMaterial = _lineMaterial;
-            line.startColor = color;
-            line.endColor = color;
-            line.startWidth = width;
-            line.endWidth = width;
-            line.sortingOrder = sortingOrder;
-            line.numCapVertices = 0;
-            line.numCornerVertices = 0;
-            return line;
         }
 
         public void TickSourceRegionState()
@@ -207,7 +122,7 @@ namespace EchoSphere.Runtime
                 _nextPoiAt += 38f;
             }
 
-            for (var i = _pois.Count - 1; i >= 0; i--) if (time >= _pois[i].ExpiresAt) { RemovePoi(_pois[i]); _pois.RemoveAt(i); }
+            for (var i = _pois.Count - 1; i >= 0; i--) if (time >= _pois[i].ExpiresAt) { _pois.RemoveAt(i); }
         }
         public void TickGameplayPois()
         {
@@ -219,24 +134,10 @@ namespace EchoSphere.Runtime
                 if (!collected && Vector2.Distance(_runtime.PlayerPosition, poi.Position) <= 42f * SourcePixelsToWorld)
                 {
                     _runtime.RegisterRegionPoiCollected(poi.Type);
-                    RemovePoi(poi); _pois.RemoveAt(i--); collected = true; continue;
+                    _pois.RemoveAt(i--); collected = true; continue;
                 }
 
-                var color = GetPoiColor(poi.Type);
-                var pulse = 38f + Mathf.Sin(time * 4f + poi.Id) * 4f;
-                poi.Root.transform.position = new Vector3(poi.Position.x, poi.Position.y, 0.01f);
-                poi.Glow.color = WithAlpha(color, 0.18f);
-                poi.Glow.transform.localScale = Vector3.one * (pulse * 2f * SourcePixelsToWorld);
-                poi.Diamond.startColor = poi.Diamond.endColor = WithAlpha(color, 0.9f);
-                poi.Label.color = WithAlpha(color, 0.86f);
-                poi.Label.transform.position = new Vector3(
-                    poi.Position.x, poi.Position.y + 16f * SourcePixelsToWorld, 0f);
 
-                const float halfDiamond = 11f * SourcePixelsToWorld;
-                poi.Diamond.SetPosition(0, new Vector3(poi.Position.x, poi.Position.y + halfDiamond, 0f));
-                poi.Diamond.SetPosition(1, new Vector3(poi.Position.x + halfDiamond, poi.Position.y, 0f));
-                poi.Diamond.SetPosition(2, new Vector3(poi.Position.x, poi.Position.y - halfDiamond, 0f));
-                poi.Diamond.SetPosition(3, new Vector3(poi.Position.x - halfDiamond, poi.Position.y, 0f));
             }
         }
 
@@ -265,67 +166,7 @@ namespace EchoSphere.Runtime
         }
         private void CreatePoi(int id, string type, Vector2 position, float expiresAt)
         {
-            var color = GetPoiColor(type);
-
-            var root = new GameObject("Region POI / " + type);
-            root.transform.SetParent(_fieldRoot, false);
-            root.transform.position = new Vector3(position.x, position.y, 0.01f);
-            var glowObject = new GameObject("Pulse");
-            glowObject.transform.SetParent(root.transform, false);
-            var glow = glowObject.AddComponent<SpriteRenderer>();
-            glow.sprite = RuntimeSpriteFactory.Disc;
-            glow.color = WithAlpha(color, 0.18f);
-            glow.sortingOrder = 3;
-
-            var diamond = CreateLine("Region POI / Marker / " + id,
-                WithAlpha(color, 0.9f), 2f * SourcePixelsToWorld, 6, true);
-            diamond.positionCount = 4;
-
-            var labelObject = new GameObject("Region POI / Label / " + id);
-            labelObject.transform.SetParent(_fieldRoot, false);
-            labelObject.transform.position = new Vector3(
-                position.x, position.y + 16f * SourcePixelsToWorld, 0f);
-            var label = labelObject.AddComponent<TextMesh>();
-            label.text = GetPoiLabel(type);
-            label.anchor = TextAnchor.MiddleCenter;
-            label.alignment = TextAlignment.Center;
-            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            label.fontSize = 32;
-            label.characterSize = 10f * SourcePixelsToWorld / 32f;
-            label.color = WithAlpha(color, 0.86f);
-            var labelRenderer = label.GetComponent<MeshRenderer>();
-            if (labelRenderer != null) { labelRenderer.sharedMaterial = label.font.material; labelRenderer.sortingOrder = 6; }
-
-            _pois.Add(new PoiVisual
-            {
-                Id = id,
-                Type = type,
-                Position = position,
-                ExpiresAt = expiresAt,
-                Root = root,
-                Glow = glow,
-                Diamond = diamond,
-                Label = label
-            });
-        }
-
-        private void RemovePoi(PoiVisual poi)
-        {
-            if (poi.Root != null)
-            {
-                if (Application.isPlaying) Destroy(poi.Root);
-                else DestroyImmediate(poi.Root);
-            }
-            if (poi.Diamond != null)
-            {
-                if (Application.isPlaying) Destroy(poi.Diamond.gameObject);
-                else DestroyImmediate(poi.Diamond.gameObject);
-            }
-            if (poi.Label != null)
-            {
-                if (Application.isPlaying) Destroy(poi.Label.gameObject);
-                else DestroyImmediate(poi.Label.gameObject);
-            }
+            _pois.Add(new PoiVisual {Id=id,Type=type,Position=position,ExpiresAt=expiresAt});
         }
 
         private static Color GetPoiColor(string type)
@@ -350,6 +191,14 @@ namespace EchoSphere.Runtime
         }
 
 
+#if UNITY_EDITOR
+        private void EnsureLegacyRadar()
+        {
+            if(_radarTexture!=null)return;
+            _radarTexture=CreateRadarTexture();
+            _radarPixel=new Texture2D(1,1,TextureFormat.RGBA32,false){name="Editor reference radar pixel",hideFlags=HideFlags.DontSave};
+            _radarPixel.SetPixel(0,0,Color.white);_radarPixel.Apply();
+        }
         private static Texture2D CreateRadarTexture()
         {
             const int size = 100;
@@ -376,8 +225,11 @@ namespace EchoSphere.Runtime
             return texture;
         }
 
+#endif
         public void DrawSourceRadar(Rect radar)
         {
+#if UNITY_EDITOR
+            EnsureLegacyRadar();
             if (!_initialized || _runtime == null || _radarTexture == null || _radarPixel == null) return;
             var previousMatrix = GUI.matrix; var previousColor = GUI.color;
             GUI.matrix = previousMatrix * Matrix4x4.TRS(new Vector3(radar.x, radar.y, 0f), Quaternion.identity, new Vector3(radar.width / 100f, radar.height / 100f, 1f));
@@ -400,7 +252,7 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < Mathf.Min(12, _pois.Count); i++)
             {
                 var poi = _pois[i];
-                if (poi.Root == null || _runtime.CurrentRunTime >= poi.ExpiresAt) continue;
+                if (_runtime.CurrentRunTime >= poi.ExpiresAt) continue;
                 var delta = poi.Position - player;
                 var distance = delta.magnitude;
                 var angle = Mathf.Atan2(-delta.y, delta.x);
@@ -436,8 +288,10 @@ namespace EchoSphere.Runtime
             GUI.DrawTexture(new Rect(radar.x + 46f, radar.y + 46f, 8f, 8f), _radarPixel);
             GUI.color = previousColor;
             GUI.matrix = previousMatrix;
+#endif
         }
 
+#if UNITY_EDITOR
         private void DrawRadarLine(Vector2 start, Vector2 end, Color color, float thickness)
         {
             var delta = end - start;
@@ -457,11 +311,6 @@ namespace EchoSphere.Runtime
 
         private void OnDestroy()
         {
-            if (_lineMaterial != null)
-            {
-                if (Application.isPlaying) Destroy(_lineMaterial);
-                else DestroyImmediate(_lineMaterial);
-            }
             if (_radarTexture != null)
             {
                 if (Application.isPlaying) Destroy(_radarTexture);
@@ -473,5 +322,6 @@ namespace EchoSphere.Runtime
                 else DestroyImmediate(_radarPixel);
             }
         }
+#endif
     }
 }
