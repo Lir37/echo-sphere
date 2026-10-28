@@ -120,3 +120,41 @@ Editor Play:14проверок PASS — empty/real/empty атаки, исклю�
 без BuildFrame и обязательное обновление при dirty. C# пять профилей, игровые
 контракты и272Node-теста PASS. Android-проверка новых изменений ещё впереди.
 Окончательное устранение тормозов паузы и зависания3:29 не подтверждено.
+
+
+## Телефон: сравнение обычных APK и следующий GPU-кандидат
+
+49ae309e946f1b69b663d3047a97e45e6124a75c опубликован, CI902 SUCCESS:
+https://github.com/Lir37/echo-sphere/actions/runs/40755692256
+Обычный APK собран:0errors/6warnings,426.62s,ARM64+ARMv7,78,837,608bytes,
+SHA25693B7DA26F4359AF281BDB9D6461541CC76CF9EDF1A5CE5DA281A3DDAB16EE4C2.
+Подписьv2 проверена, debuggable отсутствует. Среди предупреждений — pending
+Editor compilation при старте build; собранная PlayerScriptAssemblies проверена
+по IL: новый attack signal, pause cache, invalidation при restore и cache-use
+в LateUpdate действительно включены. Изменений Editor post-processors не было.
+
+Перед тестом сохранён свежий телефонный PlayerPrefs (17ключей), приватный
+phone-before-feedback-test.tar,105984bytes. Это новый backup, прежний13-key
+backup не заменяется. Старый и новый ordinary APK установлены без удаления app.
+Один и тот же paused snapshot0:06,1сфера,20s без видео и касаний:
+
+| Обычный APK | Presented FPS | p95 ms | p99 ms | >100ms intervals |
+|---|---:|---:|---:|---:|
+| fae7b1da |6.699|165.824|198.765|131|
+|49ae309e |7.045|165.220|165.734|135|
+
+Условия/метод SurfaceFlinger те же; это один парный опыт, без thermal/order
+контроля. Сильные тормоза паузы НЕ устранены. Retain world оставлен, поскольку
+он убирает подтверждённую лишнюю CPU/GPU работу, но основная задержка остаётся
+в UI. На телефоне проверены отсутствие полос в pause, реальный вертикальный
+свайп по списку и переключения всех четырёх вкладок. Масштаб в backup0.75.
+
+Следующее изменение: точный Gaussian shader проверяет допустимость всего ядра
+для внутренних texel-centred pixels один раз вместо повторения матриц, atlas
+bounds, mirror/fract и проверки фазы на каждой паре отсчётов. Радиус/веса,
+разрешение, отражения на границах, gamma/alpha и остальные эффекты сохранены;
+края, дробные фазы и linear input идут прежним путём. Actual GPU test9комбинаций
+sigma2/6/12,density1/1.75/2.75,поворот/atlas neighbours/positive control PASS:
+maxRGBA delta1/255, alpha delta0,0новых Console errors. Новый результат записан
+22:51, старый файл7:40 не использован как подтверждение свежей правки.
+Этот shader-кандидат ещё нужно проверить на Android, ускорение пока не заявлено.

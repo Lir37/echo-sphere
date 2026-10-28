@@ -55,7 +55,28 @@ Shader "EchoSphere/NativeBackdropGaussian"
    if(sigma<.001)result=Read(i.uv,rect,mirror,i.css);
    else {
     int radius=(int)ceil(4*sigma);float normalization=1;result=Read(i.uv,rect,mirror,i.css);
-    if(_BackdropPairing>.5&&_BackdropWeightCount>radius){
+    // For a texel-centred interior pixel, every tap stays inside both the
+    // panel and its atlas allocation. Prove that once for the whole kernel;
+    // the per-pair path otherwise repeats affine transforms, mirror/fract,
+    // atlas bounds and phase checks dozens of times for this same pixel.
+    float2 support=abs(axis*_MainTex_TexelSize.xy*radius);
+    float2 local=float2(dot(_ToPanelX.xyz,float3(i.css,1)),dot(_ToPanelY.xyz,float3(i.css,1)));
+    float2 screenSupport=float2(axis.x,-axis.y)*radius/_CssDpr;
+    float2 localSupport=abs(float2(dot(_ToPanelX.xy,screenSupport),dot(_ToPanelY.xy,screenSupport)));
+    float2 phase=i.uv*abs(_MainTex_TexelSize.zw)-.5;
+    bool interior=_BackdropPairing>.5&&_BackdropWeightCount>radius&&_CssReadsGamma>.5&&
+     all(i.uv-support>=rect.xy)&&all(i.uv+support<=rect.xy+rect.zw)&&
+     all(abs(phase-round(phase))<.001)&&
+     (!mirror||(all(local-localSupport>=0)&&all(local+localSupport<=_PanelSize.xy)));
+    if(interior){
+     float2 delta=axis*_MainTex_TexelSize.xy;
+     [loop]for(int offset=1;offset<=radius;offset+=2){int next=min(offset+1,radius);
+      float a=_BackdropWeights[offset>>2][offset&3],b=offset<radius?_BackdropWeights[next>>2][next&3]:0;
+      float weight=a+b;float distance=offset+b/weight;
+      result+=(tex2D(_MainTex,i.uv+delta*distance)+tex2D(_MainTex,i.uv-delta*distance))*weight;
+      normalization+=2*weight;
+     }
+    }else if(_BackdropPairing>.5&&_BackdropWeightCount>radius){
      [loop]for(int offset=1;offset<=radius;offset+=2){int next=min(offset+1,radius);
       float a=_BackdropWeights[offset>>2][offset&3],b=offset<radius?_BackdropWeights[next>>2][next&3]:0;
       result+=PairRead(i.uv,rect,mirror,i.css,axis,offset,a,b)+PairRead(i.uv,rect,mirror,i.css,-axis,offset,a,b);normalization+=2*(a+b);
