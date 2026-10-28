@@ -141,3 +141,51 @@ normal/additive/screen. Retained cache получает CopyTexture конкре
 Открыто: эффективность live backdrop Gaussian меню; деформируемая topology;
 spatial queries и явные адаптеры остальных save entities; дальнейшая очистка;
 белая Android-пауза; итоговые FPS/GC/память и 15-минутный device test.
+
+## Группа 4 — стекло и удаление неиспользуемых портов (2026-10-28)
+
+NativeBackdropGaussian объединяет соседние Gaussian taps только в линейном
+texel-centred внутреннем участке при gamma-compatible чтении. Reflection,
+границы атласа, дробная фаза и conversion сохраняют прежние отдельные выборки.
+Радиус, kernel weights, нормализация, зеркальные края и два прохода сохранены.
+Это уменьшает число texture reads в допустимых участках, но ускорение на Mali
+и общие FPS/GC ещё не измерены. Нельзя обещать двукратный выигрыш всего фильтра.
+
+Реальный UI Toolkit: 9 GPU сравнений, density 1/1.75/2.75, sigma 2/6/12,
+дробные позиции, повёрнутые панели, текст/alpha, соседний фильтр. max raw RGB
+1/255, alpha0/255, взвешенныйRGB1/255. Positive control с отключением основного
+blur изменил 26115–183413 пикселей: эффект действительно работал.
+
+Android shader asset bundle для NativeBackdropGaussian/SourceCanvasShadow
+SUCCESS, 11.64 sec, после финальной правки single-return PairRead. Первоначальные
+предупреждения uninitialized PairRead устранены; текущий ShaderUtil возвращает
+пустые messages для обеих shader. Export имеет отдельные предупреждения, что
+AssetBundle/Manifest module выключен в Player; runtime-загрузку bundles игра
+не использует, модуль не включался. Это shader compilation, НЕ APK/device test.
+Автодобавленный Nintendo Switch2 platform quality entry восстановлен побайтово
+к проверенному до сборки HEAD; пользовательские настройки не менялись.
+
+Удалены ещё 9 отключённых/невызываемых runtime-портов и их .meta:
+SourcePlayerVisual2D, SourceRegionVisual2D, SourceElementalVisual2D,
+SphereElementalVfx2D, SphereRuntimeVfx2D, StandardSphereAttackVfx2D,
+ProjectileVfx2D, CombatArcVfx2D, SourceCanvasMesh. Вместе с группой1 это 11 старых
+реализаций. Для каждого GUID проверены сцены/prefabs/assets/json: ссылок нет.
+Удалены AddComponent и вызовы setters, ранее обслуживавшие отключённые объекты.
+Живые типизированные native views, gameplay timer/state/RNG сохранены.
+
+Preflight больше не требует наличия удалённого мёртвого кода (47 старых
+source-string assertions заменены проверками active views/retirement). Общие
+272 regression tests, Core1383/parity47389 и Unity fixtures остаются.
+C# Android player/editor: 341 runtime +6 Editor, 0 errors/warnings.
+Live Play pools: 21 checks, 50 reuse cycles и cap220 PASS. Retirement/lifetime
+fixture: удалённые types отсутствуют; 210 world-space stars уничтожаются с owner.
+
+Shader/GPU evidence: Documents/UnityEvaluations/ECHO-SPHERE-architecture-20261028.
+Новая пользовательская _Recovery/0 (7).unity и её .meta оставлены нетронутыми.
+Группа3 b8e70940 прошла CI #889 SUCCESS:
+https://github.com/Lir37/echo-sphere/actions/runs/40585054541 .
+
+Остаток: пространственные запросы, save adapters остальных сущностей,
+деформируемые контуры/rig topology, пакетная геометрия частиц; raster API и
+reference isolation, полный lifecycle/память20циклов и device acceptance.
+План целиком, P1/P2 и 60FPS НЕ объявляются DONE.

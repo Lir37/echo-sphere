@@ -15,6 +15,9 @@ namespace EchoSphere.Presentation
         private readonly Material _material;
         private readonly FilterFunctionDefinition _definition;
         private readonly float _sigma;
+#if UNITY_EDITOR
+        internal static bool DisablePairedSamplingForValidation=false;
+#endif
         internal NativeEngineBackdrop(VisualElement element,float sigma)
         {
             _element=element??throw new ArgumentNullException(nameof(element));
@@ -33,6 +36,10 @@ namespace EchoSphere.Presentation
         {
             float density=context.scaledPixelsPerPoint;var matrix=_element.worldTransform;var inverse=matrix.inverse;var bounds=_element.worldBound;
             properties.SetFloat("_Sigma",_sigma);properties.SetFloat("_CssDpr",density);properties.SetFloat("_CssReadsGamma",context.readsGamma?1:0);
+            properties.SetFloat("_BackdropPairing",1);
+#if UNITY_EDITOR
+            if(DisablePairedSamplingForValidation)properties.SetFloat("_BackdropPairing",0);
+#endif
             bool cached=NativeGaussianWeights.TryGet(_sigma*density,out var weights);properties.SetInt("_BackdropWeightCount",cached?Mathf.CeilToInt(4*_sigma*density)+1:0);if(cached)properties.SetVectorArray("_BackdropWeights",weights);
             properties.SetVector("_Roi",new Vector4(bounds.x,bounds.y,bounds.width,bounds.height));properties.SetVector("_PanelSize",new Vector4(_element.layout.width,_element.layout.height,0,0));
             properties.SetVector("_ToPanelX",new Vector4(inverse.m00,inverse.m01,inverse.m03,0));properties.SetVector("_ToPanelY",new Vector4(inverse.m10,inverse.m11,inverse.m13,0));

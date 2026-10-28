@@ -7,17 +7,8 @@ var wasPaused=UnityEditor.EditorApplication.isPaused;
 var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
 UnityEngine.GameObject starRoot=null;
 try{
-    var player=fixture.AddComponent<EchoSphere.Runtime.SourcePlayerVisual2D>();player.Initialize(runtime,null);
-    var elemental=fixture.AddComponent<EchoSphere.Runtime.SourceElementalVisual2D>();elemental.Initialize(runtime,null);
-    var standard=fixture.AddComponent<EchoSphere.Runtime.StandardSphereAttackVfx2D>();standard.Initialize(runtime,null);
-    var projectile=fixture.AddComponent<EchoSphere.Runtime.ProjectileVfx2D>();projectile.Initialize(runtime,UnityEngine.Vector2.right,4,UnityEngine.Color.white,null);
-    foreach(var component in new UnityEngine.Behaviour[]{player,elemental,standard,projectile}){
-        if(component.enabled)throw new System.Exception(component.GetType().Name+" still updates");
-        foreach(var field in component.GetType().GetFields(flags))if((typeof(UnityEngine.Mesh).IsAssignableFrom(field.FieldType)||typeof(UnityEngine.Material).IsAssignableFrom(field.FieldType))&&field.GetValue(component)!=null)throw new System.Exception(component.GetType().Name+" allocated "+field.Name);
-    }
-    if(fixture.transform.childCount!=0||fixture.GetComponentsInChildren<UnityEngine.Renderer>().Length!=0)throw new System.Exception("Inactive producer created render children");
-    projectile.SetSourceMotion(UnityEngine.Vector2.up,7);
-    boss.SetCombatState(.1f,.2f,.3f,true,UnityEngine.Vector2.right,4);
+    foreach(var name in new[]{"SourcePlayerVisual2D","SourceElementalVisual2D","StandardSphereAttackVfx2D","ProjectileVfx2D","BossPresentationVfx2D","EnemyCreatureVisual2D","SphereRuntimeVfx2D","SourceRegionVisual2D","SourceCanvasMesh","CombatArcVfx2D"})
+        if(typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly.GetType("EchoSphere.Runtime."+name)!=null)throw new System.Exception("Retired runtime type returned: "+name);
     // Legacy fallback must own world-space stars independently of its moving quad.
     var cameraObject=new UnityEngine.GameObject("Backdrop diagnostic camera");cameraObject.transform.SetParent(fixture.transform,false);
     var camera=cameraObject.AddComponent<UnityEngine.Camera>();camera.enabled=false;
@@ -37,7 +28,7 @@ try{
         UnityEditor.EditorApplication.update-=callback;
         UnityEditor.EditorApplication.isPaused=wasPaused;
         foreach(var star in stars)if(star!=null){UnityEditor.SessionState.SetString("EchoInactivePresentationCheck","FAIL: star survived owner destruction");return;}
-        UnityEditor.SessionState.SetString("EchoInactivePresentationCheck","PASS: four inactive producers, no mesh/material/render children, setters safe; 210 world-space stars owned and destroyed");
+        UnityEditor.SessionState.SetString("EchoInactivePresentationCheck","PASS: retired runtime types absent; 210 world-space stars owned and destroyed");
     };
     UnityEditor.EditorApplication.update+=callback;
     UnityEditor.EditorApplication.isPaused=false;

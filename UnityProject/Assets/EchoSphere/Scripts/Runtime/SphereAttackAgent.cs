@@ -404,7 +404,7 @@ namespace EchoSphere.Runtime
                 go.transform.SetParent(transform, false);
                 go.transform.localScale = Vector3.one * (index % 2 == 0 ? 0.24f : 0.20f);
                 var renderer = go.AddComponent<SpriteRenderer>();
-                // The source-mapped mesh in SphereRuntimeVfx2D owns this visual; keep
+                // NativeWorldSphereFamilies owns this visual; keep
                 // the legacy Disc prototype disabled as elements are created at runtime.
                 renderer.enabled = false;
                 renderer.sprite = RuntimeSpriteFactory.Disc;

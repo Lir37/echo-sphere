@@ -170,68 +170,12 @@ assert.ok(nativeEnemyView.includes('DrawEnemy') && nativeEnemyView.includes('Dra
 assert.ok(nativeEnemyView.includes('e.HitFlash/.15') && nativeCreatures.includes('NativeWorldShapes.Tessellate'), 'active enemy view must preserve hit timing and authored vector geometry');
 assert.ok(nativeWorld.includes('enemy.SourceVisualVariant'), 'enemy variant must come from the gameplay entity');
 for (const retired of ['EnemyCreatureVisual2D.cs', 'BossPresentationVfx2D.cs']) assert.ok(!existsSync(join(root, 'Assets/EchoSphere/Scripts/Runtime', retired)), 'retired presentation must not return: ' + retired);
-
-const sphereVisualPath = 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs';
-assert.ok(existsSync(join(root, sphereVisualPath)), 'source-mapped Sphere family VFX component is missing');
-const sphereVisual = readFileSync(join(root, sphereVisualPath), 'utf8');
-assert.ok(sphereVisual.includes('src/spheres/*Visual.ts') && sphereVisual.includes('src/spheres/visualHelpers.ts'), 'Sphere VFX source mapping is required');
-for (const family of ['Sniper','Chain','Shotgun','Aura','Orbital','Prism','Gravity','Pulse','Void']) assert.ok(sphereVisual.includes('case SphereId.' + family), 'Sphere VFX family dispatch missing: ' + family);
-assert.ok(sphereVisual.includes('DrawSourceOrbit(') && sphereVisual.includes('OrbitPoint(') &&
-  sphereVisual.includes('DrawDiamond') && sphereVisual.includes('ResonanceEventActive'),
-  'Sphere family source-orbit geometry, outward accents and Resonance state must be wired');
-assert.ok(sphereVisual.includes('DrawOrbitalSatellites(') &&
-  sphereVisual.includes('src/spheres/orbitalVisual.ts:drawSatellite') &&
-  sphereVisual.includes('ElementVisualColor') &&
-  sphereVisual.includes('renderer.enabled = false') &&
-  readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8').includes('OrbitalElementCount') &&
-  readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8').includes('glowRenderer.enabled = false'),
-  'Orbital satellites must use source-mapped faceted/elemental geometry at existing combat positions');
 const sphereAttackRuntimeVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
-assert.ok(sphereVisual.includes('Mathf.Repeat(sourceX * .011f + sourceY * .007f, Tau)') &&
-  sphereVisual.includes('sourceX * .008f + sourceY * .006f') &&
-  sphereVisual.includes('var spin = _time * OrbitSpeed(_type)') &&
-  sphereVisual.includes('var scan = _time * .46f;') &&
-  sphereVisual.includes('DrawOrbitalAttackFlash(') &&
-  sphereAttackRuntimeVfx.includes('OrbitalAttackFlashTimer'),
-  'Sphere visual phases and source-time orbit rotations must use the source formulas');
-assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh') &&
-  sphereVisual.includes('RadialGlow(') && sphereVisual.includes('CoreOutline') &&
-  sphereVisual.includes('private void DisablePrototypeSphereLayers()'),
-  'source-matched glowing core must replace the prototype SVG body');
-assert.ok(sphereVisual.includes('coreRadius * .58f * (1f + corePulse * .035f)') &&
-  sphereVisual.includes('var corePulse = _type == SphereId.Orbital ? (disabled ? .5f : orbitalOrbitPulse) : pulse;'),
-  'Sphere core glow radius must preserve the source pulse expansion and Orbital-specific pulse');
-const standardAttackVfxPath = 'Assets/EchoSphere/Scripts/Runtime/StandardSphereAttackVfx2D.cs';
-assert.ok(existsSync(join(root, standardAttackVfxPath)), 'Standard Sphere attack charge visual is missing');
-const standardAttackVfx = readFileSync(join(root, standardAttackVfxPath), 'utf8');
-const standardRuntimeSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
-assert.ok(standardAttackVfx.includes('using EchoSphere.Core;') &&
-  standardAttackVfx.includes('SpherePlacementRules.SourcePixelsToWorld'),
-  'Standard Sphere attack VFX must import the Core namespace for source-pixel calibration');
-assert.ok(standardRuntimeSource.includes('StandardSphereAttackVfx2D') &&
-  standardAttackVfx.includes('drawStandardAttackVfx') &&
-  standardAttackVfx.includes('_agent.AttackTimer / 1.2f') &&
-  standardAttackVfx.includes('_agent.VisualRotation') &&
-  standardAttackVfx.includes('new Color(99f / 255f, 230f / 255f, 1f, 1f)') &&
-  standardAttackVfx.includes('FilledCircle('),
-  'Standard Sphere must port source charge muzzle geometry and use existing attack timer/rotation without changing combat');
-assert.ok(sphereVisual.includes('private static void DrawSourceOrbit(') &&
-  sphereVisual.includes('mode == SphereId.Chain') && sphereVisual.includes('mode == SphereId.Void') &&
-  sphereVisual.includes('mode == SphereId.Prism'),
-  'Sphere families must retain source-specific orbit silhouettes');
-assert.ok(sphereVisual.includes('DrawEmitter(_detail, R, color, facing, 0, 0f, disabled, _time)') &&
-  sphereVisual.includes('var shapeAlpha = disabled ? .14f') &&
-  sphereVisual.includes('var scan = .10f + .05f * Mathf.Sin(time * 7f)'),
-  'source Sniper emitter must stay at its forward anchor and dim accurately when disabled');
-assert.ok(!sphereVisual.includes('var angles = new[]'),
-  'source-matched per-frame Sphere rendering must not allocate a new tick-angle array');
 assert.ok(runtimeArt.includes('position, 1.05f, SphereColor(type)') &&
   runtimeArt.includes('NormalEnemyVisualVariants = { "wisp", "leech", "serpent", "stalker", "prism" }') &&
   runtimeArt.includes('FastEnemyVisualVariants = { "moth", "skitter", "stalker" }') &&
   runtimeArt.includes('_rng.NextInt(variants.Length)'),
   'Sphere world size and per-archetype source enemy silhouette variety regressed');
-assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(sphereVisual), 'Sphere presentation must not consume gameplay RNG');
-assert.equal((sphereVisual.match(/new List<Vector2>/g) || []).length, 1, 'Sphere VFX must use a reusable vector path buffer');
 
 const regionVisualsPath = 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs';
 assert.ok(existsSync(join(root, regionVisualsPath)), 'source-mapped Region Field visual layer is missing');
@@ -278,7 +222,7 @@ assert.ok(!existsSync(join(root, 'Assets/Resources/EchoSphere/Art/sphere-orbital
 assert.ok(bootstrap.includes('ApplyModifiedPropertiesWithoutUndo'), 'URP serialized renderer repairs must be applied');
 
 const runtime = readRuntime();
-assert.ok(runtime.includes('runtimeVfx.Initialize(this, agent)') && runtime.includes('public bool ResonanceEventActive =>'), 'Sphere VFX must be connected to live gameplay presentation');
+assert.ok(runtime.includes('DrawNativeSphereFrame') && runtime.includes('public bool ResonanceEventActive =>'), 'Sphere VFX must be connected to live gameplay presentation');
 assert.ok(runtime.includes('GetEnemyVisualVariant(archetype)') && runtime.includes('GetEnemyVisualVariant(EnemyArchetype archetype)'), 'enemy spawn must wire source-mapped silhouette variants');
 const spriteFactory = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs'), 'utf8');
 assert.ok(runtime.includes('DrawSphereRoster'), 'active Sphere roster HUD is missing');
@@ -400,7 +344,6 @@ for (const required of ['standard_resonator','sniper_oracle','chain_storm','aura
   assert.ok(sphereElementalRules.includes(required), 'source elemental Mutation rule missing: ' + required);
 const sphereEnemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 const sphereProjectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ProjectileAgent.cs'), 'utf8');
-const sphereElementalVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereElementalVfx2D.cs'), 'utf8');
 assert.ok(sphereEnemy.includes('ApplyElementalStatus') && sphereEnemy.includes('_fireTimer') &&
   sphereEnemy.includes('_poisonTimer') && sphereEnemy.includes('_freezeTimer') &&
   sphereEnemy.includes('TryAdvanceElementalConduction') && sphereEnemy.includes('TryBeginFieldElementalReaction'),
@@ -408,7 +351,7 @@ assert.ok(sphereEnemy.includes('ApplyElementalStatus') && sphereEnemy.includes('
 assert.ok(runtime.includes('GetSphereStatusDurationMultiplier') && runtime.includes('GetSphereStatusDamageMultiplier') &&
   sphereAttack.includes('OnSphereHitApplied') && sphereProjectile.includes('_evolutionOwner.OnSphereHitApplied(enemy, _evolutionOwner.Type, _sourceElement)'),
   'element status rules must connect through Sphere attacks and projectile impacts');
-assert.ok(readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SourceElementalVisual2D.cs'), 'utf8').includes('SphereElementalRules.ResolveElement'),
+assert.ok(readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereFamilies.cs'), 'utf8').includes('GetElement(sphere.Element)'),
   'Prism Spectrum orbit must follow the final-dependent element in elementalVisual.ts');
 const spherePickerStart = runtime.indexOf('private void DrawSpherePicker()');
 const spherePickerEnd = runtime.indexOf('private void DrawSpherePickerGlyph(', spherePickerStart);
@@ -569,8 +512,6 @@ assert.ok(bossProjectile.includes('renderer.ts:drawBossProjectile') && bossProje
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(bossProjectile), 'boss projectile presentation must not consume gameplay RNG');
 const sphereAttackRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
 assert.ok(sphereAttackRuntime.includes('NetworkDisabled') && sphereAttackRuntime.includes('ApplyNetworkDisable') && sphereAttackRuntime.includes('DelayNextAttack'), 'boss-to-Sphere disruption contract missing');
-const sphereDisabledVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs'), 'utf8');
-assert.ok(sphereDisabledVfx.includes('_agent.NetworkDisabled') && sphereDisabledVfx.includes('new Color(1f, 0.22f, 0.39f'), 'network-disabled Sphere overlay missing');
 assert.ok(runtime.includes('GetSourceSphereModifiers(source).resonantCharge / 2f') && sphereAttack.includes('ShouldOrbitalGrantShieldCharge'), 'Orbital Halo must use source modifier charge and grant a shield on each qualifying contact');
 assert.ok(evolutionRules.includes('ShouldTriggerStandardResonatorPulse'), 'Standard Resonator combat rules are missing');
 assert.ok(evolutionRules.includes('GetSniperAssassinDamageMultiplier'), 'Sniper Assassin combat rules are missing');
@@ -621,43 +562,16 @@ assert.ok(enemy.includes('ApplyDamageOverTime'), 'Timed status damage support is
 assert.ok(enemy.includes('out wasCritical') && enemy.includes('ref wasCritical'), 'common damage path must pass critical state through Predator and branch mechanics');
 assert.ok(projectile.includes('enemy.ReceiveSphereDamage(_evolutionOwner.Type, _damage, false, _allowAuthoredProcs, _evolutionOwner)'), 'projectiles must use the common damage receiver with their real owner and proc flag');
 assert.ok(runtime.includes('TriggerStandardResonatorPulse') && runtime.includes('SpawnStandardSwarmShards'), 'Standard evolution runtime effects are missing');
-
-
-const projectileVisualPath = 'Assets/EchoSphere/Scripts/Runtime/ProjectileVfx2D.cs';
-assert.ok(existsSync(join(root, projectileVisualPath)), 'source-mapped projectile VFX component is missing');
-const projectileVisual = readFileSync(join(root, projectileVisualPath), 'utf8');
-assert.ok(projectileVisual.includes('src/spheres/mutationVisual.ts') && projectileVisual.includes('renderSphereProjectileVfx') && projectileVisual.includes('projectileTail') && projectileVisual.includes('projectileCore'), 'projectile VFX must retain explicit Canvas source mapping');
-for (const family of ['Standard','Sniper','Shotgun','Prism','Void']) assert.ok(projectileVisual.includes('case SphereId.' + family), 'source projectile body dispatch missing: ' + family);
-for (const branch of ['standard_singularity','standard_swarm','sniper_oracle','sniper_assassin','sniper_beacon','shotgun_hail','shotgun_cataclysm','prism_split','prism_spectrum','void_hunger','void_reaper','void_execution']) assert.ok(projectileVisual.includes('"' + branch + '"'), 'source projectile mutation path missing: ' + branch);
-assert.ok(projectileVisual.includes('MarkDynamic') && projectileVisual.includes('new List<Vector3>') && projectileVisual.includes('new List<Color>'), 'projectile mesh buffers must be dynamic and reused');
-assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(projectileVisual), 'projectile presentation must not consume gameplay RNG');
-
-const elementalVfxPath = 'Assets/EchoSphere/Scripts/Runtime/SphereElementalVfx2D.cs';
-assert.ok(existsSync(join(root, elementalVfxPath)), 'source-mapped elemental trace component is missing');
-const elementalVfx = readFileSync(join(root, elementalVfxPath), 'utf8') + readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SourceElementalVisual2D.cs'), 'utf8');
-assert.ok(elementalVfx.includes('src/spheres/elementalVisual.ts') && elementalVfx.includes('src/sphereProgression.ts') && elementalVfx.includes('ResolveElement'), 'elemental visuals must retain their source branch mapping');
 for (const branch of ['standard_resonator','standard_singularity','standard_swarm','sniper_oracle','sniper_assassin','sniper_beacon','shotgun_burst','shotgun_cataclysm','shotgun_hail','orbital_dance','orbital_halo','orbital_blade','prism_split','prism_spectrum','prism_mirror','void_hunger','void_reaper','void_execution','chain_web','chain_storm','chain_leech','aura_sanctum','aura_gravity','aura_overgrowth','gravity_well','gravity_tide','gravity_collapse','pulse_wave','pulse_resonator','pulse_burst']) assert.ok(sphereElementalRules.includes('"' + branch + '"'), 'elemental source branch mapping missing: ' + branch);
-assert.ok(elementalVfx.includes('#ff743d') && elementalVfx.includes('#d9f6ff') && elementalVfx.includes('#72f08e') && elementalVfx.includes('MarkDynamic'), 'Fire/Freeze/Poison elemental trace signatures are missing');
-assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(elementalVfx), 'elemental presentation must not consume gameplay RNG');
 
 const impactVisualPath = 'Assets/EchoSphere/Scripts/Runtime/ImpactVfx2D.cs';
 assert.ok(existsSync(join(root, impactVisualPath)), 'source-mapped hit impact component is missing');
 const impactVisual = readFileSync(join(root, impactVisualPath), 'utf8');
 assert.ok(impactVisual.includes('src/renderer.ts') && impactVisual.includes('Impact Ring and Shards') && impactVisual.includes('MarkDynamic'), 'hit impact must retain the source particle/ring mapping');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(impactVisual), 'impact presentation must not consume gameplay RNG');
-assert.ok(runtime.includes('projectileVfx.Initialize(this, direction, speed, color, evolutionOwner)'), 'ProjectileAgent spawn path must connect the source-mapped visual');
-assert.ok(runtime.includes('elementalVfx.Initialize(this, agent)'), 'all Sphere types must connect branch-aware elemental traces');
 assert.ok(runtime.includes('impactVfx.Initialize(color)'), 'hit resolution must connect the layered impact visual');
-
-const combatArcPath = 'Assets/EchoSphere/Scripts/Runtime/CombatArcVfx2D.cs';
-assert.ok(existsSync(join(root, combatArcPath)), 'source-mapped chain lightning / Prism refraction component is missing');
-const combatArc = readFileSync(join(root, combatArcPath), 'utf8');
-assert.ok(combatArc.includes('src/spheres/mutationVisual.ts') && combatArc.includes('renderChainLightningVfx') && combatArc.includes('src/renderer.ts'), 'combat arcs must keep the Canvas source mapping');
 const sourcePresentation=readFileSync(join(root,'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs'),'utf8');
 assert.ok(sourcePresentation.includes('AddSourceLightningVisual')&&readFileSync(join(root,'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeFrame.cs'),'utf8').includes('foreach(var lightning in _sourceLightningVisuals)'), 'chain-lightning events must enter the native component frame');
-for (const branch of ['chain_web','chain_storm','chain_leech','prism_split','prism_mirror']) assert.ok(combatArc.includes('"' + branch + '"'), 'source-mapped arc branch missing: ' + branch);
-assert.ok(combatArc.includes('MarkDynamic') && combatArc.includes('new List<Vector2>') && combatArc.includes('new List<Vector3>'), 'combat arc mesh and geometry buffers must be reused');
-assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(combatArc), 'combat arc presentation must not consume gameplay RNG');
 assert.ok(runtime.includes('SpawnCombatArc(Vector2 from, Vector2 to') && runtime.includes('AddSourceLightningVisual(from,to,duration,family)'), 'combat arc events must feed the original Canvas drawing path');
 assert.ok(sphereAttack.includes('_runtime.SpawnCombatArc(i == 0 ? origin : (Vector2)primary.transform.position') && sphereAttack.includes('150f * SpherePlacementRules.SourcePixelsToWorld'), 'Chain must select sequential nearby jumps and connect them to the source-mapped arcs');
 assert.ok(runtime.includes('SpawnCombatArc(center, targets[i].transform.position, SphereId.Chain') && runtime.includes('SpawnCombatArc(primary.transform.position, target.transform.position, SphereId.Chain'), 'Chain Storm secondary and extra strikes need visual arcs');
@@ -1518,3 +1432,13 @@ assert.ok(instanceGuid && instanceMaterial.includes('guid: ' + instanceGuid) && 
   instanceVariants.includes('guid: ' + instanceGuid) && /keywords:\s*INSTANCING_ON/.test(instanceVariants),
   'Native solid instancing requires the matching build-visible material and retained shader variant');
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);
+
+// Production geometry is owned by retained native views; retired component
+// implementations are not required as executable copies of the same artwork.
+const retiredNativePorts=['SourcePlayerVisual2D','SourceRegionVisual2D','SourceElementalVisual2D','SphereElementalVfx2D','SphereRuntimeVfx2D','StandardSphereAttackVfx2D','ProjectileVfx2D','CombatArcVfx2D','SourceCanvasMesh'];
+for(const name of retiredNativePorts)assert.ok(!existsSync(join(root,'Assets/EchoSphere/Scripts/Runtime',name+'.cs')),'retired native port returned: '+name);
+const activeFamilyViews=readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldSphereFamilyViews.cs'),'utf8');
+for(const family of ['sniper','shotgun','chain','aura','prism','gravity','pulse','void'])assert.ok(activeFamilyViews.includes('case "'+family+'"'),'active native family missing: '+family);
+assert.ok(activeFamilyViews.includes('s.Disabled')&&activeFamilyViews.includes('DrawOrbit')&&activeFamilyViews.includes('DrawCore'),'native family disabled/core/orbit presentation missing');
+const activeSphereElements=readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldSphereElements.cs'),'utf8');
+assert.ok(activeSphereElements.includes('DrawElements')&&activeSphereElements.includes('ElementGlyph'),'native elemental view missing');

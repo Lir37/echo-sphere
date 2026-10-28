@@ -102,9 +102,6 @@ namespace EchoSphere.Runtime
                 _radarPixel.SetPixel(0, 0, Color.white);
                 _radarPixel.Apply();
                 _initialized = true;
-                var sourceLayer = new GameObject("Source Region Layer");
-                sourceLayer.transform.SetParent(transform, false);
-                sourceLayer.AddComponent<SourceRegionVisual2D>().Initialize(runtime);
             }
             SetRegion(regionId);
         }

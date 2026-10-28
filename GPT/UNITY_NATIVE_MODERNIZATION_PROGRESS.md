@@ -2086,3 +2086,19 @@ the off-by-default gate is intentional until desktop unlock and visual validatio
 2026-10-26: scene-owned UIDocuments/panel templates for all seven screens; authored battle/settings and other menu shells; NativeWorldPresentation owns 16 world-view resource groups. Actual Editor pixel comparisons (density 1/2.75) exact for battle/settings fixtures; all menu transitions/picking and continued saved run pass. No performance work/claim. Full migration remains open: prefix/replica effect bridge and primary-entry retirement. See UNITY_NATIVE_SCENE_OWNERSHIP_2026-10-26.md.
 
 Ownership commit 734e2776bb123c271ca60fee810f763435f0cb52 passed CI #862. Authored tutorial UXML/USS also passes exact Editor pixel/layout comparisons, focus/choice-step Next lifecycle and both input actions. Separate Unity version decision pending for native backdropFilter; current engine remains 6000.3.24f1, capture bridge OFF, full migration NOT DONE.
+
+
+## 2026-10-28 — Architecture completion implementation
+
+From da74c8ea: entity-owned enemy variants/particle save color; two retired enemy
+ports removed; persistent per-entity geometry/labels with bounded reuse; retained
+character card updates and portrait resource leases; asynchronous region load;
+translation-independent local shadow masks and batched transient atlas blur;
+conservative paired Gaussian taps for native UI glass; nine additional disabled
+visual ports removed after serialized GUID audit. Existing rules/RNG/save schema,
+quality and user settings preserved. Details and limitations in
+UNITY_ARCHITECTURE_COMPLETION_2026-10-27.md. CI through b8e70940 #889 SUCCESS.
+Desktop compile/GPU/lifecycle checks passed; Android shader bundle compiled.
+No new APK/device performance claim. Spatial queries, remaining save adapters,
+dynamic geometry/particle batching, render-pass/reference cleanup and complete
+phone/memory acceptance remain open. Full plan/P1/P2 NOT DONE.

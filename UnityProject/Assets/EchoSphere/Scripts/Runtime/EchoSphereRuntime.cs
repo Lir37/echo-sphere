@@ -1245,7 +1245,6 @@ namespace EchoSphere.Runtime
             _playerCore = go.AddComponent<PlayerCoreController2D>();
             _playerCore.IncreaseMaxHp(PersistentUpgradeRules.GetStartingHpBonus(GetShopUpgradeLevel("hp")));
             _playerCore.ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp);
-            go.AddComponent<SourcePlayerVisual2D>().Initialize(this, _playerCore);
         }
 
 
@@ -1268,19 +1267,6 @@ namespace EchoSphere.Runtime
             ApplySphereVisual(go, type, level);
             var agent = go.AddComponent<SphereAttackAgent>();
             agent.Initialize(this, _player, type, 12f);
-            if (type == SphereId.Standard)
-            {
-                // Source renderer.ts:drawStandardAttackVfx is a transient charge muzzle,
-                // separate from the Standard core/ring assembly and combat simulation.
-                go.AddComponent<StandardSphereAttackVfx2D>().Initialize(this, agent);
-            }
-            if (type != SphereId.Standard)
-            {
-                var runtimeVfx = go.AddComponent<SphereRuntimeVfx2D>();
-                runtimeVfx.Initialize(this, agent);
-            }
-            var elementalVfx = go.AddComponent<SphereElementalVfx2D>();
-            elementalVfx.Initialize(this, agent);
             _spheres.Add(agent);
             // Character radius bonuses depend on the active network/count. Include this Sphere before recalculating its range.
             agent.ApplyProgressionLevel(level);
@@ -1511,7 +1497,7 @@ namespace EchoSphere.Runtime
                 if (glowRenderer != null) glowRenderer.color = new Color(0.30f, 0.87f, 1f, 0.11f);
             }
 
-            // Animated Orbital contours/terminals are owned by SphereRuntimeVfx2D.
+            // Animated Orbital contours/terminals are owned by NativeWorldSphereFamilies.
             // Remove the old static rail/node layer to avoid doubled rings.
         }
 
@@ -2341,8 +2327,6 @@ namespace EchoSphere.Runtime
             go.transform.position = position;
             agent.Initialize(this, direction, damage, color, speed, pierce, critChanceBonus,
                 evolutionOwner, ricochets, lifetime, allowAuthoredProcs, useEvolutionHitEffects, applyElementalStatus, sourceRadius);
-            var projectileVfx = go.GetComponent<ProjectileVfx2D>()??go.AddComponent<ProjectileVfx2D>();
-            projectileVfx.Initialize(this, direction, speed, color, evolutionOwner);
             return agent;
         }
 

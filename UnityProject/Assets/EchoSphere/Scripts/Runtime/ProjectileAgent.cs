@@ -112,7 +112,6 @@ namespace EchoSphere.Runtime
                         _direction = ((Vector2)next.transform.position - (Vector2)transform.position).normalized;
                         if (_direction.sqrMagnitude <= 0.0001f) _direction = Vector2.right;
                         _speed = 350f * SpherePlacementRules.SourcePixelsToWorld;
-                        GetComponent<ProjectileVfx2D>()?.SetSourceMotion(_direction, _speed);
                     }
                     else
                     {
