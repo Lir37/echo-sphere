@@ -22,7 +22,7 @@ namespace EchoSphere.Runtime
                 _knowledgeSection="basics";_knowledgeQuery="";_nativeArchiveState=ReadNativeArchiveState();_nativeArchiveWasActive=true;
                 _camera.cullingMask=0;
             }
-            _nativeArchiveScreen.Show(_nativeArchiveState,SourceDevicePixelRatio,()=>_mainMenuPage=MainMenuPage.Home,SelectNativeArchiveSection,SearchNativeArchive);
+            _nativeArchiveScreen.Show(_nativeArchiveState,NativeSubmenuScale,()=>_mainMenuPage=MainMenuPage.Home,SelectNativeArchiveSection,SearchNativeArchive);
             return true;
         }
         private void SelectNativeArchiveSection(string section)

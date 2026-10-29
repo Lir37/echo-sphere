@@ -6,6 +6,7 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
+        private float NativeSubmenuScale=>SourceDevicePixelRatio*.86f;
         private static string NativeText(string key,bool russian)=>NativeLocalizationCatalog.Instance.Translate(key,russian);
         // Preserve JS Number conversion for native string preferences. The older
         // IMGUI settings screen wrote this same key with SetFloat; read that

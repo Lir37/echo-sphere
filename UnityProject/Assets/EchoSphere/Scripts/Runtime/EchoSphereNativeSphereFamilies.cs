@@ -31,7 +31,6 @@ namespace EchoSphere.Runtime
         private void DrawNativeSphereFamily(NativeSphereVisual sphere,double time,double scale,bool includeCombatParts=true)
         {
             var state=new NativeWorldSphereFamilies.State {Family=sphere.Family,X=sphere.X,Y=sphere.Y,Rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,Time=time,Scale=scale,Disabled=sphere.DisabledTimer>0||!sphere.Alive,Resonance=sphere.Resonance,AttackActive=sphere.AttackActive};
-            if(sphere.Type==EchoSphere.Core.SphereId.Prism&&sphere.Branch=="prism_spectrum")state.HasPrismElement=ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetElement(sphere.Element).Color,out state.PrismElement);
             _nativeWorldSphereFamilies.DrawFamily(_worldSurface,_nativeWorldStandardSphere,state,includeCombatParts);
         }
     }

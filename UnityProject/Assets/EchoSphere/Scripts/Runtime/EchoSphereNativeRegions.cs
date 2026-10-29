@@ -24,7 +24,7 @@ namespace EchoSphere.Runtime
                 _nativeRegionState=ReadNativeRegionState();_nativeRegionWasActive=true;
                 _camera.cullingMask=0;
             }
-            _nativeRegionScreen.Show(_nativeRegionState,SourceDevicePixelRatio,()=>{if(!_mainMenu||!_regionSelect||NativeRoutes.RegionLaunchPending)return;TraceNativeRoute("region-back");_regionSelect=false;_mainMenuPage=MainMenuPage.Home;},StartNativeRegion);
+            _nativeRegionScreen.Show(_nativeRegionState,NativeSubmenuScale,()=>{if(!_mainMenu||!_regionSelect||NativeRoutes.RegionLaunchPending)return;TraceNativeRoute("region-back");_regionSelect=false;_mainMenuPage=MainMenuPage.Home;},StartNativeRegion);
             return true;
         }
         private NativeRegionScreen.State ReadNativeRegionState()

@@ -36,19 +36,42 @@ namespace EchoSphere.Presentation
             }
         }
         private static readonly Dictionary<Key,Entry> Entries=new Dictionary<Key,Entry>();
+        private readonly struct RetiredSkin
+        {
+            internal readonly Entry Entry;internal readonly int Frame;
+            internal RetiredSkin(Entry entry){Entry=entry;Frame=Time.frameCount;}
+        }
+        private static readonly List<RetiredSkin> Retired=new List<RetiredSkin>();
+        private static int _maintainedFrame=-1;
+        static NativeMenuBrushCache(){Application.quitting+=FlushRetired;
+#if UNITY_EDITOR
+            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload+=FlushRetired;
+            UnityEditor.EditorApplication.playModeStateChanged+=state=>{if(state==UnityEditor.PlayModeStateChange.ExitingPlayMode)FlushRetired();};
+#endif
+        }
+        // An Image change only invalidates retained UI geometry. Its preceding
+        // render commands may still reference the old texture this/next frame.
+        // Do not Release the native resource synchronously from Prepare().
+        internal static void Maintain()
+        {
+            if(_maintainedFrame==Time.frameCount)return;_maintainedFrame=Time.frameCount;
+            for(int i=Retired.Count-1;i>=0;i--)if(Time.frameCount-Retired[i].Frame>=3){Retired[i].Entry.Brush.Dispose();Retired.RemoveAt(i);}
+        }
+        private static void FlushRetired(){foreach(var item in Retired)item.Entry.Brush.Dispose();Retired.Clear();_maintainedFrame=-1;}
+        internal static int RetiredCount=>Retired.Count;
         internal static Entry Acquire(float width,float height,float scale,NativeMenuBrush.Paint paint)
         {
-            var key=new Key(width,height,scale,paint);
+            Maintain();var key=new Key(width,height,scale,paint);
             if(!Entries.TryGetValue(key,out var entry)){
                 var brush=new NativeMenuBrush();try{brush.Render(width,height,scale,paint);}catch{brush.Dispose();throw;}
                 entry=new Entry {Brush=brush,Skin=key};Entries.Add(key,entry);
             }
-            entry.References++;return entry;
+            entry.Brush.RestoreIfLost();entry.References++;return entry;
         }
         internal static void Release(Entry entry)
         {
             if(entry==null||--entry.References>0)return;
-            Entries.Remove(entry.Skin);entry.Brush.Dispose();
+            Entries.Remove(entry.Skin);if(Application.isPlaying)Retired.Add(new RetiredSkin(entry));else entry.Brush.Dispose();
         }
     }
 }

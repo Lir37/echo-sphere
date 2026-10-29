@@ -2555,3 +2555,5 @@ avatar наблюдено,сохранённый забег доступен. П
 Editor текущий бой перед сборкой штатно PauseAndSaveRun и Stop;не восстанавливалась
 старая копияprefs. Generated compile_commands backed up/restored;локальныеQualitySettings,
 Recovery7/8/9 и старые.utmp не менялись. Этот отчётный commit не меняет кодAPK.
+
+2026-10-29: новая группа HUD/меню/снаряды/комета/Призма. Deferred3-frame skin retirement + восстановление GPU targets;причина конкретного белогоHUD ещё не доказана. Подменю×0.86,снаряды6enemy/5friendly,одна18-sample comet ribbon0.38s,постоянный основной цветПризмы. Проверены30IV/90VII — привязка верна,прогрессия не менялась. Editor GPU46+92+1700+52checks,menu32,branch581 PASS,prefs10keys restored. Подробности/артефакты:UNITY_HUD_PROJECTILES_MUTATIONS_2026-10-29.md. APK/CI/телефон записываются после проверки.

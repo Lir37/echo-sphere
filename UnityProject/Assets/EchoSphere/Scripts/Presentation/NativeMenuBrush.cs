@@ -31,6 +31,13 @@ namespace EchoSphere.Presentation
         private readonly List<RenderTexture> _temporary=new List<RenderTexture>();
         private RenderTexture _target;
         private bool _disposed;
+        private Paint _lastPaint;private float _lastWidth,_lastHeight,_lastScale;
+        public uint TextureVersion {get;private set;}
+        internal bool RestoreIfLost()
+        {
+            if(_disposed||_target==null||_target.IsCreated())return false;
+            Render(_lastWidth,_lastHeight,_lastScale,_lastPaint);return true;
+        }
 #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal bool AnalyticBlurForValidation=false;
 #endif
@@ -86,6 +93,8 @@ namespace EchoSphere.Presentation
             if(NativeDeviceReplay.Active)DiagnosticRenders++;
 #endif
             if(_target==null||_target.width!=w||_target.height!=h){ReleaseTarget();_target=new RenderTexture(w,h,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native menu brush",hideFlags=HideFlags.DontSave,filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};if(!_target.Create())throw new InvalidOperationException("Native menu brush target allocation failed");}
+            if(!_target.IsCreated()){if(!_target.Create())throw new InvalidOperationException("Native menu brush target restoration failed");}
+            _lastWidth=width;_lastHeight=height;_lastScale=scale;_lastPaint=paint;
             Bounds=new Rect(-padding,-padding,w/scale,h/scale);
             var previous=RenderTexture.active;bool srgb=GL.sRGBWrite;
             try{
@@ -105,7 +114,7 @@ namespace EchoSphere.Presentation
                 _material.SetTexture("_OuterA",a!=null?(Texture)a:Texture2D.blackTexture);_material.SetTexture("_OuterB",b!=null?(Texture)b:Texture2D.blackTexture);_material.SetTexture("_Inner",inner!=null?(Texture)inner:Texture2D.blackTexture);
                 _material.SetTexture("_InnerB",innerB!=null?(Texture)innerB:Texture2D.blackTexture);_material.SetVector("_ShadowInnerB",V(paint.InsetB?.Color??Color.clear));
                 _material.SetVector("_ShadowA",V(paint.OuterA?.Color??Color.clear));_material.SetVector("_ShadowB",V(paint.OuterB?.Color??Color.clear));_material.SetVector("_ShadowInner",V(paint.Inset?.Color??Color.clear));
-                Graphics.Blit(Texture2D.blackTexture,_target,_material,2);PaintCount++;
+                Graphics.Blit(Texture2D.blackTexture,_target,_material,2);PaintCount++;TextureVersion++;
             }finally{RenderTexture.active=previous;GL.sRGBWrite=srgb;foreach(var texture in _temporary)RenderTexture.ReleaseTemporary(texture);_temporary.Clear();}
         }
         private static void DestroyOwned(UnityEngine.Object value){if(Application.isPlaying)UnityEngine.Object.Destroy(value);else UnityEngine.Object.DestroyImmediate(value);}

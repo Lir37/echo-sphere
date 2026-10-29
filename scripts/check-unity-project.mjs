@@ -342,8 +342,10 @@ assert.ok(sphereEnemy.includes('ApplyElementalStatus') && sphereEnemy.includes('
 assert.ok(runtime.includes('GetSphereStatusDurationMultiplier') && runtime.includes('GetSphereStatusDamageMultiplier') &&
   sphereAttack.includes('OnSphereHitApplied') && sphereProjectile.includes('_evolutionOwner.OnSphereHitApplied(enemy, _evolutionOwner.Type, _sourceElement)'),
   'element status rules must connect through Sphere attacks and projectile impacts');
-assert.ok(readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereFamilies.cs'), 'utf8').includes('GetElement(sphere.Element)'),
-  'Prism Spectrum orbit must follow the final-dependent element in elementalVisual.ts');
+const liveSphereFamilies=readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereFamilies.cs'), 'utf8');
+assert.ok(liveSphereFamilies.includes('DrawNativeSphereElements') && liveSphereFamilies.includes('GetElement(element)') &&
+  !liveSphereFamilies.includes('HasPrismElement'),
+  'Prism retains element accents/effects separately; user-approved base core/orbits must not be recolored by mutation');
 const spherePickerStart = runtime.indexOf('private void DrawSpherePicker()');
 const spherePickerEnd = runtime.indexOf('private void DrawSpherePickerGlyph(', spherePickerStart);
 assert.ok(spherePickerStart >= 0 && spherePickerEnd > spherePickerStart, 'source Sphere picker implementation is missing');

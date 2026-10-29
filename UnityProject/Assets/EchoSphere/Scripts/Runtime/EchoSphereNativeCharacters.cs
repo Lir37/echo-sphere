@@ -24,7 +24,7 @@ namespace EchoSphere.Runtime
                 _nativeCharacterState=ReadNativeCharacterState();_nativeCharacterWasActive=true;
                 _camera.cullingMask=0;
             }
-            _nativeCharacterScreen.Show(_nativeCharacterState,SourceDevicePixelRatio,()=>_mainMenuPage=MainMenuPage.Home,ChooseNativeCharacter,ExpandNativeCharacter);
+            _nativeCharacterScreen.Show(_nativeCharacterState,NativeSubmenuScale,()=>_mainMenuPage=MainMenuPage.Home,ChooseNativeCharacter,ExpandNativeCharacter);
             return true;
         }
         private void ChooseNativeCharacter(string id)

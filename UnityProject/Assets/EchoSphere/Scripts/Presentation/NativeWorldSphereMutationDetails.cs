@@ -43,6 +43,7 @@ namespace EchoSphere.Presentation
             var tail=QuadraticContour(Vector2.zero,false,P(-len*.35,-r*.82),P(-len*.86,-r*.12),P(-len,0),P(-len*.86,r*.12),P(-len*.35,r*.82),Vector2.zero);Paint(Dynamic(new[]{tail},fill:true),root,color,null,.17,inheritBlend:true);
             double inheritedWidth=Math.Max(1,r*.65);Paint(Dynamic(new[]{Line(-len*.88,0,-r*.10,0)},inheritedWidth),root,null,A(color,.80),.10,inheritBlend:true);Paint(Circle(r*1.65),root,color,null,.18,true);
             void Stroke(int id,double width,Func<BezierContour[]> create,Color? tint=null)=>Paint(Get(id,r,0,width,create),root,null,tint??color,1,true);
+            DrawProjectileInlay(surface,p,root,r);
             switch(p.Family){
                 case "standard":
                     Stroke(510,Math.Max(.7,r*.17),()=>new[]{Line(-r*.9,0,r*1.35,0)});Stroke(511,Math.Max(.7,r*.17),()=>new[]{EllipseContour(P(r*.22,0),(float)(r*.30),(float)(r*.30))});if(p.Branch=="standard_singularity")Paint(Circle(r*.62),root,C(5,2,11),null,1,true);if(p.Branch=="standard_swarm")for(int q=-1;q<=1;q++)MutationShard(surface,q*r*.42,0,r*.25,color,q*.2,.8,root,true);break;
@@ -56,6 +57,25 @@ namespace EchoSphere.Presentation
                     if(p.Branch=="void_hunger"){Paint(Circle(r*.68),root,C(8,3,15),null,1,true);MutationArc(surface,r*.42,color,.9,.2,5.4,.9,root,true);}else if(p.Branch=="void_reaper")MutationFin(surface,0,0,r*.95,r*.24,color,0,.9,root,true);else{Stroke(516,1,()=>new[]{Line(-r*.44,0,r*.9,0)});Stroke(517,1,()=>new[]{PolylineContour(false,P(r*.55,-r*.25),P(r*.9,0),P(r*.55,r*.25))});}break;
             }
 
+        }
+        private void DrawProjectileInlay(NativeWorldSurface surface,ProjectileView p,Matrix4x4 root,double r)
+        {
+            // Distinct energy heads; actual projectile count, trajectory and hits
+            // still come exclusively from the existing simulation agents.
+            int family=p.Family=="sniper"?1:p.Family=="shotgun"?2:p.Family=="prism"?3:p.Family=="void"?4:0;
+            var frame=root*Matrix4x4.Scale(Vector3.one*(float)r);
+            var head=Get(550+family,1,0,.10,()=>new[]{family==1?PolylineContour(true,P(2,0),P(.10,-.25),P(-1,-.13),P(-.40,0),P(-1,.13),P(.10,.25)):
+                family==2?PolylineContour(true,P(1.05,0),P(.12,-.53),P(-.72,-.30),P(-.44,0),P(-.72,.30),P(.12,.53)):
+                family==3?PolylineContour(true,P(1.35,0),P(0,-.60),P(-1,0),P(0,.60)):
+                family==4?PolylineContour(true,P(1.20,0),P(.20,-.38),P(-.62,-.17),P(-.31,0),P(-.62,.17),P(.20,.38)):
+                PolylineContour(true,P(1.25,0),P(.18,-.36),P(-.61,-.24),P(-.32,0),P(-.61,.24),P(.18,.36))},true);
+            void Draw(Art art,Color color,Mesh mesh)=>surface.DrawNativeMesh(mesh,_solid,Properties(color),frame,inheritShadow:false,additive:true);
+            surface.DrawNativeMesh(head.Fill,_solid,Properties(new Color(.018f,.035f,.065f,.82f)),frame,inheritShadow:false);
+            Draw(head,A(p.Color,.95),head.Stroke);
+            var rails=Get(560+family,1,0,.07,()=>new[]{PolylineContour(false,P(-1.02,-.31),P(-.18,-.44),P(.52,-.14)),PolylineContour(false,P(-1.02,.31),P(-.18,.44),P(.52,.14))});
+            Draw(rails,A(p.Color,.70),rails.Stroke);
+            var inlay=Get(570+family,1,0,0,()=>new[]{PolylineContour(true,P(family==1?1.55:.92,0),P(.08,-.09),P(-.38,0),P(.08,.09))},true);
+            Draw(inlay,new Color(.88f,.98f,1,.96f),inlay.Fill);
         }
         internal bool DrawChainLightning(NativeWorldSurface surface,double fromX,double fromY,double toX,double toY,Color color,string branch,double final,double alpha,double time)
         {

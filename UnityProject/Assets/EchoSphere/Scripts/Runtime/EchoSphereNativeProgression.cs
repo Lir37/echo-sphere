@@ -25,7 +25,7 @@ namespace EchoSphere.Runtime
 
                 _camera.cullingMask=0;
             }
-            _nativeProgressionScreen.Show(_nativeProgressionState,SourceDevicePixelRatio,BackFromNativeProgression,BuyNativeShopUpgrade);
+            _nativeProgressionScreen.Show(_nativeProgressionState,NativeSubmenuScale,BackFromNativeProgression,BuyNativeShopUpgrade);
             return true;
         }
         private void BackFromNativeProgression(){_mainMenuPage=MainMenuPage.Home;_nativeMenuModelVersion++;if(_sourceUi!=null)_sourceUi.Dirty=true;}

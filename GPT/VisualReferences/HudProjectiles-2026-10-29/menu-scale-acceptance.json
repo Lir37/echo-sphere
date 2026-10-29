@@ -1,0 +1,1 @@
+{"result":"PASS","checks":32,"pages":["Home","Characters","Shop","Leaderboard","Achievements","Knowledge","Settings","Region"],"factor":0.86,"scope":"Actual runtime menu panel scales; home unchanged, no clicks/profile actions"}

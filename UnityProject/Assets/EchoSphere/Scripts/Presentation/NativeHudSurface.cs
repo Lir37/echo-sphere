@@ -12,7 +12,7 @@ namespace EchoSphere.Presentation
         private NativeMenuBrushCache.Entry _skin;
         private NativeMenuBrush.Paint _paint;
         private float _width=-1,_height=-1,_scale=-1;
-        private bool _dirty=true,_visible=true;
+        private bool _dirty=true,_visible=true;private uint _textureVersion;
         internal static uint PaintVersion {get;private set;}
         internal VisualElement Host=>_host;
         internal static bool InViewport(VisualElement element,float margin=64)
@@ -34,15 +34,18 @@ namespace EchoSphere.Presentation
         internal void SetVisible(bool visible){_visible=visible;_image.style.display=visible?DisplayStyle.Flex:DisplayStyle.None;}
         internal void Prepare(float scale)
         {
+            NativeMenuBrushCache.Maintain();
             var w=_host.layout.width;var h=_host.layout.height;
             float margin=Mathf.Max(ShadowMargin(_paint.OuterA),ShadowMargin(_paint.OuterB));
             if(!_visible||w<=0||h<=0||!float.IsFinite(w+h)||!InViewport(_host,margin)){_image.style.visibility=Visibility.Hidden;return;}
             _image.style.visibility=Visibility.Visible;
             _image.style.display=DisplayStyle.Flex;
+            if(_skin!=null){_skin.Brush.RestoreIfLost();if(_textureVersion!=_skin.Brush.TextureVersion){
+                _image.image=null;_image.image=_skin.Brush.Texture;_textureVersion=_skin.Brush.TextureVersion;_image.MarkDirtyRepaint();}}
             if(!_dirty&&w==_width&&h==_height&&scale==_scale)return;
             var old=_skin;_skin=NativeMenuBrushCache.Acquire(w,h,scale,_paint);_width=w;_height=h;_scale=scale;_dirty=false;
             PaintVersion++;
-            _image.image=_skin.Brush.Texture;var b=_skin.Brush.Bounds;NativeMenuBrushCache.Release(old);
+            _image.image=_skin.Brush.Texture;_textureVersion=_skin.Brush.TextureVersion;var b=_skin.Brush.Bounds;NativeMenuBrushCache.Release(old);
             // An absolute child uses its parent's padding box origin (inside border).
             _image.style.left=b.x-_host.resolvedStyle.borderLeftWidth;_image.style.top=b.y-_host.resolvedStyle.borderTopWidth;
             _image.style.width=b.width;_image.style.height=b.height;_image.style.display=DisplayStyle.Flex;

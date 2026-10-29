@@ -1,0 +1,1 @@
+{"result":"PASS","checks":1700,"characters":10,"directions":4,"trailSamples":18,"fadeSeconds":0.38,"scope":"Native body matrices never mirror/turn with motion; trail appears, fades at rest, resets at teleport and uses no blur; live scene untouched"}

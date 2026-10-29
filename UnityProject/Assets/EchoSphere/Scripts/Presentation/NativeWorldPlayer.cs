@@ -29,8 +29,14 @@ namespace EchoSphere.Presentation
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();private int _used;
         private readonly List<Art> _dynamic=new List<Art>();private int _dynamicUsed;
         private struct TrailSample {internal double X,Y,Time;}
-        private readonly TrailSample[] _trail=new TrailSample[6];
-        private int _trailHead,_trailCount;
+        private readonly TrailSample[] _trail=new TrailSample[18];
+        private int _trailHead,_trailCount,_cometPointCount;
+        private Mesh _cometMesh;private Material _cometMaterial;
+        private readonly MaterialPropertyBlock _cometProperties=new MaterialPropertyBlock();
+        private readonly List<Vector3> _cometVertices=new List<Vector3>(38);
+        private readonly List<Vector2> _cometUvs=new List<Vector2>(38);
+        private readonly List<Color> _cometColors=new List<Color>(38);
+        private readonly List<int> _cometTriangles=new List<int>(108);
         private string _trailCharacter;
         private double _lastX,_lastY,_lastTime=-1;
         private NativeWorldSurface _surface;
@@ -83,19 +89,28 @@ namespace EchoSphere.Presentation
         private void DrawMovementTrail(State p)
         {
             double dx=p.X-_lastX,dy=p.Y-_lastY,dt=p.Time-_lastTime;
-            bool discontinuity=_lastTime<0||_trailCharacter!=p.Character||dt<0||dt>.30||dx*dx+dy*dy>p.Radius*p.Radius*36;
+            bool discontinuity=_lastTime<0||_trailCharacter!=p.Character||dt<0||dt>.50||dx*dx+dy*dy>p.Radius*p.Radius*36;
             if(discontinuity||p.Hp<=0){_trailCount=0;_trailHead=0;}
             else if(dt>0&&dx*dx+dy*dy>.01){
                 _trail[_trailHead]=new TrailSample{X=_lastX,Y=_lastY,Time=p.Time};
                 _trailHead=(_trailHead+1)%_trail.Length;_trailCount=Math.Min(_trailCount+1,_trail.Length);
             }
             _lastX=p.X;_lastY=p.Y;_lastTime=p.Time;_trailCharacter=p.Character;
-            for(int i=0;i<_trailCount;i++){
-                var sample=_trail[(_trailHead-_trailCount+i+_trail.Length)%_trail.Length];
-                double age=p.Time-sample.Time;if(age<0||age>=.18)continue;
-                double fade=1-age/.18,size=p.Radius*(.16+.15*fade);
-                Paint(Circle(1),T(sample.X,sample.Y-p.Radius*.10,sx:size,sy:size),A(p.Color,.065*fade*fade),null,shadow:Color.clear,additive:true);
+            bool active=false;for(int i=0;i<_trailCount;i++){var sample=_trail[(_trailHead-_trailCount+i+_trail.Length)%_trail.Length];if(p.Time-sample.Time<.38)active=true;}
+            if(!active)return;
+            if(_cometMesh==null){_cometMesh=new Mesh{name="Retained player comet ribbon"};_cometMesh.MarkDynamic();_cometMaterial=new Material(Resources.Load<Shader>("EchoSphere/NativeCharacterCometTrail")){name="Player comet trail",hideFlags=HideFlags.DontSave};}
+            TrailSample Point(int i)=>i==_trailCount?new TrailSample{X=p.X,Y=p.Y,Time=p.Time}:_trail[(_trailHead-_trailCount+i+_trail.Length)%_trail.Length];
+            _cometVertices.Clear();_cometUvs.Clear();_cometColors.Clear();int count=_trailCount+1;
+            for(int i=0;i<count;i++){
+                var at=Point(i);var before=Point(Math.Max(0,i-1));var after=Point(Math.Min(count-1,i+1));
+                double tx=after.X-before.X,ty=after.Y-before.Y,length=Math.Sqrt(tx*tx+ty*ty);if(length<.0001){tx=1;ty=0;length=1;}
+                double fade=Math.Max(0,1-(p.Time-at.Time)/.38),width=p.Radius*(.08+.32*fade);var tint=A(p.Color,.14*fade*fade);
+                for(int side=-1;side<=1;side+=2){_cometVertices.Add(new Vector3((float)(at.X-ty/length*width*side),(float)(at.Y-p.Radius*.10+tx/length*width*side),0));_cometUvs.Add(new Vector2(i/(float)Math.Max(1,count-1),side<0?0:1));_cometColors.Add(tint);}
             }
+            bool topology=count!=_cometPointCount;if(topology)_cometMesh.Clear();
+            _cometMesh.SetVertices(_cometVertices);_cometMesh.SetUVs(0,_cometUvs);_cometMesh.SetColors(_cometColors);
+            if(topology){_cometTriangles.Clear();for(int i=0;i<count-1;i++){int v=i*2;_cometTriangles.Add(v);_cometTriangles.Add(v+1);_cometTriangles.Add(v+2);_cometTriangles.Add(v+2);_cometTriangles.Add(v+1);_cometTriangles.Add(v+3);}_cometMesh.SetTriangles(_cometTriangles,0);_cometPointCount=count;}
+            _cometMesh.RecalculateBounds();_surface.DrawNativeMesh(_cometMesh,_cometMaterial,_cometProperties,inheritShadow:false,additive:true);
         }
         // UI sprites are generated in Editor from the exact live body, without
         // ground/contact/status effects or the run-time bob/death pose.
@@ -117,6 +132,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){_contours.Dispose();foreach(var art in _art.Values)art.Dispose();_art.Clear();foreach(var art in _dynamic)art.Dispose();_dynamic.Clear();Destroy(_solid);Destroy(_core);}
+        public void Dispose(){_contours.Dispose();foreach(var art in _art.Values)art.Dispose();_art.Clear();foreach(var art in _dynamic)art.Dispose();_dynamic.Clear();Destroy(_solid);Destroy(_core);Destroy(_cometMesh);Destroy(_cometMaterial);}
     }
 }

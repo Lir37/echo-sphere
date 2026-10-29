@@ -13,8 +13,6 @@ namespace EchoSphere.Presentation
             internal double X,Y,Rotation,Time,Scale;
             internal bool Disabled,Resonance,AttackActive;
             internal string Family;
-            internal Color PrismElement;
-            internal bool HasPrismElement;
         }
         private sealed class Art : IDisposable
         {

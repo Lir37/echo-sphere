@@ -69,3 +69,5 @@ Recovery пользователя и прежние артефакты не чи
   сохранив игровые контрактные проверки; повторить build dependency audit.
 - Editor20 tutorial/бой/home циклов и GPU comparisons выполнены; они не
   заменяют перечисленную приёмку. Общий план не помечен DONE.
+
+2026-10-29: UI skins имеют3-frame retirement и generation-based восстановление потерянногоRT;вторичные меню scale0.86DPR. Player comet — собственная retained38-vertex mesh/материал,не игровая частица. Призма primary color больше не берётся из elemental status. См.UNITY_HUD_PROJECTILES_MUTATIONS_2026-10-29.md.
