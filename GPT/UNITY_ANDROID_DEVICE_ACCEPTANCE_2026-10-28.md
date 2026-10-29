@@ -519,3 +519,18 @@ VisualReferences/SphereStyle-2026-10-29/UnityImplemented,это реальные
 APK готовится после Editor-проверок по последнему указанию пользователя;телефон
 подключит по возвращении. Установка/Android performance этой проверкой не закрыты.
 Открытые pause/freeze/font-first-upgrade наблюдения сохраняются.
+
+2026-10-29 — APK всех семейств готов.
+Код:78aec65e1d15a986df41a93739bb931c9d126896,CI #918 SUCCESS:
+https://github.com/Lir37/echo-sphere/actions/runs/40870178489
+ECHO-SPHERE-78aec65e-TEST-LEVELUP-2026-10-29.apk скопирован в Downloads.
+Build Succeeded,0errors/6warnings,208.28s,78857296bytes,IL2CPP ARMv7+ARM64,
+BuildOptions.None;это обычная сборка с ECHO_SPHERE_TEST_CONTROLS (Уровень +),
+не Development/debuggable. Подпись APK v2 проверена. Stripped player assembly:
+новые MechanismBuilder/NativeDebugLevelUp присутствуют,старый MutationRig отсутствует.
+SHA256:225d710ed66860e384bd59122cafbca6e582830c2817999b395bddae0d5ae149.
+Телефон не трогали;установка и визуальная приёмка новых7семейств ещё не выполнены.
+Перед будущей проверкой создать свежую копию текущего сохранения телефона.
+Исходные локальные QualitySettings и Recovery7/8/9 сохранены;только созданные этой
+сборкой compile_commands перенесены в внешнюю backup-копию и восстановлены из HEAD.
+FPS/GC не измерялись;открытые pause/freeze/font-first-upgrade вопросы остаются.
