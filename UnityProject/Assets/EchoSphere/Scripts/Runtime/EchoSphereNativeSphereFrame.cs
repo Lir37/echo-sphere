@@ -59,7 +59,7 @@ namespace EchoSphere.Runtime
   }
   private void DrawRetainedSphereWeapon(NativeSphereVisual sphere,double time,double radius)
   {
-   WorldPresentation.SphereWeapons.Draw(_worldSurface,new NativeWorldSphereWeapons.State{Identity=sphere.Identity,Family=sphere.Family,Branch=sphere.Branch,Final=(int)sphere.Final,X=sphere.X,Y=sphere.Y,Radius=radius,Rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,Time=time,AttackDelay=sphere.AttackDelay,ShotSerial=sphere.Identity.PresentationShotSerial,Disabled=sphere.DisabledTimer>0||!sphere.Alive,Resonance=sphere.Resonance});
+   WorldPresentation.SphereWeapons.Draw(_worldSurface,new NativeWorldSphereWeapons.State{Family=sphere.Family,Branch=sphere.Branch,Final=(int)sphere.Final,X=sphere.X,Y=sphere.Y,Radius=radius,Rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,Time=time,AttackDelay=sphere.AttackDelay,ShotSerial=sphere.Identity.PresentationShotSerial,ShotTime=sphere.Identity.PresentationShotTime,Disabled=sphere.DisabledTimer>0||!sphere.Alive,Resonance=sphere.Resonance});
   }
   private void DrawNativeSphereDisabled(NativeSphereVisual sphere,double time)=>_nativeWorldCreatures.DrawDisabledNetwork(_worldSurface,double.IsNaN(sphere.DisabledTimer)?0:sphere.DisabledTimer,2,time);
  }

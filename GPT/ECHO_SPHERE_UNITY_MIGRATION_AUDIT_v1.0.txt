@@ -6068,3 +6068,5 @@ Recovery7/8 сохранены. Последующий отчётный commit �
 этим небольшим пользовательским изменением представления.
 
 2026-10-29: Standard/Sniper/Shotgun — retained механические орудия,39rigs,движение деталей от реального выстрела,без scale-анимации; тестовая кнопка уровня включается define в APK. Actual Editor6624checks,UI288cases13356checks,реальный shot event33checks PASS. Подробности/статус APK/CI: UNITY_NATIVE_MODERNIZATION_PROGRESS.md и UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.
+
+2026-10-29 follow-up: исправлены неподвижные детали/слишком слабая анимация и пропуск события при render gap>150ms. PresentationShotTime исключён из save; все611деталей39rigs движутся rigid. 27финаловVII богаче IV минимумна6деталей. Actual Unity11005checks+35regressions PASS; устройство сейчас недоступно. Итоги APK/CI в UNITY_NATIVE_MODERNIZATION_PROGRESS.md.

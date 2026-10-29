@@ -46,6 +46,8 @@ namespace EchoSphere.Runtime
         // Presentation signal only: an empty cadence is not an attack. Never saved.
         private bool _presentationAttackActive;
         private uint _presentationShotSerial;
+        private float _presentationShotTime = float.NegativeInfinity;
+        public float PresentationShotTime => _presentationShotTime;
         public uint PresentationShotSerial => _presentationShotSerial;
         public bool PresentationAttackActive => _presentationAttackActive;
         private float _presentationAimRotation;
@@ -120,6 +122,7 @@ namespace EchoSphere.Runtime
             _attackTimer = 0f;
             _presentationAttackActive = false;
             _presentationShotSerial = 0;
+            _presentationShotTime = float.NegativeInfinity;
             _presentationAimValid = false;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
             Color tint;
@@ -265,7 +268,7 @@ namespace EchoSphere.Runtime
             }
 
             _presentationAttackActive = target != null || _type == SphereId.Aura || _type == SphereId.Gravity || _type == SphereId.Pulse;
-            if (_presentationAttackActive) unchecked { _presentationShotSerial++; }
+            if (_presentationAttackActive) { unchecked { _presentationShotSerial++; } _presentationShotTime = _runtime.CurrentRunTime; }
             if (triggeredEngineerRelay) _runtime.TriggerEngineerRelay(this);
             if (target != null && (_type == SphereId.Standard || _type == SphereId.Sniper || _type == SphereId.Shotgun || _type == SphereId.Chain || _type == SphereId.Void)) SourceAudio2D.Play("shoot");
             _attackTimer = GetSourceCadenceInterval();

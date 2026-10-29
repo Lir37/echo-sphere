@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using static EchoSphere.Presentation.NativeWorldShapes;
 
@@ -12,14 +11,12 @@ namespace EchoSphere.Presentation
     {
         internal struct State
         {
-            internal object Identity;
             internal string Family,Branch;
             internal int Final;
-            internal double X,Y,Radius,Rotation,Time,AttackDelay;
+            internal double X,Y,Radius,Rotation,Time,AttackDelay,ShotTime;
             internal uint ShotSerial;
             internal bool Disabled,Resonance;
         }
-        private sealed class Clock {internal uint Serial;internal double Started=double.NegativeInfinity,Seen;}
         private sealed class Part : IDisposable
         {
             internal Mesh Fill,Stroke,Halo;
@@ -35,7 +32,6 @@ namespace EchoSphere.Presentation
             public void Dispose(){foreach(var part in Parts)part.Dispose();}
         }
         private readonly Dictionary<(string,string,int),Rig> _rigs=new Dictionary<(string,string,int),Rig>();
-        private readonly ConditionalWeakTable<object,Clock> _clocks=new ConditionalWeakTable<object,Clock>();
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();
         private readonly Material _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Retained sphere mechanical parts",hideFlags=HideFlags.DontSave};
         private int _used;
@@ -56,19 +52,17 @@ namespace EchoSphere.Presentation
         {
             float value=part.Channel==0?0:Pulse(age,duration,part.Channel,part.Delay);
             float recoil=part.Recoil==0?0:Pulse(age,duration,1,0)*part.Recoil;
-            return T(part.Rest.x+part.Slide.x*value-recoil,part.Rest.y+part.Slide.y*value,part.Angle+part.Swing*value);
+            return T(part.Rest.x+part.Slide.x*value*2.2-recoil*1.8,part.Rest.y+part.Slide.y*value*2.2,part.Angle+part.Swing*value*2.2);
         }
         internal void Draw(NativeWorldSurface surface,State state)
         {
             if(state.Family!="standard"&&state.Family!="sniper"&&state.Family!="shotgun")throw new ArgumentException("Unsupported retained weapon family");
             string branch=state.Branch??"";int final=branch.Length==0?-1:Math.Max(-1,Math.Min(2,state.Final));var key=(state.Family,branch,final);
             if(!_rigs.TryGetValue(key,out var rig)){rig=Build(state.Family,branch,final);_rigs.Add(key,rig);}
-            double age=double.PositiveInfinity,duration=Math.Min(.30,Math.Max(.10,state.AttackDelay*.32));
-            if(state.Identity!=null){
-                if(!_clocks.TryGetValue(state.Identity,out var clock)){clock=new Clock{Serial=state.ShotSerial,Seen=state.Time};_clocks.Add(state.Identity,clock);}
-                if(clock.Serial!=state.ShotSerial){if(state.Time-clock.Seen<=.15)clock.Started=state.Time;clock.Serial=state.ShotSerial;}
-                clock.Seen=state.Time;age=state.Time-clock.Started;
-            }
+            // Use the simulation's actual shot time. A slow render frame must not
+            // discard an attack, and returning to view must not replay an old one.
+            double duration=Math.Min(.48,Math.Max(.28,state.AttackDelay*.65));
+            double age=state.ShotSerial==0?double.PositiveInfinity:Math.Max(0,state.Time-state.ShotTime);
             if(state.Disabled)age=double.PositiveInfinity;
             var root=T(state.X,state.Y,state.Rotation)*Matrix4x4.Scale(Vector3.one*(float)state.Radius);
             var dark=C("#030b17");float opacity=state.Disabled?.22f:1;
@@ -86,6 +80,11 @@ namespace EchoSphere.Presentation
             var accent=C(branch.EndsWith("resonator",StringComparison.Ordinal)||branch.EndsWith("assassin",StringComparison.Ordinal)||branch.EndsWith("burst",StringComparison.Ordinal)?"#ff9c62":branch.EndsWith("swarm",StringComparison.Ordinal)||branch.EndsWith("oracle",StringComparison.Ordinal)||branch.EndsWith("cataclysm",StringComparison.Ordinal)?"#9ce6bf":"#d9f6ff");
             Part Add(Unity.VectorGraphics.BezierContour path,bool fill,Color color,Vector2 rest=default,int channel=0,Vector2 slide=default,float swing=0,float recoil=0,float delay=0,float angle=0,float width=.033f)
             {
+                // Even collars and housing are articulated: no ornamental part
+                // silently remains static while the carriage fires.
+                if(channel==0){channel=4;slide=new Vector2(-.065f,rest.y==0?0:Mathf.Sign(rest.y)*.035f);swing=rest.y==0?.16f:Mathf.Sign(rest.y)*.16f;}
+                if(slide.sqrMagnitude<.0001f&&Mathf.Abs(recoil)<.001f){recoil=.085f;}
+                recoil=Math.Max(.065f,recoil);
                 var part=new Part{Color=color,Rest=rest,Channel=channel,Slide=slide,Swing=swing,Recoil=recoil,Delay=delay,Angle=angle};
                 if(fill)part.Fill=Tessellate(path,0);
                 part.Stroke=Tessellate(path,width,cap:Unity.VectorGraphics.PathEnding.Round,corners:Unity.VectorGraphics.PathCorner.Round);
@@ -105,7 +104,7 @@ namespace EchoSphere.Presentation
             Arc(.79f,0,.075f,.18f,Mathf.PI*.48f,Mathf.PI*1.52f);
             Arc(.87f,0,.06f,.145f,Mathf.PI*.48f,Mathf.PI*1.52f,white);
             if(family=="standard"){
-                Housing();Rail(-.105f);Rail(.105f);PairFins();
+                Housing(recoil:.11f);Rail(-.105f,.43f,.13f);Rail(.105f,.43f,.08f);PairFins(swing:.24f);
                 if(branch=="standard_resonator"){
                     Plate(1.03f,0,.07f,.30f,2,dx:-.025f,color:accent);
                     if(final==0){Arc(1.35f,0,.09f,.22f,-1.3f,1.3f,accent,2,dx:.025f);Arc(1.27f,0,.07f,.20f,-1.3f,1.3f,primary,2,dx:-.025f);}
@@ -156,6 +155,85 @@ namespace EchoSphere.Presentation
                     for(int i=0;i<count;i++){float a=i*Mathf.PI*2/count;Plate(1.26f+Mathf.Cos(a)*.14f,Mathf.Sin(a)*.20f,.065f,.035f,2,dx:Mathf.Cos(a)*.025f,dy:Mathf.Sin(a)*.035f,swing:Mathf.Sin(a)*.12f,angle:a);}
                     if(final==1){Plate(1.02f,-.27f,.15f,.04f,3,dy:-.025f);Plate(1.02f,.27f,.15f,.04f,3,dy:.025f);}
                     if(final==2){Fin(1.05f,-.24f,1,.31f,2,-.20f,accent);Fin(1.05f,.24f,-1,.31f,2,-.20f,accent);}
+                }
+            }
+            if(final>=0){
+                void Slats(float x,float y,int count,float step=.085f,float angle=0){for(int i=0;i<count;i++)Plate(x+i*step,y,.045f,.11f,3,dx:-.065f,dy:y>0?.03f:-.03f,swing:y>0?.12f:-.12f,color:i%2==0?accent:white,angle:angle);}
+                void Petals(float x,float rx,float ry,int count,float begin=0,float sweep=Mathf.PI*2){for(int i=0;i<count;i++){float a=begin+(i+.5f)*sweep/count;Plate(x+Mathf.Cos(a)*rx,Mathf.Sin(a)*ry,.105f,.055f,2,dx:Mathf.Cos(a)*.06f,dy:Mathf.Sin(a)*.06f,swing:Mathf.Sin(a)*.28f,color:i%2==0?accent:white,angle:a);}}
+                void Cheek(float x,float y,int sign,float length=.32f){Fin(x,y,sign,length,2,sign*.28f,accent,dx:-.035f);Plate(x+.10f,y-sign*.045f,.17f,.035f,3,dx:-.06f,dy:-sign*.03f,color:white,angle:-sign*.18f);}
+                switch(branch){
+                    case "standard_resonator":
+                        if(final==0){ // Impulse: nested pulse forks and charged side capacitors.
+                            Arc(1.43f,0,.16f,.31f,-1.35f,1.35f,white,2,dx:.065f);Slats(.99f,-.29f,3);Slats(.99f,.29f,3);
+                        }else if(final==1){ // Rebound: wide counter-thrust vanes, paired pistons.
+                            Cheek(.92f,-.29f,1,.39f);Cheek(.92f,.29f,-1,.39f);Plate(1.15f,-.34f,.28f,.055f,1,recoil:.13f,color:white);Plate(1.15f,.34f,.28f,.055f,1,recoil:.10f,color:white);
+                        }else{ // Suppression: alternating teeth and braking shutters.
+                            Slats(1.03f,-.28f,4,.10f,.25f);Slats(1.03f,.28f,4,.10f,-.25f);Arc(1.45f,0,.08f,.30f,-1.15f,1.15f,white,2,dx:-.065f);
+                        }break;
+                    case "standard_singularity":
+                        if(final==0){ // Compression: contracting six-part iris.
+                            Petals(1.30f,.22f,.30f,6);Arc(1.30f,0,.17f,.24f,-1.3f,1.3f,white,2,dx:-.07f);
+                        }else if(final==1){ // Stasis: squared restraining cage.
+                            for(int sign=-1;sign<=1;sign+=2){Plate(1.20f,sign*.32f,.42f,.045f,2,dy:-sign*.06f,color:accent);Slats(1.04f,sign*.25f,3);Plate(1.48f,sign*.18f,.055f,.24f,2,dy:-sign*.05f,color:white);}
+                        }else{ // Collapse: three inward claws around the focus.
+                            Petals(1.31f,.24f,.32f,3,-Mathf.PI/3);Arc(1.31f,0,.23f,.31f,-1.2f,1.2f,accent,2,dx:-.085f);Disc(1.31f,0,.045f,white,4,dx:-.08f);Cheek(1.01f,-.28f,-1);Cheek(1.01f,.28f,1);
+                        }break;
+                    case "standard_swarm":
+                        if(final==0){ // One hunter shard with angular guidance fins.
+                            Add(Poly(P(-.10f,0),P(.05f,-.085f),P(.22f,0),P(.05f,.085f)),true,white,P(1.47f,0),1,recoil:.15f);Cheek(1.07f,-.29f,1,.38f);Cheek(1.07f,.29f,-1,.38f);Disc(1.01f,0,.07f,accent,4,dx:-.065f);Arc(1.05f,0,.12f,.25f,-2.6f,2.6f,accent,4,dx:-.06f);
+                        }else if(final==1){ // Crossfire: two visibly divergent launch tracks.
+                            for(int sign=-1;sign<=1;sign+=2){Plate(1.32f,sign*.30f,.40f,.06f,1,recoil:sign>0?.12f:.08f,color:white,angle:sign*.30f);Fin(1.07f,sign*.31f,-sign,.39f,2,-sign*.30f,accent);Disc(.99f,sign*.22f,.045f,white,3,dy:sign*.06f);}
+                        }else{ // Web: three fan channels and serrated side magazines.
+                            for(int i=-1;i<=1;i++)Plate(1.40f,i*.25f,.33f,.045f,1,recoil:.11f+i*.025f,color:white,angle:i*.32f);Slats(.99f,-.35f,3);Slats(.99f,.35f,3);
+                        }break;
+                    case "sniper_oracle":
+                        if(final==0){ // Critical focus: nested optic and focusing jaws.
+                            Petals(1.07f,.24f,.28f,4,Mathf.PI/4);Arc(1.07f,0,.19f,.24f,-2.6f,2.6f,white,4,dx:-.065f);Plate(1.44f,0,.24f,.035f,1,recoil:.14f,color:white);
+                        }else if(final==1){ // Resonance: paired conductive diamonds and pickup coils.
+                            for(int sign=-1;sign<=1;sign+=2){Add(Poly(P(-.11f,0),P(0,-.07f),P(.11f,0),P(0,.07f)),true,accent,P(1.10f,sign*.29f),3,P(-.06f,sign*.04f),sign*.2f);Slats(1.27f,sign*.23f,3,.07f);}
+                        }else{ // Explosive critical: segmented radial charge crown.
+                            Petals(1.07f,.28f,.33f,7,-2.4f,4.8f);Arc(1.07f,0,.22f,.28f,-1.2f,1.2f,white,2,dx:.06f);
+                        }break;
+                    case "sniper_assassin":
+                        if(final==0){ // Execution: closing paired execution hooks.
+                            Cheek(1.10f,-.28f,-1,.42f);Cheek(1.10f,.28f,1,.42f);Plate(1.47f,-.11f,.14f,.045f,1,recoil:.15f,color:white,angle:.35f);Plate(1.47f,.11f,.14f,.045f,1,recoil:.15f,color:white,angle:-.35f);
+                        }else if(final==1){ // Sentence: parallel locking blades and rear feed.
+                            for(int sign=-1;sign<=1;sign+=2){Add(Poly(P(-.22f,-.025f),P(.12f,-.055f),P(.29f,0),P(.12f,.055f),P(-.22f,.025f)),true,white,P(1.26f,sign*.25f),1,P(0,sign*.04f),sign*.12f,recoil:.12f);Slats(.91f,sign*.31f,3,.07f);}
+                        }else{ // Blood trail: swept feather vanes around the hunter focus.
+                            for(int sign=-1;sign<=1;sign+=2){Cheek(.99f,sign*.26f,-sign,.41f);Fin(1.19f,sign*.30f,-sign,.29f,3,-sign*.25f,white,dx:-.07f);}Disc(1.44f,0,.065f,accent,4,dx:-.08f);
+                        }break;
+                    case "sniper_beacon":
+                        if(final==0){ // Anchor: hooked stabilizers and gripping front prongs.
+                            for(int sign=-1;sign<=1;sign+=2){Plate(1.25f,sign*.31f,.42f,.05f,2,dy:-sign*.065f,color:white);Plate(1.46f,sign*.24f,.06f,.19f,2,dy:-sign*.06f,color:accent);Disc(1.03f,sign*.24f,.055f,accent,3,dy:sign*.045f);}
+                        }else if(final==1){ // Spotlight: split reflecting dish, three radial ribs.
+                            for(int sign=-1;sign<=1;sign+=2){Arc(1.06f,sign*.17f,.34f,.21f,sign<0?-2.8f:.25f,sign<0?-.25f:2.8f,white,2,dy:sign*.055f,swing:sign*.25f);Slats(.94f,sign*.32f,3,.08f);}
+                        }else{ // Network: linked triangular signal nodes, not a new projectile.
+                            for(int i=0;i<3;i++){float a=i*Mathf.PI*2/3;float x=1.12f+Mathf.Cos(a)*.27f,y=Mathf.Sin(a)*.33f;Arc(x,y,.075f,.075f,0,Mathf.PI*1.8f,white,4,dx:-.055f,dy:Mathf.Sin(a)*.045f);Plate((x+1.12f)*.5f,y*.5f,.23f,.035f,3,dx:-.07f,color:accent,angle:a);}Cheek(.98f,-.29f,1);Cheek(.98f,.29f,-1);
+                        }break;
+                    case "shotgun_burst":
+                        if(final==0){ // Close-range: three sliding pumps and spread vanes.
+                            for(int i=-1;i<=1;i++)Plate(1.42f,i*.23f,.22f,.085f,1,recoil:.18f+Math.Abs(i)*.025f,color:white,angle:i*.18f);Cheek(.96f,-.31f,1);Cheek(.96f,.31f,-1);
+                        }else if(final==1){ // Siege: reinforced breech and braced counterweights.
+                            Slats(.97f,-.30f,4,.09f,.3f);Slats(.97f,.30f,4,.09f,-.3f);Plate(1.43f,-.15f,.10f,.19f,1,recoil:.20f,color:white);Plate(1.43f,.15f,.10f,.19f,1,recoil:.20f,color:white);
+                        }else{ // Impact: twin shock forks and flared side kickers.
+                            Arc(1.42f,0,.15f,.34f,-1.3f,1.3f,white,2,dx:.08f);Cheek(1.01f,-.31f,-1,.40f);Cheek(1.01f,.31f,1,.40f);Slats(1.08f,-.25f,2);Slats(1.08f,.25f,2);
+                        }break;
+                    case "shotgun_cataclysm":
+                        if(final==0){ // Shatter: six independently opening fragment pods.
+                            Petals(1.28f,.25f,.34f,6);Slats(.96f,-.29f,2);Slats(.96f,.29f,2);
+                        }else if(final==1){ // Heavy impact: large paired pistons with segmented armour.
+                            for(int sign=-1;sign<=1;sign+=2){Plate(1.19f,sign*.32f,.41f,.085f,1,recoil:.18f,color:white);Disc(.99f,sign*.32f,.055f,accent,3,dx:-.075f);Plate(1.46f,sign*.22f,.065f,.17f,2,dy:sign*.06f,color:accent);}Arc(1.40f,0,.13f,.24f,-1.3f,1.3f,white,1,dx:-.08f);
+                        }else{ // Holding blast: hooked containment cage around heavy charge.
+                            for(int sign=-1;sign<=1;sign+=2){Cheek(1.03f,sign*.31f,sign,.42f);Plate(1.48f,sign*.22f,.055f,.23f,2,dy:-sign*.07f,color:white);Slats(1.14f,sign*.29f,2,.09f);}Disc(1.27f,0,.045f,white,4,dx:-.08f);
+                        }break;
+                    case "shotgun_hail":
+                        if(final==0){ // Fragment fan: staggered shutters around six exits.
+                            for(int i=-1;i<=1;i++){Plate(1.47f,i*.21f,.16f,.05f,1,recoil:.14f+i*.03f,color:white,angle:i*.25f);Plate(1.08f+i*.10f,-.31f,.07f,.10f,3,dx:-.07f,color:accent);Plate(1.08f+i*.10f,.31f,.07f,.10f,3,dx:-.07f,color:accent);}
+                        }else if(final==1){ // Dense hail: twin stacked magazines and alternating feed.
+                            Slats(.95f,-.33f,5,.10f);Slats(.95f,.33f,5,.10f);Plate(1.49f,-.14f,.13f,.09f,1,recoil:.18f,color:white);Plate(1.49f,.14f,.13f,.09f,1,recoil:.13f,color:white);
+                        }else{ // Hunter: three steering tracks and swept guidance wings.
+                            for(int i=-1;i<=1;i++){Plate(1.44f,i*.25f,.31f,.045f,2,dx:-.07f,dy:i*.04f,swing:i*.18f,color:white,angle:i*.35f);}Cheek(.99f,-.32f,1,.42f);Cheek(.99f,.32f,-1,.42f);
+                        }break;
                 }
             }
             return rig;

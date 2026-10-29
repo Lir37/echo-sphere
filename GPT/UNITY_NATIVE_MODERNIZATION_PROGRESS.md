@@ -2325,3 +2325,35 @@ preflight/provenance и Node272tests PASS. Console0errors/0warnings до build.
 17keys/XML147783bytes, SHA2569140c60a21b6c9dd40f70868f59ac1284002e22de30600b75f82ff7db86e5fe3.
 Сборка/проверка APK и возврат этой копии фиксируются отдельно после исполнения.
 Прежние открытые freeze3:29/pause-performance/font-first-upgrade не считаются исправленными.
+
+
+2026-10-29 — отзыв APK8dc8a267: усиление механической анимации и различий VII.
+Причины подтверждены в коде: Channel0 у декоративных деталей, Housing Standard
+с нулевой отдачей, субпиксельные смещения и отбрасывание shot event после gap>150ms.
+Теперь SphereAttackAgent сообщает точный PresentationShotTime; рендер читает возраст
+последнего реального выстрела напрямую. Нет зависимости от частоты вызовов Draw,
+нет replay старой атаки при возвращении объекта. Timestamp исключён из snapshot.
+Все детали получают отдельный ход/отдачу и/или поворот; амплитуда увеличена,
+длительность280–480ms вместо100–300ms. Только rigid pose, без изменения размера.
+VII: 27 финалов дополнены отдельными диафрагмами, рамами, направляющими,
+контрпоршнями, фокусирующими/сигнальными узлами по существующим механикам.
+Каждый финал имеет минимум6 дополнительных деталей относительно своего IV.
+Ядра/орбиты, баланс, частота выстрелов, RNG и формат сохранений прежние.
+
+Actual Unity Play/GPU:11005checks PASS,39rigs/611parts; проверено движение каждой
+детали >=0.055 радиуса, determinant/axes без scale, покой/возврат, gap240ms,
+неизменность warmed geometry и выраженное отличие каждого VII от IV при r24.
+Source attack/save/pause regression35checks PASS. Core12462assertions и47389parity
+PASS; preflight/provenance PASS. Пять C#profiles0errors/warnings. Editor prefs10keys
+восстанавливаются после завершения проверки. PNG mechanical-*-unity.png и
+mechanical-moving-parts-unity.png — реальные GPU-captures в external user-feedback.
+Новый телефонный тест не выполнен: USB device отсутствует. APKTEST-LEVELUP собирается
+без Development overhead; результаты build/CI записываются после завершения.
+
+Предыдущий8dc8a267 APK успешно собран:78887392bytes,301.92s,0errors/7warnings,
+IL2CPP ARM64+ARMv7,BuildOptions.None,extra define ECHO_SPHERE_TEST_CONTROLS,
+SHA25635696A49CD8D497D9C3747F44E3D34E5ED7C85912A2AD0BA904665BD107CF3B8.
+На11T «Уровень +» открыл обычный выбор и4→5. После проверки XML17keys147783bytes
+восстановлен byte-for-byte до теста,hash9140c60a21b6c9dd40f70868f59ac1284002e22de30600b75f82ff7db86e5fe3;
+USBawake0,приложение остановлено,8dc8a267test APK установлен без запуска. CI913SUCCESS.
+Это историческая проверка кнопки, не приёмка нынешней усиленной анимации.
