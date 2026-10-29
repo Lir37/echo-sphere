@@ -33,6 +33,8 @@ namespace EchoSphere.Presentation
         internal NativeWorldProjectiles Projectiles=>_Projectiles??=new NativeWorldProjectiles();
         private NativeWorldCreatures _Creatures;
         internal NativeWorldCreatures Creatures=>_Creatures??=new NativeWorldCreatures();
+        private NativeWorldSphereWeapons _SphereWeapons;
+        internal NativeWorldSphereWeapons SphereWeapons=>_SphereWeapons??=new NativeWorldSphereWeapons();
         private NativeWorldStandardSphere _StandardSphere;
         internal NativeWorldStandardSphere StandardSphere=>_StandardSphere??=new NativeWorldStandardSphere();
         private NativeWorldPickableViews _PickableViews;
@@ -46,7 +48,7 @@ namespace EchoSphere.Presentation
             Feedback.BeginFrame(surface);
             _=Field;_=Ambient;
             Pickups.BeginFrame();Minions.BeginFrame();EnergyBolts.BeginFrame();Sprites.BeginFrame();
-            Projectiles.BeginFrame();Creatures.BeginFrame();StandardSphere.BeginFrame();PickableViews.BeginFrame();
+            Projectiles.BeginFrame();Creatures.BeginFrame();StandardSphere.BeginFrame();SphereWeapons.BeginFrame();PickableViews.BeginFrame();
             Player.BeginFrame();SphereFamilies.BeginFrame();CharacterIndicators.BeginFrame();Network.BeginFrame();
         }
         internal void ReleaseResources()
@@ -65,6 +67,7 @@ namespace EchoSphere.Presentation
             _Projectiles?.Dispose();_Projectiles=null;
             _Creatures?.Dispose();_Creatures=null;
             _StandardSphere?.Dispose();_StandardSphere=null;
+            _SphereWeapons?.Dispose();_SphereWeapons=null;
             _PickableViews?.Dispose();_PickableViews=null;
             _Player?.Dispose();_Player=null;
         }

@@ -380,3 +380,32 @@ PlayerAssembly содержит0haptic APIrefs. Generated build files backed up/
 Recovery7/8 сохранены. Последующий отчётный commit не меняет игровой код APK.
 Открытые pause-performance/freeze/font-first-upgrade наблюдения не закрываются
 этим небольшим пользовательским изменением представления.
+
+
+2026-10-29 — согласованные компактные механические орудия Standard/Sniper/Shotgun.
+Добавлены 39 retained rigs: 3 базовых и по 12 мутаций на семейство (3 IV + 9 VII).
+NativeWorldSphereWeapons владеет неизменяемыми мешами и материалом; поза деталей
+меняется переносом/вращением от отдельного PresentationShotSerial реального выстрела.
+Масштаб орудия в анимации не меняется, пустая перезарядка неподвижна. Событие
+не сериализуется; правила атаки/цели/RNG прежние. Старый Standard DrawAttack удалён,
+прежние слои оружия/мутаций трёх семейств в runtime обходятся, двойного рисунка нет.
+Ядра/орбиты/элементы/остальные семейства сохраняются. Новые изображения не импортировались:
+отрисовка — собственные сохранённые Unity-меши, не растр концепт-листа.
+
+Кнопка «Уровень +» доступна в Editor/Development и в обычном APK только с
+ECHO_SPHERE_TEST_CONTROLS. Вызывает штатный XP/level-up/выбор, сохраняет частичный XP,
+повторное нажатие в модальном окне блокируется. Туториал/пауза также блокируют кнопку.
+Пользователь явно запросил её в телефонном тестовом APK. Без define обычный player
+не включает кнопку/обработчик; Development overhead для тестового APK не требуется.
+
+Actual Editor: mechanical-weapons 6624checks PASS,39rigs,392parts,36 различных
+мутационных геометрий; GPU idle/attack/rest, rigid transforms, warmed geometry versions
+стабильны; обычный levelup/частичный XP/защита модали PASS. android-feedback33checks
+PASS (реальное событие выстрела/пустой cooldown, pause retention, UI); UI Toolkit
+288cases13356checks PASS с/без тестовой кнопки,ru/en,75–125%,две руки,3DPR,0–3abilities.
+Пять C#profiles0errors/warnings; Core12462assertions+47389parity,Visual contracts,
+preflight/provenance и Node272tests PASS. Console0errors/0warnings до build.
+Телефон: перед новой установкой создана свежая phone-before-mechanical-20261029.tar,
+17keys/XML147783bytes, SHA2569140c60a21b6c9dd40f70868f59ac1284002e22de30600b75f82ff7db86e5fe3.
+Сборка/проверка APK и возврат этой копии фиксируются отдельно после исполнения.
+Прежние открытые freeze3:29/pause-performance/font-first-upgrade не считаются исправленными.

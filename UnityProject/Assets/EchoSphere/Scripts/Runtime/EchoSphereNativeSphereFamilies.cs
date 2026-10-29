@@ -28,11 +28,11 @@ namespace EchoSphere.Runtime
             string[] kinds={"multishot","pierce","ricochet","fire","freeze","poison"};var levels=new double[6];for(int i=0;i<6;i++){if(i<3&&!projectile)continue;double mod=_sphereMods.TryGetValue(kinds[i],out var value)?System.Math.Max(0,value):0;levels[i]=System.Math.Max(mod,EchoSphere.Core.SphereAuthoredModifierRules.GetLevel(branch,finalId,(EchoSphere.Core.SphereAuthoredModifier)i));}
             _nativeWorldSphereFamilies.DrawModifiers(_worldSurface,sphere.X,sphere.Y,time,scale,sphere.DisabledTimer>0||!sphere.Alive,levels);
         }
-        private void DrawNativeSphereFamily(NativeSphereVisual sphere,double time,double scale)
+        private void DrawNativeSphereFamily(NativeSphereVisual sphere,double time,double scale,bool includeCombatParts=true)
         {
             var state=new NativeWorldSphereFamilies.State {Family=sphere.Family,X=sphere.X,Y=sphere.Y,Rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,Time=time,Scale=scale,Disabled=sphere.DisabledTimer>0||!sphere.Alive,Resonance=sphere.Resonance,AttackActive=sphere.AttackActive};
             if(sphere.Type==EchoSphere.Core.SphereId.Prism&&sphere.Branch=="prism_spectrum")state.HasPrismElement=ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetElement(sphere.Element).Color,out state.PrismElement);
-            _nativeWorldSphereFamilies.DrawFamily(_worldSurface,_nativeWorldStandardSphere,state);
+            _nativeWorldSphereFamilies.DrawFamily(_worldSurface,_nativeWorldStandardSphere,state,includeCombatParts);
         }
     }
 }

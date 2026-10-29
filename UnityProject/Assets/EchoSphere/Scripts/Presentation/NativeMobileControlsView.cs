@@ -73,7 +73,11 @@ namespace EchoSphere.Presentation
             void ActionButton(Control c){if(i%2==0){actionRow=Box(_abilities,"action-row-"+(i/2),true);actionRow.style.width=244;actionRow.style.height=44;actionRow.style.position=Position.Absolute;actionRow.style.top=(i/2)*50;}
                 var b=Button(actionRow,c,119,44,c.Id=="dash").Button;b.style.position=Position.Absolute;b.style.left=(i%2)*125;i++;}
             foreach(var c in state.Controls)if(c.Id.StartsWith("ability:"))ActionButton(c);
-            ActionButton(Find("dash"));_abilities.style.height=((i+1)/2)*50-6;
+            ActionButton(Find("dash"));
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || ECHO_SPHERE_TEST_CONTROLS
+            var debug=Find("debug-levelup");if(debug!=null)ActionButton(debug);
+#endif
+            _abilities.style.height=((i+1)/2)*50-6;
 
             var info=Box(Root,"sphere-info");info.style.width=220;info.style.marginTop=8;info.style.paddingLeft=info.style.paddingRight=12;info.style.paddingTop=info.style.paddingBottom=8;
             Surface(info,new NativeMenuBrush.Paint {Radius=12,Border=1,BorderColor=C("#243b55"),Fill=A(13,23,38,.9f),OuterA=new NativeMenuBrush.Shadow(15,new Vector2(0,10),A(0,0,0,.1f),-3),OuterB=new NativeMenuBrush.Shadow(6,new Vector2(0,4),A(0,0,0,.1f),-4)});

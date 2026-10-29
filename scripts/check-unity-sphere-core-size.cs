@@ -12,7 +12,7 @@ public static class SphereCoreSizeAcceptance {
   try{foreach(var scale in new[]{.75d,1d,1.25d})foreach(var family in new[]{"sniper","shotgun","chain","aura","prism","gravity","pulse","void","orbital"}){
     var cores=Activator.CreateInstance(coreType,true);var renderer=Activator.CreateInstance(familyType,true);
     try{Call(surface,"Begin",Vector2.zero);Call(surface,"ResetTransform");Call(cores,"BeginFrame");var state=Activator.CreateInstance(stateType);Set(state,"Family",family);Set(state,"Scale",scale);Set(state,"Time",1d);
-     if(family=="orbital"){var input=Activator.CreateInstance(inputType);Set(input,"View",state);Set(input,"Identity",new object());Set(input,"RadiusScale",1d);Call(renderer,"DrawOrbital",surface,cores,input,false);}else Call(renderer,"DrawFamily",surface,cores,state);
+     if(family=="orbital"){var input=Activator.CreateInstance(inputType);Set(input,"View",state);Set(input,"Identity",new object());Set(input,"RadiusScale",1d);Call(renderer,"DrawOrbital",surface,cores,input,false);}else Call(renderer,"DrawFamily",surface,cores,state,true);
      Call(surface,"End");var rigs=(IDictionary)coreType.GetField("_rigs",F).GetValue(cores);if(rigs.Count!=1)throw new Exception("Unexpected core geometry count "+family);
      foreach(DictionaryEntry entry in rigs){var mesh=(Mesh)entry.Value.GetType().GetField("Core",F).GetValue(entry.Value);float expected=(float)(24*scale*.42*2);checks++;if(Math.Abs(mesh.bounds.size.x-expected)>.05f||Math.Abs(mesh.bounds.size.y-expected)>.05f)throw new Exception("Different core size "+family+" "+mesh.bounds.size+" expected "+expected);rows.Add(new{family,scale,width=mesh.bounds.size.x,height=mesh.bounds.size.y});}
     }finally{((IDisposable)renderer).Dispose();((IDisposable)cores).Dispose();}

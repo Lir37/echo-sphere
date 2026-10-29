@@ -6066,3 +6066,5 @@ PlayerAssembly содержит0haptic APIrefs. Generated build files backed up/
 Recovery7/8 сохранены. Последующий отчётный commit не меняет игровой код APK.
 Открытые pause-performance/freeze/font-first-upgrade наблюдения не закрываются
 этим небольшим пользовательским изменением представления.
+
+2026-10-29: Standard/Sniper/Shotgun — retained механические орудия,39rigs,движение деталей от реального выстрела,без scale-анимации; тестовая кнопка уровня включается define в APK. Actual Editor6624checks,UI288cases13356checks,реальный shot event33checks PASS. Подробности/статус APK/CI: UNITY_NATIVE_MODERNIZATION_PROGRESS.md и UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.

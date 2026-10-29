@@ -10,11 +10,15 @@ var spheres=(System.Collections.Generic.List<EchoSphere.Runtime.SphereAttackAgen
 var enemies=(System.Collections.Generic.List<EchoSphere.Runtime.EnemyAgent2D>)type.GetField("_enemies",f).GetValue(r);
 foreach(var e in enemies)if(e!=null)e.gameObject.SetActive(false);enemies.Clear();
 var sphere=spheres[0];Check(sphere.Type==EchoSphere.Core.SphereId.Standard,"Standard fixture required");
+var initialShotSerial=sphere.PresentationShotSerial;
 for(int i=0;i<200;i++)sphere.SimulationTick(.05f);
+Check(sphere.PresentationShotSerial==initialShotSerial,"Empty cadence emitted shot serial");
 Check(!sphere.PresentationAttackActive,"Empty cadence animated a weapon");
 var target=r.SpawnBossMinion((UnityEngine.Vector2)sphere.transform.position+UnityEngine.Vector2.right*.3f,100000,0,0,"normal",UnityEngine.Color.white);
 sphere.ResetAttackTimer();sphere.SimulationTick(.05f);
 Check(sphere.PresentationAttackActive,"A real shot did not activate its presentation");
+Check(sphere.PresentationShotSerial==initialShotSerial+1,"Real shot did not emit exactly one event");
+sphere.SimulationTick(.001f);Check(sphere.PresentationShotSerial==initialShotSerial+1,"Cooldown repeated shot event");
 Check(sphere.AttackTimer>0,"Attack cadence was not preserved");
 target.gameObject.SetActive(false);enemies.Clear();
 for(int i=0;i<200;i++)sphere.SimulationTick(.05f);

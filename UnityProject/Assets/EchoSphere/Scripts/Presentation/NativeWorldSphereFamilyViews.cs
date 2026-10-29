@@ -6,7 +6,7 @@ namespace EchoSphere.Presentation
 {
     internal sealed partial class NativeWorldSphereFamilies
     {
-        internal void DrawFamily(NativeWorldSurface surface,NativeWorldStandardSphere cores,State s)
+        internal void DrawFamily(NativeWorldSurface surface,NativeWorldStandardSphere cores,State s,bool includeCombatParts=true)
         {
             _surface=surface;double r=24*s.Scale,t=s.Time,pulse=s.Disabled?.5:.5+.5*Math.Sin(t*3.4+s.X*.008+s.Y*.006);Color color;
             switch(s.Family){case "sniper":color=C(232,108,255);break;case "shotgun":color=C(255,143,61);break;case "chain":color=C(255,226,91);break;case "aura":color=C(87,230,180);break;case "prism":color=C(255,141,225);break;case "gravity":color=C(165,140,255);break;case "pulse":color=C(255,211,90);break;default:color=C(194,140,255);break;}
@@ -15,7 +15,7 @@ namespace EchoSphere.Presentation
             switch(s.Family){case "sniper":glowSize=2.35;glowAlpha=.11;orbitSize=1.02;rotation=t*.20;opacity=s.Disabled?.16:.68;break;case "shotgun":orbitSize=1.02;rotation=t*.18;opacity=s.Disabled?.15:.64;break;case "chain":glowSize=2.35;glowAlpha=.11;orbitSize=1.02;rotation=t*.17;opacity=s.Disabled?.12:.78;mode="lightning";break;case "aura":glowSize=2.45;rotation=t*.14;opacity=s.Disabled?.12:.68;break;case "prism":rotation=t*.16;opacity=s.Disabled?.12:.66;break;case "gravity":glowAlpha=.11;rotation=-t*.12;opacity=s.Disabled?.12:.65;break;case "pulse":glowSize=2.45;rotation=(s.Disabled?0:t*1.10)*.13;opacity=s.Disabled?.10:.66;break;case "void":glowSize=2.35;glowAlpha=.10;rotation=t*.11;opacity=s.Disabled?.10:.58;break;}
             var root=T(s.X,s.Y);DrawGlow(surface,r*glowSize,color,s.Disabled?(s.Family=="void"?.04:.05):glowAlpha,root,true);DrawOrbit(surface,r*orbitSize,color,rotation,opacity,mode,pulse,root,true);cores.DrawCore(surface,r,s.Family=="void"?pulse*.92:pulse,root,color);
             var dark=C(7,17,29);bool d=s.Disabled;var aim=root*T(angle:s.Rotation);
-            switch(s.Family){
+            if(includeCombatParts)switch(s.Family){
                 case "sniper":{
                     var tip=Get(100,r,0,1.15,()=>new[]{PolylineContour(true,P(0,-r*.24),P(r*.18,-r*.05),P(r*.13,r*.24),P(0,r*.34),P(-r*.13,r*.24),P(-r*.18,-r*.05))},true);var local=aim*T(r*1.22,0,-Math.PI/2);Paint(tip,local,dark,color,d?.14:.94);
                     Paint(Get(101,r,0,1.15,()=>new[]{Line(0,-r*.18,0,r*.16),Line(-r*.10,-r*.02,r*.10,-r*.02)}),local,null,Color.white,d?.08:.70);Paint(Circle(r*.13),local,color,null,d?.04:.10+.05*Math.Sin(t*7));

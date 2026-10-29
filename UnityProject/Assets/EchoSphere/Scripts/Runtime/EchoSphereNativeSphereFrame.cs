@@ -48,13 +48,18 @@ namespace EchoSphere.Runtime
    var sphere=ProjectNativeSphereVisual(component);double r=Math.Max(15,Math.Min(25,sphere.Radius*.19+sphere.Tier*.8)),scale=r/24;
    if(sphere.Type==SphereId.Standard){
     if(!DrawNativeStandardAssembly(sphere,r,time)){DrawNativeViewGroundShadow(r*1.05,r*.24,4);_worldSurface.Save();NativeWorldTranslate(sphere.X,sphere.Y);_nativeWorldFeedback.StandardFallback(r);_worldSurface.Restore();}
-    DrawNativeSphereMutation(sphere,time,scale);_nativeWorldStandardSphere.DrawAttack(_worldSurface,sphere.X,sphere.Y,double.IsNaN(sphere.Rotation)?0:sphere.Rotation,r,sphere.AttackTimer,sphere.AttackActive);DrawNativeSphereElements(sphere,time,scale);DrawNativeSphereModifiers(sphere,time,scale);DrawNativeSphereDisabled(sphere,time);return;
+    DrawRetainedSphereWeapon(sphere,time,r);DrawNativeSphereElements(sphere,time,scale);DrawNativeSphereModifiers(sphere,time,scale);DrawNativeSphereDisabled(sphere,time);return;
    }
    if(sphere.Type==SphereId.Orbital)DrawNativeOrbitalSphere(sphere,time,scale,NativeOrbitalRadiusScale(sphere),false);
-   else if(sphere.Type==SphereId.Sniper||sphere.Type==SphereId.Shotgun||sphere.Type==SphereId.Prism||sphere.Type==SphereId.Void){DrawNativeSphereMutation(sphere,time,scale);DrawNativeSphereFamily(sphere,time,scale);}
+   else if(sphere.Type==SphereId.Sniper||sphere.Type==SphereId.Shotgun){DrawNativeSphereFamily(sphere,time,scale,false);DrawRetainedSphereWeapon(sphere,time,r);}
+   else if(sphere.Type==SphereId.Prism||sphere.Type==SphereId.Void){DrawNativeSphereMutation(sphere,time,scale);DrawNativeSphereFamily(sphere,time,scale);}
    else if(sphere.Type==SphereId.Chain||sphere.Type==SphereId.Aura||sphere.Type==SphereId.Gravity||sphere.Type==SphereId.Pulse){DrawNativeSphereFamily(sphere,time,scale);DrawNativeSphereMutation(sphere,time,scale);}
    else throw new InvalidOperationException("Unknown sphere presentation type: "+sphere.Family);
    DrawNativeSphereElements(sphere,time,scale);DrawNativeSphereModifiers(sphere,time,scale);DrawNativeSphereDisabled(sphere,time);
+  }
+  private void DrawRetainedSphereWeapon(NativeSphereVisual sphere,double time,double radius)
+  {
+   WorldPresentation.SphereWeapons.Draw(_worldSurface,new NativeWorldSphereWeapons.State{Identity=sphere.Identity,Family=sphere.Family,Branch=sphere.Branch,Final=(int)sphere.Final,X=sphere.X,Y=sphere.Y,Radius=radius,Rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,Time=time,AttackDelay=sphere.AttackDelay,ShotSerial=sphere.Identity.PresentationShotSerial,Disabled=sphere.DisabledTimer>0||!sphere.Alive,Resonance=sphere.Resonance});
   }
   private void DrawNativeSphereDisabled(NativeSphereVisual sphere,double time)=>_nativeWorldCreatures.DrawDisabledNetwork(_worldSurface,double.IsNaN(sphere.DisabledTimer)?0:sphere.DisabledTimer,2,time);
  }
