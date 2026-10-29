@@ -429,7 +429,7 @@ Actual Unity Play/GPU:11005checks PASS,39rigs/611parts; проверено дв�
 неизменность warmed geometry и выраженное отличие каждого VII от IV при r24.
 Source attack/save/pause regression35checks PASS. Core12462assertions и47389parity
 PASS; preflight/provenance PASS. Пять C#profiles0errors/warnings. Editor prefs10keys
-восстанавливаются после завершения проверки. PNG mechanical-*-unity.png и
+восстановлены после завершения проверки. PNG mechanical-*-unity.png и
 mechanical-moving-parts-unity.png — реальные GPU-captures в external user-feedback.
 Новый телефонный тест не выполнен: USB device отсутствует. APKTEST-LEVELUP собирается
 без Development overhead; результаты build/CI записываются после завершения.
@@ -441,3 +441,29 @@ SHA25635696A49CD8D497D9C3747F44E3D34E5ED7C85912A2AD0BA904665BD107CF3B8.
 восстановлен byte-for-byte до теста,hash9140c60a21b6c9dd40f70868f59ac1284002e22de30600b75f82ff7db86e5fe3;
 USBawake0,приложение остановлено,8dc8a267test APK установлен без запуска. CI913SUCCESS.
 Это историческая проверка кнопки, не приёмка нынешней усиленной анимации.
+
+
+2026-10-29 acceptance dab4ddb328d4ce9fbfdb245cce73ec1843c5526c:
+CI914 SUCCESS: https://github.com/Lir37/echo-sphere/actions/runs/40855388742 .
+Обычный TEST-LEVELUP APK78895068bytes,119.39s,0errors/9warnings;BuildOptions.None,
+IL2CPP ARM64+ARMv7,extra ECHO_SPHERE_TEST_CONTROLS,не debuggable,v2signature valid.
+SHA256fcddb2a9c15056a5bb7fd89c4f746bc5a53733602d6430d348c95677f322b651.
+Build warnings:4deprecated DEVELOPMENT_BUILD,3UI filter shader warnings,Pipeline
+без runtime config,large SourceSphereModifiersRules cpp split. Console0errors;
+не выдавать эти предупреждения за отсутствие предупреждений.
+Телефон снова определился. Создана новая phone-before-mechanical-v2-20261029.tar:
+17keys/XML302843bytes,hash4252f1f5a6670b517e25f5f607a616beb38d044b9adcad3210ca14fff376580a.
+Установлен свежий APK; cold menu,continue,pause,live7sec записаны. Реальный забег
+3:22/level36 уже имел Standard7Impulse x2,Sniper7 x1,Shotgun7 x2: новые финальные
+орудия присутствуют в бою. Это visual smoke/capture,не отдельная приёмка движения
+всех611деталей на телефоне и не FPS/GC-замер. Все детали/позы проверены в Editor.
+Logcat0fatal;единственный exception — прежний startup AssetPackManager отсутствует,
+тот же в историческом final-app-logcat.txt. Новых C#исключений в записи нет.
+После теста именно свежий XML302843bytes восстановлен byte-for-byte;USBawake0
+возвращён;новый dab4ddb3 APK установлен без запуска. Editor prefs10keys restored.
+Generated build changes сохранены вне repo и возвращены;Recovery7/8/9 не удалены.
+External evidence: mechanical-v2-phone-live.mp4,mechanical-v2-phone-live.png,
+mechanical-v2-final-phone-state.json,build-report-mechanical-v2-test.json,
+mechanical-v2-apk-verification.json. APK также в Downloads. Финальная оценка
+читаемости/красоты и амплитуды на телефоне остаётся за пользователем.
+Продолжать с его отзывов о трёх семействах,не затрагивать ядра/баланс/RNG.
