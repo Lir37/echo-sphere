@@ -63,7 +63,8 @@ namespace EchoSphere.Presentation
                     root*=T(y:-progress*r*.10)*shear*T(sx:pulse*(1-fold*.18),sy:pulse*(1-fold*.18));opacity=(float)(1-progress*.92);
                 }else{root*=T(sx:pulse,sy:pulse);if(moving&&vx>=0)root*=T(sx:-1);}
             }
-            DrawArtwork(surface,p,root,opacity);
+            var bodyRoot=p.Character=="spherist"&&p.Hp<=0?root*T(angle:progress*progress*.25):root;
+            DrawArtwork(surface,p,bodyRoot,opacity);
             if(p.Character=="spherist"){
                 if(p.Hp<=0){
                     double fragment=Math.Max(0,(progress-.22)/.78),size=2+fragment*2;

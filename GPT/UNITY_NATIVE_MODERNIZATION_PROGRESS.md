@@ -2486,3 +2486,11 @@ Console0errors/0warnings в финальном Play. Editor prefs10keys restored
 Рецепт bake/check и UI check сохранены в scripts;общий GPU-лист — в VisualReferences.
 Новый APK не собирался,телефон не менялся. Ранее выданный78aec65e этих персонажей
 не содержит. Android визуальная приёмка и прежние pause/freeze вопросы открыты.
+
+2026-10-29 follow-up: сохранён также исходный поворот тела Сфериста при гибели
+(fold*.25),отдельно от осколков. Unity GPU50727checks повторно PASS.
+CI920: C# и source typecheck SUCCESS,core-contracts остановлен устаревшим
+preflight требованием player-spherist/characterArt??resolve. Guard заменён на
+проверку единого contour renderer,10идентичностей/портретов и отсутствия старого
+bitmap пути/RNG;локальный node scripts/check-unity-project.mjs PASS.
+Все остальные preflight/source provenance ограничения оставлены.

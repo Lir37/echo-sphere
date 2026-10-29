@@ -191,7 +191,7 @@ const regionNativeArt=readFileSync(join(root,'Assets/EchoSphere/Scripts/Presenta
 assert.ok(regionNativeArt.includes('i<6') && regionNativeArt.includes('i<8') && regionNativeArt.includes('_pockets.Circle') && regionNativeArt.includes('_pockets.Triangle'), 'active region fold seams and markers required');
 assert.ok(!regionVisuals.includes('AddComponent<LineRenderer>') && !regionVisuals.includes('AddComponent<SpriteRenderer>'), 'region gameplay must not allocate hidden renderer objects');
 assert.ok(!/\b_rng\b|UnityEngine\.Random|Random\.Range/.test(regionVisuals), 'presentation-only region visuals must not consume gameplay RNG');
-assert.ok(readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldPlayer.cs'),'utf8').includes('player-spherist'), 'the active player must use the authored Spherist');
+assert.ok(readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldPlayer.cs'),'utf8').includes('NativeCharacterContours'), 'active player must use the approved contour character renderer');
 const sourceSphereRenderer = readFileSync(join(root, '..', 'src/renderer.ts'), 'utf8');
 const activeStandardAssembly = sourceSphereRenderer.slice(
   sourceSphereRenderer.indexOf('function drawStandardSphereAssembly('),
@@ -246,7 +246,15 @@ assert.ok(spriteFactory.includes('Resources.Load<Sprite>') && runtime.includes('
 const svgImportSettings = readFileSync(join(root, 'Assets/Editor/EchoSphereSvgImportSettings.cs'), 'utf8');
 assert.ok(svgImportSettings.includes('SVGType.TexturedSprite') && svgImportSettings.includes('void OnPreprocessAsset()'), 'SVG artwork must be configured as textured Sprites before import');
 assert.ok(!svgImportSettings.includes('SaveAndReimport') && !svgImportSettings.includes('OnPostprocessAllAssets'), 'SVG importer must not recursively reimport assets from a postprocess callback');
-assert.ok(retainedPlayer.includes('player-spherist') && retainedPlayer.includes('characterArt??resolve'), 'active player must use authored character art');
+assert.ok(retainedPlayer.includes('_contours.Draw(surface,p.Character') && retainedPlayer.includes('DrawPortrait') &&
+  !retainedPlayer.includes('NativeCharacterArtwork') && !retainedPlayer.includes('sprites.Draw') && !retainedPlayer.includes('INativeWorldSprite'),
+  'live character bodies must share native contour geometry with UI portrait baking, without a second bitmap body path');
+const characterContours=readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeCharacterContours.cs'),'utf8');
+for(const id of ['spherist','hunter','engineer','berserker','alchemist','architect','conductor','oracle','voidwalker','fractal']) {
+  assert.ok(characterContours.includes('case "'+id+'"'), 'missing approved contour identity: '+id);
+  assert.ok(existsSync(join(root,'Assets/Resources/EchoSphere/CharacterArt',id+'.png')), 'missing matching menu portrait: '+id);
+}
+assert.ok(!/\b_rng\b|UnityEngine\.Random|Random\.Range/.test(characterContours), 'character redesign must not consume gameplay RNG');
 assert.ok(retainedStandard.includes('CorePath=EllipseContour') && retainedStandard.includes('ArcPath=EllipseContour') && retainedFamilies.includes('orbital'), 'active Standard core/rings and Orbital views required');
 assert.ok(sourceSphereRenderer.includes('ctx.lineWidth = Math.max(0.9, r * 0.045)') &&
   sourceSphereRenderer.includes('ctx.lineWidth = Math.max(0.55, r * 0.022)') &&
