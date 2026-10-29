@@ -96,6 +96,7 @@ namespace EchoSphere.Presentation
             Part Plate(float x,float y,float w,float h,int channel=0,float dx=0,float dy=0,float swing=0,float recoil=0,Color? color=null,float angle=0)=>Add(Poly(P(-w*.5f,-h*.5f),P(w*.5f,-h*.5f),P(w*.5f,h*.5f),P(-w*.5f,h*.5f)),true,color??primary,P(x,y),channel,P(dx,dy),swing,recoil,angle:angle);
             Part Arc(float x,float y,float rx,float ry,float start,float end,Color? color=null,int channel=0,float dx=0,float dy=0,float swing=0)=>Add(EllipseContour(Vector2.zero,rx,ry,start,end),false,color??primary,P(x,y),channel,P(dx,dy),swing);
             Part Disc(float x,float y,float radius,Color color,int channel=0,float dx=0,float dy=0,float recoil=0)=>Add(EllipseContour(Vector2.zero,radius,radius),true,color,P(x,y),channel,P(dx,dy),recoil:recoil);
+            // swing is relative to the mirrored shape; Fin applies sign exactly once.
             Part Fin(float x,float y,int sign,float length=.23f,int channel=2,float swing=.15f,Color? color=null,float dx=0)=>Add(Poly(P(0,0),P(length*.45f,-sign*.09f),P(length,-sign*.08f),P(length*.6f,sign*.025f)),true,color??primary,P(x,y),channel,P(dx,sign*.025f),sign*swing);
             void PairFins(float x=.99f,float y=.23f,float length=.22f,float swing=.15f,Color? color=null){Fin(x,-y,1,length,2,-swing,color);Fin(x,y,-1,length,2,-swing,color);}
             void Rail(float y,float length=.43f,float recoil=.07f,float x=1.13f)=>Plate(x,y,length,.055f,1,recoil:recoil);
@@ -109,7 +110,7 @@ namespace EchoSphere.Presentation
                     Plate(1.03f,0,.07f,.30f,2,dx:-.025f,color:accent);
                     if(final==0){Arc(1.35f,0,.09f,.22f,-1.3f,1.3f,accent,2,dx:.025f);Arc(1.27f,0,.07f,.20f,-1.3f,1.3f,primary,2,dx:-.025f);}
                     else if(final==1){Fin(1.13f,-.22f,1,.27f,2,-.24f,accent);Fin(1.13f,.22f,-1,.27f,2,-.24f,accent);}
-                    else if(final==2){for(int i=0;i<3;i++)Plate(1.10f+i*.09f,(i%2==0?1:-1)*.21f,.075f,.05f,3,dy:.025f, color:accent);}
+                    else if(final==2){for(int i=0;i<3;i++)Plate(1.10f+i*.09f,(i%2==0?1:-1)*.21f,.075f,.05f,3,dy:(i%2==0?1:-1)*.025f, color:accent);}
                 }else if(branch=="standard_singularity"){
                     Arc(1.30f,0,.10f,.20f,-1.35f,1.35f,accent,2,dx:-.045f);
                     if(final==0){Fin(1.14f,-.20f,-1,.27f,2,.24f);Fin(1.14f,.20f,1,.27f,2,.24f);}
@@ -160,7 +161,7 @@ namespace EchoSphere.Presentation
             if(final>=0){
                 void Slats(float x,float y,int count,float step=.085f,float angle=0){for(int i=0;i<count;i++)Plate(x+i*step,y,.045f,.11f,3,dx:-.065f,dy:y>0?.03f:-.03f,swing:y>0?.12f:-.12f,color:i%2==0?accent:white,angle:angle);}
                 void Petals(float x,float rx,float ry,int count,float begin=0,float sweep=Mathf.PI*2){for(int i=0;i<count;i++){float a=begin+(i+.5f)*sweep/count;Plate(x+Mathf.Cos(a)*rx,Mathf.Sin(a)*ry,.105f,.055f,2,dx:Mathf.Cos(a)*.06f,dy:Mathf.Sin(a)*.06f,swing:Mathf.Sin(a)*.28f,color:i%2==0?accent:white,angle:a);}}
-                void Cheek(float x,float y,int sign,float length=.32f){Fin(x,y,sign,length,2,sign*.28f,accent,dx:-.035f);Plate(x+.10f,y-sign*.045f,.17f,.035f,3,dx:-.06f,dy:-sign*.03f,color:white,angle:-sign*.18f);}
+                void Cheek(float x,float y,int sign,float length=.32f){Fin(x,y,sign,length,2,.28f,accent,dx:-.035f);Plate(x+.10f,y-sign*.045f,.17f,.035f,3,dx:-.06f,dy:-sign*.03f,color:white,angle:-sign*.18f);}
                 switch(branch){
                     case "standard_resonator":
                         if(final==0){ // Impulse: nested pulse forks and charged side capacitors.
@@ -182,7 +183,7 @@ namespace EchoSphere.Presentation
                         if(final==0){ // One hunter shard with angular guidance fins.
                             Add(Poly(P(-.10f,0),P(.05f,-.085f),P(.22f,0),P(.05f,.085f)),true,white,P(1.47f,0),1,recoil:.15f);Cheek(1.07f,-.29f,1,.38f);Cheek(1.07f,.29f,-1,.38f);Disc(1.01f,0,.07f,accent,4,dx:-.065f);Arc(1.05f,0,.12f,.25f,-2.6f,2.6f,accent,4,dx:-.06f);
                         }else if(final==1){ // Crossfire: two visibly divergent launch tracks.
-                            for(int sign=-1;sign<=1;sign+=2){Plate(1.32f,sign*.30f,.40f,.06f,1,recoil:sign>0?.12f:.08f,color:white,angle:sign*.30f);Fin(1.07f,sign*.31f,-sign,.39f,2,-sign*.30f,accent);Disc(.99f,sign*.22f,.045f,white,3,dy:sign*.06f);}
+                            for(int sign=-1;sign<=1;sign+=2){Plate(1.32f,sign*.30f,.40f,.06f,1,recoil:sign>0?.12f:.08f,color:white,angle:sign*.30f);Fin(1.07f,sign*.31f,-sign,.39f,2,.30f,accent);Disc(.99f,sign*.22f,.045f,white,3,dy:sign*.06f);}
                         }else{ // Web: three fan channels and serrated side magazines.
                             for(int i=-1;i<=1;i++)Plate(1.40f,i*.25f,.33f,.045f,1,recoil:.11f+i*.025f,color:white,angle:i*.32f);Slats(.99f,-.35f,3);Slats(.99f,.35f,3);
                         }break;

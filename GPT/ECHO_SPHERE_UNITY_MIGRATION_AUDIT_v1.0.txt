@@ -6072,3 +6072,5 @@ Recovery7/8 сохранены. Последующий отчётный commit �
 2026-10-29 follow-up: исправлены неподвижные детали/слишком слабая анимация и пропуск события при render gap>150ms. PresentationShotTime исключён из save; все611деталей39rigs движутся rigid. 27финаловVII богаче IV минимумна6деталей. Actual Unity11005checks+35regressions PASS; устройство сейчас недоступно. Итоги APK/CI в UNITY_NATIVE_MODERNIZATION_PROGRESS.md.
 
 2026-10-29 acceptance dab4ddb3: CI914SUCCESS,APK0errors/9warnings,подписьv2;установлен11T,короткийlivecapture со всеми3семействамиVII. СвежийXML302843bytes17keys восстановлен byte-for-byte;USBawake0;app stopped. FPS/GC не измерены. Отчётный commit не меняет APK. Подробности: UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.
+
+2026-10-29: устранён двойной знак поворота парных створок Cheek/Crossfire и одинаковый dy разнонаправленных пластин Sryv. Unity11131checks,11mirrorpairs PASS;Console0errors/0warnings,prefs restored. Новый APK не собирать до запроса пользователя; установленный dab4ddb3 ещё без этой правки.

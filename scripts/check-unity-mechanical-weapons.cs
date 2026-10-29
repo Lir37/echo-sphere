@@ -39,6 +39,25 @@ public static class MechanicalWeaponsAcceptance {
     }
     if(branch.Length>0){if(!geometryByFamily.TryGetValue(family,out var set)){set=new HashSet<string>();geometryByFamily.Add(family,set);}string hash=Convert.ToBase64String(SHA256.Create().ComputeHash(stream.ToArray()));Check(set.Add(hash),"Identical branch/final geometry in "+family+"/"+branch);}
    }
+   // Mirrored mutation fins must counter-rotate, not cancel the sign twice.
+   int mirrorPairs=0;
+   foreach(DictionaryEntry entry in rigs){
+    var key=entry.Key;string branch=(string)key.GetType().GetField("Item2").GetValue(key);int final=(int)key.GetType().GetField("Item3").GetValue(key);var all=((IEnumerable)entry.Value.GetType().GetField("Parts",F).GetValue(entry.Value)).Cast<object>().ToArray();
+    Vector2 Rest(object p)=>(Vector2)p.GetType().GetField("Rest",F).GetValue(p);
+    float Number(object p,string name)=>(float)p.GetType().GetField(name,F).GetValue(p);
+    bool Cheek(object p)=>Math.Abs(Number(p,"Swing"))>.2799f&&Math.Abs(Number(p,"Swing"))<.2801f&&Math.Abs(((Vector2)p.GetType().GetField("Slide",F).GetValue(p)).x+.035f)<.0001f;
+    foreach(var top in all.Where(p=>Rest(p).y<0&&(Cheek(p)||(branch=="standard_swarm"&&final==1&&Math.Abs(Rest(p).x-1.07f)<.0001f&&Math.Abs(Rest(p).y+.31f)<.0001f)))){
+     var origin=Rest(top);var bottom=all.Single(p=>Math.Abs(Rest(p).x-origin.x)<.0001f&&Math.Abs(Rest(p).y+origin.y)<.0001f&&Math.Abs(Math.Abs(Number(p,"Swing"))-Math.Abs(Number(top,"Swing")))<.0001f);mirrorPairs++;
+     Check(Math.Abs(Number(top,"Swing")+Number(bottom,"Swing"))<.0001f,"Same-direction mutation fin swing: "+branch+"/"+final);
+     foreach(var age in new[]{.03d,.09,.18,.27,.42}){
+      var a=(Matrix4x4)pose.Invoke(null,new[]{top,(object)age,.48d});var b=(Matrix4x4)pose.Invoke(null,new[]{bottom,(object)age,.48d});
+      Check(Math.Abs((a.m13-origin.y)+(b.m13+origin.y))<.0001f,"Mutation pair has same lateral translation: "+branch);
+      Check(Math.Abs(Math.Atan2(a.m10,a.m00)+Math.Atan2(b.m10,b.m00))<.0001f,"Mutation pair does not counter-rotate: "+branch);
+     }
+    }
+    if(branch=="standard_resonator"&&final==2){var shutters=all.Where(p=>Math.Abs(Math.Abs(Rest(p).y)-.21f)<.0001f&&Rest(p).x>=1.099f&&Rest(p).x<=1.281f).ToArray();Check(shutters.Length==3,"Expected three staggered suppression shutters");foreach(var shutter in shutters){var slide=(Vector2)shutter.GetType().GetField("Slide",F).GetValue(shutter);Check(slide.y*Rest(shutter).y>0,"Suppression shutter moves toward wrong side");}}
+   }
+   Check(mirrorPairs>=10,"Missing mirrored mutation fixtures");
    // VII must add enough actual geometry to its own IV parent, not just a hash difference.
    foreach(var family in new[]{"standard","sniper","shotgun"})foreach(var branch in NativeRunCatalog.Instance.GetSphere(family).Branches){
     int Count(int final){object rig=rigs[ValueTuple.Create(family,branch.Id,final)];return ((IList)rig.GetType().GetField("Parts",F).GetValue(rig)).Count;}
@@ -76,7 +95,7 @@ public static class MechanicalWeaponsAcceptance {
    var runtime=UnityEngine.Object.FindAnyObjectByType<EchoSphereRuntime>();var rt=runtime.GetType();var select=rt.GetMethod("EntitySnapshotField",BindingFlags.NonPublic|BindingFlags.Static);Check(!(bool)select.Invoke(null,new object[]{typeof(SphereAttackAgent).GetField("_presentationShotSerial",F)}),"Shot serial entered save");Check(!(bool)select.Invoke(null,new object[]{typeof(SphereAttackAgent).GetField("_presentationShotTime",F)}),"Shot timestamp entered save");
    foreach(string name in new[]{"_mainMenu","_paused","_userPaused","_gameOver","_levelUp","_choosingEvolution","_stellaRewardPending"})Set(runtime,name,false);Set(runtime,"_tutorialStep",-1);Set(runtime,"_level",1);Set(runtime,"_xpRequired",RunBalanceRules.GetXpToNextLevel(1));Set(runtime,"_xp",3f);rt.GetMethod("NativeDebugLevelUp",F).Invoke(runtime,null);Check((int)rt.GetField("_level",F).GetValue(runtime)==2,"Test button did not grant exactly one level");Check((bool)rt.GetField("_levelUp",F).GetValue(runtime),"Normal upgrade selection did not open");Check((float)rt.GetField("_xp",F).GetValue(runtime)==3,"Test button discarded partial XP");var choices=(IList)rt.GetField("_levelUpChoices",F).GetValue(runtime);Check(choices.Count>0,"Missing ordinary choices");rt.GetMethod("NativeDebugLevelUp",F).Invoke(runtime,null);Check((int)rt.GetField("_level",F).GetValue(runtime)==2,"Repeated modal click granted another level");
    rt.GetMethod("ReadNativeMobileState",F).Invoke(runtime,null);var dock=rt.GetField("_nativeMobileDockState",F).GetValue(runtime);var controls=(IEnumerable)dock.GetType().GetField("Controls",F).GetValue(dock);Check(controls.Cast<object>().Count(c=>(string)c.GetType().GetField("Id",F).GetValue(c)=="debug-levelup")==1,"Missing or duplicate test control");Set(runtime,"_userPaused",true);Set(runtime,"_paused",true);
-   var json=Newtonsoft.Json.JsonConvert.SerializeObject(new{result="PASS",checks,parts,moved,rigs=rigs.Count,rows,scope="Actual GPU idle/shot/rest and slow frame recovery;39retained rigs,12unique per family,VII adds6+parts,every part moves55milli-radius or more,rigid transforms,no tessellation changes;normal levelup via test control;temporary test preferences must be restored."});File.WriteAllText(Path.Combine(Application.dataPath,"../Library/mechanical-weapons-acceptance.json"),json);return new{result="PASS",checks,parts,rigs=rigs.Count};
+   var json=Newtonsoft.Json.JsonConvert.SerializeObject(new{result="PASS",checks,parts,moved,mirrorPairs,rigs=rigs.Count,rows,scope="11 mirrored mutation pairs counter-rotate/translate over5phases; Actual GPU idle/shot/rest and slow frame recovery;39retained rigs,12unique per family,VII adds6+parts,every part moves55milli-radius or more,rigid transforms,no tessellation changes;normal levelup via test control;temporary test preferences must be restored."});File.WriteAllText(Path.Combine(Application.dataPath,"../Library/mechanical-weapons-acceptance.json"),json);return new{result="PASS",checks,parts,rigs=rigs.Count};
   }finally{((IDisposable)weapons).Dispose();((IDisposable)cores).Dispose();((IDisposable)families).Dispose();((IDisposable)feedback).Dispose();UnityEngine.Object.DestroyImmediate(go);}
  }
 }
