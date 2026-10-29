@@ -534,3 +534,29 @@ SHA256:225d710ed66860e384bd59122cafbca6e582830c2817999b395bddae0d5ae149.
 Исходные локальные QualitySettings и Recovery7/8/9 сохранены;только созданные этой
 сборкой compile_commands перенесены в внешнюю backup-копию и восстановлены из HEAD.
 FPS/GC не измерялись;открытые pause/freeze/font-first-upgrade вопросы остаются.
+
+2026-10-29 — APK39af96d0 собран и установлен по прямому запросу пользователя.
+Код39af96d02fe8e74969bb4d892b6acf04f3f5dac5,CI923SUCCESS:
+https://github.com/Lir37/echo-sphere/actions/runs/40885863621
+Build Succeeded,0errors/9warnings,161.50s,56826120bytes,
+IL2CPP ARMv7+ARM64,BuildOptions.None,non-debuggable;ECHO_SPHERE_TEST_CONTROLS
+сохраняет Уровень +. SHA256:0f65f404e776c6302143d652b9e420a912638e1416cb081f60f816bb6e950bd0.
+APK:Downloads/ECHO-SPHERE-39af96d0-TEST-LEVELUP-2026-10-29.apk;подписьv2проверена.
+Stripped Assembly содержит NativeCharacterContours/DrawMovementTrail/NativeDebugLevelUp;
+старый MutationRig отсутствует. 9warnings:Pipeline config,4deprecated DEVELOPMENT_BUILD,
+3SourceUiSurfaceFilters Blur/uninitialized дляAPI и большой SourceSphereModifiersRules cctor.
+
+Xiaomi11T wgkr4d49sk49zhkn:перед установкой Home/save при необходимости,force-stop;
+временно установлен diagnostic fae7b1da БЕЗ запуска только для чтения PlayerPrefs.
+Свежая копия:phone-before-character-details-20261029-135626.tar,17keys,232194bytes,
+SHA256:c7bbaddd28f1252d32e8dafb5b3a08d09f93318bf091aaf44168bdf4b009fc85.
+Копия побайтно совпала с текущим XML также непосредственно перед final install;
+ничего не восстанавливали/не сбрасывали. adb install-r SUCCESS,установленный base.apk
+SHA совпадает с локальнымAPK. Запущена обычная39af версия;главное меню с новым
+avatar наблюдено,сохранённый забег доступен. Приложение оставлено открытым,USBawake
+не меняли. В startup-log есть ClassNotFoundException AssetPackManager;меню открылось,
+исключение в этом цикле не исправлялось. Не утверждать полное отсутствие Android errors.
+Бой/движение/новыйслед на телефоне не проверялись,производительность не измерялась.
+Editor текущий бой перед сборкой штатно PauseAndSaveRun и Stop;не восстанавливалась
+старая копияprefs. Generated compile_commands backed up/restored;локальныеQualitySettings,
+Recovery7/8/9 и старые.utmp не менялись. Этот отчётный commit не меняет кодAPK.

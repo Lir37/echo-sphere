@@ -6084,3 +6084,5 @@ Recovery7/8 сохранены. Последующий отчётный commit �
 2026-10-29: выбранный contour стиль№1 внедрён во всех10персонажах:retained native тела,UI PNG из той же геометрии. Старый body sprite/fallback исключён из live Draw. GPU50727checks/Play UI28checks/5C#profiles PASS,prefs10keys восстановлены. APK не собирался,телефон не менялся. См.UNITY_CHARACTER_VISUAL_STYLE_GUIDE_v1.0.md и UNITY_NATIVE_MODERNIZATION_PROGRESS.md.
 
 2026-10-29 revision: contour персонажи обогащены вставками/направляющими по замечанию пользователя;movement mirror убран,добавлен лёгкий presentation trail. GPU51169checks+movement720checks PASS,5C#profiles/preflight PASS. Live Editor бой не менялся;APK/телефон не трогали. См.UNITY_CHARACTER_VISUAL_STYLE_GUIDE_v1.0.md.
+
+2026-10-29: APK39af96d0 (CI923SUCCESS) собран и установлен11T;свежий17-keyprefs backup,установленныйAPK SHA совпадает,меню с новымavatar наблюдено. Бой/след/производительность на телефоне ещё не проверены. Startup AssetPackManager ClassNotFound записан,не исправлен. Подробности: UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.
