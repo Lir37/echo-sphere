@@ -2494,3 +2494,13 @@ preflight требованием player-spherist/characterArt??resolve. Guard з
 проверку единого contour renderer,10идентичностей/портретов и отсутствия старого
 bitmap пути/RNG;локальный node scripts/check-unity-project.mjs PASS.
 Все остальные preflight/source provenance ограничения оставлены.
+
+2026-10-29 — dfb535e75d309ca40fbdab60da890f0978ec34de,CI921SUCCESS:
+https://github.com/Lir37/echo-sphere/actions/runs/40882106878
+Финальный bake/check повторён в Editor Play:50727checks PASS,те же PNG bytes.
+В recipe добавлен обязательный Play guard: запуск предыдущего варианта в Edit
+вызывал ошибки deferred Destroy временных runtime owners при Dispose. Это ошибка
+проверочного скрипта,не игровой сцены. Сообщения сохранены отдельно;после повторной
+проверки и штатного освобождения Console проверена повторно. Неиспользуемые ресурсы
+освобождены Resources.UnloadUnusedAssets,Editor prefs10keys restored/verified.
+Этот завершающий commit меняет recipe/отчёт,не рисунок и не игровой код/APK.

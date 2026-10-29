@@ -36,7 +36,11 @@ NativeWorldPlayer рисует их напрямую; прежний портр�
 Портреты меню: Resources/EchoSphere/CharacterArt/<id>.png, прежние пути/GUID,
 1254×1254, исходные настройки импорта и механизмы async/Lease. Они получены
 из того же NativeWorldPlayer.DrawPortrait, без теней земли и статусов.
-Рецепт: scripts/bake-unity-contour-characters.cs. При изменении геометрии/цветов
+Рецепт: scripts/bake-unity-contour-characters.cs, только Editor Play Mode.
+Перед входом сохранить Editor prefs через backup-unity-gameplay-diagnostic-prefs.cs,
+после Stop восстановить restore-unity-gameplay-diagnostic-prefs.cs. В Edit Mode
+скрипт отказывается работать: runtime-owners освобождаются через deferred Destroy.
+При изменении геометрии/цветов
 пересоздать все портреты этим скриптом и перепроверить меню.
 [Манифест итоговых PNG](VisualReferences/CharacterStyle-2026-10-29/implementation.json).
 

@@ -8,6 +8,7 @@ using UnityEngine;
 public static class ContourCharacterAcceptance
 {
  public static object Main(){
+  if(!UnityEditor.EditorApplication.isPlaying)throw new Exception("Play Mode required: temporary runtime render owners use deferred Destroy. Back up Editor preferences before entering Play.");
   const BindingFlags F=BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic;
   var asm=typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly;var pt=asm.GetType("EchoSphere.Presentation.NativeWorldPlayer");
   var st=pt.GetNestedType("State",F);var wt=asm.GetType("EchoSphere.Presentation.NativeWorldSurface");
