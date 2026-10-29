@@ -24,7 +24,8 @@ test('Settings uses native UI Toolkit controls and existing runtime callbacks', 
   const commands = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeUiPreferences.cs');
   assert.match(commands, /ClearRunSnapshot\(\);PlayerPrefs\.Save\(\)/);
   assert.match(bridge, /case "resetAll":NativeResetAllProgress\(\);return default/);
-  assert.match(owner, /_nativeSettingsScreen\.Show\(SourceDevicePixelRatio,/);
+  assert.match(owner, /_nativeSettingsScreen\.Show\(NativeSubmenuScale,/);
+  assert.match(commands, /NativeSubmenuScale=>SourceDevicePixelRatio\s*\*\s*\.86f/);
   assert.doesNotMatch(owner, /SourceDevicePixelRatio\s*\*\s*scale/);
   const hud = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeHud.cs');
   assert.match(hud, /SetInterfaceScale\(\(float\)NativeInterfaceScale\)/);
