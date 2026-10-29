@@ -159,10 +159,10 @@ namespace EchoSphere.Runtime
         {
             var speed = 180f * GetArtifactMoveSpeedMultiplier() * LevelUpAbilityRules.GetMoveSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.MoveSpeed)) * GetCharacterMoveSpeedMultiplier() * PlayerLoopRules.MutationSpeed(_mutationStage) *
                 (_sphereCharacterId == SphereCharacterId.Berserker && _characterMasteryLevel >= 5 && _buffTimer > 0f ? 1.05f : 1f) * LevelUpAbilityRules.GetMomentumSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.Momentum), _playerCore.DashTimer > 0f);
-            var crit = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "critChance") + LevelUpAbilityRules.GetCritChanceBonus(GetAbilityLevel(RunUpgradeKind.Crit)) + PersistentUpgradeRules.GetCritChanceBonus(GetShopUpgradeLevel("crit")) + GetArchitectFormationCritBonus());
-            var dodge = LevelUpAbilityRules.GetDodgeChance(GetAbilityLevel(RunUpgradeKind.Dodge), ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "dodgeChance"));
-            var vampire = ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "vampire") + GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f;
-            var xp = PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("xp")) + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "xpGain");
+            var crit = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + GetRunArtifactEffectTotal("critChance") + LevelUpAbilityRules.GetCritChanceBonus(GetAbilityLevel(RunUpgradeKind.Crit)) + PersistentUpgradeRules.GetCritChanceBonus(GetShopUpgradeLevel("crit")) + GetArchitectFormationCritBonus());
+            var dodge = LevelUpAbilityRules.GetDodgeChance(GetAbilityLevel(RunUpgradeKind.Dodge), GetRunArtifactEffectTotal("dodgeChance"));
+            var vampire = GetRunArtifactEffectTotal("vampire") + GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f;
+            var xp = PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("xp")) + GetRunArtifactEffectTotal("xpGain");
             PauseCard(cards, "HP", Mathf.CeilToInt(_playerCore.CurrentHp) + " / " + Mathf.CeilToInt(_playerCore.MaxHp));
             PauseCard(cards, IsRussianUi ? "Скорость" : "Speed", Mathf.FloorToInt(speed + 0.5f).ToString());
             PauseCard(cards, IsRussianUi ? "Крит" : "Crit", Mathf.FloorToInt(crit * 100f + 0.5f) + "%");

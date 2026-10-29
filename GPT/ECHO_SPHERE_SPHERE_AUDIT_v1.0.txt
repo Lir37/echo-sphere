@@ -1034,3 +1034,5 @@ PLAYER CHECK IS NOW THE ONLY OPEN GATE:
 Do not make additional balance/performance changes before this device check
 unless a concrete gameplay defect is reproduced.
 ======================================================================
+
+2026-10-29 Unity gameplay audit: sniper_scope/sniper_crown/chain_crown corrected for new runs through ArtifactGameplayRules; actual sniper family/range and Chain secondary-jump/DPS checked. Legacy effects unchanged. Core979+Editor11PASS. Other79artifacts remain review candidates, not automatically inherited D-class defects. See UNITY_GAMEPLAY_COMPLETION_2026-10-29.md.

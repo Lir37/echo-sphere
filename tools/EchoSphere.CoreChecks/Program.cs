@@ -13,6 +13,7 @@ internal static class Program
             void Check(Action action) { try { action(); } catch (Exception error) { failures.Add(error); } }
             Check(CheckRng);
             Check(()=>_assertions += RunEconomyChecks.Run());
+            Check(()=>_assertions += ArtifactGameplayChecks.Run());
             Check(()=>_assertions += SpatialIndexChecks.Run());
             Check(()=>_assertions += CollisionScratchChecks.Run());
             Check(CheckCombatRules);

@@ -6136,3 +6136,28 @@ Node272PASS,preflightPASS,5C#profilesPASS(347runtime/6editor);EditorConsole0erro
 https://github.com/Lir37/echo-sphere/actions/runs/40920972625
 Остальные4региона/ростеры,различиясимуляцииRift,полныйartifactaudit и остальной
 план пока OPEN.Телефон/APK в этихдвухблоках не проверялись/не собирались.
+
+## Третий блок — подтверждённые артефактные расхождения
+ArtifactGameplayRules:в новыхзабегах sniper_scope даёт+10%sniperDamage вместо
+старого+6%общегоsphereDamage;sniper_crown даёт+10%sniperRadius вместо
++8%общегоурона/-3%cooldown;chain_crown даёт+1вторичныйперескок вместо
+этихжеобщихбонусов. ChainTargets и DPS используют одно дискретноезначение.
+Весь остальной каталог не переосмыслялся. Старые забеги(null economy) сохраняют
+первоначальные эффекты.Общийadapter применяется к бою,acquisition иpause stats.
+Core979behavioralchecksPASS,включаявесь82каталогlegacy и всеостальные79безизменений;
+всегоCore13667assertions+47389sourcecomparisonsPASS. Editoractual11checksPASS:
+familydamage/radius/globalmultiplier/ChainDPS иlegacyisolation,безprefswrite.
+Повторноeconomyruntime9checksPASS,исходныйPrefsвосстановлен;Console0errors.
+Node272PASS,preflightPASS,5C#profilesPASS(348runtime/6editor).
+
+audit-unity-gameplay.mjs формирует воспроизводимую Unity inventory82артефактов:
+имена/обещанныеописания/legacyпараметры/строковыессылкиruntime иsourcehash.
+3исправленныхпомеченыCORRECTED_NEW_RUNS_AND_TESTED;79покаREQUIRES_BEHAVIORAL_REVIEW,
+не MISSING и не BROKEN. Наличиестроковойссылки не выдано заинтеграцию.
+JSON:UNITY_GAMEPLAY_ARTIFACT_INVENTORY_2026-10-29.json.
+Второйкоммит1c9621a1:CI929SUCCESS
+https://github.com/Lir37/echo-sphere/actions/runs/40922574455
+
+Следующийэтап:сверкаоставшихся79предметов и измерениедоходаEcho/цен на30минBasin;
+различияRiftсимуляции,остальные4региона/ростеры,15+15способностей,сеты/протоколы,
+мета/Convergence/RUEN/audio/adsзаглушки остаются OPEN.Не считать полныйплан DONE.

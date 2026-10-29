@@ -100,7 +100,7 @@ namespace EchoSphere.Runtime
             if (_type == SphereId.Prism) return damage * Mathf.Max(1, 1 + multishot) / delay;
             if (_type == SphereId.Pulse) return damage * (_runtime.HasArtifact("pulse_crown") ? 2f : 1f) * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));
             if (_type == SphereId.Gravity) return damage * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));
-            if (_type == SphereId.Chain) return damage * (1f + _sourceModifiers.chainTargets * 0.7f) / delay;
+            if (_type == SphereId.Chain) return damage * (1f + (_sourceModifiers.chainTargets + (_runtime==null?0:_runtime.GetArtifactChainExtraJumps())) * 0.7f) / delay;
             if (_type == SphereId.Void) return damage * (_progressionLevel >= 2 ? 1.30f : 1.15f) / delay;
             if (_profile.Aura) return damage / delay;
             return damage * (1 + multishot) * _profile.Pellets / delay;
@@ -643,7 +643,7 @@ namespace EchoSphere.Runtime
             var targets = new List<EnemyAgent2D> { primary };
             var used = new HashSet<EnemyAgent2D> { primary };
             var current = primary;
-            for (var jump = 0; jump < (int)_sourceModifiers.chainTargets; jump++)
+            for (var jump = 0; jump < (int)_sourceModifiers.chainTargets + _runtime.GetArtifactChainExtraJumps(); jump++)
             {
                 EnemyAgent2D next = null;
                 foreach (var candidate in _runtime.FindNearestEnemies(current.transform.position, 150f * SpherePlacementRules.SourcePixelsToWorld, int.MaxValue))

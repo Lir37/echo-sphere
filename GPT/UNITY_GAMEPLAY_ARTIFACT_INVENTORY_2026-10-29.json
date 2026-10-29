@@ -1,0 +1,1687 @@
+{
+  "schemaVersion": 1,
+  "scope": "Static inventory for Unity production. Literal references do not prove invocation, integration, correct semantics or acceptance. Unreviewed entries are not claimed broken.",
+  "baselineCommit": "1c9621a10fdff7cc4a3c950975012487f9118dec",
+  "artifactCatalogSha256": "c8b8bf7550cae1b3e9ec5c1d4a78af49e761cd6dcc3f56f903b57e53ed284f3b",
+  "catalogCounts": {
+    "SourceCommit": 0,
+    "Spheres": 10,
+    "Abilities": 30,
+    "Artifacts": 82,
+    "Synergies": 22,
+    "Sets": 12,
+    "Elements": 3,
+    "Regions": 2,
+    "WorldPockets": 5,
+    "RegionPhases": 6,
+    "Characters": 10,
+    "Runes": 9,
+    "Rarities": 5,
+    "SphereAbilityLinks": 30
+  },
+  "verifiedArtifactCorrections": 3,
+  "remainingArtifactReviews": 79,
+  "artifacts": [
+    {
+      "id": "crystal_speed",
+      "nameRu": "Кристалл скорости",
+      "nameEn": "Crystal of Speed",
+      "descriptionRu": "+15% скорости движения",
+      "descriptionEn": "+15% move speed",
+      "legacyEffects": [
+        {
+          "key": "moveSpeed",
+          "legacyValue": 0.15
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "amulet_hp",
+      "nameRu": "Амулет здоровья",
+      "nameEn": "Health Amulet",
+      "descriptionRu": "+30 макс. HP",
+      "descriptionEn": "+30 max HP",
+      "legacyEffects": [
+        {
+          "key": "maxHp",
+          "legacyValue": 30
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "ring_xp",
+      "nameRu": "Кольцо опыта",
+      "nameEn": "XP Ring",
+      "descriptionRu": "+20% получаемого опыта",
+      "descriptionEn": "+20% XP gained",
+      "legacyEffects": [
+        {
+          "key": "xpGain",
+          "legacyValue": 0.2
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "regen_stone",
+      "nameRu": "Камень восстановления",
+      "nameEn": "Regen Stone",
+      "descriptionRu": "+1 HP/сек",
+      "descriptionEn": "+1 HP/sec",
+      "legacyEffects": [
+        {
+          "key": "regen",
+          "legacyValue": 1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "radius_shard",
+      "nameRu": "Осколок радиуса",
+      "nameEn": "Radius Shard",
+      "descriptionRu": "+10% радиуса сфер",
+      "descriptionEn": "+10% sphere radius",
+      "legacyEffects": [
+        {
+          "key": "sphereRadius",
+          "legacyValue": 0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "vampire_ring",
+      "nameRu": "Кольцо вампира",
+      "nameEn": "Vampire Ring",
+      "descriptionRu": "+3% вампиризма",
+      "descriptionEn": "+3% lifesteal",
+      "legacyEffects": [
+        {
+          "key": "vampire",
+          "legacyValue": 0.03
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs",
+          "line": 583,
+          "text": "if (_runtime.HasArtifact(\"vampire_ring\")) _runtime.HealPlayer(5f);"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "swift_boots",
+      "nameRu": "Ботинки скорости",
+      "nameEn": "Swift Boots",
+      "descriptionRu": "после убийства +10% скорости на 3с",
+      "descriptionEn": "kills grant +10% speed for 3s",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 2775,
+          "text": "if (_ownedArtifacts.Contains(\"swift_boots\")) _swiftBootsTimer = 3f;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 2961,
+          "text": "if (_swiftBootsTimer > 0f && _ownedArtifacts.Contains(\"swift_boots\")) multiplier *= 1.10f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "luck_talisman",
+      "nameRu": "Талисман удачи",
+      "nameEn": "Luck Talisman",
+      "descriptionRu": "+15% шанс крита",
+      "descriptionEn": "+15% crit chance",
+      "legacyEffects": [
+        {
+          "key": "critChance",
+          "legacyValue": 0.15
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "mage_pendant",
+      "nameRu": "Кулон мага",
+      "nameEn": "Mage Pendant",
+      "descriptionRu": "-10% перезарядки способностей",
+      "descriptionEn": "-10% ability cooldowns",
+      "legacyEffects": [
+        {
+          "key": "cooldown",
+          "legacyValue": -0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "long_lens",
+      "nameRu": "Дальняя линза",
+      "nameEn": "Long Lens",
+      "descriptionRu": "+18% радиуса снайперской сферы",
+      "descriptionEn": "+18% sniper range",
+      "legacyEffects": [
+        {
+          "key": "sniperRadius",
+          "legacyValue": 0.18
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 6178,
+          "text": "sphere.Type == SphereId.Sniper, _ownedArtifacts.Contains(\"long_lens\"));"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "stasis_core",
+      "nameRu": "Ядро стазиса",
+      "nameEn": "Stasis Core",
+      "descriptionRu": "при получении урона замедляет всех врагов на 2 секунды",
+      "descriptionEn": "taking damage slows all enemies for 2s",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 2900,
+          "text": "if (_ownedArtifacts.Contains(\"stasis_core\"))"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "dragon_heart",
+      "nameRu": "Сердце дракона",
+      "nameEn": "Dragon Heart",
+      "descriptionRu": "+50 HP, -10% скорости",
+      "descriptionEn": "+50 HP, -10% speed",
+      "legacyEffects": [
+        {
+          "key": "maxHp",
+          "legacyValue": 50
+        },
+        {
+          "key": "moveSpeed",
+          "legacyValue": -0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "mirror",
+      "nameRu": "Зеркало",
+      "nameEn": "Mirror",
+      "descriptionRu": "20% полученного урона отражается ближайшему врагу",
+      "descriptionEn": "20% of incoming damage is reflected",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeArtifactRewards.cs",
+          "line": 71,
+          "text": "switch(id){case \"swift\":return ru?\"Темп\":\"Tempo\";case \"mirror\":return ru?\"Контратака\":\"Counter\";case \"resonance\":return ru?\"Связь сфер\":\"Sphere Link\";case \"lone\":return ru?\"Одна сфера\":\"Solo Sphere\";case \"fivefold\":case \"network\":return ru?\"Сеть\":\"Network\";case \"relay\":return ru?\"Прогрессия\":\"Progression\";case \"triangle\":return ru?\"Геометрия\":\"Geometry\";case \"overclock\":return ru?\"Разгон\":\"Overclock\";case \"singularity\":return ru?\"Сингулярность\":\"Singularity\";case \"zero\":return ru?\"Архитектура\":\"Architecture\";case \"unified\":return ru?\"Единый разум\":\"Unified Mind\";default:return \"\";}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 2885,
+          "text": "if (_rng.NextFloat() < (_ownedArtifacts.Contains(\"mirror\") ? 0.20f : 0f))"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceArtifacts.cs",
+          "line": 69,
+          "text": "var ids = new[] { \"swift\", \"mirror\", \"resonance\", \"lone\", \"fivefold\", \"relay\", \"triangle\", \"overclock\", \"network\", \"singularity\", \"zero\", \"unified\" };"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "predator_claw",
+      "nameRu": "Коготь хищника",
+      "nameEn": "Predator Claw",
+      "descriptionRu": "+8% урона сфер",
+      "descriptionEn": "+8% sphere damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHitCadence.cs",
+          "line": 37,
+          "text": "if (HasArtifact(\"predator_claw\") && owner.CountSourcePredatorHit() % 5 == 0) { damage *= 2f; critical = true; }"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "foresight_eye",
+      "nameRu": "Око предвидения",
+      "nameEn": "Foresight Eye",
+      "descriptionRu": "+10% крита и +8% урона снайперской сферы",
+      "descriptionEn": "+10% crit and +8% sniper damage",
+      "legacyEffects": [
+        {
+          "key": "critChance",
+          "legacyValue": 0.1
+        },
+        {
+          "key": "sniperDamage",
+          "legacyValue": 0.08
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeFrame.cs",
+          "line": 32,
+          "text": "if(_ownedArtifacts.Contains(\"foresight_eye\"))foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){var delta=(UnityEngine.Vector2)enemy.transform.position-PlayerPosition;if(delta.sqrMagnitude>0){var arrow=NativeSourcePixels(delta.normalized*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld);frame.HasArrow=true;frame.ArrowX=arrow.x;frame.ArrowY=arrow.y;}break;}return frame;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs",
+          "line": 157,
+          "text": "if(_ownedArtifacts.Contains(\"foresight_eye\"))foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){var delta=(Vector2)enemy.transform.position-PlayerPosition;if(delta.sqrMagnitude>0f)scene[\"bossArrow\"]=SourcePoint(delta.normalized*SpherePlacementRules.SourcePixelsToWorld);break;}"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "echo_conductor",
+      "nameRu": "Проводник Эха",
+      "nameEn": "Echo Conductor",
+      "descriptionRu": "+12% урона цепной сферы",
+      "descriptionEn": "+12% chain sphere damage",
+      "legacyEffects": [
+        {
+          "key": "chainDamage",
+          "legacyValue": 0.12
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "heavy_core",
+      "nameRu": "Тяжёлое ядро",
+      "nameEn": "Heavy Core",
+      "descriptionRu": "+15% урона стандартной сферы",
+      "descriptionEn": "+15% standard sphere damage",
+      "legacyEffects": [
+        {
+          "key": "standardDamage",
+          "legacyValue": 0.15
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "scattering_matrix",
+      "nameRu": "Матрица рассеивания",
+      "nameEn": "Scattering Matrix",
+      "descriptionRu": "+12% урона дробовика",
+      "descriptionEn": "+12% shotgun damage",
+      "legacyEffects": [
+        {
+          "key": "shotgunDamage",
+          "legacyValue": 0.12
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "aura_lens",
+      "nameRu": "Линза ауры",
+      "nameEn": "Aura Lens",
+      "descriptionRu": "+18% радиуса ауры",
+      "descriptionEn": "+18% aura radius",
+      "legacyEffects": [
+        {
+          "key": "auraRadius",
+          "legacyValue": 0.18
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "network_relay",
+      "nameRu": "Сетевой реле",
+      "nameEn": "Network Relay",
+      "descriptionRu": "при 2+ типах сфер +5% урона сети",
+      "descriptionEn": "with 2+ sphere types, +5% network damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.06
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3019,
+          "text": "if (_ownedArtifacts.Contains(\"network_relay\") && uniqueTypes >= 2) multiplier *= 1.05f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "chaos_orb",
+      "nameRu": "Матрица стабильности",
+      "nameEn": "Stability Matrix",
+      "descriptionRu": "каждые 10 секунд даёт случайный бонус урона или радиуса на 3 секунды",
+      "descriptionEn": "every 10s grants a random damage or radius buff for 3s",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceLoop.cs",
+          "line": 61,
+          "text": "if (_ownedArtifacts.Contains(\"chaos_orb\"))"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "resonance_core",
+      "nameRu": "Сердце резонанса",
+      "nameEn": "Resonance Core",
+      "descriptionRu": "сфера рядом с другой сферой получает +12% урона",
+      "descriptionEn": "nearby spheres deal +12% damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.05
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 38,
+          "text": "if(_ownedArtifacts.Contains(\"resonance_core\")&&sphere!=null&&_spheres.Where(s=>s!=null&&s.gameObject.activeInHierarchy).Any(other=>other!=sphere&&other.gameObject.activeInHierarchy&&NativeLiveLogicalDistance(other,sphere)<=190))multiplier*=1.12;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 138,
+          "text": "if(NativeOwnsArtifact(scene,\"resonance_core\")&&sphere.Truth&&scene[\"spheres\"].Items.Any(other=>other!=sphere&&!(other[\"alive\"].Raw is bool alive&&!alive)&&NativeLogicalDistance(other[\"pos\"],sphere[\"pos\"])<=190))multiplier*=1.12;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3029,
+          "text": "if (_ownedArtifacts.Contains(\"resonance_core\") && SphereNearAnotherType(type)) multiplier *= 1.12f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "lone_bastion",
+      "nameRu": "Одинокий бастион",
+      "nameEn": "Lone Bastion",
+      "descriptionRu": "если активен только один тип сферы, он получает +30% урона",
+      "descriptionEn": "with one sphere type, it gains +30% damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3016,
+          "text": "if (_ownedArtifacts.Contains(\"lone_bastion\") && uniqueTypes <= 1) multiplier *= 1.30f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "fivefold_resonance",
+      "nameRu": "Резонанс пяти",
+      "nameEn": "Fivefold Resonance",
+      "descriptionRu": "каждый уникальный тип сферы даёт +4% урона сети",
+      "descriptionEn": "each unique sphere type grants +4% network damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.02
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3017,
+          "text": "if (_ownedArtifacts.Contains(\"fivefold_resonance\") && uniqueTypes > 1) multiplier *= 1f + 0.04f * Mathf.Min(5, uniqueTypes);"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "relay_matrix",
+      "nameRu": "Релейная матрица",
+      "nameEn": "Relay Matrix",
+      "descriptionRu": "наличие сферы VII уровня усиливает остальные на +10%",
+      "descriptionEn": "a level VII sphere empowers the network by +10%",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3018,
+          "text": "if (_ownedArtifacts.Contains(\"relay_matrix\") && HasLevelSevenSphere()) multiplier *= 1.10f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "triangle_circuit",
+      "nameRu": "Треугольный контур",
+      "nameEn": "Triangle Circuit",
+      "descriptionRu": "сферы внутри треугольной сети получают +15% урона",
+      "descriptionEn": "spheres in a triangular network deal +15% damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 39,
+          "text": "if(_ownedArtifacts.Contains(\"triangle_circuit\")&&NativeLiveSphereTriangle(sphere))multiplier*=1.15;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 139,
+          "text": "if(NativeOwnsArtifact(scene,\"triangle_circuit\")&&NativeSphereTriangle(scene,sphere))multiplier*=1.15;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3024,
+          "text": "if (_ownedArtifacts.Contains(\"triangle_circuit\"))"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "overclock",
+      "nameRu": "Разгон ядра",
+      "nameEn": "Overclock",
+      "descriptionRu": "-12% задержки сфер, но небольшая потеря эффективности",
+      "descriptionEn": "-12% sphere delay with a small efficiency cost",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.03
+        },
+        {
+          "key": "sphereDelay",
+          "legacyValue": -0.12
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeArtifactRewards.cs",
+          "line": 71,
+          "text": "switch(id){case \"swift\":return ru?\"Темп\":\"Tempo\";case \"mirror\":return ru?\"Контратака\":\"Counter\";case \"resonance\":return ru?\"Связь сфер\":\"Sphere Link\";case \"lone\":return ru?\"Одна сфера\":\"Solo Sphere\";case \"fivefold\":case \"network\":return ru?\"Сеть\":\"Network\";case \"relay\":return ru?\"Прогрессия\":\"Progression\";case \"triangle\":return ru?\"Геометрия\":\"Geometry\";case \"overclock\":return ru?\"Разгон\":\"Overclock\";case \"singularity\":return ru?\"Сингулярность\":\"Singularity\";case \"zero\":return ru?\"Архитектура\":\"Architecture\";case \"unified\":return ru?\"Единый разум\":\"Unified Mind\";default:return \"\";}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceArtifacts.cs",
+          "line": 69,
+          "text": "var ids = new[] { \"swift\", \"mirror\", \"resonance\", \"lone\", \"fivefold\", \"relay\", \"triangle\", \"overclock\", \"network\", \"singularity\", \"zero\", \"unified\" };"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "soul_engine",
+      "nameRu": "Двигатель душ",
+      "nameEn": "Soul Engine",
+      "descriptionRu": "+5% урона сфер и +10% опыта",
+      "descriptionEn": "+5% sphere damage and +10% XP",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.05
+        },
+        {
+          "key": "xpGain",
+          "legacyValue": 0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "time_anchor",
+      "nameRu": "Якорь времени",
+      "nameEn": "Time Anchor",
+      "descriptionRu": "-12% перезарядки способностей",
+      "descriptionEn": "-12% ability cooldowns",
+      "legacyEffects": [
+        {
+          "key": "cooldown",
+          "legacyValue": -0.12
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "void_contract",
+      "nameRu": "Контракт пустоты",
+      "nameEn": "Void Contract",
+      "descriptionRu": "+22% урона сфер, но +15% получаемого урона",
+      "descriptionEn": "+22% Sphere damage, but +15% damage taken",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.22
+        },
+        {
+          "key": "damageTakenReduction",
+          "legacyValue": -0.15
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "mirror_network",
+      "nameRu": "Зеркальная сеть",
+      "nameEn": "Mirror Network",
+      "descriptionRu": "две и более сферы дают сети +12% урона",
+      "descriptionEn": "two or more sphere types grant +12% network damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3022,
+          "text": "if (_ownedArtifacts.Contains(\"mirror_network\") && uniqueTypes >= 2) multiplier *= 1.12f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "singularity_engine",
+      "nameRu": "Двигатель сингулярности",
+      "nameEn": "Singularity Engine",
+      "descriptionRu": "билд из 1–2 типов сфер получает ещё +18% урона",
+      "descriptionEn": "a 1–2 sphere-type build gains +18% damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.1
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3023,
+          "text": "if (_ownedArtifacts.Contains(\"singularity_engine\") && uniqueTypes <= 2) multiplier *= 1.18f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "quantum_core",
+      "nameRu": "Квантовое ядро",
+      "nameEn": "Quantum Core",
+      "descriptionRu": "+8% урона сфер и +8% уклонения",
+      "descriptionEn": "+8% sphere damage and +8% dodge",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "dodgeChance",
+          "legacyValue": 0.08
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "zero_sphere",
+      "nameRu": "Нулевая сфера",
+      "nameEn": "Zero Sphere",
+      "descriptionRu": "+35% урона сфер",
+      "descriptionEn": "+35% Sphere damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.35
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 41,
+          "text": "if(_ownedArtifacts.Contains(\"zero_sphere\"))multiplier*=1.20;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 141,
+          "text": "if(NativeOwnsArtifact(scene,\"zero_sphere\"))multiplier*=1.20;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3014,
+          "text": "if (_ownedArtifacts.Contains(\"zero_sphere\")) multiplier *= 1.20f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "unified_mind",
+      "nameRu": "Единый разум",
+      "nameEn": "Unified Mind",
+      "descriptionRu": "самый высокий уровень сферы передаёт 3% за уровень всей сети",
+      "descriptionEn": "the highest sphere level grants 3% damage per level",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.16
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 40,
+          "text": "if(_ownedArtifacts.Contains(\"unified_mind\")){double strongest=0;foreach(var level in _sphereLevels.Values)strongest=Math.Max(strongest,level);multiplier*=1+strongest*.03;}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 140,
+          "text": "if(NativeOwnsArtifact(scene,\"unified_mind\")){double strongest=0;if(player[\"sphereProgression\"].Raw is Dictionary<string,V> levels)foreach(var level in levels.Values)strongest=Math.Max(strongest,level.Number);multiplier*=1+strongest*.03;}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3015,
+          "text": "if (_ownedArtifacts.Contains(\"unified_mind\")) multiplier *= 1f + GetStrongestSphereLevel() * 0.03f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "network_anchor",
+      "nameRu": "Якорь сети",
+      "nameEn": "Network Anchor",
+      "descriptionRu": "+4% урона сфер",
+      "descriptionEn": "+4% Sphere damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "pulse_lens",
+      "nameRu": "Линза импульса",
+      "nameEn": "Pulse Lens",
+      "descriptionRu": "+10% к радиусу импульсов",
+      "descriptionEn": "+10% Pulse radius",
+      "legacyEffects": [
+        {
+          "key": "pulseRadius",
+          "legacyValue": 0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "orbit_charm",
+      "nameRu": "Талисман орбиты",
+      "nameEn": "Orbit Charm",
+      "descriptionRu": "+12% к силе орбит",
+      "descriptionEn": "+12% Orbital strength",
+      "legacyEffects": [
+        {
+          "key": "orbitalDamage",
+          "legacyValue": 0.12
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "prism_shard",
+      "nameRu": "Осколок призмы",
+      "nameEn": "Prism Shard",
+      "descriptionRu": "+10% к урону Призмы",
+      "descriptionEn": "+10% Prism damage",
+      "legacyEffects": [
+        {
+          "key": "prismDamage",
+          "legacyValue": 0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "gravity_bead",
+      "nameRu": "Гравитационная бусина",
+      "nameEn": "Gravity Bead",
+      "descriptionRu": "+12% к силе гравитации",
+      "descriptionEn": "+12% Gravity pull strength",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
+          "line": 48,
+          "text": "var pull = 34f * (_progressionLevel >= 1 ? 1.2f : 1f) * (_runtime.HasArtifact(\"gravity_bead\") ? 1.12f : 1f) * (_runtime.HasArtifact(\"gravity_hook\") ? 1.1f : 1f) * (1f + .20f * cluster);"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "void_ink",
+      "nameRu": "Чернила пустоты",
+      "nameEn": "Void Ink",
+      "descriptionRu": "+10% к урону Пустоты",
+      "descriptionEn": "+10% Void damage",
+      "legacyEffects": [
+        {
+          "key": "voidDamage",
+          "legacyValue": 0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "echo_thread",
+      "nameRu": "Нить Эха",
+      "nameEn": "Echo Thread",
+      "descriptionRu": "+5% к урону связанных Сфер",
+      "descriptionEn": "+5% damage from linked Spheres",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "folded_core",
+      "nameRu": "Складное ядро",
+      "nameEn": "Folded Core",
+      "descriptionRu": "+8% к урону всех Сфер",
+      "descriptionEn": "+8% damage for all Spheres",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "paper_ward",
+      "nameRu": "Бумажный щит",
+      "nameEn": "Paper Ward",
+      "descriptionRu": "+4% урона сфер",
+      "descriptionEn": "+4% Sphere damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "mirror_dust",
+      "nameRu": "Зеркальная пыль",
+      "nameEn": "Mirror Dust",
+      "descriptionRu": "+8% к шансу отражения",
+      "descriptionEn": "+8% reflection chance",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "resonant_leaf",
+      "nameRu": "Резонансный лист",
+      "nameEn": "Resonant Leaf",
+      "descriptionRu": "+10% к Резонансу",
+      "descriptionEn": "+10% Resonance effects",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "signal_knot",
+      "nameRu": "Сигнальный узел",
+      "nameEn": "Signal Knot",
+      "descriptionRu": "+5% скорости восстановления сети",
+      "descriptionEn": "+5% Network recovery speed",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "lattice_chip",
+      "nameRu": "Чип решётки",
+      "nameEn": "Lattice Chip",
+      "descriptionRu": "+10% силы Решётки",
+      "descriptionEn": "+10% Lattice strength",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "fractal_seed",
+      "nameRu": "Фрактальное семя",
+      "nameEn": "Fractal Seed",
+      "descriptionRu": "+10% силы Фрактала",
+      "descriptionEn": "+10% Fractal strength",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.04
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "sniper_scope",
+      "nameRu": "Прицел охотника",
+      "nameEn": "Sniper Scope",
+      "descriptionRu": "+10% урона Снайпера",
+      "descriptionEn": "+10% Sniper damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.06
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
+    },
+    {
+      "id": "chain_battery",
+      "nameRu": "Цепной аккумулятор",
+      "nameEn": "Chain Battery",
+      "descriptionRu": "+10% урона Цепи",
+      "descriptionEn": "+10% Chain damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.06
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "shotgun_shell",
+      "nameRu": "Дробь усиления",
+      "nameEn": "Shotgun Shell",
+      "descriptionRu": "+10% урона Дробовика",
+      "descriptionEn": "+10% Shotgun damage",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.06
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "aura_mist",
+      "nameRu": "Туман ауры",
+      "nameEn": "Aura Mist",
+      "descriptionRu": "+10% радиуса Ауры",
+      "descriptionEn": "+10% Aura radius",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.06
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "orbital_blade",
+      "nameRu": "Орбитальный клинок",
+      "nameEn": "Orbital Blade",
+      "descriptionRu": "+10% урона Орбитальной",
+      "descriptionEn": "+10% Orbital damage",
+      "legacyEffects": [
+        {
+          "key": "orbitalDamage",
+          "legacyValue": 0.1
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereFamilies.cs",
+          "line": 13,
+          "text": "if(attackers){var branch=sphere.Branch;input.Blade=branch==\"orbital_blade\";input.Element=sphere.Element;if(input.Element!=null)ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetElement(input.Element).Color,out input.ElementColor);"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 95,
+          "text": "new ActiveAbilitySynergyLink(\"orbital_blade_darkritual\", SphereId.Orbital, \"orbital_blade\", RunUpgradeKind.DarkRitual, \"darkritual_void_pact_f3\"),"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 4615,
+          "text": "if (HasActiveAbilitySynergy(SphereId.Orbital, \"orbital_blade\", ability, \"darkritual_void_pact_f3\"))"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 549,
+          "text": "if (_runtime.HasArtifact(\"orbital_blade\") && _runtime.HasArtifact(\"prism_filter\"))"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "prism_filter",
+      "nameRu": "Призматический фильтр",
+      "nameEn": "Prism Filter",
+      "descriptionRu": "+10% пробития Призмы",
+      "descriptionEn": "+10% Prism pierce",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 549,
+          "text": "if (_runtime.HasArtifact(\"orbital_blade\") && _runtime.HasArtifact(\"prism_filter\"))"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 743,
+          "text": "var prismFilter = _runtime.HasArtifact(\"prism_filter\");"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "gravity_hook",
+      "nameRu": "Гравитационный крюк",
+      "nameEn": "Gravity Hook",
+      "descriptionRu": "+10% контроля Гравитационной",
+      "descriptionEn": "+10% Gravity control",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 288,
+          "text": "if (_runtime.HasArtifact(\"gravity_hook\")) gravityInterval *= 0.92f;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
+          "line": 48,
+          "text": "var pull = 34f * (_progressionLevel >= 1 ? 1.2f : 1f) * (_runtime.HasArtifact(\"gravity_bead\") ? 1.12f : 1f) * (_runtime.HasArtifact(\"gravity_hook\") ? 1.1f : 1f) * (1f + .20f * cluster);"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "pulse_driver",
+      "nameRu": "Импульсный драйвер",
+      "nameEn": "Pulse Driver",
+      "descriptionRu": "+10% частоты Импульсной",
+      "descriptionEn": "+10% Pulse frequency",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 75,
+          "text": "if(type==\"pulse\"){double waves=1+(_ownedArtifacts.Contains(\"pulse_crown\")?1:0),interval=Math.Max(.08,1.15*(double)mods.auraPulse*(_ownedArtifacts.Contains(\"pulse_driver\")?.90:1)*(NativeLivePlannerSphereDelay(sphere)/1.2));return damage*waves*4/interval;}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 175,
+          "text": "if(type==\"pulse\"){double waves=1+(NativeOwnsArtifact(scene,\"pulse_crown\")?1:0),interval=Math.Max(.08,1.15*mods[\"auraPulse\"].Number*(NativeOwnsArtifact(scene,\"pulse_driver\")?.90:1)*(NativePlannerSphereDelay(scene,sphere)/1.2));return damage*waves*4/interval;}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 6182,
+          "text": "sphere.Type == SphereId.Pulse, _ownedArtifacts.Contains(\"pulse_driver\"));"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 294,
+          "text": "if (_runtime.HasArtifact(\"pulse_driver\")) pulseInterval *= 0.90f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "void_mark",
+      "nameRu": "Метка пустоты",
+      "nameEn": "Void Mark",
+      "descriptionRu": "+10% урона по ослабленным",
+      "descriptionEn": "+10% damage to weakened targets",
+      "legacyEffects": [
+        {
+          "key": "voidWeakened",
+          "legacyValue": 0.1
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs",
+          "line": 14,
+          "text": "if (fraction <= .35f && HasArtifact(\"void_mark\")) damage *= 1.10f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "formation_compass",
+      "nameRu": "Компас формации",
+      "nameEn": "Formation Compass",
+      "descriptionRu": "увеличивает радиус сфер на 8%",
+      "descriptionEn": "increases Sphere radius by 8%",
+      "legacyEffects": [
+        {
+          "key": "sphereRadius",
+          "legacyValue": 0.08
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 2982,
+          "text": "if (_ownedArtifacts.Contains(\"formation_compass\")) multiplier *= 1.08f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "geometry_die",
+      "nameRu": "Куб геометрии",
+      "nameEn": "Geometry Die",
+      "descriptionRu": "+8% урона сфер во время активной Геометрии",
+      "descriptionEn": "increases Sphere damage by 8% during active Geometry",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.06
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3021,
+          "text": "if (_ownedArtifacts.Contains(\"geometry_die\") && _networkState != null && _networkState.DominantFormation != null && _networkState.DominantFormation.Active) multiplier *= 1.08f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "network_coil",
+      "nameRu": "Сетевая катушка",
+      "nameEn": "Network Coil",
+      "descriptionRu": "+8% урона при 2+ типах сфер",
+      "descriptionEn": "+8% damage with 2+ Sphere types",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.06
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 3020,
+          "text": "if (_ownedArtifacts.Contains(\"network_coil\") && uniqueTypes >= 2) multiplier *= 1.08f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "crit_sigil",
+      "nameRu": "Критическая печать",
+      "nameEn": "Crit Sigil",
+      "descriptionRu": "+5% шанса критического удара",
+      "descriptionEn": "+5% critical chance",
+      "legacyEffects": [
+        {
+          "key": "critChance",
+          "legacyValue": 0.05
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "tempo_ring",
+      "nameRu": "Кольцо темпа",
+      "nameEn": "Tempo Ring",
+      "descriptionRu": "-8% задержки сфер",
+      "descriptionEn": "-8% Sphere attack delay",
+      "legacyEffects": [
+        {
+          "key": "sphereDelay",
+          "legacyValue": -0.08
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "triangle_engine",
+      "nameRu": "Двигатель треугольника",
+      "nameEn": "Triangle Engine",
+      "descriptionRu": "+12% силы Треугольника",
+      "descriptionEn": "+12% Triangle strength",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "ring_engine",
+      "nameRu": "Двигатель кольца",
+      "nameEn": "Ring Engine",
+      "descriptionRu": "+12% силы Кольца",
+      "descriptionEn": "+12% Ring strength",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "lattice_engine",
+      "nameRu": "Двигатель решётки",
+      "nameEn": "Lattice Engine",
+      "descriptionRu": "+12% силы Решётки",
+      "descriptionEn": "+12% Lattice strength",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "fractal_engine",
+      "nameRu": "Двигатель фрактала",
+      "nameEn": "Fractal Engine",
+      "descriptionRu": "+12% силы Фрактала",
+      "descriptionEn": "+12% Fractal strength",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "resonance_lattice",
+      "nameRu": "Резонансная решётка",
+      "nameEn": "Resonance Lattice",
+      "descriptionRu": "+15% эффектов Резонанса",
+      "descriptionEn": "+15% Resonance effects",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "echo_weaver",
+      "nameRu": "Ткач Эха",
+      "nameEn": "Echo Weaver",
+      "descriptionRu": "каждая связь даёт небольшой бонус",
+      "descriptionEn": "Each active Network link grants a small bonus",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "gravity_crown",
+      "nameRu": "Корона гравитации",
+      "nameEn": "Gravity Crown",
+      "descriptionRu": "Гравитационная получает +20% радиуса",
+      "descriptionEn": "Gravity gains +20% radius",
+      "legacyEffects": [
+        {
+          "key": "gravityRadius",
+          "legacyValue": 0.2
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "void_lantern",
+      "nameRu": "Фонарь пустоты",
+      "nameEn": "Void Lantern",
+      "descriptionRu": "Пустотная получает +20% урона добивания",
+      "descriptionEn": "Void gains +20% execution damage",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs",
+          "line": 15,
+          "text": "if (fraction <= .35f && HasArtifact(\"void_lantern\")) damage *= 1.20f;"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "prism_crown",
+      "nameRu": "Корона призмы",
+      "nameEn": "Prism Crown",
+      "descriptionRu": "Призма получает +1 отражение",
+      "descriptionEn": "Prism gains +1 reflection",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 750,
+          "text": "branch, finalId, prismFilter, _runtime.HasArtifact(\"prism_crown\"), ringReflection);"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "orbital_crown",
+      "nameRu": "Корона орбиты",
+      "nameEn": "Orbital Crown",
+      "descriptionRu": "Орбитальная получает +1 спутник",
+      "descriptionEn": "Orbital gains +1 satellite",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereFamilies.cs",
+          "line": 14,
+          "text": "bool crown=_ownedArtifacts.Contains(\"orbital_crown\"),dance=branch==\"orbital_dance\"&&sphere.Final==2;"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 73,
+          "text": "if(type==\"orbital\"){double level=NativeLiveSphereLevel(\"orbital\");bool dance=GetSphereBranch(EchoSphere.Core.SphereId.Orbital)==\"orbital_dance\"&&NativeSphereFinalIndex(EchoSphere.Core.SphereId.Orbital)==2;var counts=EchoSphere.Core.OrbitalVisualGeometryRules.RingCounts(level,(_ownedArtifacts.Contains(\"orbital_crown\")?1:0)+(dance?1:0));double angular=(1.8+Math.Min(2.4,Math.Max(1,level)*.28))*(double)mods.rotationSpeed,rate=(counts.Inner+counts.Outer)*angular/(Math.PI*2);return damage*.95*rate;}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 173,
+          "text": "if(type==\"orbital\"){double level=NativeSphereLevel(scene,\"orbital\");bool dance=scene[\"player\"][\"sphereBranches\"][\"orbital\"].Text==\"orbital_dance\"&&NativeMutationFinal(scene[\"player\"],\"orbital\")==2;var counts=EchoSphere.Core.OrbitalVisualGeometryRules.RingCounts(level,(NativeOwnsArtifact(scene,\"orbital_crown\")?1:0)+(dance?1:0));double angular=(1.8+Math.Min(2.4,Math.Max(1,level)*.28))*mods[\"rotationSpeed\"].Number,rate=(counts.Inner+counts.Outer)*angular/(Math.PI*2);return damage*.95*rate;}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 382,
+          "text": "var extraElements = (_runtime.HasArtifact(\"orbital_crown\") ? 1 : 0)"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "pulse_crown",
+      "nameRu": "Корона импульса",
+      "nameEn": "Pulse Crown",
+      "descriptionRu": "Импульсная получает +1 волну",
+      "descriptionEn": "Pulse gains +1 wave",
+      "legacyEffects": [],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 75,
+          "text": "if(type==\"pulse\"){double waves=1+(_ownedArtifacts.Contains(\"pulse_crown\")?1:0),interval=Math.Max(.08,1.15*(double)mods.auraPulse*(_ownedArtifacts.Contains(\"pulse_driver\")?.90:1)*(NativeLivePlannerSphereDelay(sphere)/1.2));return damage*waves*4/interval;}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
+          "line": 175,
+          "text": "if(type==\"pulse\"){double waves=1+(NativeOwnsArtifact(scene,\"pulse_crown\")?1:0),interval=Math.Max(.08,1.15*mods[\"auraPulse\"].Number*(NativeOwnsArtifact(scene,\"pulse_driver\")?.90:1)*(NativePlannerSphereDelay(scene,sphere)/1.2));return damage*waves*4/interval;}"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 101,
+          "text": "if (_type == SphereId.Pulse) return damage * (_runtime.HasArtifact(\"pulse_crown\") ? 2f : 1f) * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
+          "line": 23,
+          "text": "var waves = 1 + (_runtime.HasArtifact(\"pulse_crown\") ? 1 : 0) + (branch == \"pulse_burst\" && (mode == 2 || mode < 0) ? 1 : 0);"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "chain_crown",
+      "nameRu": "Корона цепи",
+      "nameEn": "Chain Crown",
+      "descriptionRu": "Цепная получает +1 перескок",
+      "descriptionEn": "Chain gains +1 jump",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
+    },
+    {
+      "id": "sniper_crown",
+      "nameRu": "Корона снайпера",
+      "nameEn": "Sniper Crown",
+      "descriptionRu": "Снайперская получает +10% дальности",
+      "descriptionEn": "Sniper gains +10% range",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.08
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
+    },
+    {
+      "id": "time_splitter",
+      "nameRu": "Разделитель времени",
+      "nameEn": "Time Splitter",
+      "descriptionRu": "после временной остановки +15% урона",
+      "descriptionEn": "+15% damage after Time Stop",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.12
+        },
+        {
+          "key": "critChance",
+          "legacyValue": 0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "stasis_mandala",
+      "nameRu": "Мандала стазиса",
+      "nameEn": "stasis mandala",
+      "descriptionRu": "полученный урон частично превращается в щит",
+      "descriptionEn": "Part of damage taken becomes a shield charge",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.12
+        },
+        {
+          "key": "critChance",
+          "legacyValue": 0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "quantum_fold",
+      "nameRu": "Квантовый сгиб",
+      "nameEn": "quantum fold",
+      "descriptionRu": "Стелла появляется с дополнительным выбором",
+      "descriptionEn": "Stella rewards gain one additional choice",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.12
+        },
+        {
+          "key": "critChance",
+          "legacyValue": 0.03
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "void_star",
+      "nameRu": "Звезда пустоты",
+      "nameEn": "void star",
+      "descriptionRu": "Пустота получает дополнительный шанс добивания",
+      "descriptionEn": "Void gains an additional execution chance",
+      "legacyEffects": [
+        {
+          "key": "critChance",
+          "legacyValue": 0.03
+        }
+      ],
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs",
+          "line": 20,
+          "text": "var chance = SphereEvolutionCombatRules.GetVoidExecutionChance(level, final) + (HasArtifact(\"void_star\") ? .08f : 0f);"
+        }
+      ],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "axiom_core",
+      "nameRu": "Аксиома ядра",
+      "nameEn": "axiom core",
+      "descriptionRu": "+5% ко всем ключевым эффектам",
+      "descriptionEn": "+5% to key combat effects",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.15
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.08
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    },
+    {
+      "id": "universal_fold",
+      "nameRu": "Универсальный сгиб",
+      "nameEn": "universal fold",
+      "descriptionRu": "все собранные системы получают небольшой синергетический бонус",
+      "descriptionEn": "All assembled systems gain a small synergy bonus",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.15
+        },
+        {
+          "key": "cooldown",
+          "legacyValue": -0.08
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "verification": null
+    }
+  ]
+}

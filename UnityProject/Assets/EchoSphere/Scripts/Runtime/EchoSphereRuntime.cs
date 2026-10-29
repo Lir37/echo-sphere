@@ -532,11 +532,11 @@ namespace EchoSphere.Runtime
             (_darkRitualOverloadTimer > 0f ? 1.25f + GetAbilityLevel(RunUpgradeKind.DarkRitual) * 0.04f : 1f) *
             LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
             PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("dmg")) *
-            Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage"));
+            Mathf.Max(0.25f, 1f + GetRunArtifactEffectTotal("sphereDamage"));
         public float AttackSpeedMultiplier => _attackSpeedMultiplier * (_darkRitualOverloadTimer > 0f ? 1f / 0.72f : 1f) *
             LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) *
             GetCharacterAttackSpeedMultiplier() /
-            Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
+            Mathf.Max(0.5f, 1f + GetRunArtifactEffectTotal("sphereDelay"));
 
         private bool IsFireAlignedSphere(SphereId type) =>
             Mathf.Max(GetGlobalSphereModifierLevel("fire"), GetSphereAuthoredModifierLevel(type, SphereAuthoredModifier.Fire)) > 0;
@@ -1115,7 +1115,7 @@ namespace EchoSphere.Runtime
                 GetCharacterMoveSpeedMultiplier() * PlayerLoopRules.MutationSpeed(_mutationStage) *
                 (_sphereCharacterId == SphereCharacterId.Berserker && _characterMasteryLevel >= 5 && _buffTimer > 0f ? 1.05f : 1f), followMultiplier) * dt);
             if (_follow) foreach (var sphere in _spheres) if (sphere != null) sphere.SyncFollowPosition();
-            _playerCore.Heal(Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) * dt);
+            _playerCore.Heal(Mathf.Max(0f, GetRunArtifactEffectTotal("regen")) * dt);
             TickSourceLatePlayerState(dt);
             RefreshNetworkState();
             TickResonanceRing(dt);
@@ -2828,7 +2828,7 @@ namespace EchoSphere.Runtime
         {
             if ((_paused && !_simulationFrame) || _gameOver) return;
             var multiplier = Mathf.Max(0.5f, PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("xp")) *
-                (1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "xpGain")));
+                (1f + GetRunArtifactEffectTotal("xpGain")));
             _xp += Mathf.Max(0f, amount * multiplier);
             OpenLevelUpIfReady();
         }
@@ -2858,7 +2858,7 @@ namespace EchoSphere.Runtime
 
         public float ResolveProjectileDamage(float damage, float critChanceBonus, out bool wasCritical, EnemyAgent2D target = null)
         {
-            var artifactCrit = ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "critChance");
+            var artifactCrit = GetRunArtifactEffectTotal("critChance");
             var abilityCrit = LevelUpAbilityRules.GetCritChanceBonus(GetAbilityLevel(RunUpgradeKind.Crit));
             var shopCrit = PersistentUpgradeRules.GetCritChanceBonus(GetShopUpgradeLevel("crit"));
             var hunterCrit = GetHunterCriticalChanceBonus(target);
@@ -2874,7 +2874,7 @@ namespace EchoSphere.Runtime
             if (_playerCore == null || !_playerCore.CanReceiveDamageNow) return;
             var dodgeBonus = LevelUpAbilityRules.GetDodgeChance(
                 GetAbilityLevel(RunUpgradeKind.Dodge),
-                ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "dodgeChance"));
+                GetRunArtifactEffectTotal("dodgeChance"));
             if (_rng.NextFloat() < dodgeBonus)
             {
                 SpawnSourceParticle(PlayerPosition, new Vector2(0f, 60f), 0.5f, 3f, "#e8dcc0");
@@ -2949,7 +2949,7 @@ namespace EchoSphere.Runtime
 
         public void HealCoreFromDamage(float damage)
         {
-            var vampire = Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "vampire") + GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f);
+            var vampire = Mathf.Max(0f, GetRunArtifactEffectTotal("vampire") + GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f);
             if (_playerCore != null && !_playerCore.IsDead && vampire > 0f)
                 _playerCore.Heal(Mathf.Max(0f, damage) * vampire);
         }
@@ -2957,7 +2957,7 @@ namespace EchoSphere.Runtime
         private float GetArtifactMoveSpeedMultiplier()
         {
             var multiplier = Mathf.Max(0.5f, PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("speed")) *
-                (1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "moveSpeed")));
+                (1f + GetRunArtifactEffectTotal("moveSpeed")));
             if (_swiftBootsTimer > 0f && _ownedArtifacts.Contains("swift_boots")) multiplier *= 1.10f;
             return multiplier;
         }
@@ -2975,8 +2975,8 @@ namespace EchoSphere.Runtime
                 SphereId.Pulse => "pulseRadius",
                 _ => null
             };
-            var multiplier = 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereRadius");
-            if (!string.IsNullOrEmpty(key)) multiplier += ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, key);
+            var multiplier = 1f + GetRunArtifactEffectTotal("sphereRadius");
+            if (!string.IsNullOrEmpty(key)) multiplier += GetRunArtifactEffectTotal(key);
             // Source artifactSystem.ts applies Formation Compass twice by design:
             // once through the global sphereRadius effect and once per Sphere here.
             if (_ownedArtifacts.Contains("formation_compass")) multiplier *= 1.08f;
@@ -2989,7 +2989,7 @@ namespace EchoSphere.Runtime
             LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
 
         private float GetArtifactOnlyDamageTakenMultiplier() =>
-            Mathf.Max(0.45f, 1f - ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "damageTakenReduction")) *
+            Mathf.Max(0.45f, 1f - GetRunArtifactEffectTotal("damageTakenReduction")) *
             ArtifactSynergyRules.GetGlassCannonDamageTakenMultiplier(ArtifactSynergyRules.HasGlassCannonSynergy(_ownedArtifacts));
 
         private float GetArtifactSphereFamilyDamageMultiplier(SphereId type)
@@ -3009,7 +3009,7 @@ namespace EchoSphere.Runtime
                 _ => null
             };
             var multiplier = string.IsNullOrEmpty(key) ? 1f :
-                Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, key));
+                Mathf.Max(0.25f, 1f + GetRunArtifactEffectTotal(key));
             var uniqueTypes = CountUniqueActiveSphereTypes();
             if (_ownedArtifacts.Contains("zero_sphere")) multiplier *= 1.20f;
             if (_ownedArtifacts.Contains("unified_mind")) multiplier *= 1f + GetStrongestSphereLevel() * 0.03f;
@@ -4218,7 +4218,7 @@ namespace EchoSphere.Runtime
         }
 
         private float GetActiveAbilityCooldownMultiplier() =>
-            Mathf.Max(0.55f, (1f - GetAbilityLevel(RunUpgradeKind.Cooldown) * 0.04f) * (1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "cooldown")));
+            Mathf.Max(0.55f, (1f - GetAbilityLevel(RunUpgradeKind.Cooldown) * 0.04f) * (1f + GetRunArtifactEffectTotal("cooldown")));
 
         private void ActivateActiveAbility(RunUpgradeKind kind)
         {
