@@ -6003,3 +6003,5 @@ Actual GPU/layout89checks PASS на292/320/360/390/640,ru/en,включая pref
 width непереносимых слов. Actual native run19checks PASS,включая mobile whole
 words,weapon event/save и paused world invalidation. Повторная phone-проверка
 обновлённой компоновки и отсутствия новых vibrator events ещё впереди.
+
+2026-10-29: source-scale comparison расширен на меню/паузы/модальные окна/мир. Селектор сфер возвращён к5×2,44px/gap6, без FlexWrap и DPI-накопления. По запросу пользователя компактные lock/follow/pause и способности+dash. Actual UI Toolkit144cases/6264checks PASS, runtime26checks PASS,5C#profiles0errors/warnings. Детали: UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md. Phone disconnected; новая Android UI/haptic проверка открыта. Pause performance и freeze3:29 не DONE.
