@@ -12,8 +12,8 @@ namespace EchoSphere.Presentation
         {
             internal object Identity;
             internal double X,Y,Radius,Rotation,HitFlash,Tier,Hp,MaxHp,LinkTimer,LinkX,LinkY,LinkWindow;
-            internal bool HasRotation,Boss,Elite,Fire,Poison,Freeze,LinkTarget;
-            internal string Variant,BossName;
+            internal bool HasRotation,Boss,Elite,Fire,Poison,Freeze,LinkTarget,Fleet;
+            internal string Variant,BossName,Role;
             internal Color Color;
             internal BossSignal Signal;
         }
@@ -63,7 +63,7 @@ namespace EchoSphere.Presentation
         }
         private void DrawOwnedEnemy(NativeWorldSurface surface,EnemyView e,double t)
         {
-            _surface=surface;double facing=FacingAngle(e,t),poseTime=_facing.GetOrCreateValue(e.Identity).AnatomyTime,hit=Clamp(e.HitFlash/.15),pulse=1+Math.Sin(poseTime*5+e.X*.01)*.025,scale=pulse+hit*.05;var root=T(e.X,e.Y,facing,scale,scale);var statusColor=e.Freeze?C(105,214,255):e.Color;
+            _surface=surface;double facing=FacingAngle(e,t),poseTime=_facing.GetOrCreateValue(e.Identity).AnatomyTime,hit=Clamp(e.HitFlash/.15),pulse=e.Fleet?1:1+Math.Sin(poseTime*5+e.X*.01)*.025,scale=pulse+hit*.05;var root=T(e.X,e.Y,facing,scale,scale);var statusColor=e.Freeze?C(105,214,255):e.Color;
             // All current body/limb/wing/tail controls and status glyphs fit
             // inside 4r+32, including stroke miters and minimum-size details.
             // The largest body glow is 2.55r; bone chains and tails are <3r.
@@ -75,9 +75,9 @@ namespace EchoSphere.Presentation
             if(DisableEarlyBodyCullingForValidation)bodyVisible=true;
 #endif
             if(bodyVisible)DrawOuterGlow(surface,e.Radius*(e.Boss?1.65:1.15),statusColor,e.Boss?.21:.10,root);
-            if(e.Boss){DrawBossSignal(surface,e.Signal,t,root);if(bodyVisible)Draw(surface,e.Radius,e.Color,poseTime,e.Variant,true,root);}
+            if(e.Boss){DrawBossSignal(surface,e.Signal,t,root);if(bodyVisible){if(e.Fleet)DrawFleet(e,poseTime,root);else Draw(surface,e.Radius,e.Color,poseTime,e.Variant,true,root);}}
             else if(bodyVisible){
-                Draw(surface,e.Radius,e.Color,poseTime,e.Variant,false,root);if(e.Elite)DrawElite(surface,e.Radius,e.Color,t,root);
+                if(e.Fleet)DrawFleet(e,poseTime,root);else Draw(surface,e.Radius,e.Color,poseTime,e.Variant,false,root);if(e.Elite)DrawElite(surface,e.Radius,e.Color,t,root);
                 if(e.Tier>0){double n=Math.Min(3,e.Tier);var local=root*T(0,-e.Radius*1.55,t*.35);var ray=Get(44,e.Radius,0,1.2,()=>Straight(P(e.Radius*.10,0),P(e.Radius*.38,0)),false);for(int i=0;i<n;i++)Paint(ray,local*T(angle:i*Math.PI*2/n),null,A(statusColor,.46));}
                 LinkBreaker(root,e,t);if(e.Fire||e.Poison||e.Freeze)DrawStatus(surface,e.Radius,t,e.Fire,e.Poison,e.Freeze,root);
                 if(hit>0){var cross=Multi(45,e.Radius,2,()=>new[]{Straight(P(-e.Radius*.8,-e.Radius*.8),P(e.Radius*.8,e.Radius*.8)),Straight(P(e.Radius*.8,-e.Radius*.8),P(-e.Radius*.8,e.Radius*.8))});Paint(cross,root,null,C(255,255,255,hit*.75));}

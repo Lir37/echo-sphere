@@ -73,3 +73,22 @@ H.ПолныеRU/EN/описания/обучение/звук;заглушкиr
 Послеэтапов:compile,Console,contracts,EditorPlay,commit,CIgreen,отчёт.
 Androidгейты отдельно:долгийHUD/управление/RUEN/визуал/FPS,p95<=20ms,p99<=33.3ms.
 Полныйплан НЕ DONE.Не изменятьnew-desing,QualitySettings/Recovery пользователя.
+
+## Второй блок — корабли Spectral Rift
+NativeWorldFleet:7корпусов,rigidкрылья/двигатели,особые рельсы стрелков,
+захваты сборщиков/пиявок/осквернителей,выносные опоры Anchor,bridge/podsboss.
+Сменаизображениятолько Spectral Rift;Basin остаётся органическим.
+Отрисовка использует сохранённые меши:48art entries стабильны на5кадрах.
+Сохранены существующие радиусы,поведение,статусы,telegraphs,elite/HP overlay.
+Это первая реализация флота,не законченная художественная/Androidприёмка.
+16regular/elite states+8bossfamilies отрисованы реальнымUnityGPU;5checksPASS.
+Снимок с непрозрачнымфоном в VisualReferences/RegionalFleet-2026-10-29;
+прозрачныйPNG при просмотре без alpha давал ложные яркие диски свечения,
+поэтомувfixtureфон рисуется самимUnity,productionalphaне менялась.
+NativeRegionWorld теперь читает выбранный Region.Pockets,а не общий Basin alias.
+NativeRunCatalog остаётся источником координат;геометриязонне придумывалась.
+Node272PASS,preflightPASS,5C#profilesPASS(347runtime/6editor);EditorConsole0errors.
+Первыйэкономическийкоммит2d99ae72:CI928SUCCESS
+https://github.com/Lir37/echo-sphere/actions/runs/40920972625
+Остальные4региона/ростеры,различиясимуляцииRift,полныйartifactaudit и остальной
+план пока OPEN.Телефон/APK в этихдвухблоках не проверялись/не собирались.

@@ -11,9 +11,8 @@ namespace EchoSphere.Runtime
         private void DrawNativeRegionWorld()
         {
             var state=new NativeWorldRegion.State {Time=_runTime,Active=_regionHudPocketId};
-            // renderer.ts deliberately consumes REGION_POCKETS (the existing
-            // alias), not a new region-specific visual rule chosen here.
-            foreach(var pocket in NativeRunCatalog.Instance.WorldPockets){ColorUtility.TryParseHtmlString(pocket.Accent,out var accent);state.Pockets.Add(new NativeWorldRegion.Pocket {Id=pocket.Id,Center=new Vector2((float)pocket.X,(float)pocket.Y),Radius=(float)pocket.Radius,Accent=accent});}
+            // Region presentation consumes the same selected region as simulation and radar.
+            foreach(var pocket in NativeRunCatalog.Instance.GetRegion(RegionSourceId(_selectedRegion)).Pockets){ColorUtility.TryParseHtmlString(pocket.Accent,out var accent);state.Pockets.Add(new NativeWorldRegion.Pocket {Id=pocket.Id,Center=new Vector2((float)pocket.X,(float)pocket.Y),Radius=(float)pocket.Radius,Accent=accent});}
             foreach(var poi in _nativeRegionPois){string type=poi.Type,label;var point=NativeSourcePixels(poi.Position);
                 switch(type){case "resonance_cache":label="RESONANCE CACHE";break;case "breach_node":label="BREACH NODE";break;case "echo_relay":label="ECHO RELAY";break;case "lost_signal":label="LOST SIGNAL";break;case "elite_nest":label="ELITE NEST";break;case "rupture":label="RUPTURE";break;case "boss_trace":label="BOSS TRACE";break;default:label="undefined";break;}
                 if(_worldSurface.LocalizeCanvasText)label=NativeLocalizationCatalog.Instance.CanvasText(label,IsRussianUi);

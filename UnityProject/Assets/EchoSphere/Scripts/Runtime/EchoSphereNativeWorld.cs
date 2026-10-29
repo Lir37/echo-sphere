@@ -56,7 +56,8 @@ namespace EchoSphere.Runtime
         private static INativeWorldSprite ResolveNativePlayerArt(string key)=>NativeWorldArtLibrary.Resolve(key);
         private void DrawNativeEnemyWorld(EnemyAgent2D enemy)
         {
-            _nativeWorldCreatures.DrawEnemy(_worldSurface,ProjectNativeEnemyView(enemy,PlayerPosition,_worldSurface.LocalizeCanvasText,IsRussianUi),_runTime);
+            var view=ProjectNativeEnemyView(enemy,PlayerPosition,_worldSurface.LocalizeCanvasText,IsRussianUi);view.Fleet=_selectedRegion==EchoSphere.Core.EchoRegionId.SpectralRift;view.Role=enemy.Role;
+            _nativeWorldCreatures.DrawEnemy(_worldSurface,view,_runTime);
         }
         internal static NativeWorldCreatures.EnemyView ProjectNativeEnemyView(EnemyAgent2D enemy,Vector2 playerPosition,bool localize,bool ru)
         {
