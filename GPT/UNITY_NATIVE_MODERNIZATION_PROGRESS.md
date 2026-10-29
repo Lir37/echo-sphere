@@ -2274,3 +2274,25 @@ Actual Editor: six-family tracking38checks PASS (движение цели пр�
 нет выстрела/урона,projection иsave exclusion);реальные меши ядра9семейств×3scale
 27checks PASS;UI Toolkit144cases6336checks PASS;5C#profiles0errors/warnings;
 preflightPASS. Editor prefs10keys восстановлены. Android/CI нового кода впереди.
+
+2026-10-29 acceptance69006cd6: CI911 SUCCESS;ordinary APK78846132bytes,
+0errors/2warnings,90.54s,подписьv2валидна,SHA256
+549104CB96135FF63C0676D55A8259D130421417BDF8CA19C64687F68132473D.
+Установлен11T;меню normal font,title ink337px. Восстановлен реальный забег1:11
+с pending upgrade. Для временной проверки выбран Sniper1,после проверки этот
+выбор отменён полным восстановлением исходного XML,включая pending choice.
+На live1:12→1:15 проверены компактные кнопки,короткие статусы,lock on/off,
+палитра5×2. Screenshot подтверждает читаемость и bounds. Наведение при cooldown
+подтверждено38actual Editor checks шести семейств;размер ядер27mesh checks,
+UI144cases6336checks. Физический cooldown/aim график и FPS не измерялись.
+
+Перед этим тестом создана отдельная свежая копия phone-before-tracking-20261029.tar:
+17keys,XML245094bytes,SHA256
+68dacf9229a297c621da4a09951f6cd15cf82694710304b92c183d666d43e222.
+Именно она восстановлена byte-for-byte после теста (не предыдущая17-key копия).
+После восстановления установлен normal69006cd6 без запуска;USB stay_awake0,
+приложение остановлено. Editor prefs10keys восстановлены. Производственный
+PlayerAssembly содержит0haptic APIrefs. Generated build files backed up/restored,
+Recovery7/8 сохранены. Последующий отчётный commit не меняет игровой код APK.
+Открытые pause-performance/freeze/font-first-upgrade наблюдения не закрываются
+этим небольшим пользовательским изменением представления.
