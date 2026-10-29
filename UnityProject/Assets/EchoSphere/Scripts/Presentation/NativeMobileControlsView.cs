@@ -51,7 +51,7 @@ namespace EchoSphere.Presentation
                 bool toggle=model.Id=="lock"||model.Id=="follow",action=model.Id.StartsWith("ability:")||dash;
                 if(model.Icon!=null){item.Icon=Box(b,"icon");item.Icon.style.width=item.Icon.style.height=model.Id=="pause"?18:dash?18:14;item.Icon.style.unityBackgroundImageTintColor=C("#dff7ff");if(row)item.Icon.style.marginRight=4;}
                 if(model.Id!="pause"){
-                    var labels=Box(b,"labels");labels.style.minWidth=0;labels.style.width=toggle?68:action?(dash?89:111):width;labels.style.maxWidth=Length.Percent(100);labels.style.flexShrink=1;
+                    var labels=Box(b,"labels");labels.style.minWidth=0;labels.style.width=toggle?44:action?(dash?89:111):width;labels.style.maxWidth=Length.Percent(100);labels.style.flexShrink=1;
                     item.Name=Text(labels,"label",9,"#dff7ff","700");item.Name.style.whiteSpace=WhiteSpace.NoWrap;item.Name.style.overflow=Overflow.Hidden;item.Name.style.textOverflow=TextOverflow.Ellipsis;item.Name.style.minWidth=0;item.Name.style.unityTextAlign=TextAnchor.MiddleCenter;
                     item.Detail=Text(labels,"detail",8,"#b6c9de99");item.Detail.style.whiteSpace=WhiteSpace.NoWrap;item.Detail.style.overflow=Overflow.Hidden;item.Detail.style.textOverflow=TextOverflow.Ellipsis;item.Detail.style.minWidth=0;item.Detail.style.unityTextAlign=TextAnchor.MiddleCenter;
                 }
@@ -63,10 +63,10 @@ namespace EchoSphere.Presentation
         {
             foreach(var s in _surfaces)s.Dispose();_surfaces.Clear();_items.Clear();_glyphShadow.Clear();Root.Clear();
             Control Find(string id)=>state.Controls.Find(c=>c.Id==id);
-            var toolbar=Box(Root,"toggles",true);toolbar.style.width=244;toolbar.style.flexDirection=state.Right?FlexDirection.RowReverse:FlexDirection.Row;
+            var toolbar=Box(Root,"toggles",true);toolbar.style.width=196;toolbar.style.alignItems=Align.Center;toolbar.style.flexDirection=state.Right?FlexDirection.RowReverse:FlexDirection.Row;
             var pause=Button(toolbar,Find("pause"),44,44).Button;
-            var locked=Button(toolbar,Find("lock"),94,44,true).Button;
-            Button(toolbar,Find("follow"),94,44,true);
+            var locked=Button(toolbar,Find("lock"),70,36,true).Button;
+            Button(toolbar,Find("follow"),70,36,true);
             if(state.Right){pause.style.marginLeft=6;locked.style.marginLeft=6;}else {pause.style.marginRight=6;locked.style.marginRight=6;}
             _abilities=Box(Root,"abilities");_abilities.style.marginTop=8;_abilities.style.width=244;
             int i=0;VisualElement actionRow=null;

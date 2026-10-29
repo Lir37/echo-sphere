@@ -46,8 +46,8 @@ namespace EchoSphere.Runtime
             bool follow=_follow,locked=_sphereMovementLocked;
             var state=new NativeMobileControlsView.State {Right=IsLeftHanded};
             state.Controls.Add(new NativeMobileControlsView.Control {Id="pause",Icon="Pause"});
-            state.Controls.Add(new NativeMobileControlsView.Control {Id="lock",Icon=locked?"Lock":"Unlock",Name=IsRussianUi?"Перенос сфер":"Move spheres",Detail=locked?(IsRussianUi?"Заблокирован":"Locked"):(IsRussianUi?"Разрешён":"Unlocked"),Active=locked});
-            var followControl=new NativeMobileControlsView.Control {Id="follow",Icon="Move",Name=IsRussianUi?"Формация":"Formation",Detail=follow?((IsRussianUi?"Следует · ":"Following · ")+NativePresentationMath.NumberText(Math.Floor((double)_formationStrain+.5))+"%"):!NativeCanActivateFollow()?(IsRussianUi?"Недоступно":"Unavailable"):(IsRussianUi?"На месте":"Stationary"),Active=follow,Disabled=!follow&&!NativeCanActivateFollow()};state.Controls.Add(followControl);
+            state.Controls.Add(new NativeMobileControlsView.Control {Id="lock",Icon=locked?"Lock":"Unlock",Name=IsRussianUi?"Перенос":"Move",Detail=locked?(IsRussianUi?"Стоп":"Locked"):(IsRussianUi?"Вкл":"On"),Active=locked,Tooltip=IsRussianUi?"Блокировка перемещения отдельных сфер":"Lock individual sphere movement"});
+            var followControl=new NativeMobileControlsView.Control {Id="follow",Icon="Move",Name=IsRussianUi?"Следом":"Follow",Detail=follow?(NativePresentationMath.NumberText(Math.Floor((double)_formationStrain+.5))+"%"):!NativeCanActivateFollow()?"—":(IsRussianUi?"Выкл":"Off"),Tooltip=IsRussianUi?"Следование всей формации за персонажем":"Follow player with the whole formation",Active=follow,Disabled=!follow&&!NativeCanActivateFollow()};state.Controls.Add(followControl);
             foreach(var pair in _activeAbilityHotkeys){
                 string ability=SourceAbilityId(pair.Key),key=pair.Value.ToString().Replace("Alpha","").ToLowerInvariant();double cd=GetActiveAbilityCooldown(pair.Key),max=NativeMobileMaxCooldown(ability);
                 string label=NativeMobileAbilityName(pair.Key,IsRussianUi);

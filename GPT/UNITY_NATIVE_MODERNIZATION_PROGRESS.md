@@ -2252,3 +2252,25 @@ N%»,полная «НАГРУЗКА СЕТИ N%» в tooltip. Переключ�
 восстановлены byte-for-byte,USB awake0,normal APK installed/stopped. Новые
 FPS/GC не измерялись;медленная пауза,freeze3:29,единичный collapsed-font launch
 после debug→normal остаются открыты. Полная запись:UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.
+
+
+2026-10-29 — уточнения пользователя: наведение, компактные toggles, Orbital core.
+Найдено: SphereAttackAgent обновлял VisualRotation только после cooldown-return.
+Добавлен отдельный presentation aim для Standard/Sniper/Shotgun/Chain/Prism/Void:
+во время перезарядки используется существующий чистый FindSourceSphereTarget,
+с прежним range/приоритетами. Native projection получает PresentationRotation.
+VisualRotation выстрела,таймер,урон,procs и RNG не меняются. При отсутствии
+цели сохраняется последнее направление;paused simulation не обновляет aim.
+Новые два поля presentation исключены из snapshot adapter;JSON формат прежний.
+
+Orbital DrawCore получал r*0.70,остальные r. Теперь Orbital тоже r: базовое ядро
+одинаково при одном масштабе/уровне,анимационные пульсации сохранены. Орбитальные
+траектории,радиус контакта,сателлиты и урон не изменялись.
+Lock/Follow70×36 вместо94×44,toolbar196 вместо244. «Перенос»/«Следом» +короткий
+статус (Вкл/Стоп,Выкл/процент);полное пояснение в tooltip. Палитра5×2 и способности
+не менялись;при сменеFollow размергруппы остаётся стабильным.
+
+Actual Editor: six-family tracking38checks PASS (движение цели при cooldown,
+нет выстрела/урона,projection иsave exclusion);реальные меши ядра9семейств×3scale
+27checks PASS;UI Toolkit144cases6336checks PASS;5C#profiles0errors/warnings;
+preflightPASS. Editor prefs10keys восстановлены. Android/CI нового кода впереди.

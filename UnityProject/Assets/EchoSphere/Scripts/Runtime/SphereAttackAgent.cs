@@ -46,6 +46,18 @@ namespace EchoSphere.Runtime
         // Presentation signal only: an empty cadence is not an attack. Never saved.
         private bool _presentationAttackActive;
         public bool PresentationAttackActive => _presentationAttackActive;
+        private float _presentationAimRotation;
+        private bool _presentationAimValid;
+        public float PresentationRotation => _presentationAimValid ? _presentationAimRotation : VisualRotation;
+        private bool HasDirectedWeapon => _type == SphereId.Standard || _type == SphereId.Sniper || _type == SphereId.Shotgun || _type == SphereId.Chain || _type == SphereId.Prism || _type == SphereId.Void;
+        private void TrackPresentationTarget(EnemyAgent2D target, Vector2 origin)
+        {
+            if (!HasDirectedWeapon || target == null) return;
+            var direction = (Vector2)target.transform.position - origin;
+            if (direction.sqrMagnitude <= .0001f) return;
+            _presentationAimRotation = Mathf.Atan2(direction.y, direction.x);
+            _presentationAimValid = true;
+        }
         public float AttackTimer => _attackTimer;
         public void ResetAttackTimer() => _attackTimer = 0f;
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
@@ -105,6 +117,7 @@ namespace EchoSphere.Runtime
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
             _attackTimer = 0f;
             _presentationAttackActive = false;
+            _presentationAimValid = false;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
             Color tint;
             if (ColorUtility.TryParseHtmlString(GetColor(type), out tint))
@@ -183,11 +196,16 @@ namespace EchoSphere.Runtime
             // Gravity/Pulse use special cadence intervals scaled by the global attack-speed path.
             if (_type == SphereId.Aura) _attackTimer -= dt;
             else _attackTimer -= dt * _runtime.GetSphereAttackSpeedMultiplier(_type);
-            if (_attackTimer > 0f) return;
-
             var origin = (Vector2)transform.position;
             var targetRange = _type == SphereId.Prism ? GetPrismSourceRangeWorld() : AttackRange;
+            if (_attackTimer > 0f)
+            {
+                // Tracking is presentation only: no shot, proc, timer reset or RNG.
+                if (HasDirectedWeapon) TrackPresentationTarget(_runtime.FindSourceSphereTarget(_type, origin, targetRange), origin);
+                return;
+            }
             var target = _runtime.FindSourceSphereTarget(_type, origin, targetRange);
+            TrackPresentationTarget(target, origin);
             if (target != null)
             {
                 var targetDelta = (Vector2)target.transform.position - origin;

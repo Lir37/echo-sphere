@@ -11,7 +11,7 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private static bool EntitySnapshotField(FieldInfo field) =>
-            !(field.DeclaringType == typeof(SphereAttackAgent) && field.Name == "_presentationAttackActive") &&
+            !(field.DeclaringType == typeof(SphereAttackAgent) && (field.Name == "_presentationAttackActive" || field.Name == "_presentationAimRotation" || field.Name == "_presentationAimValid")) &&
             !(field.DeclaringType == typeof(EnemyAgent2D) && field.Name == "_visualVariant") &&
             !(typeof(IRunSaveColor).IsAssignableFrom(field.DeclaringType) && field.Name == "_savedColor");
         private const string RunSnapshotKey = "echosphere_active_run_v1";
