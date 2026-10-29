@@ -28,6 +28,10 @@ namespace EchoSphere.Presentation
         private readonly Material _core=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldPlayerCore")){name="Native player core",hideFlags=HideFlags.DontSave};
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();private int _used;
         private readonly List<Art> _dynamic=new List<Art>();private int _dynamicUsed;
+        private struct TrailSample {internal double X,Y,Time;}
+        private readonly TrailSample[] _trail=new TrailSample[6];
+        private int _trailHead,_trailCount;
+        private string _trailCharacter;
         private double _lastX,_lastY,_lastTime=-1;
         private NativeWorldSurface _surface;
         internal void BeginFrame(){_used=0;_dynamicUsed=0;_contours.BeginFrame();}
@@ -50,18 +54,15 @@ namespace EchoSphere.Presentation
             // Menus bake this same contour rig.
             _surface=surface;double r=p.Radius,t=p.Time,pulse=1+Math.Sin(t*5.5)*.025;
             var root=T(p.X,p.Y-r*.1+Math.Sin(t*2.4)*.8,sx:pulse,sy:pulse);
+            DrawMovementTrail(p);
             shadows.DrawGroundShadow(surface,r*.95,r*.25,root);
             float opacity=1;double progress=0;
             if(p.Character=="spherist"){
-                double dt=_lastTime>=0?Math.Max(.001,t-_lastTime):.016,vx=(p.X-_lastX)/dt,vy=(p.Y-_lastY)/dt;
-                _lastX=p.X;_lastY=p.Y;_lastTime=t;
-                bool death=p.Hp<=0,hit=p.ContactCooldown>0,shield=p.ShieldTimer>0||p.ShieldCharges>0;
-                bool moving=!death&&!hit&&!shield&&(p.DashTimer>0||Math.Sqrt(vx*vx+vy*vy)>.06);
-                if(death){
+                if(p.Hp<=0){
                     progress=Math.Min(1,Math.Max(0,1-p.DeathTimer/.90));double fold=progress*progress;
                     var shear=Matrix4x4.identity;shear.m00=(float)(1-fold*.45);shear.m01=(float)(-.10*fold);shear.m11=(float)(1+fold*.06);
                     root*=T(y:-progress*r*.10)*shear*T(sx:pulse*(1-fold*.18),sy:pulse*(1-fold*.18));opacity=(float)(1-progress*.92);
-                }else{root*=T(sx:pulse,sy:pulse);if(moving&&vx>=0)root*=T(sx:-1);}
+                }else{root*=T(sx:pulse,sy:pulse);}
             }
             var bodyRoot=p.Character=="spherist"&&p.Hp<=0?root*T(angle:progress*progress*.25):root;
             DrawArtwork(surface,p,bodyRoot,opacity);
@@ -78,6 +79,23 @@ namespace EchoSphere.Presentation
                     for(int i=0;i<4;i++){double a=t*.9+i*Math.PI/2,rr=r*(1.08+.08*Math.Sin(t*3+i));Paint(diamond,root*T(Math.Cos(a)*rr,Math.Sin(a)*rr*.70),C(220,252,255,.34+spark*.20),null,additive:true);}
                 }
             }else DrawCharacterEffects(surface,p);
+        }
+        private void DrawMovementTrail(State p)
+        {
+            double dx=p.X-_lastX,dy=p.Y-_lastY,dt=p.Time-_lastTime;
+            bool discontinuity=_lastTime<0||_trailCharacter!=p.Character||dt<0||dt>.30||dx*dx+dy*dy>p.Radius*p.Radius*36;
+            if(discontinuity||p.Hp<=0){_trailCount=0;_trailHead=0;}
+            else if(dt>0&&dx*dx+dy*dy>.01){
+                _trail[_trailHead]=new TrailSample{X=_lastX,Y=_lastY,Time=p.Time};
+                _trailHead=(_trailHead+1)%_trail.Length;_trailCount=Math.Min(_trailCount+1,_trail.Length);
+            }
+            _lastX=p.X;_lastY=p.Y;_lastTime=p.Time;_trailCharacter=p.Character;
+            for(int i=0;i<_trailCount;i++){
+                var sample=_trail[(_trailHead-_trailCount+i+_trail.Length)%_trail.Length];
+                double age=p.Time-sample.Time;if(age<0||age>=.18)continue;
+                double fade=1-age/.18,size=p.Radius*(.16+.15*fade);
+                Paint(Circle(1),T(sample.X,sample.Y-p.Radius*.10,sx:size,sy:size),A(p.Color,.065*fade*fade),null,shadow:Color.clear,additive:true);
+            }
         }
         // UI sprites are generated in Editor from the exact live body, without
         // ground/contact/status effects or the run-time bob/death pose.

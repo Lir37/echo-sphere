@@ -6,7 +6,7 @@
     {
       "id": "alchemist",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/alchemist.png",
-      "sha256": "b9f8af1f58069a543d84486165f7b303e6dfbb60e3d6525f7837aa0891fc0591",
+      "sha256": "04de1740170220abe6a2e350b279685a734e8be1e4fdb14fc302821a31fb3d8c",
       "size": [
         1254,
         1254
@@ -15,7 +15,7 @@
     {
       "id": "architect",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/architect.png",
-      "sha256": "bb9e6fa275f8eb5a92d69c5f95df21abc8733140582cba300f7bc25ed8de7b05",
+      "sha256": "1229eaeba4024502e476c5d1130139042a01ffb10f3fa7d2ecb10fa5e9e28af6",
       "size": [
         1254,
         1254
@@ -24,7 +24,7 @@
     {
       "id": "berserker",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/berserker.png",
-      "sha256": "da30d8cd4eb8dcb6c46a9f450323549c00202b78857b4b246ca9f38c81b80fd5",
+      "sha256": "d05cb224a6a9c2bfb36b2bb38b4e85d4b1b7d037e0a91c93bfbda6ef83aa38be",
       "size": [
         1254,
         1254
@@ -33,7 +33,7 @@
     {
       "id": "conductor",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/conductor.png",
-      "sha256": "2ac4ab990b526efd01b424df964a2890fbccb7c3a584b0359175c78303ed46c7",
+      "sha256": "273204953ffcaeadbc8cc94b3ddbc3e62696d2556315ea9b0607e7febe37a3a0",
       "size": [
         1254,
         1254
@@ -42,7 +42,7 @@
     {
       "id": "engineer",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/engineer.png",
-      "sha256": "d409107a259b3d6402dc7c323e8069acb91a6bdf4051499557e52e44a0da5999",
+      "sha256": "d9a0e7ccfa84d17415f6b731a1484b956e121690b76f5ef62a59770c8d18437a",
       "size": [
         1254,
         1254
@@ -51,7 +51,7 @@
     {
       "id": "fractal",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/fractal.png",
-      "sha256": "31f67a11a36f2b5206633e55a4c28b89ae60dc6c44c53c797c877fd1764465b7",
+      "sha256": "1c373302f058a9e0da5bbf1b5bff5c8b9bd72ba098aa9f16bbdc137829ac8974",
       "size": [
         1254,
         1254
@@ -60,7 +60,7 @@
     {
       "id": "hunter",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/hunter.png",
-      "sha256": "b5af65251e192398d4e9556fd6d8579bac78ebf44547cf89ecc54c6e57372bde",
+      "sha256": "58f0040966d305ca3cee665d31f6c0dafc164fc38335b82c95edc7c9f1ad10ba",
       "size": [
         1254,
         1254
@@ -69,7 +69,7 @@
     {
       "id": "oracle",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/oracle.png",
-      "sha256": "573519bb3ca89586e9c49a8096f6be19735e74d4e777a80d9d56d03c58f38e32",
+      "sha256": "acad479aa39f156eb6b8ea65c53fe8bf158d699801de8479cda5ff5f34da6c2d",
       "size": [
         1254,
         1254
@@ -78,7 +78,7 @@
     {
       "id": "spherist",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/spherist.png",
-      "sha256": "edbd7b92639a83fe7fa1872881b06ea4af7781013b075e7bc2e86085d0b4b806",
+      "sha256": "b8cc917b8ac0b94c1ab65f01764f4e7d4e2685c6a79b974a7c9c48f96310d4a7",
       "size": [
         1254,
         1254
@@ -87,11 +87,12 @@
     {
       "id": "voidwalker",
       "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/voidwalker.png",
-      "sha256": "b4f675c3cf4cfaa45a7c6891fe8e97a09ba16c7cd42ea2385cc9deda943677a5",
+      "sha256": "52746942a23db6bad902989a45ff3230439c5e7b7c020d326679b720fde5306b",
       "size": [
         1254,
         1254
       ]
     }
-  ]
+  ],
+  "revision": "User correction: filled colored inserts, doubled guides, inner core cells, side details; fixed movement orientation + subtle trail. Native appearance pending user acceptance."
 }

@@ -11,7 +11,7 @@ UNITY_ARCHITECTURE_COMPLETION_2026-10-27.md. Это реестр владель�
 | Сцены/переходы | NativeBattleSceneRoot, native run commands, async selected-region launch | Pending команда принимается один раз |
 | UI | NativeRunDocument + Native* screen/presenter classes | UI Toolkit, retained элементы; не JSX/DOM interpreter |
 | Персонажи UI | NativeCharacterScreen + portrait leases | Лёгкие10 карточек; PNG1254 из того же contour body, async/viewport leases |
-| Тело игрока | NativeWorldPlayer + NativeCharacterContours | 10 retained contour rigs, без sprite тела; прежние позы/радиус/статусы |
+| Тело игрока | NativeWorldPlayer + NativeCharacterContours | 10 retained contour rigs с цветными вставками, без sprite тела/movement mirror; слабый presentation-only trail; радиус/статусы прежние |
 | Стекло | NativeMenuGlass / NativeEngineBackdrop, Unity6.6 backdrop filters | Живое содержимое; hidden owners не фильтруют |
 | Мир | NativeWorldPresentation (scene owner) | Lazy resources, BeginFrame, ReleaseResources/OnDestroy |
 | Порядок кадра | EchoSphereNativeFrame typed inputs | Сохраняет исходный прозрачный порядок слоёв |
