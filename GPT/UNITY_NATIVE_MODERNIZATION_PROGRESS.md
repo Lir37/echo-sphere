@@ -2412,3 +2412,39 @@ Proposals/7PNG,общий prompts.json с источниками смыслов 
 Проверены PNG integrity10files. Игровой код/механики не менялись,Editor/телефон
 не перезапускались,новый APK не собирался. Применять новые дизайны только по
 отдельному указанию пользователя;никакой автоматической приёмки по генерациям.
+
+
+2026-10-29 — согласованные7семейств реализованы (база9bebec5f).
+NativeWorldSphereWeapons.Additional: Chain/Aura/Orbital/Prism/Gravity/Pulse/Void,
+7base+21IV+63VII=91новыхrigs;всего10семейств/130rigs/2254parts. Mesh/Material
+сохраняются;новые формы не тесселируются при движении. Parts передвигаются и
+поворачиваются от существующих событий атаки/поля,без scale-анимации.
+Aura/Gravity/Pulse — лёгкие круговые элементы,root не использует aim,нет общего
+продольного gun recoil. Ветки IV конструктивно различны;VII добавляют6+деталей.
+Orbital — контактные лезвия вместо старого Satellite. Прежние InnerAngles/OuterAngles,
+позиции,радиусы орбит,числа по OrbitalVisualGeometryRules и hit/cadence logic прежние.
+Radial +X остаётся наружу;только tangential Y зеркалится у внешнего кольца: swept
+асимметрия следует фактическому встречному движению. Размер графического спутника
+r*.32 для читаемости нового контура;это размер рисунка,не hit/contact radius.
+Обычная сцена использует shared scene-owned Weapons;standalone family fixture
+имеет собственный fallback-owner с Dispose. Opacity/depth и element tint сохранены.
+Старые DrawMutation/MutationRig/Expansion/Attack и боевой switch DrawFamily
+исключены из обычного Editor/player через ECHO_SPHERE_REFERENCE_VISUALS;
+сравнительные средства остаются только в явно включаемом reference profile.
+Mutation glow material теперь lazy;production его не создаёт при core draw.
+Projectile/chain lightning/element/modifier effects оставлены. RNG/формулы/сохранения
+не менялись,новых механик нет. Ядра/базовые орбиты не перерисовывались.
+
+Actual Unity: all-sphere-mechanisms41645checks PASS,130rigs,2254parts,12unique
+мутаций/семейство;каждая часть движется,нет scale/idle/rebuild;36field variants
+не зависят отaim,окружаютcore во всехquadrants,безrecoil;направления40orbitalposes
+сверены с производной ElementAngle (tip outward,asymmetry trailing own motion).
+Live bridge29checks PASS: реальный SimulationTick → projection → scene-owned
+DrawNativeSphereFrame всех10семейств;дляOrbital отдельныйcontact pass,безshot serial.
+Android-feedback35checks PASS;core-size27checks PASS. Core12462assertions+47389parity,
+preflight/provenance PASS. Пять C#profiles0errors/warnings;reference профиль тоже
+компилируется. Editor prefs10keys restored. GPU PNG7семейств сохранены в
+VisualReferences/SphereStyle-2026-10-29/UnityImplemented,это реальные кадры,не imagegen.
+APK готовится после Editor-проверок по последнему указанию пользователя;телефон
+подключит по возвращении. Установка/Android performance этой проверкой не закрыты.
+Открытые pause/freeze/font-first-upgrade наблюдения сохраняются.

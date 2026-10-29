@@ -51,10 +51,7 @@ namespace EchoSphere.Runtime
     DrawRetainedSphereWeapon(sphere,time,r);DrawNativeSphereElements(sphere,time,scale);DrawNativeSphereModifiers(sphere,time,scale);DrawNativeSphereDisabled(sphere,time);return;
    }
    if(sphere.Type==SphereId.Orbital)DrawNativeOrbitalSphere(sphere,time,scale,NativeOrbitalRadiusScale(sphere),false);
-   else if(sphere.Type==SphereId.Sniper||sphere.Type==SphereId.Shotgun){DrawNativeSphereFamily(sphere,time,scale,false);DrawRetainedSphereWeapon(sphere,time,r);}
-   else if(sphere.Type==SphereId.Prism||sphere.Type==SphereId.Void){DrawNativeSphereMutation(sphere,time,scale);DrawNativeSphereFamily(sphere,time,scale);}
-   else if(sphere.Type==SphereId.Chain||sphere.Type==SphereId.Aura||sphere.Type==SphereId.Gravity||sphere.Type==SphereId.Pulse){DrawNativeSphereFamily(sphere,time,scale);DrawNativeSphereMutation(sphere,time,scale);}
-   else throw new InvalidOperationException("Unknown sphere presentation type: "+sphere.Family);
+   else{DrawNativeSphereFamily(sphere,time,scale,false);DrawRetainedSphereWeapon(sphere,time,r);}
    DrawNativeSphereElements(sphere,time,scale);DrawNativeSphereModifiers(sphere,time,scale);DrawNativeSphereDisabled(sphere,time);
   }
   private void DrawRetainedSphereWeapon(NativeSphereVisual sphere,double time,double radius)

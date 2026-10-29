@@ -9,7 +9,7 @@ namespace EchoSphere.Runtime
         {
             bool disabled=sphere.DisabledTimer>0||!sphere.Alive;if(attackers&&disabled)return;
             var state=new NativeWorldSphereFamilies.State {Family="orbital",X=sphere.X,Y=sphere.Y,Rotation=sphere.Rotation,Time=time,Scale=scale,Disabled=disabled,Resonance=sphere.Resonance,AttackActive=sphere.AttackActive};
-            var input=new NativeWorldSphereFamilies.OrbitalInput {Identity=sphere.Identity,View=state,AuraTimer=sphere.AuraTimer,RadiusScale=radiusScale};
+            var input=new NativeWorldSphereFamilies.OrbitalInput {Identity=sphere.Identity,View=state,AuraTimer=sphere.AuraTimer,RadiusScale=radiusScale,Branch=sphere.Branch,Final=(int)sphere.Final};
             if(attackers){var branch=sphere.Branch;input.Blade=branch=="orbital_blade";input.Element=sphere.Element;if(input.Element!=null)ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetElement(input.Element).Color,out input.ElementColor);
                 bool crown=_ownedArtifacts.Contains("orbital_crown"),dance=branch=="orbital_dance"&&sphere.Final==2;
                 double level=System.Math.Max(1,System.Math.Min(7,sphere.Tier!=0?sphere.Tier:1));var counts=EchoSphere.Core.OrbitalVisualGeometryRules.RingCounts(level,(crown?1:0)+(dance?1:0));input.InnerAngles=new double[counts.Inner];input.OuterAngles=new double[counts.Outer];for(int i=0;i<input.InnerAngles.Length;i++)input.InnerAngles[i]=EchoSphere.Core.OrbitalVisualGeometryRules.ElementAngle(sphere.Rotation,false,i,input.InnerAngles.Length);for(int i=0;i<input.OuterAngles.Length;i++)input.OuterAngles[i]=EchoSphere.Core.OrbitalVisualGeometryRules.ElementAngle(sphere.Rotation,true,i,input.OuterAngles.Length);

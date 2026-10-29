@@ -1,3 +1,4 @@
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 using System;
 using UnityEngine;
 using static EchoSphere.Presentation.NativeWorldShapes;
@@ -32,3 +33,5 @@ namespace EchoSphere.Presentation
         }
     }
 }
+
+#endif

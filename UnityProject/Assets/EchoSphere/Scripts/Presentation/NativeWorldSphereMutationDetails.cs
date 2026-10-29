@@ -8,7 +8,7 @@ namespace EchoSphere.Presentation
 {
     internal sealed partial class NativeWorldSphereFamilies
     {
-        private readonly Material _mutationGlow=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldMutationGlow")){name="Native mutation glow",hideFlags=HideFlags.DontSave};
+        private Material _mutationGlow;
         internal void MutationFin(NativeWorldSurface surface,double x,double y,double length,double width,Color color,double angle,double opacity,Matrix4x4? parent=null,bool additive=false)
         {
             _surface=surface;var path=QuadraticContour(P(0,-width*.20),true,P(length*.42,-width*.82),P(length,-width*.06),P(length*.48,width*.32),P(0,width*.22));var local=(parent??Matrix4x4.identity)*T(x,y,angle);
@@ -32,6 +32,7 @@ namespace EchoSphere.Presentation
         }
         internal void MutationGlow(NativeWorldSurface surface,double radius,Color color,double alpha,Matrix4x4? parent=null)
         {
+            _mutationGlow??=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldMutationGlow")){name="Reference mutation glow",hideFlags=HideFlags.DontSave};
             _surface=surface;var art=Circle(radius);var p=Properties(color);p.SetFloat("_Radius",(float)radius);float Rounded(double n)=>float.Parse(n.ToString("F3",CultureInfo.InvariantCulture),CultureInfo.InvariantCulture);p.SetVector("_StopAlphas",new Vector4(Mathf.Clamp01(Rounded(alpha*3.4)),Mathf.Clamp01(Rounded(alpha*1.15)),Mathf.Clamp01(Rounded(alpha*.25)),0));surface.DrawNativeMesh(art.Fill,_mutationGlow,p,parent,inheritShadow:true,additive:true);
         }
         internal struct ProjectileView

@@ -19,7 +19,8 @@ UNITY_ARCHITECTURE_COMPLETION_2026-10-27.md. Это реестр владель�
 | Копии масок | Exact CopyTexture transfer | Единственный Unsafe RG path; не blur, без global uniforms |
 | Существа | NativeWorldCreatures entity ViewResources | Owner-bound mutable geometry/labels, shared immutable art |
 | Сферы/игрок/сеть/POI | NativeWorld* views + model projection | Renderer не хранит игровые данные |
-| Орудия Standard/Sniper/Shotgun | NativeWorldSphereWeapons, owner NativeWorldPresentation | 39 retained rigs; rigid pose от PresentationShotTime/Serial; все детали движутся; не save state |
+| Боевые части всех10семейств | NativeWorldSphereWeapons + Additional, owner NativeWorldPresentation | 130 retained rigs; rigid pose от PresentationShotTime/Serial; поле без aim/отдачи; не save state |
+| Орбитальные контактные части | NativeWorldSphereFamilies → shared NativeWorldSphereWeapons | Прежние позиции/числа/две встречные орбиты; наружная ось +X, tangential mirror внешнего кольца; без снаряда |
 | Тестовый уровень | NativeMobileControl → штатный OpenLevelUpIfReady | Только Editor/Development/ECHO_SPHERE_TEST_CONTROLS; в обычном APK флаг включается явно |
 | Частицы/снаряды | NativeTransientPools + существующие agents | Отложенное retirement до LateUpdate; порядок фаз прежний |
 | Геометрия частиц | NativeWorldFeedback retained mesh + instance runs | Один diamond, совместимые последовательные draws |

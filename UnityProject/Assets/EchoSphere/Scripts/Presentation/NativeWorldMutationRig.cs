@@ -1,3 +1,4 @@
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
 using System;
 using Unity.VectorGraphics;
 using UnityEngine;
@@ -70,3 +71,5 @@ namespace EchoSphere.Presentation
         }
     }
 }
+
+#endif

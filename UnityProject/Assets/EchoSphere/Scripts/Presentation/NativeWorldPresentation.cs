@@ -16,7 +16,7 @@ namespace EchoSphere.Presentation
         private NativeWorldRegion _Region;
         internal NativeWorldRegion Region=>_Region??=new NativeWorldRegion();
         private NativeWorldSphereFamilies _SphereFamilies;
-        internal NativeWorldSphereFamilies SphereFamilies=>_SphereFamilies??=new NativeWorldSphereFamilies();
+        internal NativeWorldSphereFamilies SphereFamilies=>_SphereFamilies??=new NativeWorldSphereFamilies{MechanicalWeapons=SphereWeapons};
         private NativeWorldField _Field;
         internal NativeWorldField Field=>_Field??=new NativeWorldField();
         private NativeWorldAmbient _Ambient;

@@ -8,12 +8,16 @@ namespace EchoSphere.Presentation
 {
     internal sealed partial class NativeWorldSphereFamilies
     {
+        internal NativeWorldSphereWeapons MechanicalWeapons;
+        private NativeWorldSphereWeapons _ownedOrbitalWeapons;
+        private NativeWorldSphereWeapons OrbitalWeapons=>MechanicalWeapons??(_ownedOrbitalWeapons??=new NativeWorldSphereWeapons());
         internal struct EnemyPoint {internal double X,Y,Hp;}
         internal struct OrbitalInput
         {
             internal object Identity;internal State View;
             internal double AuraTimer,RadiusScale;
-            internal string Element;
+            internal string Element,Branch;
+            internal int Final;
             internal Color ElementColor;
             internal bool Blade;
             internal double[] InnerAngles,OuterAngles;
@@ -38,16 +42,6 @@ namespace EchoSphere.Presentation
             if(resonance)Paint(Get(402,r,0,1,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.34),(float)(r*1.34),0,Mathf.PI*1.15f)}),root*T(angle:t*.65),null,C(255,209,102),.42);
             if(s.Disabled){Paint(Get(403,r,0,1.5,()=>new[]{Line(-r*.72,-r*.72,r*.72,r*.72),Line(r*.72,-r*.72,-r*.72,r*.72)}),root,null,C(255,77,112),.50);Paint(Get(1,r,0,1.7,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.18),(float)(r*1.18),Mathf.PI*.20f,Mathf.PI*.80f)}),root,null,color,.42);}
         }
-        private void Satellite(Matrix4x4 root,double size,Color color,double alpha,double angle,bool blade)
-        {
-            var local=root*T(angle:blade?angle:angle+Math.PI/4);if(blade){Paint(Get(410,size,0,1.05,()=>new[]{PolylineContour(true,P(-size*.56,-size*.14),P(size*.78,0),P(-size*.34,size*.15),P(-size*.02,0))},true),local,C(7,17,29),color,alpha,true);
-                Paint(Get(411,size,0,.72,()=>new[]{Line(-size*.30,0,size*.54,0)}),local,null,Color.white,alpha*.72,true);Paint(Get(412,size,0,.72,()=>new[]{PolylineContour(false,P(-size*.42,-size*.10),P(-size*.62,0),P(-size*.42,size*.10))}),local,null,Color.white,alpha*.50,true);
-            }else{
-                Paint(Circle(size*.62),local,A(color,alpha*.30),null,alpha,true);
-                Paint(Get(413,size,0,1,()=>{var points=new Vector2[8];for(int i=0;i<8;i++){double a=-Math.PI/8+i*Math.PI*2/8,rr=i%2==0?size*.56:size*.44;points[i]=P(Math.Cos(a)*rr,Math.Sin(a)*rr);}return new[]{PolylineContour(true,points)};},true),local,C(7,17,29),color,alpha*.92);
-                Paint(Get(414,size,0,0,()=>new[]{EllipseContour(P(-size*.10,-size*.12),(float)(size*.16),(float)(size*.16))},true),local,Color.white,null,alpha*.90);
-            }
-        }
         private void OrbitalTrail(Matrix4x4 root,string element,double size,double angle,double alpha,bool blade,Color color)
         {
             var local=root*T(angle:angle);double scale=blade?1:.86;
@@ -66,7 +60,7 @@ namespace EchoSphere.Presentation
         private void OrbitalAttackers(Matrix4x4 root,OrbitalInput input,OrbitalAnimation v,double r,Color color)
         {
             var s=input.View;double mult=Finite(input.RadiusScale)&&input.RadiusScale>0?input.RadiusScale:1,inner=r*1.68*mult,outer=r*2.02*mult;Color satellite=input.Element==null?color:input.ElementColor;
-            void Ring(double[] angles,double radius,bool innerRing){for(int i=0;i<angles.Length;i++){double a=angles[i],x=Math.Cos(a)*radius,y=Math.Sin(a)*radius,depth=.74+.26*((Math.Sin(a)+1)*.5);Satellite(root*T(x,y),r*.20,satellite,depth,a,input.Blade);
+            void Ring(double[] angles,double radius,bool innerRing){for(int i=0;i<angles.Length;i++){double a=angles[i],x=Math.Cos(a)*radius,y=Math.Sin(a)*radius,depth=.74+.26*((Math.Sin(a)+1)*.5);OrbitalWeapons.DrawOrbitalSatellite(_surface,new NativeWorldSphereWeapons.State{Family="orbital",Branch=input.Branch,Final=input.Final,X=s.X+x,Y=s.Y+y,Radius=r*.32,Rotation=a,Time=s.Time,AttackDelay=.4,ShotSerial=v.Attack>0?1u:0u,ShotTime=s.Time-(.28-v.Attack),Resonance=s.Resonance,Tint=satellite,Opacity=depth},innerRing);
                 if(input.Element!=null){var local=root*T(x,y);Paint(Circle(r*.18,Math.Max(1.25,r*.075)),local,null,input.ElementColor,depth*.92,true);Paint(Circle(r*.095),local,A(input.ElementColor,depth*.22),null,depth*.92,true);
                     // Preserve the source trail's sphere-local origin; the source
                     // call occurs after restoring the satellite translation.

@@ -15,6 +15,7 @@ namespace EchoSphere.Presentation
             switch(s.Family){case "sniper":glowSize=2.35;glowAlpha=.11;orbitSize=1.02;rotation=t*.20;opacity=s.Disabled?.16:.68;break;case "shotgun":orbitSize=1.02;rotation=t*.18;opacity=s.Disabled?.15:.64;break;case "chain":glowSize=2.35;glowAlpha=.11;orbitSize=1.02;rotation=t*.17;opacity=s.Disabled?.12:.78;mode="lightning";break;case "aura":glowSize=2.45;rotation=t*.14;opacity=s.Disabled?.12:.68;break;case "prism":rotation=t*.16;opacity=s.Disabled?.12:.66;break;case "gravity":glowAlpha=.11;rotation=-t*.12;opacity=s.Disabled?.12:.65;break;case "pulse":glowSize=2.45;rotation=(s.Disabled?0:t*1.10)*.13;opacity=s.Disabled?.10:.66;break;case "void":glowSize=2.35;glowAlpha=.10;rotation=t*.11;opacity=s.Disabled?.10:.58;break;}
             var root=T(s.X,s.Y);DrawGlow(surface,r*glowSize,color,s.Disabled?(s.Family=="void"?.04:.05):glowAlpha,root,true);DrawOrbit(surface,r*orbitSize,color,rotation,opacity,mode,pulse,root,true);cores.DrawCore(surface,r,s.Family=="void"?pulse*.92:pulse,root,color);
             var dark=C(7,17,29);bool d=s.Disabled;var aim=root*T(angle:s.Rotation);
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
             if(includeCombatParts)switch(s.Family){
                 case "sniper":{
                     var tip=Get(100,r,0,1.15,()=>new[]{PolylineContour(true,P(0,-r*.24),P(r*.18,-r*.05),P(r*.13,r*.24),P(0,r*.34),P(-r*.13,r*.24),P(-r*.18,-r*.05))},true);var local=aim*T(r*1.22,0,-Math.PI/2);Paint(tip,local,dark,color,d?.14:.94);
@@ -43,6 +44,7 @@ namespace EchoSphere.Presentation
                     var local=aim*T(r*1.20);var emitter=Get(170,r,0,1.1,()=>new[]{QuadraticContour(P(-r*.01,-r*.19),true,P(r*.21,-r*.08),P(r*.27,0),P(r*.21,r*.08),P(-r*.01,r*.19),P(r*.07,0),P(-r*.01,-r*.19))},true);Paint(emitter,local,C(3,7,14),color,d?.12:.94);Paint(Get(171,r,0,1.1,()=>new[]{EllipseContour(P(r*.18,0),(float)(r*.07),(float)(r*.07))}),local,null,C(234,223,255),d?.06:.65);
                     for(int i=0;i<4;i++){int index=i;double a=-t*(.22+i*.025)+i*Math.PI/2;var p=Point(r,a,.34,1.11);Paint(Get(172+i,r,0,.9,()=>new[]{EllipseContour(Vector2.zero,(float)(r*(.07+index*.012)),(float)(r*(.07+index*.012)),Mathf.PI*.2f,Mathf.PI*1.8f)}),aim*T(p.x,p.y),null,color,d?.05:.32*p.depth);}break;}
             }
+#endif
             if(d){var art=Get(1,r,0,1.7,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.18),(float)(r*1.18),Mathf.PI*.20f,Mathf.PI*.80f)});Paint(art,(s.Family=="sniper"||s.Family=="shotgun"||s.Family=="prism"||s.Family=="void")?aim:root,null,color,.42);}
 
         }

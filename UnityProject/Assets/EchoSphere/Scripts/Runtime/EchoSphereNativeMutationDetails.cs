@@ -12,11 +12,13 @@ namespace EchoSphere.Runtime
             foreach(var evolution in player["evolutions"].Items){if(!evolution.Text.StartsWith("sphere:"+family+":7:",System.StringComparison.Ordinal))continue;var parts=evolution.Text.Split(':');double n=VisualJs.Number(parts[parts.Length-1]).Number;return double.IsNaN(n)||double.IsInfinity(n)?-1:n;}return -1;
         }
 #endif
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
         private void DrawNativeSphereMutation(NativeSphereVisual sphere,double time,double scale)
         {
             string branch=sphere.Branch;if(string.IsNullOrEmpty(branch))return;double rotation=double.IsNaN(sphere.Rotation)?0:sphere.Rotation,finite=double.IsInfinity(rotation)?0:rotation;
             var definition=NativeRunCatalog.Instance.GetSphere(sphere.Family);_nativeWorldSphereFamilies.DrawMutation(_worldSurface,new NativeWorldSphereFamilies.MutationView {X=sphere.X,Y=sphere.Y,Radius=24*scale,Time=time,Rotation=rotation,FiniteRotation=finite,Final=sphere.Final,AttackDelay=sphere.AttackDelay!=0?sphere.AttackDelay:1,AttackTimer=sphere.AttackTimer,AttackActive=sphere.AttackActive,Branch=branch,Color=NativeMutationColor(definition.Color),Directed=definition.Projectile,Emitter=(NativeRunCatalog.Instance.GetSphere(branch.Split('_')[0])?.Projectile??false)});
         }
+#endif
         private double NativeSphereFinalIndex(EchoSphere.Core.SphereId type)
         {
             string final=GetSphereFinal(type);if(string.IsNullOrEmpty(final))return -1;var choices=EchoSphere.Core.SphereEvolutionCatalog.GetFinals(GetSphereBranch(type));for(int index=0;index<choices.Count;index++)if(choices[index].Id==final)return index;throw new System.InvalidOperationException("Unknown native sphere final: "+final);

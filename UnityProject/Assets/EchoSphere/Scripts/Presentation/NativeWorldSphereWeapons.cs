@@ -7,15 +7,16 @@ namespace EchoSphere.Presentation
 {
     // One retained mechanical assembly per authored family/branch/final. All
     // motion is rigid translation/rotation; no animated scale or tessellation.
-    internal sealed class NativeWorldSphereWeapons : IDisposable
+    internal sealed partial class NativeWorldSphereWeapons : IDisposable
     {
         internal struct State
         {
             internal string Family,Branch;
             internal int Final;
-            internal double X,Y,Radius,Rotation,Time,AttackDelay,ShotTime;
+            internal double X,Y,Radius,Rotation,Time,AttackDelay,ShotTime,Opacity;
             internal uint ShotSerial;
             internal bool Disabled,Resonance;
+            internal Color? Tint;
         }
         private sealed class Part : IDisposable
         {
@@ -29,6 +30,7 @@ namespace EchoSphere.Presentation
         private sealed class Rig : IDisposable
         {
             internal readonly List<Part> Parts=new List<Part>();
+            internal Color MainColor;
             public void Dispose(){foreach(var part in Parts)part.Dispose();}
         }
         private readonly Dictionary<(string,string,int),Rig> _rigs=new Dictionary<(string,string,int),Rig>();
@@ -56,18 +58,25 @@ namespace EchoSphere.Presentation
         }
         internal void Draw(NativeWorldSurface surface,State state)
         {
-            if(state.Family!="standard"&&state.Family!="sniper"&&state.Family!="shotgun")throw new ArgumentException("Unsupported retained weapon family");
-            string branch=state.Branch??"";int final=branch.Length==0?-1:Math.Max(-1,Math.Min(2,state.Final));var key=(state.Family,branch,final);
-            if(!_rigs.TryGetValue(key,out var rig)){rig=Build(state.Family,branch,final);_rigs.Add(key,rig);}
+            var rig=GetRig(state.Family,state.Branch,state.Final);
+            var root=T(state.X,state.Y,IsFieldFamily(state.Family)?0:state.Rotation)*Matrix4x4.Scale(Vector3.one*(float)state.Radius);
+            PaintRig(surface,rig,state,root);
+        }
+        private Rig GetRig(string family,string branch,int final)
+        {
+            branch=branch??"";final=branch.Length==0?-1:Math.Max(-1,Math.Min(2,final));var key=(family,branch,final);
+            if(!_rigs.TryGetValue(key,out var rig)){rig=Build(family,branch,final);_rigs.Add(key,rig);}return rig;
+        }
+        private void PaintRig(NativeWorldSurface surface,Rig rig,State state,Matrix4x4 root)
+        {
             // Use the simulation's actual shot time. A slow render frame must not
             // discard an attack, and returning to view must not replay an old one.
             double duration=Math.Min(.48,Math.Max(.28,state.AttackDelay*.65));
             double age=state.ShotSerial==0?double.PositiveInfinity:Math.Max(0,state.Time-state.ShotTime);
             if(state.Disabled)age=double.PositiveInfinity;
-            var root=T(state.X,state.Y,state.Rotation)*Matrix4x4.Scale(Vector3.one*(float)state.Radius);
-            var dark=C("#030b17");float opacity=state.Disabled?.22f:1;
+            var dark=C("#030b17");float opacity=(state.Disabled?.22f:1)*(state.Opacity>0?(float)state.Opacity:1);
             foreach(var part in rig.Parts){
-                var matrix=root*Pose(part,age,duration);var color=state.Disabled?C("#ff4d70"):state.Resonance?C("#ffd166"):part.Color;
+                var matrix=root*Pose(part,age,duration);var color=state.Disabled?C("#ff4d70"):state.Resonance?C("#ffd166"):state.Tint.HasValue&&part.Color==rig.MainColor?state.Tint.Value:part.Color;
                 // Geometry provides the soft edge; no per-part blur resources.
                 if(part.Fill!=null)surface.DrawNativeMesh(part.Fill,_solid,Properties(dark),matrix,opacity:opacity,inheritShadow:false);
                 if(part.Halo!=null){var halo=color;halo.a=.14f;surface.DrawNativeMesh(part.Halo,_solid,Properties(halo),matrix,opacity:opacity,additive:true,inheritShadow:false);}
@@ -76,6 +85,7 @@ namespace EchoSphere.Presentation
         }
         private static Rig Build(string family,string branch,int final)
         {
+            if(family!="standard"&&family!="sniper"&&family!="shotgun")return BuildAdditional(family,branch,final);
             var rig=new Rig();var primary=C(family=="standard"?"#63e6ff":family=="sniper"?"#e86cff":"#ffb84d");var white=C("#e4f8ff");
             var accent=C(branch.EndsWith("resonator",StringComparison.Ordinal)||branch.EndsWith("assassin",StringComparison.Ordinal)||branch.EndsWith("burst",StringComparison.Ordinal)?"#ff9c62":branch.EndsWith("swarm",StringComparison.Ordinal)||branch.EndsWith("oracle",StringComparison.Ordinal)||branch.EndsWith("cataclysm",StringComparison.Ordinal)?"#9ce6bf":"#d9f6ff");
             Part Add(Unity.VectorGraphics.BezierContour path,bool fill,Color color,Vector2 rest=default,int channel=0,Vector2 slide=default,float swing=0,float recoil=0,float delay=0,float angle=0,float width=.033f)
