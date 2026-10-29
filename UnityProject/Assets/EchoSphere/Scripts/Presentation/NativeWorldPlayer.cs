@@ -23,15 +23,14 @@ namespace EchoSphere.Presentation
             public void Dispose(){Destroy(Fill);Destroy(Stroke);}
         }
         private readonly Dictionary<(int,double,double,PathEnding,PathCorner,float),Art> _art=new Dictionary<(int,double,double,PathEnding,PathCorner,float),Art>();
-        private readonly NativeCharacterArtwork.Lease _portraitLease=new NativeCharacterArtwork.Lease();
-        private string _portraitId;private INativeWorldSprite _portrait;
+        private readonly NativeCharacterContours _contours=new NativeCharacterContours();
         private readonly Material _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native player silhouette",hideFlags=HideFlags.DontSave};
         private readonly Material _core=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldPlayerCore")){name="Native player core",hideFlags=HideFlags.DontSave};
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();private int _used;
         private readonly List<Art> _dynamic=new List<Art>();private int _dynamicUsed;
         private double _lastX,_lastY,_lastTime=-1;
         private NativeWorldSurface _surface;
-        internal void BeginFrame(){_used=0;_dynamicUsed=0;}
+        internal void BeginFrame(){_used=0;_dynamicUsed=0;_contours.BeginFrame();}
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Color C(int r,int g,int b,double a=1)=>new Color(r/255f,g/255f,b/255f,(float)a);
         private static Color A(Color color,double alpha){color.a=(float)alpha;return color;}
@@ -45,42 +44,48 @@ namespace EchoSphere.Presentation
         private void Paint(Art art,Matrix4x4 root,Color? fill,Color? stroke,Color? shadow=null,float blur=0,float? opacity=null,bool additive=false,bool preservePath=false)
         {if(fill.HasValue)_surface.DrawNativeMesh(art.Fill,_solid,Properties(fill.Value),root,shadow,blur,opacity:opacity,additive:additive,inheritShadow:!shadow.HasValue,inheritShadowOffsets:shadow.HasValue);if(stroke.HasValue)_surface.DrawNativeMesh(art.Stroke,_solid,Properties(stroke.Value),root,shadow,blur,opacity:opacity,additive:additive,inheritShadow:!shadow.HasValue,inheritShadowOffsets:shadow.HasValue);}
 
-        internal void Draw(NativeWorldSurface surface,State p,NativeWorldSprites sprites,NativeWorldCreatures shadows,Func<string,INativeWorldSprite> resolve)
+        internal void Draw(NativeWorldSurface surface,State p,NativeWorldCreatures shadows)
         {
-            _surface=surface;double r=p.Radius,t=p.Time,pulse=1+Math.Sin(t*5.5)*.025;var root=T(p.X,p.Y-r*.1+Math.Sin(t*2.4)*.8,sx:pulse,sy:pulse);shadows.DrawGroundShadow(surface,r*.95,r*.25,root);
-            if(_portraitId!=p.Character){_portraitId=p.Character;_portrait=_portraitLease.Select(p.Character);}
-            var characterArt=_portrait;
+            // Live art never resolves the old portrait/side sprite.
+            // Menus bake this same contour rig.
+            _surface=surface;double r=p.Radius,t=p.Time,pulse=1+Math.Sin(t*5.5)*.025;
+            var root=T(p.X,p.Y-r*.1+Math.Sin(t*2.4)*.8,sx:pulse,sy:pulse);
+            shadows.DrawGroundShadow(surface,r*.95,r*.25,root);
+            float opacity=1;double progress=0;
             if(p.Character=="spherist"){
-                double dt=_lastTime>=0?Math.Max(.001,t-_lastTime):.016,vx=(p.X-_lastX)/dt,vy=(p.Y-_lastY)/dt;_lastX=p.X;_lastY=p.Y;_lastTime=t;
-                bool death=p.Hp<=0,hit=p.ContactCooldown>0,shield=p.ShieldTimer>0||p.ShieldCharges>0,moving=!death&&!hit&&!shield&&(p.DashTimer>0||Math.Sqrt(vx*vx+vy*vy)>.06);
-                if(death){double progress=Math.Min(1,Math.Max(0,1-p.DeathTimer/.90)),fold=progress*progress;var shear=Matrix4x4.identity;shear.m00=(float)(1-fold*.45);shear.m01=(float)(-.10*fold);shear.m11=(float)(1+fold*.06);root*=T(y:-progress*r*.10)*shear*T(sx:pulse*(1-fold*.18),sy:pulse*(1-fold*.18));
-                    if(sprites.Draw(surface,characterArt??resolve("player-spherist"),0,0,r*2.9,fold*.25,1-progress*.92,false,false,false,root,true)){
-                        double fragment=Math.Max(0,(progress-.22)/.78),size=2+fragment*2;var diamond=Get(1,1,0,()=>new[]{PolylineContour(true,P(0,-1),P(.75,0),P(0,1),P(-.75,0))});for(int i=0;i<8;i++){double a=i*Math.PI/4+.18,travel=r*(.10+fragment*.72);Paint(diamond,root*T(Math.Cos(a)*travel,Math.Sin(a)*travel,a+fragment*1.3,size,size),C(223,250,255),null,opacity:(float)((1-fragment)*.72));}return;}}
-                else{root*=T(sx:pulse,sy:pulse);if(moving&&vx>=0)root*=T(sx:-1);if(sprites.Draw(surface,characterArt??resolve(moving?"player-spherist-side":"player-spherist"),0,0,r*2.9,0,1,false,false,false,root,true)){
-                        double spark=.45+.35*Math.Sin(t*5.5);var arc=Get(2,r,1,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.18),(float)(r*1.18),-.55f,.55f)},false);Paint(arc,root*T(angle:t*.7),null,C(100,232,255,.24+spark*.18),additive:true);
-                        var diamond=Get(3,0,0,()=>new[]{PolylineContour(true,P(0,-1.8),P(1.8,0),P(0,1.8),P(-1.8,0))});for(int i=0;i<4;i++){double a=t*.9+i*Math.PI/2,rr=r*(1.08+.08*Math.Sin(t*3+i));Paint(diamond,root*T(Math.Cos(a)*rr,Math.Sin(a)*rr*.70),C(220,252,255,.34+spark*.20),null,additive:true);}return;}}
+                double dt=_lastTime>=0?Math.Max(.001,t-_lastTime):.016,vx=(p.X-_lastX)/dt,vy=(p.Y-_lastY)/dt;
+                _lastX=p.X;_lastY=p.Y;_lastTime=t;
+                bool death=p.Hp<=0,hit=p.ContactCooldown>0,shield=p.ShieldTimer>0||p.ShieldCharges>0;
+                bool moving=!death&&!hit&&!shield&&(p.DashTimer>0||Math.Sqrt(vx*vx+vy*vy)>.06);
+                if(death){
+                    progress=Math.Min(1,Math.Max(0,1-p.DeathTimer/.90));double fold=progress*progress;
+                    var shear=Matrix4x4.identity;shear.m00=(float)(1-fold*.45);shear.m01=(float)(-.10*fold);shear.m11=(float)(1+fold*.06);
+                    root*=T(y:-progress*r*.10)*shear*T(sx:pulse*(1-fold*.18),sy:pulse*(1-fold*.18));opacity=(float)(1-progress*.92);
+                }else{root*=T(sx:pulse,sy:pulse);if(moving&&vx>=0)root*=T(sx:-1);}
             }
-            if(sprites.Draw(surface,characterArt,0,0,r*2.9,0,1,false,false,false,root,true)){DrawCharacterEffects(surface,p);return;}
-            Silhouette(root,p);var core=Circle(r*.50);var properties=Properties(p.Color);properties.SetFloat("_Radius",(float)r);surface.DrawNativeMesh(core.Fill,_core,properties,root,shadow:p.Color,shadowBlur:6,inheritShadowOffsets:true);
-            DrawCharacterEffects(surface,p);
+            DrawArtwork(surface,p,root,opacity);
+            if(p.Character=="spherist"){
+                if(p.Hp<=0){
+                    double fragment=Math.Max(0,(progress-.22)/.78),size=2+fragment*2;
+                    var diamond=Get(1,1,0,()=>new[]{PolylineContour(true,P(0,-1),P(.75,0),P(0,1),P(-.75,0))});
+                    for(int i=0;i<8;i++){double a=i*Math.PI/4+.18,travel=r*(.10+fragment*.72);Paint(diamond,root*T(Math.Cos(a)*travel,Math.Sin(a)*travel,a+fragment*1.3,size,size),C(223,250,255),null,opacity:(float)((1-fragment)*.72));}
+                }else{
+                    double spark=.45+.35*Math.Sin(t*5.5);
+                    var arc=Get(2,r,1,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.18),(float)(r*1.18),-.55f,.55f)},false);
+                    Paint(arc,root*T(angle:t*.7),null,C(100,232,255,.24+spark*.18),additive:true);
+                    var diamond=Get(3,0,0,()=>new[]{PolylineContour(true,P(0,-1.8),P(1.8,0),P(0,1.8),P(-1.8,0))});
+                    for(int i=0;i<4;i++){double a=t*.9+i*Math.PI/2,rr=r*(1.08+.08*Math.Sin(t*3+i));Paint(diamond,root*T(Math.Cos(a)*rr,Math.Sin(a)*rr*.70),C(220,252,255,.34+spark*.20),null,additive:true);}
+                }
+            }else DrawCharacterEffects(surface,p);
         }
-        private void Silhouette(Matrix4x4 root,State p)
+        // UI sprites are generated in Editor from the exact live body, without
+        // ground/contact/status effects or the run-time bob/death pose.
+        internal void DrawPortrait(NativeWorldSurface surface,State p)=>DrawArtwork(surface,p,T(p.X,p.Y),1);
+        private void DrawArtwork(NativeWorldSurface surface,State p,Matrix4x4 root,float opacity)
         {
-            double r=p.Radius,t=p.Time;var color=p.Color;Art body;
-            switch(p.Character){
-                case "hunter":body=Get(10,r,1.5,()=>new[]{PolylineContour(true,P(0,-r),P(r*.48,-r*.12),P(r*.34,r*.72),P(0,r*.44),P(-r*.34,r*.72),P(-r*.48,-r*.12))});break;
-                case "engineer":body=Get(11,r,1.5,()=>new[]{PolylineContour(true,P(-r*.72,-r*.56),P(r*.72,-r*.56),P(r*.72,r*.56),P(-r*.72,r*.56))});break;
-                case "berserker":body=Get(12,r,1.5,()=>new[]{PolylineContour(true,P(-r*.82,r*.40),P(-r*.58,-r*.62),P(-r*.18,-r*.92),P(0,-r*.56),P(r*.18,-r*.92),P(r*.58,-r*.62),P(r*.82,r*.40),P(r*.34,r*.78),P(-r*.34,r*.78))});break;
-                case "alchemist":body=Get(13,r,1.5,()=>new[]{PolylineContour(true,P(-r*.48,-r*.82),P(r*.48,-r*.82),P(r*.62,-r*.28),P(r*.42,r*.70),P(0,r*.90),P(-r*.42,r*.70),P(-r*.62,-r*.28))});break;
-                case "architect":body=Get(14,r,1.5,()=>new[]{PolylineContour(true,P(0,-r),P(r*.78,-r*.30),P(r*.58,r*.72),P(0,r*.46),P(-r*.58,r*.72),P(-r*.78,-r*.30))});break;
-                default:body=Get(15,r,1.5,()=>new[]{PolylineContour(true,P(0,-r*1.02),P(r*.74,-r*.42),P(r*.62,r*.48),P(0,r*.78),P(-r*.62,r*.48),P(-r*.74,-r*.42))});break;}
-            Paint(body,root,C(7,19,33),A(color,.90),color,5);
-            if(p.Character=="hunter")Paint(Get(16,r,1,()=>new[]{PolylineContour(false,P(-r*.92,-r*.34),P(0,-r*.72),P(r*.92,-r*.34))},false),root,null,A(color,.46),color,5);
-            else if(p.Character=="engineer"){
-                Paint(Get(17,r,1.5,()=>new[]{PolylineContour(false,P(-r*.72,0),P(r*.72,0)),PolylineContour(false,P(0,-r*.56),P(0,r*.56))},false),root,null,A(color,.52),color,5);var square=Get(18,0,0,()=>new[]{PolylineContour(true,P(-2,-2),P(2,-2),P(2,2),P(-2,2))});for(int i=0;i<4;i++){double a=t*.6+i*Math.PI/2;Paint(square,root*T(Math.Cos(a)*r*.86,Math.Sin(a)*r*.62),color,null,color,5,preservePath:true);}}
-            else if(p.Character=="alchemist")for(int i=0;i<3;i++){double a=t*.9+i*2.1;Paint(Circle(2+i),root*T(Math.Cos(a)*r*.9,Math.Sin(a)*r*.45),A(color,.55),null,color,5);}
-            else if(p.Character=="architect")Paint(Get(19,r,1.1,()=>new[]{PolylineContour(false,P(0,-r),P(0,r*.46)),PolylineContour(false,P(-r*.78,-r*.30),P(r*.58,r*.72)),PolylineContour(false,P(r*.78,-r*.30),P(-r*.58,r*.72))},false),root,null,A(color,.52),color,5);
-            else if(p.Character!="berserker")for(int i=0;i<3;i++){double a=t*1.3+i*Math.PI*2/3;var path=new[]{PolylineContour(false,P(Math.Cos(a)*r*.35,Math.Sin(a)*r*.30),P(Math.Cos(a)*r,Math.Sin(a)*r*.62))};Paint(Dynamic(path,1.5f),root,null,A(color,.40),color,5);}
+            _surface=surface;var core=Circle(p.Radius*.50);var properties=Properties(p.Color);properties.SetFloat("_Radius",(float)p.Radius);
+            surface.DrawNativeMesh(core.Fill,_core,properties,root,opacity:opacity,inheritShadow:false);
+            _contours.Draw(surface,p.Character,p.Color,root*Matrix4x4.Scale(Vector3.one*(float)p.Radius),opacity);
         }
         internal void DrawCharacterEffects(NativeWorldSurface surface,State p)
         {
@@ -93,6 +98,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){_portrait=null;_portraitLease.Dispose();foreach(var art in _art.Values)art.Dispose();_art.Clear();foreach(var art in _dynamic)art.Dispose();_dynamic.Clear();Destroy(_solid);Destroy(_core);}
+        public void Dispose(){_contours.Dispose();foreach(var art in _art.Values)art.Dispose();_art.Clear();foreach(var art in _dynamic)art.Dispose();_dynamic.Clear();Destroy(_solid);Destroy(_core);}
     }
 }

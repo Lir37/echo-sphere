@@ -2463,3 +2463,26 @@ SHA256:225d710ed66860e384bd59122cafbca6e582830c2817999b395bddae0d5ae149.
 Исходные локальные QualitySettings и Recovery7/8/9 сохранены;только созданные этой
 сборкой compile_commands перенесены в внешнюю backup-копию и восстановлены из HEAD.
 FPS/GC не измерялись;открытые pause/freeze/font-first-upgrade вопросы остаются.
+
+2026-10-29 — персонажи переведены на выбранное направление №1.
+База3e5a7788,предыдущее CI919SUCCESS. NativeCharacterContours:10авторских
+плоских contour rigs/247retained meshes,без фасок/металлической брони. Цвета и
+узнаваемые мотивы взяты из текущего каталога/одобренного roster. NativeWorldPlayer
+больше не запрашивает sprite тела,side/fallback силуэт;Draw теперь surface/state/shadows.
+Ядро использует существующий PlayerCore shader. Сохранены прежние bob/pulse,
+Spherist mirror/death pose/осколки,остальные character/status/target/shield overlays.
+Положение,радиус16,коллизии,формулы/RNG/сохранения не менялись.
+UI использует10PNG1254×1254,выпеченных в Unity из того же DrawPortrait;пути/GUID,
+настройки импорта,асинхронная загрузка и leases сохранены. Это не вырезки imagegen.
+Вся10-кадровая metallic roster и extraction prompts в GPT отмечены историческими;
+согласованное направление/реальный рисунок/manifest: UNITY_CHARACTER_VISUAL_STYLE_GUIDE_v1.0.md.
+
+Actual Unity GPU50727checks PASS:10портретов без обрезанных краёв,60состояний
+normal/dash/shield/hit/death в игровом радиусе16,статические meshes не перестроены.
+Actual Editor Play UI28checks PASS:прокрутка10портретов,затем домашний avatar;
+реальные снимки просмотрены,стиль согласован. Это не подтверждение всех прежних
+UI/performance проблем. Пять C#profiles343runtime/6editor files0errors/warnings PASS.
+Console0errors/0warnings в финальном Play. Editor prefs10keys restored/checked.
+Рецепт bake/check и UI check сохранены в scripts;общий GPU-лист — в VisualReferences.
+Новый APK не собирался,телефон не менялся. Ранее выданный78aec65e этих персонажей
+не содержит. Android визуальная приёмка и прежние pause/freeze вопросы открыты.

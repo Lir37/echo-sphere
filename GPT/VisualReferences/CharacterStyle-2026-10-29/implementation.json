@@ -1,0 +1,97 @@
+{
+  "method": "Unity GPU bake of NativeWorldPlayer.DrawPortrait/NativeCharacterContours",
+  "script": "scripts/bake-unity-contour-characters.cs",
+  "approvedDirection": 1,
+  "assets": [
+    {
+      "id": "alchemist",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/alchemist.png",
+      "sha256": "b9f8af1f58069a543d84486165f7b303e6dfbb60e3d6525f7837aa0891fc0591",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "architect",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/architect.png",
+      "sha256": "bb9e6fa275f8eb5a92d69c5f95df21abc8733140582cba300f7bc25ed8de7b05",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "berserker",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/berserker.png",
+      "sha256": "da30d8cd4eb8dcb6c46a9f450323549c00202b78857b4b246ca9f38c81b80fd5",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "conductor",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/conductor.png",
+      "sha256": "2ac4ab990b526efd01b424df964a2890fbccb7c3a584b0359175c78303ed46c7",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "engineer",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/engineer.png",
+      "sha256": "d409107a259b3d6402dc7c323e8069acb91a6bdf4051499557e52e44a0da5999",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "fractal",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/fractal.png",
+      "sha256": "31f67a11a36f2b5206633e55a4c28b89ae60dc6c44c53c797c877fd1764465b7",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "hunter",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/hunter.png",
+      "sha256": "b5af65251e192398d4e9556fd6d8579bac78ebf44547cf89ecc54c6e57372bde",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "oracle",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/oracle.png",
+      "sha256": "573519bb3ca89586e9c49a8096f6be19735e74d4e777a80d9d56d03c58f38e32",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "spherist",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/spherist.png",
+      "sha256": "edbd7b92639a83fe7fa1872881b06ea4af7781013b075e7bc2e86085d0b4b806",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "id": "voidwalker",
+      "path": "UnityProject/Assets/Resources/EchoSphere/CharacterArt/voidwalker.png",
+      "sha256": "b4f675c3cf4cfaa45a7c6891fe8e97a09ba16c7cd42ea2385cc9deda943677a5",
+      "size": [
+        1254,
+        1254
+      ]
+    }
+  ]
+}

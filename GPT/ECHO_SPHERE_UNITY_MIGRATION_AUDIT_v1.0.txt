@@ -6080,3 +6080,5 @@ Recovery7/8 сохранены. Последующий отчётный commit �
 2026-10-29: все7оставшихсясемейств подключены к retained механическим представлениям;130rigsвсего. AoEкруговой/лёгкий;Orbitalконтактный,tipнаружу+зеркалированиеподдвижениевнешнегокольца. Старые мутационные контуры reference-only. Editor41645+29+35+27checks PASS,Core/5C#profiles PASS,prefs restored. APK/CI/телефон:см.UNITY_NATIVE_MODERNIZATION_PROGRESS.md.
 
 2026-10-29: APK78aec65e всех10семейств успешно собран,0errors/6warnings,IL2CPP ARMv7+ARM64;v2signature/non-debuggable/тестовый level+ проверены. CI918 SUCCESS. Файл в Downloads;телефон не трогали,приёмка новых7семейств открыта. SHA/подробности в UNITY_NATIVE_MODERNIZATION_PROGRESS.md.
+
+2026-10-29: выбранный contour стиль№1 внедрён во всех10персонажах:retained native тела,UI PNG из той же геометрии. Старый body sprite/fallback исключён из live Draw. GPU50727checks/Play UI28checks/5C#profiles PASS,prefs10keys восстановлены. APK не собирался,телефон не менялся. См.UNITY_CHARACTER_VISUAL_STYLE_GUIDE_v1.0.md и UNITY_NATIVE_MODERNIZATION_PROGRESS.md.

@@ -62,7 +62,7 @@ namespace EchoSphere.Runtime
             DrawNativeDroneLayer();
             foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive)DrawNativeEnemyWorld(enemy);
             int orbitalIndex=-1;foreach(var component in _spheres){if(component==null||!component.gameObject.activeInHierarchy)continue;orbitalIndex++;if(component.Type!=EchoSphere.Core.SphereId.Orbital)continue;var sphere=ProjectNativeSphereVisual(component);double radius=NativeOrbitalRadiusScale(sphere)*NativeOrbitalNetworkMultiplier(_networkState,orbitalIndex);DrawNativeOrbitalSphere(sphere,time,NativeSphereScale(sphere),radius,true);}
-            DrawNativePlayerShield();_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);DrawNativeCharacterTargetIndicators();
+            DrawNativePlayerShield();_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(),_nativeWorldCreatures);DrawNativeCharacterTargetIndicators();
             DrawNativeEnemyProjectileLayer();
             DrawNativeParticleLayer(fxStride);
             _worldSurface.SetOpacity(1);int damageIndex=0;

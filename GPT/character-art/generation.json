@@ -114,5 +114,8 @@
       "prompt": "Use case: background-extraction. Extract ONLY the bottom row fourth, hollow plum dark sphere with offset plates character from the approved roster reference. Preserve its exact graphite faceted origami armor design, luminous core color, accessory geometry and front three-quarter view. Single complete character centered on square 1024x1024 transparent canvas occupying 85 percent, ample transparent padding all tips intact. Remove all text, labels, other characters, background and ground/contact shadow. Actual alpha transparency also through holes. Production game sprite, no new features, no redesign.",
       "promptNote": null
     }
-  ]
+  ],
+  "historicalArtwork": true,
+  "supersededOn": "2026-10-29",
+  "currentImplementation": "UNITY_CHARACTER_VISUAL_STYLE_GUIDE_v1.0.md; NativeCharacterContours; actual menu PNGs baked from the live native body, not the historical metallic extraction prompts below."
 }

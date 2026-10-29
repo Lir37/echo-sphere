@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace EchoSphere.Presentation
 {
-    // User-approved roster artwork, separate from the immutable source-art catalog.
+    // UI portraits baked from NativeCharacterContours; the live body draws its meshes.
     internal static class NativeCharacterArtwork
     {
         private static readonly Dictionary<string,NativeWorldArtCatalog.Entry> Cache=new Dictionary<string,NativeWorldArtCatalog.Entry>(StringComparer.Ordinal);
