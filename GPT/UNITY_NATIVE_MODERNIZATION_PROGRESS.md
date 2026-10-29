@@ -2557,3 +2557,30 @@ Editor текущий бой перед сборкой штатно PauseAndSave
 Recovery7/8/9 и старые.utmp не менялись. Этот отчётный commit не меняет кодAPK.
 
 2026-10-29: новая группа HUD/меню/снаряды/комета/Призма. Deferred3-frame skin retirement + восстановление GPU targets;причина конкретного белогоHUD ещё не доказана. Подменю×0.86,снаряды6enemy/5friendly,одна18-sample comet ribbon0.38s,постоянный основной цветПризмы. Проверены30IV/90VII — привязка верна,прогрессия не менялась. Editor GPU46+92+1700+52checks,menu32,branch581 PASS,prefs10keys restored. Подробности/артефакты:UNITY_HUD_PROJECTILES_MUTATIONS_2026-10-29.md. APK/CI/телефон записываются после проверки.
+
+## APK и телефон — финальная проверка 2026-10-29
+
+Production code:0abed1fd7706a11b98b615c1d5da721c17b95bea;follow-up8640c001 меняет только проверку/отчёт.
+CI926 SUCCESS:https://github.com/Lir37/echo-sphere/actions/runs/40911708804.
+Build Succeeded,0errors/9warnings,244.94s,56857042bytes,IL2CPP ARMv7+ARM64,
+BuildOptions.None,non-debuggable,подписьv2PASS,ECHO_SPHERE_TEST_CONTROLS сохранён.
+APK Downloads/ECHO-SPHERE-0abed1fd-TEST-LEVELUP-2026-10-29.apk.
+SHA256:e26ecb3e40a707f297f3208791cf5a25d931f300f9468c9dadae3855f6476a0f.
+adb install-r SUCCESS;установленный base.apk побайтно совпадает поSHA256.
+
+Перед установкой свежий текущий профиль сохранён:phone-before-hud-prism-20261029-162833.tar,
+17keys,329266bytes,SHA256XML6068bb323e7641f24a9ee16dc2d58433ea089ab13ce82b2ef64c50e08648b8c3.
+Совпадение проверено повторно непосредственно перед установкой. Diagnostic APK ставился
+без запуска только для чтения;исторические prefs не восстанавливались,профиль не сбрасывался.
+
+На Xiaomi11T открыты главное меню,уменьшенные Characters и сохранённый бой Охотника
+ур.73/волна19 с8:17. В коротком сценарии с четырьмя направлениями ввода правый HUD
+и HP остались цветными;пауза и фон/возврат работают,штатное сохранение зарегистрировано.
+Новые снаряды видны;длинный след по одиночным Android-снимкам уверенно не подтверждён,
+его GPU/цвет/затухание проверены в Editor. На телефоне не проверялись все10персонажей
+и все мутации Призмы;для них есть отдельные Editor-проверки выше.
+Короткое отсутствие белого HUD не доказывает устранение редкой ошибки.
+FPS/GC в этой проверке не измерялись. Старое AssetPackManager startup-исключение
+не считать исправленным. Фото/лог/receipt в external user-feedback.
+Сборочные compile_commands сохранены отдельно и восстановлены;пользовательские
+QualitySettings/Recovery/RelWithDebInfo не изменялись.
