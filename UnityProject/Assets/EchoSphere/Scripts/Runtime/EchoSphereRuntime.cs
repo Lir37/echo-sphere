@@ -1037,6 +1037,7 @@ namespace EchoSphere.Runtime
             if (!_mainMenu) TickSourceKnowledge(Mathf.Min(0.05f, Time.unscaledDeltaTime));
             TickRunAutosave();
             if (TickSourceDeath()) return;
+            if (Input.GetKeyDown(KeyCode.Escape) && _runEconomy!=null && _runEconomy.Open) { CloseNativeMerchant(); return; }
             if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending)
                 SetUserPaused(!_userPaused);
             if (_mainMenu || (_paused && !(_tutorialStep == 1 || _tutorialStep == 2)) || _playerCore == null) return;
@@ -1158,6 +1159,7 @@ namespace EchoSphere.Runtime
             TickSimulationPhase<SourceParticle2D>(dt, true); TickSourceLightningVisuals(dt);
             ResolveSourceSpaceCollisions(dt);
             _camera.transform.position = new Vector3(_player.position.x, _player.position.y, -10f) + _lastHunterScreenShakeOffset;
+            TickNativeEconomy();
             if (_regionStabilized) { _gameOver = true; _paused = true; FinalizeRunResult(); }
             }
             finally { _simulationFrame = false; }
@@ -2627,10 +2629,7 @@ namespace EchoSphere.Runtime
             var choice = _stellaRewardChoices[choiceIndex];
             if (choice == null || _ownedArtifacts.Contains(choice.Id)) return;
             _ownedArtifacts.Add(choice.Id);
-            RecordDiscoveredArtifactProtocols();
-            if (choice.GetEffect("maxHp") > 0f && _playerCore != null) _playerCore.IncreaseMaxHp(choice.GetEffect("maxHp"));
-            if (_playerCore != null)
-                _playerCore.SetDashCooldownMultiplier(Mathf.Max(0.55f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "cooldown")));
+            ApplyOwnedArtifactEffects(choice);
             _stellaRewardPending = false;
             _stellaRewardChoices.Clear();
             _paused = false;
@@ -2792,7 +2791,7 @@ namespace EchoSphere.Runtime
             var comboExperience = ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier);
             var orbVelocity = new Vector2(-40f + _rng.NextFloat() * 80f, 40f - _rng.NextFloat() * 80f);
             var orbRotation = _rng.NextFloat() * Mathf.PI * 2f;
-            go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, comboExperience, orbVelocity, orbRotation);
+            go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, comboExperience, orbVelocity, orbRotation, Mathf.Max(1,Mathf.RoundToInt(xpReward)));
 
             // Match the source death-drop order and keep its seeded RNG consumption.
             var healthChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.5f : 0.04f;
@@ -2816,7 +2815,7 @@ namespace EchoSphere.Runtime
             }
 
             var chestChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.2f : 0.02f;
-            if (_rng.NextFloat() < chestChance)
+            if (_runEconomy==null && _rng.NextFloat() < chestChance)
             {
                 var chest = new GameObject("Artifact Cache");
                 chest.transform.position = position;
@@ -5938,6 +5937,7 @@ namespace EchoSphere.Runtime
         private void SetUserPaused(bool paused)
         {
             if (_gameOver || _levelUp || _choosingEvolution || _stellaRewardPending) return;
+            if (_runEconomy!=null&&_runEconomy.Open) { _userPaused=paused; _paused=true; return; }
             _userPaused = paused;
             _paused = paused;
         }
@@ -7035,6 +7035,7 @@ namespace EchoSphere.Runtime
 #endif
             _nativePresentedDominant=_nativePresentedSecondary=null;
             _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+            _runEconomy=RunEconomyRules.Create(_rng.State);
             _sourceLightningVisuals.Clear(); _mutationStage = 0; _chaosOrbTimer = _chaosOrbBuffTimer = _buffTimer = _deathTimer = 0f; _chaosOrbBuff = null;
             ClearRunSnapshot();
             _regionLoreDiscovered.Clear();

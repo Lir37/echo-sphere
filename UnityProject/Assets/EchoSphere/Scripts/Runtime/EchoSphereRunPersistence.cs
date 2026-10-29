@@ -56,7 +56,7 @@ namespace EchoSphere.Runtime
         }
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
-            "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
+            "_nativeMerchantView", "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
             "_nativeNetworkProjection", "_nativePausedWorldFrame",
             "_nativeTransientPools",
             "_simulationTypes", "_simulationPhases",
@@ -198,7 +198,9 @@ namespace EchoSphere.Runtime
             _spheres.Clear(); _enemies.Clear(); _enemyQueries?.Clear(); _maximumEnemyQueryRadius=0; _enemyQueryListCount=-1; _abilityDrones.Clear();
             // Old snapshots may contain UI ownership flags. Apply the same boundary
             // while reading as while writing so a live menu cannot be orphaned.
+            _runEconomy=null; // Missing economy in a legacy snapshot must remain legacy.
             RunSnapshotCodec.Restore(save.runtime, GetType(), this, field => !NonRunFields.Contains(field.Name));
+            if(_runEconomy!=null)_runEconomy.Open=false; // Reopen the same saved stock after the resume gate.
             // JSON keeps lightning positions/lifetime but drops sourceSphere.
             foreach(var lightning in _sourceLightningVisuals)lightning.sphereType=null;
             RunSnapshotCodec.Restore(save.player, typeof(PlayerCoreController2D), _playerCore);

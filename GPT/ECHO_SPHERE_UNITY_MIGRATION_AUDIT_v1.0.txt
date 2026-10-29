@@ -6115,3 +6115,5 @@ FPS/GC в этой проверке не измерялись. Старое Asse
 не считать исправленным. Фото/лог/receipt в external user-feedback.
 Сборочные compile_commands сохранены отдельно и восстановлены;пользовательские
 QualitySettings/Recovery/RelWithDebInfo не изменялись.
+
+2026-10-29: начат согласованный полный gameplay-план. Новые забеги получают Echo/торговца/расписание сундуков;legacy saves прежние. Core226+Editorruntime9+UI8PASS;баланс/AndroidOPEN. Кампания6разныхвизуальныхростеров и остальные системы ещё не завершены. См.UNITY_GAMEPLAY_COMPLETION_2026-10-29.md.

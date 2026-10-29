@@ -46,7 +46,7 @@ namespace EchoSphere.Runtime
         }
         private void PrepareNativeRunPresenters(NativeRunUiAnchors anchors)
         {
-            PrepareNativeHudIsland(anchors);PrepareNativePauseScreen(anchors);PrepareNativePauseChromeIsland(anchors);PrepareNativePauseStatsIsland(anchors);PrepareNativePauseAbilitiesIsland(anchors);PrepareNativePauseArtifactsIsland(anchors);PrepareNativePauseSynergiesIsland(anchors);CompleteNativePauseScreen(anchors);PrepareNativeRunResult(anchors);PrepareNativeUpgrade(anchors);PrepareNativeArtifactRewards(anchors);PrepareNativePauseSetDetail(anchors);PrepareNativeTutorial(anchors);PrepareNativeMobileGestures(anchors);PrepareNativeMobileDock(anchors);PrepareNativeMobileFeedback(anchors);PrepareNativeMobileNetwork(anchors);
+            PrepareNativeHudIsland(anchors);PrepareNativePauseScreen(anchors);PrepareNativePauseChromeIsland(anchors);PrepareNativePauseStatsIsland(anchors);PrepareNativePauseAbilitiesIsland(anchors);PrepareNativePauseArtifactsIsland(anchors);PrepareNativePauseSynergiesIsland(anchors);CompleteNativePauseScreen(anchors);PrepareNativeRunResult(anchors);PrepareNativeUpgrade(anchors);PrepareNativeArtifactRewards(anchors);PrepareNativePauseSetDetail(anchors);PrepareNativeTutorial(anchors);PrepareNativeMobileGestures(anchors);PrepareNativeMobileDock(anchors);PrepareNativeMobileFeedback(anchors);PrepareNativeMobileNetwork(anchors);PrepareNativeMerchant();
         }
     }
 }

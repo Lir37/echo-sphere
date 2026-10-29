@@ -285,7 +285,7 @@ assert.ok(runtime.includes('profile.XpReward * pocket.Xp * challengeXp') &&
   runtime.includes('hp *= 3f') && runtime.includes('damage *= 1.5f') &&
   runtime.includes('xpReward *= 5f') &&
   runtime.includes('ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier)') &&
-  runtime.includes('Initialize(this, _player, comboExperience, orbVelocity, orbRotation)'),
+  runtime.includes('Initialize(this, _player, comboExperience, orbVelocity, orbRotation, Mathf.Max(1,Mathf.RoundToInt(xpReward)))'),
   'source enemy spawn stats, elite conversion or Combo-adjusted XP pickup wiring is missing');
 assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceChargeFromSource'), 'new-geometry Resonance charging is missing');
 

@@ -204,7 +204,8 @@ namespace EchoSphere.Runtime
             _worldSurface.SetViewport(width,height,dpr);
             _worldSurface.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
             var pausedFrame=_nativePausedWorldFrame;
-            bool reuse=_userPaused&&_sourceUi!=null&&!_sourceUi.Dirty&&pausedFrame.HasValue&&
+            bool freezeWorld=_userPaused||(_runEconomy!=null&&_runEconomy.Open);
+            bool reuse=freezeWorld&&_sourceUi!=null&&!_sourceUi.Dirty&&pausedFrame.HasValue&&
                 pausedFrame.Value.Texture==_worldSurface.UiTexture&&pausedFrame.Value.Camera==_camera.transform.position&&
                 pausedFrame.Value.Size==new Vector2(width,height)&&pausedFrame.Value.Density==dpr&&pausedFrame.Value.Time==_runTime&&
                 _worldSurface.UiTexture is RenderTexture retained&&retained.IsCreated();
@@ -213,7 +214,7 @@ namespace EchoSphere.Runtime
                 _worldSurface.Begin(new Vector2(width*.5f,height*.5f));
                 RenderNativeWorldFrame(width,height);_worldSurface.End();
             }
-            _nativePausedWorldFrame=_userPaused?(_worldSurface.UiTexture,_camera.transform.position,new Vector2(width,height),dpr,(double)_runTime):null;
+            _nativePausedWorldFrame=freezeWorld?(_worldSurface.UiTexture,_camera.transform.position,new Vector2(width,height),dpr,(double)_runTime):null;
             }
             // The retained UI Toolkit document composites the native world
             // texture beneath the HUD and authored material/filter treatments.
