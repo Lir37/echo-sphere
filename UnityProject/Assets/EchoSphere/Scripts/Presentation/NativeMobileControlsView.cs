@@ -10,7 +10,7 @@ namespace EchoSphere.Presentation
     internal sealed class NativeMobileControlsView : IDisposable
     {
         internal sealed class Control {internal string Id,Name,Detail,Icon,Color;internal bool Disabled,Active;internal string Tooltip;internal float Cooldown;}
-        internal sealed class State {internal bool Right;internal string Name,Description,Strain;internal readonly List<Control> Controls=new List<Control>();}
+        internal sealed class State {internal bool Right;internal string Name,Description;internal readonly List<Control> Controls=new List<Control>();}
         private sealed class Item {internal Button Button;internal Label Name,Detail;internal VisualElement Icon,Bar;internal NativeHudSurface Surface;internal NativeMenuBrush.Paint Normal,Pressed,ActivePaint;internal bool Disabled,Active,IsPressed;}
         internal VisualElement Root {get;}
         internal bool Ready {get;private set;}
@@ -18,7 +18,7 @@ namespace EchoSphere.Presentation
         private readonly List<NativeHudSurface> _surfaces=new List<NativeHudSurface>();
         private readonly Dictionary<string,Item> _items=new Dictionary<string,Item>();
         private readonly NativeUiAlphaShadow _glyphShadow=new NativeUiAlphaShadow(7,C("#dff7ff"));
-        private VisualElement _abilities,_strainBox;private Label _name,_description,_strain;
+        private VisualElement _abilities;private Label _name,_description;
         private string _keys;private int _geometryFrame;private bool _bound;
         private static Color C(string text){ColorUtility.TryParseHtmlString(text,out var c);return c;}
         private static Color A(int r,int g,int b,float a)=>new Color(r/255f,g/255f,b/255f,a);
@@ -74,7 +74,7 @@ namespace EchoSphere.Presentation
                 var b=Button(actionRow,c,119,44,c.Id=="dash").Button;b.style.position=Position.Absolute;b.style.left=(i%2)*125;i++;}
             foreach(var c in state.Controls)if(c.Id.StartsWith("ability:"))ActionButton(c);
             ActionButton(Find("dash"));_abilities.style.height=((i+1)/2)*50-6;
-            _strainBox=Box(Root,"strain");_strainBox.style.marginTop=8;_strainBox.style.paddingLeft=_strainBox.style.paddingRight=8;_strainBox.style.paddingTop=_strainBox.style.paddingBottom=4;Surface(_strainBox,new NativeMenuBrush.Paint {Radius=6,Border=1,BorderColor=C("#243b55"),Fill=A(13,23,38,.8f)});_strain=Text(_strainBox,"strain-label",8,"#7f9bb8","700");_strain.style.letterSpacing=16;
+
             var info=Box(Root,"sphere-info");info.style.width=220;info.style.marginTop=8;info.style.paddingLeft=info.style.paddingRight=12;info.style.paddingTop=info.style.paddingBottom=8;
             Surface(info,new NativeMenuBrush.Paint {Radius=12,Border=1,BorderColor=C("#243b55"),Fill=A(13,23,38,.9f),OuterA=new NativeMenuBrush.Shadow(15,new Vector2(0,10),A(0,0,0,.1f),-3),OuterB=new NativeMenuBrush.Shadow(6,new Vector2(0,4),A(0,0,0,.1f),-4)});
             _name=Text(info,"name",14,"#dcecff","700",true);_description=Text(info,"description",10,"#7f9bb8",wrap:true,line:1.25);_description.style.marginTop=2;_name.style.unityTextAlign=_description.style.unityTextAlign=TextAnchor.UpperCenter;
@@ -88,7 +88,7 @@ namespace EchoSphere.Presentation
         internal void Bind(State state)
         {
             string keys=(state.Right?"right|":"left|")+string.Join("|",state.Controls.ConvertAll(c=>c.Id));if(keys!=_keys){_keys=keys;Build(state);}
-            Root.style.alignItems=state.Right?Align.FlexEnd:Align.FlexStart;_name.text=state.Name;_description.text=state.Description;_strain.text=state.Strain;_strainBox.style.display=string.IsNullOrEmpty(state.Strain)?DisplayStyle.None:DisplayStyle.Flex;
+            Root.style.alignItems=state.Right?Align.FlexEnd:Align.FlexStart;_name.text=state.Name;_description.text=state.Description;
             foreach(var c in state.Controls){var item=_items[c.Id];item.Disabled=c.Disabled;string tooltip=c.Tooltip??c.Name;if(item.Button.tooltip!=tooltip)item.Button.tooltip=tooltip;item.Button.SetEnabled(!c.Disabled);if(item.Active!=c.Active){item.Active=c.Active;item.Surface.SetPaint(item.IsPressed?item.Pressed:item.Active?item.ActivePaint:item.Normal);}item.Button.style.opacity=c.Id=="follow"&&c.Disabled ? .4f : 1;
                 if(item.Name!=null)item.Name.text=c.Name;if(item.Detail!=null)item.Detail.text=c.Detail;if(item.Icon!=null)item.Icon.style.backgroundImage=new StyleBackground(Resources.Load<VectorImage>("EchoSphere/NativeMenuIcons/"+c.Icon));if(item.Bar!=null)item.Bar.style.width=Length.Percent(c.Cooldown);}
             _bound=true;

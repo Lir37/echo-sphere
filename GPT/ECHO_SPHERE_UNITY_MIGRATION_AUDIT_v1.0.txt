@@ -6007,3 +6007,10 @@ words,weapon event/save и paused world invalidation. Повторная phone-�
 2026-10-29: source-scale comparison расширен на меню/паузы/модальные окна/мир. Селектор сфер возвращён к5×2,44px/gap6, без FlexWrap и DPI-накопления. По запросу пользователя компактные lock/follow/pause и способности+dash. Actual UI Toolkit144cases/6264checks PASS, runtime26checks PASS,5C#profiles0errors/warnings. Детали: UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md. Phone disconnected; новая Android UI/haptic проверка открыта. Pause performance и freeze3:29 не DONE.
 
 8537fb52 CI907 SUCCESS. Финальный followup не создаёт повторно полные tooltip-строки каждой сферы в покадровой модели; layout/правила прежние.
+
+2026-10-29: дополнительная строка strain удалена. Follow показывает «Следует ·
+N%»,полная «НАГРУЗКА СЕТИ N%» в tooltip. Переключение follow больше не сдвигает
+кнопки pause/lock/follow/dash. В144cases добавлена проверка равной высоты группы
+при follow/strain on/off и одинаковом числе рядов действий:6336checks PASS.
+Все5 C#профилей0errors/warnings,preflightPASS. Editor prefs10keys восстановлены.
+Следующая обычная сборка/phone-проверка должна использовать именно эту версию.
