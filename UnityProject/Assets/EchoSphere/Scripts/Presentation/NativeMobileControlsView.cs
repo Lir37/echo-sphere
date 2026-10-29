@@ -89,7 +89,7 @@ namespace EchoSphere.Presentation
         {
             string keys=(state.Right?"right|":"left|")+string.Join("|",state.Controls.ConvertAll(c=>c.Id));if(keys!=_keys){_keys=keys;Build(state);}
             Root.style.alignItems=state.Right?Align.FlexEnd:Align.FlexStart;_name.text=state.Name;_description.text=state.Description;_strain.text=state.Strain;_strainBox.style.display=string.IsNullOrEmpty(state.Strain)?DisplayStyle.None:DisplayStyle.Flex;
-            foreach(var c in state.Controls){var item=_items[c.Id];item.Disabled=c.Disabled;item.Button.tooltip=c.Tooltip??c.Name;item.Button.SetEnabled(!c.Disabled);if(item.Active!=c.Active){item.Active=c.Active;item.Surface.SetPaint(item.IsPressed?item.Pressed:item.Active?item.ActivePaint:item.Normal);}item.Button.style.opacity=c.Id=="follow"&&c.Disabled ? .4f : 1;
+            foreach(var c in state.Controls){var item=_items[c.Id];item.Disabled=c.Disabled;string tooltip=c.Tooltip??c.Name;if(item.Button.tooltip!=tooltip)item.Button.tooltip=tooltip;item.Button.SetEnabled(!c.Disabled);if(item.Active!=c.Active){item.Active=c.Active;item.Surface.SetPaint(item.IsPressed?item.Pressed:item.Active?item.ActivePaint:item.Normal);}item.Button.style.opacity=c.Id=="follow"&&c.Disabled ? .4f : 1;
                 if(item.Name!=null)item.Name.text=c.Name;if(item.Detail!=null)item.Detail.text=c.Detail;if(item.Icon!=null)item.Icon.style.backgroundImage=new StyleBackground(Resources.Load<VectorImage>("EchoSphere/NativeMenuIcons/"+c.Icon));if(item.Bar!=null)item.Bar.style.width=Length.Percent(c.Cooldown);}
             _bound=true;
         }

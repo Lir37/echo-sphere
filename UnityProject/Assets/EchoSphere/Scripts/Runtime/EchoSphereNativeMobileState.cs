@@ -56,7 +56,7 @@ namespace EchoSphere.Runtime
             if(follow)state.Strain=(IsRussianUi?"НАГРУЗКА СЕТИ":"NETWORK STRAIN")+" "+NativePresentationMath.NumberText(Math.Floor((double)_formationStrain+.5))+"%";
             state.Controls.Add(new NativeMobileControlsView.Control {Id="dash",Icon="Zap",Name=IsRussianUi?"Рывок":"Dash",Detail=follow?(IsRussianUi?"Недоступно":"Unavailable"):_playerCore.DashCooldown>0?NativeMobileDashLabel(_playerCore.DashCooldown,IsRussianUi):NativeMobileText("ready"),Disabled=follow,Cooldown=0});
             var definitions=NativeRunCatalog.Instance.Spheres;var selected=NativeRunCatalog.Instance.GetSphere(_selectedSphereType.ToString().ToLowerInvariant());state.Name=selected.Name(IsRussianUi);state.Description=selected.Description(IsRussianUi);
-            foreach(var sphere in definitions)state.Controls.Add(new NativeMobileControlsView.Control {Id="sphere:"+sphere.Id,Color=sphere.Color,Active=sphere.Id==selected.Id,Tooltip=sphere.Name(IsRussianUi)+" — "+sphere.Description(IsRussianUi)});
+            foreach(var sphere in definitions)state.Controls.Add(new NativeMobileControlsView.Control {Id="sphere:"+sphere.Id,Color=sphere.Color,Active=sphere.Id==selected.Id,Tooltip=sphere.Name(IsRussianUi)});
             _nativeMobileDockState=state;
             _nativeJoystickState=_nativeMobileJoystickId.HasValue?new NativeMobileFeedbackView.State {Joystick=true,KnobX=34+(float)_nativeMobileDx,KnobY=34+(float)_nativeMobileDy,Active=_nativeMobileJoystickActive}:null;
             _nativePlacementState=_nativeMobilePlacementColor!=null?new NativeMobileFeedbackView.State {Id=NativePresentationMath.NumberText(_nativeMobilePlacementAt),Color=_nativeMobilePlacementColor}:null;
