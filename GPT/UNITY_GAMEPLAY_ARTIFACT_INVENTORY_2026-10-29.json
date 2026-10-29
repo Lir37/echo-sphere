@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Static inventory for Unity production. Literal references do not prove invocation, integration, correct semantics or acceptance. Unreviewed entries are not claimed broken.",
-  "baselineCommit": "1d702b92e6bff9a756bbb439121e20a700b0bfe6",
+  "baselineCommit": "a52f6f65fb29e08d16aaef345bf066ff1aed7afd",
   "artifactCatalogSha256": "c8b8bf7550cae1b3e9ec5c1d4a78af49e761cd6dcc3f56f903b57e53ed284f3b",
   "catalogCounts": {
     "SourceCommit": 0,
@@ -19,9 +19,9 @@
     "Rarities": 5,
     "SphereAbilityLinks": 30
   },
-  "verifiedArtifactCorrections": 23,
+  "verifiedArtifactCorrections": 32,
   "clarifiedDescriptionsPendingRuntimeReview": 8,
-  "remainingArtifactReviews": 59,
+  "remainingArtifactReviews": 50,
   "artifacts": [
     {
       "id": "crystal_speed",
@@ -252,11 +252,6 @@
           "text": "switch(id){case \"swift\":return ru?\"Темп\":\"Tempo\";case \"mirror\":return ru?\"Контратака\":\"Counter\";case \"resonance\":return ru?\"Связь сфер\":\"Sphere Link\";case \"lone\":return ru?\"Одна сфера\":\"Solo Sphere\";case \"fivefold\":case \"network\":return ru?\"Сеть\":\"Network\";case \"relay\":return ru?\"Прогрессия\":\"Progression\";case \"triangle\":return ru?\"Геометрия\":\"Geometry\";case \"overclock\":return ru?\"Разгон\":\"Overclock\";case \"singularity\":return ru?\"Сингулярность\":\"Singularity\";case \"zero\":return ru?\"Архитектура\":\"Architecture\";case \"unified\":return ru?\"Единый разум\":\"Unified Mind\";default:return \"\";}"
         },
         {
-          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 2885,
-          "text": "if (_rng.NextFloat() < (_ownedArtifacts.Contains(\"mirror\") ? 0.20f : 0f))"
-        },
-        {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceArtifacts.cs",
           "line": 69,
           "text": "var ids = new[] { \"swift\", \"mirror\", \"resonance\", \"lone\", \"fivefold\", \"relay\", \"triangle\", \"overclock\", \"network\", \"singularity\", \"zero\", \"unified\" };"
@@ -441,7 +436,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 138,
+          "line": 141,
           "text": "if(NativeOwnsArtifact(scene,\"resonance_core\")&&sphere.Truth&&scene[\"spheres\"].Items.Any(other=>other!=sphere&&!(other[\"alive\"].Raw is bool alive&&!alive)&&NativeLogicalDistance(other[\"pos\"],sphere[\"pos\"])<=190))multiplier*=1.12;"
         },
         {
@@ -539,7 +534,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 139,
+          "line": 142,
           "text": "if(NativeOwnsArtifact(scene,\"triangle_circuit\")&&NativeSphereTriangle(scene,sphere))multiplier*=1.15;"
         },
         {
@@ -722,7 +717,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 141,
+          "line": 144,
           "text": "if(NativeOwnsArtifact(scene,\"zero_sphere\"))multiplier*=1.20;"
         },
         {
@@ -754,7 +749,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 140,
+          "line": 143,
           "text": "if(NativeOwnsArtifact(scene,\"unified_mind\")){double strongest=0;if(player[\"sphereProgression\"].Raw is Dictionary<string,V> levels)foreach(var level in levels.Values)strongest=Math.Max(strongest,level.Number);multiplier*=1+strongest*.03;}"
         },
         {
@@ -876,8 +871,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "folded_core",
@@ -924,8 +919,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "resonant_leaf",
@@ -956,8 +951,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "lattice_chip",
@@ -972,8 +967,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "fractal_seed",
@@ -988,8 +983,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "sniper_scope",
@@ -1085,7 +1080,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 549,
+          "line": 551,
           "text": "if (_runtime.HasArtifact(\"orbital_blade\") && _runtime.HasArtifact(\"prism_filter\"))"
         }
       ],
@@ -1102,12 +1097,12 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 549,
+          "line": 551,
           "text": "if (_runtime.HasArtifact(\"orbital_blade\") && _runtime.HasArtifact(\"prism_filter\"))"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 743,
+          "line": 745,
           "text": "var prismFilter = _runtime.HasArtifact(\"prism_filter\");"
         }
       ],
@@ -1124,7 +1119,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 288,
+          "line": 290,
           "text": "if (_runtime.HasArtifact(\"gravity_hook\")) gravityInterval *= 0.92f;"
         },
         {
@@ -1146,12 +1141,12 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 75,
+          "line": 77,
           "text": "if(type==\"pulse\"){double waves=1+(_ownedArtifacts.Contains(\"pulse_crown\")?1:0),interval=Math.Max(.08,1.15*(double)mods.auraPulse*(_ownedArtifacts.Contains(\"pulse_driver\")?.90:1)*(NativeLivePlannerSphereDelay(sphere)/1.2));return damage*waves*4/interval;}"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 175,
+          "line": 178,
           "text": "if(type==\"pulse\"){double waves=1+(NativeOwnsArtifact(scene,\"pulse_crown\")?1:0),interval=Math.Max(.08,1.15*mods[\"auraPulse\"].Number*(NativeOwnsArtifact(scene,\"pulse_driver\")?.90:1)*(NativePlannerSphereDelay(scene,sphere)/1.2));return damage*waves*4/interval;}"
         },
         {
@@ -1161,7 +1156,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 294,
+          "line": 296,
           "text": "if (_runtime.HasArtifact(\"pulse_driver\")) pulseInterval *= 0.90f;"
         }
       ],
@@ -1305,8 +1300,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "ring_engine",
@@ -1325,8 +1320,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "lattice_engine",
@@ -1345,8 +1340,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "fractal_engine",
@@ -1365,8 +1360,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "resonance_lattice",
@@ -1451,7 +1446,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 750,
+          "line": 752,
           "text": "branch, finalId, prismFilter, _runtime.HasArtifact(\"prism_crown\"), ringReflection);"
         }
       ],
@@ -1473,17 +1468,17 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 73,
+          "line": 75,
           "text": "if(type==\"orbital\"){double level=NativeLiveSphereLevel(\"orbital\");bool dance=GetSphereBranch(EchoSphere.Core.SphereId.Orbital)==\"orbital_dance\"&&NativeSphereFinalIndex(EchoSphere.Core.SphereId.Orbital)==2;var counts=EchoSphere.Core.OrbitalVisualGeometryRules.RingCounts(level,(_ownedArtifacts.Contains(\"orbital_crown\")?1:0)+(dance?1:0));double angular=(1.8+Math.Min(2.4,Math.Max(1,level)*.28))*(double)mods.rotationSpeed,rate=(counts.Inner+counts.Outer)*angular/(Math.PI*2);return damage*.95*rate;}"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 173,
+          "line": 176,
           "text": "if(type==\"orbital\"){double level=NativeSphereLevel(scene,\"orbital\");bool dance=scene[\"player\"][\"sphereBranches\"][\"orbital\"].Text==\"orbital_dance\"&&NativeMutationFinal(scene[\"player\"],\"orbital\")==2;var counts=EchoSphere.Core.OrbitalVisualGeometryRules.RingCounts(level,(NativeOwnsArtifact(scene,\"orbital_crown\")?1:0)+(dance?1:0));double angular=(1.8+Math.Min(2.4,Math.Max(1,level)*.28))*mods[\"rotationSpeed\"].Number,rate=(counts.Inner+counts.Outer)*angular/(Math.PI*2);return damage*.95*rate;}"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 382,
+          "line": 384,
           "text": "var extraElements = (_runtime.HasArtifact(\"orbital_crown\") ? 1 : 0)"
         }
       ],
@@ -1500,17 +1495,17 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 75,
+          "line": 77,
           "text": "if(type==\"pulse\"){double waves=1+(_ownedArtifacts.Contains(\"pulse_crown\")?1:0),interval=Math.Max(.08,1.15*(double)mods.auraPulse*(_ownedArtifacts.Contains(\"pulse_driver\")?.90:1)*(NativeLivePlannerSphereDelay(sphere)/1.2));return damage*waves*4/interval;}"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereStatReads.cs",
-          "line": 175,
+          "line": 178,
           "text": "if(type==\"pulse\"){double waves=1+(NativeOwnsArtifact(scene,\"pulse_crown\")?1:0),interval=Math.Max(.08,1.15*mods[\"auraPulse\"].Number*(NativeOwnsArtifact(scene,\"pulse_driver\")?.90:1)*(NativePlannerSphereDelay(scene,sphere)/1.2));return damage*waves*4/interval;}"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 101,
+          "line": 103,
           "text": "if (_type == SphereId.Pulse) return damage * (_runtime.HasArtifact(\"pulse_crown\") ? 2f : 1f) * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));"
         },
         {

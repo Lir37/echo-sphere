@@ -2882,7 +2882,7 @@ namespace EchoSphere.Runtime
                 return;
             }
             var artifactDamage = Mathf.Max(0f, damage) * GetArtifactOnlyDamageTakenMultiplier();
-            if (_rng.NextFloat() < (_ownedArtifacts.Contains("mirror") ? 0.20f : 0f))
+            if (_rng.NextFloat() < ArtifactGameplayRules.CounterattackChance(_ownedArtifacts,_runEconomy!=null))
             {
                 var reflected = FindNearestEnemy(PlayerPosition, 180f * SpherePlacementRules.SourcePixelsToWorld);
                 if (reflected != null) reflected.ReceiveDamage(artifactDamage * 1.25f);
@@ -6415,8 +6415,11 @@ namespace EchoSphere.Runtime
             return false;
         }
 
-        public float GetFormationBonus(SphereNetworkFormation type, int sphereIndex = -1) =>
-            SphereNetworkRules.GetFormationBonusMultiplier(_networkState, type, sphereIndex);
+        public float GetFormationBonus(SphereNetworkFormation type, int sphereIndex = -1)
+        {
+            if(_runEconomy!=null&&_networkState?.GetFormation(type)?.Active!=true)return 0;
+            return SphereNetworkRules.GetFormationBonusMultiplier(_networkState,type,sphereIndex)*ArtifactGameplayRules.FormationMultiplier(_ownedArtifacts,type,_runEconomy!=null);
+        }
 
         private void TrackResonanceGeometryState()
         {

@@ -18,6 +18,12 @@ namespace EchoSphere.Runtime
             return SphereNetworkRules.Analyze(nodes,SphereNetworkRules.DefaultLinkDistance);
         }
 #endif
+        private double NativeLiveOrbitalNetworkMultiplier(SphereAttackAgent sphere)
+        {
+            int index=GetSphereIndex(sphere);double cluster=GetFormationBonus(SphereNetworkFormation.Cluster,index),ring=GetFormationBonus(SphereNetworkFormation.Ring,index);int neighbours=0;
+            if(_networkState!=null)foreach(var link in _networkState.Links)if(link.A==index||link.B==index)neighbours++;
+            return 1+(cluster>0?.08*cluster:0)+(ring>0?.12*ring:0)+System.Math.Min(.20,neighbours*.03);
+        }
         internal static double NativeOrbitalNetworkMultiplier(SphereNetworkState state,int index)
         {
             double cluster=SphereNetworkRules.GetFormationBonusMultiplier(state,SphereNetworkFormation.Cluster,index),ring=SphereNetworkRules.GetFormationBonusMultiplier(state,SphereNetworkFormation.Ring,index);int neighbours=state==null?0:state.Links.Count(link=>link.A==index||link.B==index);

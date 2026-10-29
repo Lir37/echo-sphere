@@ -176,3 +176,33 @@ Inventory:23corrected/tested;8descriptionclarified_RUNTIME_REVIEW_PENDING;
 Четвёртыйкоммит1d702b92:CI931SUCCESS
 https://github.com/Lir37/echo-sphere/actions/runs/40949084036
 Общаяприёмка/баланс/Android/остальныерегионы и полныйплан ещё OPEN.
+
+## Шестой блок — сетевые предметы и радиус орбит
+Ещё9исправлений новыхзабегов(всего32):triangle/ring/lattice/fractal_engine
+усиливаютчисловыеэффектысоответствующейформациина12%,lattice_chip/fractal_seed
+на10%;старыеgeneric8%/4%damage и-3%cooldown удалены изновыхrules.
+EchoThread даёт5%урона только атакующему узлу сдействующей связью.
+SignalKnot увеличивает скоростьотсчётаnetworkDisabledTimer в1.05раза,включая
+ужеидущуюдезактивацию и FracturedNetwork;не меняет authoredStability/базовую
+длительностьсобытий. Legacy timer speed1.
+MirrorDust даётдобавочные8п.п.шансаконтратаки(самостоятельно8%,сMirror28%),
+вместоскрытого4%общегоурона. Используетсуществующий counterattack125% path;
+дополнительныхRNGdrawsнет.УточнениеRU/EN подключено кобычнымновымкарточкам.
+
+GetFormationBonus новыхзабегов отсекаетнеактивнуюSecondary иприменяет
+артефактныйкоэффициент безизмененияраспознавания/приоритетаформ.
+Орбитальнаявизуализация новыхзабегов получаетbase radius изтого же
+GetOrbitalLiveRadiusPixels иnetworkMultiplier,что реальныеcontactanchors;
+legacy/referenceвизуализация прежняя. Этоисправлениевладенияпроизводнымичислами,
+не новый внешнийдизайн.
+
+Core904artifactchecks,всего13592assertions+47389sourcecomparisonsPASS;
+272Node/preflight/5C#profilesPASS. ActualEditor14checksPASS:RingEngine,
+связанный/изолированныйузел,реальныйtimertick0.5s modern/legacy,
+радиусorbitalcontactanchor противrender projection,неактивнаяSecondary,
+Secondaryкоэффициент0.56сengine. Console0errors;безprefswrite.
+Inventory32corrected,8descriptionclarified-runtimepending,42остальных;
+всего50ещётребуютbehavioralreview,не считатьихсломавшимися.
+Пятыйкоммитa52f6f65:CI932SUCCESS
+https://github.com/Lir37/echo-sphere/actions/runs/40951044446
+Android/полныйбаланс/остальнойполныйплан OPEN.

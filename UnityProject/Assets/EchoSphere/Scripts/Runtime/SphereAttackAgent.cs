@@ -187,7 +187,7 @@ namespace EchoSphere.Runtime
             if (_runtime == null || _runtime.IsGameplayPaused) return;
             RefreshSourceModifiers();
             _contactTimer = Mathf.Max(0f, _contactTimer - dt);
-            _networkDisabledTimer = Mathf.Max(0f, _networkDisabledTimer - dt);
+            _networkDisabledTimer = Mathf.Max(0f, _networkDisabledTimer - dt * _runtime.NetworkRecoverySpeed);
             _resonancePulseTimer = Mathf.Max(0f, _resonancePulseTimer - dt);
             _orbitalAttackFlashTimer = Mathf.Max(0f, _orbitalAttackFlashTimer - dt);
 

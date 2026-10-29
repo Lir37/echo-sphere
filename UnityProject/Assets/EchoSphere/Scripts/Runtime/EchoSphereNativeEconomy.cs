@@ -14,6 +14,7 @@ namespace EchoSphere.Runtime
             var context=new ArtifactDamageContext {UniqueTypes=CountUniqueActiveSphereTypes(),StrongestLevel=GetStrongestSphereLevel(),
                 AnyActiveGeometry=_networkState?.DominantFormation?.Active==true||_networkState?.SecondaryFormation?.Active==true,
                 TriangleActive=_networkState?.GetFormation(SphereNetworkFormation.Triangle)?.Active==true&&GetFormationBonus(SphereNetworkFormation.Triangle,GetSphereIndex(sphere))>0};
+            int index=GetSphereIndex(sphere);if(_networkState!=null)foreach(var link in _networkState.Links)if(link.A==index||link.B==index){context.HasActiveLink=true;break;}
             float nearby=BossCombatRules.ToWorldUnits(190f);nearby*=nearby;
             foreach(var other in _spheres){if(other==null||other==sphere||!other.gameObject.activeInHierarchy)continue;
                 if(other.ProgressionLevel>=7)context.AnotherLevelSeven=true;
@@ -21,6 +22,7 @@ namespace EchoSphere.Runtime
             }
             return family*ArtifactGameplayRules.ConditionalDamageMultiplier(_ownedArtifacts,context);
         }
+        public float NetworkRecoverySpeed=>ArtifactGameplayRules.RecoverySpeedMultiplier(_ownedArtifacts,_runEconomy!=null);
         public int GetArtifactChainExtraJumps()=>ArtifactGameplayRules.ExtraChainJumps(_ownedArtifacts,_runEconomy!=null);
         private NativeMerchantView _nativeMerchantView;
         public void CollectExperienceOrb(int experience,int echoAmount)

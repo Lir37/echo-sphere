@@ -6,11 +6,11 @@ namespace EchoSphere.Core
     public struct ArtifactDamageContext
     {
         public int UniqueTypes,StrongestLevel;
-        public bool AnotherLevelSeven,NearOtherSphere,TriangleActive,AnyActiveGeometry;
+        public bool AnotherLevelSeven,NearOtherSphere,TriangleActive,AnyActiveGeometry,HasActiveLink;
     }
     public static class ArtifactGameplayRules
     {
-        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star"};
+        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed"};
         private static readonly string[] DescriptionOnlyIds = {"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver"};
         public static string DescriptionOverride(string id,bool ru)
         {
@@ -23,6 +23,7 @@ namespace EchoSphere.Core
                 case "void_lantern":return ru?"+20% урона Пустотной по целям с 35% HP или меньше.":"+20% Void damage against targets at 35% HP or lower.";
                 case "gravity_hook":return ru?"+10% силы притяжения Гравитационной. Пауза между её импульсами короче на 8%.":"+10% Gravity pull strength. Its pulse interval is 8% shorter.";
                 case "pulse_driver":return ru?"Пауза между волнами Импульсной короче на 10%.":"Pulse wave interval is 10% shorter.";
+                case "mirror_dust":return ru?"+8 п.п. к шансу контратаки по ближайшему врагу при атаке на Core. Урон контратаки — 125% урона атаки.":"+8 percentage points of counterattack chance when the Core is attacked. Counters hit a nearby enemy for 125% of the attack damage.";
                 case "overclock":return ru?"−12% задержки атак сфер, но −5% их урона.":"−12% Sphere attack delay, but −5% Sphere damage.";
                 case "void_star":return ru?"Ветка Пустотной с добиванием: +8 п.п. к шансу срабатывания, до лимита 45%.":"Void's execution branch gains 8 percentage points of execution chance, up to the 45% cap.";
                 default:return null;
@@ -45,13 +46,27 @@ namespace EchoSphere.Core
                 case "singularity_engine":if(c.UniqueTypes>=1&&c.UniqueTypes<=2)m*=1.18f;break;
                 case "triangle_circuit":if(c.TriangleActive)m*=1.15f;break;
                 case "resonance_core":if(c.NearOtherSphere)m*=1.12f;break;
+                case "echo_thread":if(c.HasActiveLink)m*=1.05f;break;
             }
             return m;
         }
+        public static float FormationMultiplier(IList<string> owned,SphereNetworkFormation type,bool modern)
+        {
+            if(!modern||owned==null)return 1;float multiplier=1;
+            if(type==SphereNetworkFormation.Triangle&&owned.Contains("triangle_engine"))multiplier*=1.12f;
+            if(type==SphereNetworkFormation.Ring&&owned.Contains("ring_engine"))multiplier*=1.12f;
+            if(type==SphereNetworkFormation.Lattice){if(owned.Contains("lattice_engine"))multiplier*=1.12f;if(owned.Contains("lattice_chip"))multiplier*=1.10f;}
+            if(type==SphereNetworkFormation.Fractal){if(owned.Contains("fractal_engine"))multiplier*=1.12f;if(owned.Contains("fractal_seed"))multiplier*=1.10f;}
+            return multiplier;
+        }
+        public static float RecoverySpeedMultiplier(IList<string> owned,bool modern)=>modern&&owned!=null&&owned.Contains("signal_knot")?1.05f:1f;
+        public static float RecoveryDurationMultiplier(IList<string> owned,bool modern)=>1f/RecoverySpeedMultiplier(owned,modern);
+        public static float CounterattackChance(IList<string> owned,bool modern)=>(owned!=null&&owned.Contains("mirror")?.20f:0)+(modern&&owned!=null&&owned.Contains("mirror_dust")?.08f:0);
         public static float Effect(ArtifactRewardDefinition item,string key,bool modern)
         {
             if(item==null||key==null)return 0;
             if(modern){
+                if(item.Id=="mirror_dust"||item.Id=="signal_knot"||item.Id=="echo_thread"||item.Id=="triangle_engine"||item.Id=="ring_engine"||item.Id=="lattice_engine"||item.Id=="fractal_engine"||item.Id=="lattice_chip"||item.Id=="fractal_seed")return 0f;
                 if(item.Id=="chain_battery")return key=="chainDamage"?.10f:0f;
                 if(item.Id=="shotgun_shell")return key=="shotgunDamage"?.10f:0f;
                 if(item.Id=="aura_mist")return key=="auraRadius"?.10f:0f;

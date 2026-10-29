@@ -20,7 +20,7 @@ namespace EchoSphere.Runtime
    return new NativeSphereVisual {Identity=sphere,Type=sphere.Type,Family=family,Branch=branch,Element=element,X=point.x,Y=point.y,Radius=130,Tier=sphere.ProgressionLevel,Rotation=sphere.Type==SphereId.Orbital?sphere.SourceProjectionOrbitAngle:(double)(sphere.Type==SphereId.Gravity?sphere.VisualRotation:-sphere.PresentationRotation),AttackDelay=sphere.AttackDelay,AttackTimer=sphere.AttackTimer,AttackActive=sphere.PresentationAttackActive,AuraTimer=sphere.Type==SphereId.Orbital?sphere.SourceProjectionOrbitalContactCheckTimer:sphere.AttackTimer,DisabledTimer=sphere.SourceProjectionNetworkDisabledTimer,Final=final,Alive=sphere.gameObject.activeInHierarchy,Resonance=_resonanceEventActive};
   }
   private static double NativeSphereScale(NativeSphereVisual sphere)=>Math.Max(15,Math.Min(25,sphere.Radius*.19+sphere.Tier*.8))/24;
-  private double NativeOrbitalRadiusScale(NativeSphereVisual sphere)=>NativeLiveSphereRadius(sphere.Type)/Math.Max(1,sphere.Radius);
+  private double NativeOrbitalRadiusScale(NativeSphereVisual sphere)=>(_runEconomy!=null?GetOrbitalLiveRadiusPixels((int)sphere.Tier):NativeLiveSphereRadius(sphere.Type))/Math.Max(1,sphere.Radius);
   private double NativeLiveArtifactEffect(string effect)
   {if(_runEconomy!=null)return GetRunArtifactEffectTotal(effect);double total=0;foreach(var id in _ownedArtifacts){var artifact=NativeRunCatalog.Instance.GetArtifact(id);if(artifact!=null)total+=artifact.Effect(effect);}return total;}
   private List<NativePixelPoint> NativeLiveLocalSpherePoints()
