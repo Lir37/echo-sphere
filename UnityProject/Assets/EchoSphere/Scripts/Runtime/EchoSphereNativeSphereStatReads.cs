@@ -55,6 +55,7 @@ namespace EchoSphere.Runtime
   }
   private double NativeLivePlannerSphereDamage(SphereAttackAgent sphere)
   {
+   if(_runEconomy!=null)return GetSourceSphereAttackDamage(sphere);
    var mods=GetSourceSphereModifiers(sphere.Type);double damage=12;
    damage*=1+(double)NativeLiveAbilityLevel("damage")*.15;damage*=1+(double)GetShopUpgradeLevel("dmg")*.05;
    if((double)_mutationStage>=1)damage*=1.1;if(_chaosOrbBuff=="dmg"&&(double)_chaosOrbBuffTimer>0)damage*=1.2;if((double)_teleportDamageBuffTimer>0)damage*=2;
@@ -69,6 +70,7 @@ namespace EchoSphere.Runtime
   }
   private double NativeLivePlannerSphereDps(SphereAttackAgent sphere)
   {
+   if(_runEconomy!=null)return sphere.GetSourceDpsEstimate(GetSourceSphereAttackDamage(sphere),sphere.EffectiveAttackInterval);
    string type=sphere.Type.ToString().ToLowerInvariant();var definition=NativeRunCatalog.Instance.GetSphere(type);var mods=GetSourceSphereModifiers(sphere.Type);double damage=NativeLivePlannerSphereDamage(sphere),delay=Math.Max(.05,NativeLivePlannerSphereDelay(sphere)*definition.DelayMultiplier*(double)mods.delay);
    if(type=="orbital"){double level=NativeLiveSphereLevel("orbital");bool dance=GetSphereBranch(EchoSphere.Core.SphereId.Orbital)=="orbital_dance"&&NativeSphereFinalIndex(EchoSphere.Core.SphereId.Orbital)==2;var counts=EchoSphere.Core.OrbitalVisualGeometryRules.RingCounts(level,(_ownedArtifacts.Contains("orbital_crown")?1:0)+(dance?1:0));double angular=(1.8+Math.Min(2.4,Math.Max(1,level)*.28))*(double)mods.rotationSpeed,rate=(counts.Inner+counts.Outer)*angular/(Math.PI*2);return damage*.95*rate;}
    if(type=="prism")return damage*Math.Max(1,1+(double)mods.multishot)/delay;
@@ -79,6 +81,7 @@ namespace EchoSphere.Runtime
   }
   private double NativeLivePlannerSphereDelay(SphereAttackAgent sphere=null)
   {
+   if(_runEconomy!=null&&sphere!=null)return sphere.EffectiveAttackInterval;
    double delay=1.2;delay*=Math.Pow(.93,(double)NativeLiveAbilityLevel("attackspeed"));delay/=Math.Max(.01,NativeLiveCharacterAttackSpeed());delay*=Math.Max(.5,1+NativeLiveArtifactEffect("sphereDelay"));
    if((double)_darkRitualOverloadTimer>0)delay*=.72;if((double)_fireTrailTimer>0&&sphere!=null&&(double)GetSourceSphereModifiers(sphere.Type).fire>0)delay*=.78;
    if(sphere!=null){double cluster=NativeLiveFormationBonus("cluster",sphere);if(cluster>0)delay*=1-.10*cluster;}return delay;

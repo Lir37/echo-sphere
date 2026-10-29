@@ -2614,7 +2614,7 @@ namespace EchoSphere.Runtime
             _stellaRewardIsLegendary = _stellaRewardChoices.Count > 0;
             if (_stellaRewardChoices.Count == 0)
                 _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(_ownedArtifacts, _rng.NextFloat, false,
-                    ArtifactRewardRules.BaseStellaChoiceCount));
+                    _runEconomy!=null?count:ArtifactRewardRules.BaseStellaChoiceCount));
             if (_stellaRewardChoices.Count == 0) { ShowMessage("STELLA CACHE EMPTY"); return; }
             _stellaRewardPending = true;
             _userPaused = false;

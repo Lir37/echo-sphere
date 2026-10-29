@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Static inventory for Unity production. Literal references do not prove invocation, integration, correct semantics or acceptance. Unreviewed entries are not claimed broken.",
-  "baselineCommit": "6d1aea652824f30fff52ec10d8b73c19dc4a5e55",
+  "baselineCommit": "1d702b92e6bff9a756bbb439121e20a700b0bfe6",
   "artifactCatalogSha256": "c8b8bf7550cae1b3e9ec5c1d4a78af49e761cd6dcc3f56f903b57e53ed284f3b",
   "catalogCounts": {
     "SourceCommit": 0,
@@ -19,8 +19,9 @@
     "Rarities": 5,
     "SphereAbilityLinks": 30
   },
-  "verifiedArtifactCorrections": 16,
-  "remainingArtifactReviews": 66,
+  "verifiedArtifactCorrections": 23,
+  "clarifiedDescriptionsPendingRuntimeReview": 8,
+  "remainingArtifactReviews": 59,
   "artifacts": [
     {
       "id": "crystal_speed",
@@ -121,7 +122,7 @@
           "text": "if (_runtime.HasArtifact(\"vampire_ring\")) _runtime.HealPlayer(5f);"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -261,7 +262,7 @@
           "text": "var ids = new[] { \"swift\", \"mirror\", \"resonance\", \"lone\", \"fivefold\", \"relay\", \"triangle\", \"overclock\", \"network\", \"singularity\", \"zero\", \"unified\" };"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -283,7 +284,7 @@
           "text": "if (HasArtifact(\"predator_claw\") && owner.CountSourcePredatorHit() % 5 == 0) { damage *= 2f; critical = true; }"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -314,7 +315,7 @@
           "text": "if(_ownedArtifacts.Contains(\"foresight_eye\"))foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){var delta=(Vector2)enemy.transform.position-PlayerPosition;if(delta.sqrMagnitude>0f)scene[\"bossArrow\"]=SourcePoint(delta.normalized*SpherePlacementRules.SourcePixelsToWorld);break;}"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -578,8 +579,8 @@
           "text": "var ids = new[] { \"swift\", \"mirror\", \"resonance\", \"lone\", \"fivefold\", \"relay\", \"triangle\", \"overclock\", \"network\", \"singularity\", \"zero\", \"unified\" };"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "soul_engine",
@@ -891,8 +892,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "paper_ward",
@@ -1019,8 +1020,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "shotgun_shell",
@@ -1035,8 +1036,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "aura_mist",
@@ -1051,8 +1052,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "orbital_blade",
@@ -1132,7 +1133,7 @@
           "text": "var pull = 34f * (_progressionLevel >= 1 ? 1.2f : 1f) * (_runtime.HasArtifact(\"gravity_bead\") ? 1.12f : 1f) * (_runtime.HasArtifact(\"gravity_hook\") ? 1.1f : 1f) * (1f + .20f * cluster);"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -1164,7 +1165,7 @@
           "text": "if (_runtime.HasArtifact(\"pulse_driver\")) pulseInterval *= 0.90f;"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -1186,7 +1187,7 @@
           "text": "if (fraction <= .35f && HasArtifact(\"void_mark\")) damage *= 1.10f;"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -1437,7 +1438,7 @@
           "text": "if (fraction <= .35f && HasArtifact(\"void_lantern\")) damage *= 1.20f;"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -1618,8 +1619,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "void_star",
@@ -1640,8 +1641,8 @@
           "text": "var chance = SphereEvolutionCombatRules.GetVoidExecutionChance(level, final) + (HasArtifact(\"void_star\") ? .08f : 0f);"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "axiom_core",

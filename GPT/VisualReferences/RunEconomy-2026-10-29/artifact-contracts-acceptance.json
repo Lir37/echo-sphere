@@ -1,1 +1,1 @@
-{"result":"PASS","checks":11,"scope":"Actual runtime family damage/range/global multipliers and SphereAttackAgent DPS; legacy isolation; no PlayerPrefs writes"}
+{"result":"PASS","checks":22,"scope":"Actual runtime family damage/range/global multipliers and SphereAttackAgent DPS; legacy isolation; no PlayerPrefs writes"}

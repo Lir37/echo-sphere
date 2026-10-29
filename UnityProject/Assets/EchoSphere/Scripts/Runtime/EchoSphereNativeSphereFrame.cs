@@ -22,7 +22,7 @@ namespace EchoSphere.Runtime
   private static double NativeSphereScale(NativeSphereVisual sphere)=>Math.Max(15,Math.Min(25,sphere.Radius*.19+sphere.Tier*.8))/24;
   private double NativeOrbitalRadiusScale(NativeSphereVisual sphere)=>NativeLiveSphereRadius(sphere.Type)/Math.Max(1,sphere.Radius);
   private double NativeLiveArtifactEffect(string effect)
-  {double total=0;foreach(var id in _ownedArtifacts){var artifact=NativeRunCatalog.Instance.GetArtifact(id);if(artifact!=null)total+=artifact.Effect(effect);}return total;}
+  {if(_runEconomy!=null)return GetRunArtifactEffectTotal(effect);double total=0;foreach(var id in _ownedArtifacts){var artifact=NativeRunCatalog.Instance.GetArtifact(id);if(artifact!=null)total+=artifact.Effect(effect);}return total;}
   private List<NativePixelPoint> NativeLiveLocalSpherePoints()
   {
    var player=NativeSourcePixels(PlayerPosition);double Distance(NativePixelPoint point)=>NativeMobileDistance(point.x-player.x,point.y-player.y);

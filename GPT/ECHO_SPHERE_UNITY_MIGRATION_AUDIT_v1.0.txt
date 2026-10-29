@@ -6185,3 +6185,38 @@ Inventory теперь16CORRECTED_NEW_RUNS_AND_TESTED/66REQUIRES_BEHAVIORAL_REVI
 не считатьвсе66нерабочими. Общаябалансная иAndroidприёмкапо-прежнемуOPEN.
 Третийкоммит6d1aea65:CI930SUCCESS
 https://github.com/Lir37/echo-sphere/actions/runs/40924187017
+
+## Пятый блок — ещё7эффектов,достоверныеописания и один источник UIстатистики
+Новыезабеги:chain_battery +10%Chain вместообщего6%,shotgun_shell +10%Shotgun,
+aura_mist +10%AuraRadius,folded_core +8%общегоурона вместо4%.
+Overclock: -12%delay с -5%damage;5% — явноавторскийстартовыйcost в рамках
+разрешённого пользователем дизайна,а не число найденное вBlueprint.
+quantum_fold/void_star лишены скрытых12%damage/3%crit;ихспециальныеэффекты
+сохранены. QuantumFold теперь даёт4варианта ивпозднейnonlegendaryСтелле;
+legacy поздняяСтелла оставлена3варианта,ранняя4какраньше.
+
+8description-onlyуточненийRU/EN сохраняют работающийbehavior:VampireRing(+5HP/kill
+помимолайфстила),PredatorClaw(каждый5йhit отдельнойсферы double+crit),ForesightEye
+(bossdirection),Mirror(20%counter125%,не20%отражённогоурона),VoidMark/VoidLantern
+(порог35%HP),GravityHook(+10%pull/-8%interval),PulseDriver(-10%interval).
+НоваяточнаякарточкаVoidStarуточняет executionbranch,+8п.п.,cap45%.
+Подключено кmerchant/reward/pause/setdetail/archive;legacy/referenceтексты
+обычныхкарточек не изменены. СтарыйimportedSOкаталог не переписывался:
+export305exactstringsPASS;современныеdeltaописания находятся вCoreadapter.
+Эти8описаний НЕ выданы за полныйbehavioral/runtimeaudit соответствующих предметов.
+
+Найден активныйдубликатформулвNativeLivePlannerSphereDamage/Delay/Dps и
+NativeLiveArtifactEffect:пауза могла показывать старыеgeneric эффекты.
+Новыезабеги читаютDamage изGetSourceSphereAttackDamage,дальностьизAttackRange,
+интервализread-only EffectiveAttackInterval(тажеcadence,что Tick),DPS изагента.
+Legacy/referenceформулы сохранены.Изменениеgetterне меняет шагсимуляции/RNG.
+
+Editor:22artifactchecksPASS(включаяliveRU/ENdescriptiongate),4actualСтеллаcases
+(early/late×legacy/modern),50actualpausecardchecksна10семействахссовместным
+наборомартефактов. Console0errors. Core927artifactchecks,всего13615assertions
+и47389sourcecomparisonsPASS;272Node/preflight/5C#profilesPASS.
+Inventory:23corrected/tested;8descriptionclarified_RUNTIME_REVIEW_PENDING;
+51остальных,всего59требуютдальнейшегоbehavioralreview.Не считатьихсломавшимися.
+Четвёртыйкоммит1d702b92:CI931SUCCESS
+https://github.com/Lir37/echo-sphere/actions/runs/40949084036
+Общаяприёмка/баланс/Android/остальныерегионы и полныйплан ещё OPEN.

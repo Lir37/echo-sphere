@@ -73,3 +73,5 @@ Recovery пользователя и прежние артефакты не чи
 2026-10-29: UI skins имеют3-frame retirement и generation-based восстановление потерянногоRT;вторичные меню scale0.86DPR. Player comet — собственная retained38-vertex mesh/материал,не игровая частица. Призма primary color больше не берётся из elemental status. См.UNITY_HUD_PROJECTILES_MUTATIONS_2026-10-29.md.
 
 2026-10-29 gameplay: RunEconomyRules/State owns new-run Echo/merchant stock and timers, persists via RunSnapshotCodec;legacy null unchanged. NativeMerchantView owns retained shop UI. NativeWorldFleet owns Rift hulls/rigid parts;NativeWorldCreatures still owns common status/telegraph overlays. Selected Region.Pockets now owns drawn pocket boundaries. See UNITY_GAMEPLAY_COMPLETION_2026-10-29.md.
+
+2026-10-29 gameplay stats: modern pause damage/range/cadence/DPS now read simulation/agent getters rather than the imported duplicate formulas. ArtifactGameplayRules owns new-run effect deltas/conditional node context/descriptions; legacy catalog and old save behavior preserved. See UNITY_GAMEPLAY_COMPLETION_2026-10-29.md.

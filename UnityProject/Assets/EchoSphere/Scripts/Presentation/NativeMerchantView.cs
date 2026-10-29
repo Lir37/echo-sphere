@@ -54,7 +54,7 @@ namespace EchoSphere.Presentation
                 int slot=i;var row=state.Offers[i];var item=ArtifactRewardRules.Get(row.ArtifactId);if(item==null)continue;
                 var card=new VisualElement();card.style.paddingTop=10;card.style.paddingBottom=10;card.style.marginBottom=8;card.style.borderBottomWidth=1;card.style.borderBottomColor=new Color(.1f,.24f,.3f);
                 var title=new Label(ru?item.NameRussian:item.NameEnglish);title.style.fontSize=17;title.style.color=new Color(.85f,.94f,1);title.style.whiteSpace=WhiteSpace.Normal;card.Add(title);
-                var description=new Label(ru?item.DescriptionRussian:item.DescriptionEnglish);description.style.fontSize=13;description.style.color=new Color(.55f,.68f,.78f);description.style.whiteSpace=WhiteSpace.Normal;card.Add(description);
+                var description=new Label(ArtifactGameplayRules.DescriptionOverride(item.Id,ru)??(ru?item.DescriptionRussian:item.DescriptionEnglish));description.style.fontSize=13;description.style.color=new Color(.55f,.68f,.78f);description.style.whiteSpace=WhiteSpace.Normal;card.Add(description);
                 bool sold=row.Sold||owned.Contains(row.ArtifactId);
                 var button=new Button(()=>_buy(slot)){text=sold?(ru?"Получено":"Owned"):(ru?"Купить · ":"Buy · ")+row.Price+" Echo"+(row.Discount?" · −25%":"")};
                 button.style.height=40;button.style.marginTop=5;StyleButton(button);button.SetEnabled(RunEconomyRules.CanBuy(state,slot,owned));card.Add(button);_stock.Add(card);

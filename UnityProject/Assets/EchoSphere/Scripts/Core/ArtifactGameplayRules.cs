@@ -10,7 +10,24 @@ namespace EchoSphere.Core
     }
     public static class ArtifactGameplayRules
     {
-        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core"};
+        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star"};
+        private static readonly string[] DescriptionOnlyIds = {"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver"};
+        public static string DescriptionOverride(string id,bool ru)
+        {
+            switch(id){
+                case "vampire_ring":return ru?"+3% вампиризма. Каждое убийство восстанавливает 5 HP.":"+3% lifesteal. Each kill restores 5 HP.";
+                case "predator_claw":return ru?"+8% урона сфер. Каждое пятое попадание отдельной сферы наносит двойной урон и считается критическим.":"+8% Sphere damage. Every fifth hit by each Sphere deals double damage and counts as a critical hit.";
+                case "foresight_eye":return ru?"+10% шанса крита, +8% урона Снайпера. Указывает направление к боссу.":"+10% critical chance and +8% Sniper damage. Shows the direction to a boss.";
+                case "mirror":return ru?"При атаке на Core: 20% шанс контратаки по ближайшему врагу. Урон контратаки — 125% урона атаки.":"When the Core is attacked: 20% chance to counterattack a nearby enemy for 125% of the attack damage.";
+                case "void_mark":return ru?"+10% урона Пустотной по целям с 35% HP или меньше.":"+10% Void damage against targets at 35% HP or lower.";
+                case "void_lantern":return ru?"+20% урона Пустотной по целям с 35% HP или меньше.":"+20% Void damage against targets at 35% HP or lower.";
+                case "gravity_hook":return ru?"+10% силы притяжения Гравитационной. Пауза между её импульсами короче на 8%.":"+10% Gravity pull strength. Its pulse interval is 8% shorter.";
+                case "pulse_driver":return ru?"Пауза между волнами Импульсной короче на 10%.":"Pulse wave interval is 10% shorter.";
+                case "overclock":return ru?"−12% задержки атак сфер, но −5% их урона.":"−12% Sphere attack delay, but −5% Sphere damage.";
+                case "void_star":return ru?"Ветка Пустотной с добиванием: +8 п.п. к шансу срабатывания, до лимита 45%.":"Void's execution branch gains 8 percentage points of execution chance, up to the 45% cap.";
+                default:return null;
+            }
+        }
         public static IReadOnlyList<string> CorrectedArtifactIds=>CorrectedIds;
         public static bool IsCorrected(string id){foreach(var value in CorrectedIds)if(value==id)return true;return false;}
         public static float ConditionalDamageMultiplier(IList<string> owned,ArtifactDamageContext c)
@@ -35,6 +52,12 @@ namespace EchoSphere.Core
         {
             if(item==null||key==null)return 0;
             if(modern){
+                if(item.Id=="chain_battery")return key=="chainDamage"?.10f:0f;
+                if(item.Id=="shotgun_shell")return key=="shotgunDamage"?.10f:0f;
+                if(item.Id=="aura_mist")return key=="auraRadius"?.10f:0f;
+                if(item.Id=="folded_core")return key=="sphereDamage"?.08f:0f;
+                if(item.Id=="overclock")return key=="sphereDelay"?-.12f:key=="sphereDamage"?-.05f:0f;
+                if(item.Id=="quantum_fold"||item.Id=="void_star")return 0f;
                 if(item.Id=="sniper_scope")return key=="sniperDamage"?.10f:0f;
                 if(item.Id=="sniper_crown")return key=="sniperRadius"?.10f:0f;
                 if(item.Id=="unified_mind"||item.Id=="lone_bastion"||item.Id=="fivefold_resonance"||item.Id=="relay_matrix"||item.Id=="network_relay"||item.Id=="network_coil"||item.Id=="geometry_die"||item.Id=="mirror_network"||item.Id=="singularity_engine"||item.Id=="triangle_circuit"||item.Id=="resonance_core")return 0f;

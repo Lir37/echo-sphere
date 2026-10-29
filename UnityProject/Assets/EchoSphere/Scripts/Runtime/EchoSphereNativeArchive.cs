@@ -1,4 +1,5 @@
 using System;
+using EchoSphere.Core;
 using System.Collections.Generic;
 using EchoSphere.Presentation;
 using UnityEngine;
@@ -47,7 +48,7 @@ namespace EchoSphere.Runtime
                 // The original evolution section does not filter by query. Keep
                 // that behavior rather than invent a search rule during migration.
                 if(_knowledgeSection!="basics"&&_knowledgeSection!="evolutions"&&query.Length>0&&!name.ToLowerInvariant().Contains(query))continue;
-                cards.Add(new NativeArchiveScreen.Card {Id=entry.id,Group=entry.group,Title=name,Description=ru?entry.descRu:entry.descEn,Details=ru?entry.detailsRu:entry.detailsEn,Open=_knowledgeSection=="basics"||_knownKnowledgeIds.Contains(entry.id),BasicIndex=_knowledgeSection=="basics"?basic++:-1});
+                cards.Add(new NativeArchiveScreen.Card {Id=entry.id,Group=entry.group,Title=name,Description=ArtifactGameplayRules.DescriptionOverride(entry.id,ru)??(ru?entry.descRu:entry.descEn),Details=ru?entry.detailsRu:entry.detailsEn,Open=_knowledgeSection=="basics"||_knownKnowledgeIds.Contains(entry.id),BasicIndex=_knowledgeSection=="basics"?basic++:-1});
             }
             return new NativeArchiveScreen.State {Russian=ru,Section=_knowledgeSection,Query=_knowledgeQuery,Known=_knownKnowledgeIds.Count,Cards=cards};
         }

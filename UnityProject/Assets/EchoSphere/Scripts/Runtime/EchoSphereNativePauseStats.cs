@@ -87,7 +87,7 @@ namespace EchoSphere.Runtime
                 if(live!=null)card.Metrics=new[] {
                     new NativePauseStatsState.Stat(ru?"урон":"damage",Round(NativeLivePlannerSphereDamage(live))+(type=="aura"?"/имп.":"")),
                     new NativePauseStatsState.Stat(ru?"интервал":"delay",NativeLivePlannerSphereDelay(live).ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+"с"),
-                    new NativePauseStatsState.Stat(ru?"дальность":"range",Round(NativeLiveSphereRadius(sphereType))),
+                    new NativePauseStatsState.Stat(ru?"дальность":"range",Round(_runEconomy!=null?live.AttackRange/EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld:NativeLiveSphereRadius(sphereType))),
                     new NativePauseStatsState.Stat("DPS",NativeLivePlannerSphereDps(live).ToString("F1",System.Globalization.CultureInfo.InvariantCulture))
                 };
                 cards.Add(card);

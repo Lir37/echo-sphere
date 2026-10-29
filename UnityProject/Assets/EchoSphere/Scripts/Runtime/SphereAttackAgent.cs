@@ -88,6 +88,8 @@ namespace EchoSphere.Runtime
         public float AttackDelay { get; private set; } = 1.2f;
         public float AttackRange { get; private set; } = (130f * SpherePlacementRules.SourcePixelsToWorld);
         public int PierceCount => _levelStats.Pierce;
+        // Read the same cadence used by Tick; pause UI must not maintain a second formula.
+        public float EffectiveAttackInterval=>_runtime==null?AttackDelay:_type==SphereId.Aura?GetSourceCadenceInterval():GetSourceCadenceInterval()/Mathf.Max(.01f,_runtime.GetSphereAttackSpeedMultiplier(_type));
         public float GetSourceDpsEstimate(float damage, float delay)
         {
             var multishot = _sourceModifiers.multishot;

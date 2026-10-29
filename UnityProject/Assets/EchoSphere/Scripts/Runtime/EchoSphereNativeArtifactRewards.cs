@@ -47,7 +47,7 @@ namespace EchoSphere.Runtime
         private NativeArtifactRewardView.State ProjectNativeLiveArtifactRewards(bool ru)
         {
             string lang=ru?"ru":"en";var choices=new List<NativeArtifactRewardView.Choice>();var active=new HashSet<string>();foreach(var synergy in NativeOwnedArtifactSynergies(_ownedArtifacts))active.Add(synergy.Id);
-            var projected=ProjectNativeArtifactList(_ownedArtifacts,ru,_stellaRewardChoices.Select(choice=>choice.Id));var signature=new StringBuilder(lang);
+            var projected=ProjectNativeArtifactList(_ownedArtifacts,ru,_stellaRewardChoices.Select(choice=>choice.Id),_runEconomy!=null);var signature=new StringBuilder(lang);
             foreach(var artifact in projected.Artifacts){var newSynergies=new List<string>();foreach(var synergy in NativeOwnedArtifactSynergies(_ownedArtifacts,artifact.Id))if(!active.Contains(synergy.Id))newSynergies.Add(synergy.Name(ru));string mechanic=NativeRunCatalog.Instance.GetArtifact(artifact.Id).Mechanic;choices.Add(new NativeArtifactRewardView.Choice {Artifact=artifact,Mechanic=NativeArtifactMechanic(mechanic,ru),Synergies=newSynergies});signature.Append('|').Append(artifact.Id);}
             foreach(var id in _ownedArtifacts)signature.Append('|').Append(id);
             return new NativeArtifactRewardView.State {Russian=ru,Signature=signature.ToString(),Choices=choices};
@@ -74,7 +74,7 @@ namespace EchoSphere.Runtime
         {
             var found=NativeRunCatalog.Instance.Sets.FirstOrDefault(set=>set.Id==id);if(found==null)return null;
             var owned=new HashSet<string>(_ownedArtifacts,StringComparer.Ordinal);
-            var items=new List<NativeArtifactSetDetailView.Item>();foreach(var artifact in ProjectNativeArtifactList(_ownedArtifacts,IsRussianUi,found.ArtifactIds).Artifacts)items.Add(new NativeArtifactSetDetailView.Item {Artifact=artifact,Owned=owned.Contains(artifact.Id)});
+            var items=new List<NativeArtifactSetDetailView.Item>();foreach(var artifact in ProjectNativeArtifactList(_ownedArtifacts,IsRussianUi,found.ArtifactIds,_runEconomy!=null).Artifacts)items.Add(new NativeArtifactSetDetailView.Item {Artifact=artifact,Owned=owned.Contains(artifact.Id)});
             return new NativeArtifactSetDetailView.State {Id=id,Name=found.Name(IsRussianUi),Description=found.Description(IsRussianUi),Owned=found.ArtifactIds.Count(owned.Contains),Total=found.ArtifactIds.Count,Russian=IsRussianUi,Items=items};
         }
     }

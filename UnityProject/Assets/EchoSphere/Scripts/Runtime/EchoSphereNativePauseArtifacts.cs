@@ -1,4 +1,5 @@
 using System;
+using EchoSphere.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -28,12 +29,12 @@ namespace EchoSphere.Runtime
             bool ready=_nativePauseArtifactsIsland.Ready;_nativePauseArtifactsIsland.Prepare(SourceDevicePixelRatio);
             if(_nativePauseArtifactsIsland.Ready){body?.HideLegacy(true);_nativePauseArtifactsIsland.UseFlowLayout(true);if(!ready)anchors.Invalidate?.Invoke();}
         }
-        public NativePauseArtifactsState ReadNativePauseArtifactsState()=>ProjectNativeArtifactList(_ownedArtifacts,IsRussianUi,_ownedArtifacts);
+        public NativePauseArtifactsState ReadNativePauseArtifactsState()=>ProjectNativeArtifactList(_ownedArtifacts,IsRussianUi,_ownedArtifacts,_runEconomy!=null);
 #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static NativePauseArtifactsState ProjectNativePauseArtifactsState(V scene,bool ru)=>ProjectNativeArtifacts(scene,ru,scene["player"]["artifacts"].Items);
         private static NativePauseArtifactsState ProjectNativeArtifacts(V scene,bool ru,IEnumerable<V> ids)=>ProjectNativeArtifactList(scene["player"]["artifacts"].Items.Select(item=>item.Text).ToArray(),ru,ids.Select(item=>item.Text));
 #endif
-        private static NativePauseArtifactsState ProjectNativeArtifactList(IReadOnlyCollection<string> owned,bool ru,IEnumerable<string> ids)
+        private static NativePauseArtifactsState ProjectNativeArtifactList(IReadOnlyCollection<string> owned,bool ru,IEnumerable<string> ids,bool modern=false)
         {
             var catalog=NativeRunCatalog.Instance;var artifacts=new List<NativePauseArtifactsState.Artifact>();
             var ownedIds=new HashSet<string>(owned,StringComparer.Ordinal);
@@ -51,7 +52,7 @@ namespace EchoSphere.Runtime
                 string[] glyphs={"◇","✦","◈","△","⬡","✧","⊙","✺","⌬","✹","◌","⟡"};
                 string glyphColor=rarity=="legendary"?"#ffb84d":rarity=="special"?"#ff6b6b":rarity=="epic"?"#a98cff":rarity=="rare"?"#39d8ff":"#7f9bb8";
                 string border=rarity=="legendary"?"#ffb84d":rarity=="special"?"#ff6b6b":rarity=="epic"?"#8064a8":rarity=="rare"?"#39d8ff":"#243b55";
-                artifacts.Add(new NativePauseArtifactsState.Artifact {Id=id,Name=definition.Name(ru),Description=definition.Description(ru),Rarity=rarity,
+                artifacts.Add(new NativePauseArtifactsState.Artifact {Id=id,Name=definition.Name(ru),Description=(modern?ArtifactGameplayRules.DescriptionOverride(id,ru):null)??definition.Description(ru),Rarity=rarity,
                     RarityLabel=catalog.RarityLabel(rarity,ru),BorderColor=border,GlyphColor=glyphColor,Glyph=glyphs[sum%glyphs.Length],Sets=sets});
             }
             return new NativePauseArtifactsState {Heading=(ru?"Собрано: ":"Owned: ")+NativePresentationMath.NumberText(owned.Count),Empty=ru?"Артефактов пока нет.":"No artifacts yet.",Artifacts=artifacts};

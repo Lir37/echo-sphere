@@ -22,6 +22,11 @@ internal static class ArtifactGameplayChecks
   Near(Conditional("resonance_core",new ArtifactDamageContext {NearOtherSphere=true}),1.12f,"near another node");Near(Conditional("resonance_core",new ArtifactDamageContext()),1,"isolated node");
   Near(Conditional("geometry_die",new ArtifactDamageContext {AnyActiveGeometry=true}),1.08f,"active secondary also qualifies");Near(Conditional("geometry_die",new ArtifactDamageContext()),1,"no active geometry");
   Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("zero_sphere"),"sphereDamage",true),.35f,"zero exact global35");Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("formation_compass"),"sphereRadius",true),.08f,"compass single8");
+  foreach(var pair in new[]{("chain_battery","chainDamage"),("shotgun_shell","shotgunDamage"),("aura_mist","auraRadius")}){Near(ArtifactGameplayRules.EffectTotal(new List<string>{pair.Item1},pair.Item2,true),.1f,"family-specific "+pair.Item1);Near(ArtifactGameplayRules.EffectTotal(new List<string>{pair.Item1},"sphereDamage",true),0,"no hidden global "+pair.Item1);}
+  Near(ArtifactGameplayRules.EffectTotal(new List<string>{"folded_core"},"sphereDamage",true),.08f,"folded core exact8");Near(ArtifactGameplayRules.EffectTotal(new List<string>{"overclock"},"sphereDamage",true),-.05f,"overclock actual cost");Near(ArtifactGameplayRules.EffectTotal(new List<string>{"overclock"},"sphereDelay",true),-.12f,"overclock cadence");
+  foreach(var id in new[]{"quantum_fold","void_star"}){Near(ArtifactGameplayRules.EffectTotal(new List<string>{id},"critChance",true),0,"no hidden crit "+id);Near(ArtifactGameplayRules.EffectTotal(new List<string>{id},"sphereDamage",true),0,"no hidden damage "+id);}
+  Near(ArtifactRewardRules.GetStellaChoiceCount(new List<string>{"quantum_fold"}),4,"quantum extra choice preserved");
+  foreach(var id in new[]{"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver","overclock","void_star"})foreach(bool ru in new[]{false,true}){Near(string.IsNullOrWhiteSpace(ArtifactGameplayRules.DescriptionOverride(id,ru))?0:1,1,"complete localized explanation "+id);}
   Console.WriteLine("Artifact gameplay corrections: "+checks+" behavioral checks PASS");return checks;
  }
 }
