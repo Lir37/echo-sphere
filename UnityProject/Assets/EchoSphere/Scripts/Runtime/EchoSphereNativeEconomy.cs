@@ -8,6 +8,19 @@ namespace EchoSphere.Runtime
     {
         private RunEconomyState _runEconomy;
         private float GetRunArtifactEffectTotal(string key)=>ArtifactGameplayRules.EffectTotal(_ownedArtifacts,key,_runEconomy!=null);
+        private float GetArtifactSphereDamageMultiplier(SphereAttackAgent sphere)
+        {
+            float family=GetArtifactSphereFamilyDamageMultiplier(sphere.Type);if(_runEconomy==null)return family;
+            var context=new ArtifactDamageContext {UniqueTypes=CountUniqueActiveSphereTypes(),StrongestLevel=GetStrongestSphereLevel(),
+                AnyActiveGeometry=_networkState?.DominantFormation?.Active==true||_networkState?.SecondaryFormation?.Active==true,
+                TriangleActive=_networkState?.GetFormation(SphereNetworkFormation.Triangle)?.Active==true&&GetFormationBonus(SphereNetworkFormation.Triangle,GetSphereIndex(sphere))>0};
+            float nearby=BossCombatRules.ToWorldUnits(190f);nearby*=nearby;
+            foreach(var other in _spheres){if(other==null||other==sphere||!other.gameObject.activeInHierarchy)continue;
+                if(other.ProgressionLevel>=7)context.AnotherLevelSeven=true;
+                if((other.transform.position-sphere.transform.position).sqrMagnitude<=nearby)context.NearOtherSphere=true;
+            }
+            return family*ArtifactGameplayRules.ConditionalDamageMultiplier(_ownedArtifacts,context);
+        }
         public int GetArtifactChainExtraJumps()=>ArtifactGameplayRules.ExtraChainJumps(_ownedArtifacts,_runEconomy!=null);
         private NativeMerchantView _nativeMerchantView;
         public void CollectExperienceOrb(int experience,int echoAmount)

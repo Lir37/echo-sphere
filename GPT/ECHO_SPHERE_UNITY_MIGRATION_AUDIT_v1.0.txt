@@ -6161,3 +6161,27 @@ https://github.com/Lir37/echo-sphere/actions/runs/40922574455
 Следующийэтап:сверкаоставшихся79предметов и измерениедоходаEcho/цен на30минBasin;
 различияRiftсимуляции,остальные4региона/ростеры,15+15способностей,сеты/протоколы,
 мета/Convergence/RUEN/audio/adsзаглушки остаются OPEN.Не считать полныйплан DONE.
+
+## Четвёртый блок — условные эффекты на конкретном узле
+ArtifactDamageContext и ConditionalDamageMultiplier заменяют скрытыеобщие
+прибавки новогозабега наусловия описаний. Legacy ветка остаётся прежней.
+Дополнительно исправлены13ID(всего16):formation_compass,zero_sphere,
+unified_mind,lone_bastion,fivefold_resonance,relay_matrix,network_relay,
+network_coil,geometry_die,mirror_network,singularity_engine,triangle_circuit,
+resonance_core. Изусловныхпредметов убраны placeholder sphereDamage;
+компас8%одинраз вместо16.64%,Zero35%вместо35%плюсскрытые20%семейства.
+Рядом/вTriangle проверяется атакующий SphereAttackAgent,не первый экземпляр типа.
+RelayMatrix требует другой VII узел;два VII узла могутусиливатьдругдруга.
+Fivefold учитываетпервыйтип;GeometryDie принимаетактивнуюSecondary,ноне
+неактивнуюформацию.Уровни/множители взяты изсуществующихописаний/обработчиков.
+
+Core:935artifactbehavioralchecks(492legacy + неизменённые66 + correctedcases),
+всего13623assertions и47389sourcecomparisonsPASS. Изменениечислаassertions
+обусловленопереносом13IDизпроверкиunchangedвпроверкиcorrected,не числомдефектов.
+ActualEditor:21checksPASS на4узлах,втомчисленесколькоStdкопий сразнойдальностью,
+Triangleinside/outside,VIIself/other,uniquecomposition,Secondaryinactive,
+Compasslegacy;беззаписивprefs. 272Node/preflight/5C#profilesPASS,Console0errors.
+Inventory теперь16CORRECTED_NEW_RUNS_AND_TESTED/66REQUIRES_BEHAVIORAL_REVIEW;
+не считатьвсе66нерабочими. Общаябалансная иAndroidприёмкапо-прежнемуOPEN.
+Третийкоммит6d1aea65:CI930SUCCESS
+https://github.com/Lir37/echo-sphere/actions/runs/40924187017

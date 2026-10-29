@@ -2979,7 +2979,7 @@ namespace EchoSphere.Runtime
             if (!string.IsNullOrEmpty(key)) multiplier += GetRunArtifactEffectTotal(key);
             // Source artifactSystem.ts applies Formation Compass twice by design:
             // once through the global sphereRadius effect and once per Sphere here.
-            if (_ownedArtifacts.Contains("formation_compass")) multiplier *= 1.08f;
+            if (_runEconomy==null && _ownedArtifacts.Contains("formation_compass")) multiplier *= 1.08f;
             return Mathf.Clamp(multiplier, 0.5f, 3f);
         }
 
@@ -3010,6 +3010,7 @@ namespace EchoSphere.Runtime
             };
             var multiplier = string.IsNullOrEmpty(key) ? 1f :
                 Mathf.Max(0.25f, 1f + GetRunArtifactEffectTotal(key));
+            if(_runEconomy!=null)return multiplier; // Modern conditional bonuses belong to the individual attacking node.
             var uniqueTypes = CountUniqueActiveSphereTypes();
             if (_ownedArtifacts.Contains("zero_sphere")) multiplier *= 1.20f;
             if (_ownedArtifacts.Contains("unified_mind")) multiplier *= 1f + GetStrongestSphereLevel() * 0.03f;
@@ -5962,7 +5963,7 @@ namespace EchoSphere.Runtime
         {
             if (sphere == null) return 1f;
             var multiplier = 1f;
-            multiplier *= GetArtifactSphereFamilyDamageMultiplier(sphere.Type);
+            multiplier *= GetArtifactSphereDamageMultiplier(sphere);
             return multiplier * GetArtifactSphereSynergyDamageMultiplier(sphere);
         }
 

@@ -30,7 +30,7 @@ namespace EchoSphere.Runtime
             if (_timeStopTimer > 0f && _timeStopTimer <= 1f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_temporal_core") damage *= 2f;
             damage += SphereBoostDamageBonus;
             damage *= Mathf.Max(.25f, 1f + GetRunArtifactEffectTotal("sphereDamage"));
-            damage *= GetArtifactSphereFamilyDamageMultiplier(type) * GetArtifactSphereSynergyDamageMultiplier(sphere) * modifiers.damage * GetSphereCopyOutputMultiplier(sphere);
+            damage *= GetArtifactSphereDamageMultiplier(sphere) * GetArtifactSphereSynergyDamageMultiplier(sphere) * modifiers.damage * GetSphereCopyOutputMultiplier(sphere);
             return damage * SphereCombatRules.GetProfile(type).DamageMultiplier;
         }
         public SourceSphereModifiers GetSourceSphereModifiers(SphereId type, int level = -1)

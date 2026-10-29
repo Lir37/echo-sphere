@@ -4,12 +4,24 @@ internal static class ArtifactGameplayChecks
  internal static int Run(){int checks=0;void Near(float value,float expected,string why){checks++;if(Math.Abs(value-expected)>.00001f)throw new Exception("Artifact contract: "+why+" "+value+" expected "+expected);}
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
-  foreach(var artifact in ArtifactRewardRules.All.Where(x=>x.Id!="sniper_scope"&&x.Id!="sniper_crown"&&x.Id!="chain_crown"))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);
+  foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);
   var scope=new List<string>{"sniper_scope"};Near(ArtifactGameplayRules.EffectTotal(scope,"sniperDamage",true),.1f,"scope sniper damage");Near(ArtifactGameplayRules.EffectTotal(scope,"sphereDamage",true),0,"scope no hidden global buff");Near(ArtifactGameplayRules.EffectTotal(scope,"sphereDamage",false),.06f,"scope legacy global buff");
   var crown=new List<string>{"sniper_crown"};Near(ArtifactGameplayRules.EffectTotal(crown,"sniperRadius",true),.1f,"crown range");Near(ArtifactGameplayRules.EffectTotal(crown,"sphereDamage",true),0,"crown no hidden damage");Near(ArtifactGameplayRules.EffectTotal(crown,"cooldown",true),0,"crown no hidden cooldown");
   var chain=new List<string>{"chain_crown"};Near(ArtifactGameplayRules.ExtraChainJumps(chain,true),1,"chain extra jump");Near(ArtifactGameplayRules.ExtraChainJumps(chain,false),0,"legacy chain unchanged");Near(ArtifactGameplayRules.EffectTotal(chain,"sphereDamage",true),0,"chain no global buff");Near(ArtifactGameplayRules.EffectTotal(chain,"cooldown",true),0,"chain no cooldown");
   var all=new List<string>{"sniper_scope","sniper_crown","chain_crown","heavy_core"};Near(ArtifactGameplayRules.EffectTotal(all,"standardDamage",true),.15f,"other artifact survives adapter");
   Near(ArtifactGameplayRules.EffectTotal(null,"sphereDamage",true),0,"empty inventory");Near(ArtifactGameplayRules.ExtraChainJumps(null,true),0,"empty chain inventory");
+  foreach(var id in new[]{"unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core"})Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get(id),"sphereDamage",true),0,"no unconditional placeholder "+id);
+  float Conditional(string id,ArtifactDamageContext c)=>ArtifactGameplayRules.ConditionalDamageMultiplier(new List<string>{id},c);
+  Near(Conditional("lone_bastion",new ArtifactDamageContext {UniqueTypes=1}),1.3f,"single type");Near(Conditional("lone_bastion",new ArtifactDamageContext {UniqueTypes=2}),1,"mixed type no bastion");
+  Near(Conditional("fivefold_resonance",new ArtifactDamageContext {UniqueTypes=1}),1.04f,"first distinct type counts");Near(Conditional("fivefold_resonance",new ArtifactDamageContext {UniqueTypes=10}),1.2f,"fivefold cap");
+  Near(Conditional("relay_matrix",new ArtifactDamageContext {AnotherLevelSeven=true}),1.1f,"other VII relay");Near(Conditional("relay_matrix",new ArtifactDamageContext()),1,"self VII not enough");
+  foreach(var pair in new[]{("network_relay",1.05f),("network_coil",1.08f),("mirror_network",1.12f)}){Near(Conditional(pair.Item1,new ArtifactDamageContext {UniqueTypes=2}),pair.Item2,pair.Item1+" eligible");Near(Conditional(pair.Item1,new ArtifactDamageContext {UniqueTypes=1}),1,pair.Item1+" ineligible");}
+  Near(Conditional("unified_mind",new ArtifactDamageContext {StrongestLevel=7}),1.21f,"highest level exact");
+  Near(Conditional("singularity_engine",new ArtifactDamageContext {UniqueTypes=2}),1.18f,"small build");Near(Conditional("singularity_engine",new ArtifactDamageContext {UniqueTypes=3}),1,"large build");
+  Near(Conditional("triangle_circuit",new ArtifactDamageContext {TriangleActive=true}),1.15f,"triangle node");Near(Conditional("triangle_circuit",new ArtifactDamageContext()),1,"outside triangle");
+  Near(Conditional("resonance_core",new ArtifactDamageContext {NearOtherSphere=true}),1.12f,"near another node");Near(Conditional("resonance_core",new ArtifactDamageContext()),1,"isolated node");
+  Near(Conditional("geometry_die",new ArtifactDamageContext {AnyActiveGeometry=true}),1.08f,"active secondary also qualifies");Near(Conditional("geometry_die",new ArtifactDamageContext()),1,"no active geometry");
+  Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("zero_sphere"),"sphereDamage",true),.35f,"zero exact global35");Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("formation_compass"),"sphereRadius",true),.08f,"compass single8");
   Console.WriteLine("Artifact gameplay corrections: "+checks+" behavioral checks PASS");return checks;
  }
 }
