@@ -542,3 +542,11 @@ opt-in reference tools не объявлены физически удалённ
 Технические результаты, ограничения телефона и сохранения:
 UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md. Freeze3:29 не воспроизведён;
 новый APK и физические input/haptic ещё требуют подключения телефона.
+
+2026-10-29 final:585a25df CI909 SUCCESS,ordinary APK87.55s/0errors/2warnings,
+78841448bytes,installed11T. Follow-off/on/off без сдвига,реальныйDash+pause,
+2×5selector,4pause tabs+gesture scroll подтверждены,0app vibration events.
+6336layout checks144cases PASS,5C#profiles0errors/warnings. Сегодняшние17keys
+восстановлены byte-for-byte,USB awake0,normal APK installed/stopped. Новые
+FPS/GC не измерялись;медленная пауза,freeze3:29,единичный collapsed-font launch
+после debug→normal остаются открыты. Полная запись:UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.

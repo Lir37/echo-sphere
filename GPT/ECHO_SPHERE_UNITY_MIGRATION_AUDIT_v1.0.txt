@@ -6014,3 +6014,11 @@ N%»,полная «НАГРУЗКА СЕТИ N%» в tooltip. Переключ�
 при follow/strain on/off и одинаковом числе рядов действий:6336checks PASS.
 Все5 C#профилей0errors/warnings,preflightPASS. Editor prefs10keys восстановлены.
 Следующая обычная сборка/phone-проверка должна использовать именно эту версию.
+
+2026-10-29 final:585a25df CI909 SUCCESS,ordinary APK87.55s/0errors/2warnings,
+78841448bytes,installed11T. Follow-off/on/off без сдвига,реальныйDash+pause,
+2×5selector,4pause tabs+gesture scroll подтверждены,0app vibration events.
+6336layout checks144cases PASS,5C#profiles0errors/warnings. Сегодняшние17keys
+восстановлены byte-for-byte,USB awake0,normal APK installed/stopped. Новые
+FPS/GC не измерялись;медленная пауза,freeze3:29,единичный collapsed-font launch
+после debug→normal остаются открыты. Полная запись:UNITY_ANDROID_DEVICE_ACCEPTANCE_2026-10-28.md.
