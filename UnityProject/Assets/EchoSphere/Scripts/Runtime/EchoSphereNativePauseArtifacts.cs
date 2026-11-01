@@ -41,7 +41,7 @@ namespace EchoSphere.Runtime
             foreach(var id in ids){
                 var definition=catalog.GetArtifact(id);var rarity=definition.Rarity;
                 var sets=new List<NativePauseArtifactsState.Set>();
-                foreach(var set in catalog.Sets.Where(set=>set.ArtifactIds.Contains(id))){
+                foreach(var set in catalog.GetSets(modern).Where(set=>set.ArtifactIds.Contains(id))){
                     int ownedCount=set.ArtifactIds.Count(ownedIds.Contains),total=set.ArtifactIds.Count;bool complete=ownedCount==total;
                     sets.Add(new NativePauseArtifactsState.Set {Id=set.Id,Name=set.Name(ru),Owned=ownedCount,Total=total,Count=ownedCount+"/"+total,Complete=complete,
                         Status=(ru?"СЕТ":"SET")+" · "+(complete?(ru?"СОБРАН":"COMPLETE"):(ru?"ПРОГРЕСС":"PROGRESS"))});

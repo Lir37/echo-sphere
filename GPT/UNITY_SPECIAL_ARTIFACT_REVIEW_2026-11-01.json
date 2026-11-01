@@ -1,0 +1,124 @@
+{
+  "result": "SOURCE_REVIEW_COMPLETE",
+  "scope": "Manual audit of actual call sites and related helpers, supported by existing source-parity and Editor suites. Does not claim every special event individually executed on Android or finished balance. Working handlers preserved; no fabricated replacements.",
+  "reviewed": [
+    {
+      "id": "vampire_ring",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+      "behavior": "Kill heals5HP;HealCoreFromDamage uses3%lifesteal.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "swift_boots",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+      "behavior": "Kill resets3s timer;move speed multiplies1.10 while positive.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "mirror",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+      "behavior": "20% nearest-enemy125%counterattack chance before damage resolution.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "predator_claw",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHitCadence.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHitCadence.cs",
+      "behavior": "Per-owner fifth hit doubles damage and marks critical;catalog8%damage remains.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "foresight_eye",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeFrame.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+      "behavior": "Living boss direction;catalog10ppcrit and8%sniperDamage.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "chaos_orb",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceLoop.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceModifiers.cs",
+      "behavior": "Every10s seeded50/50damage/radius1.20 for3s;timer expiry removes buff.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "gravity_bead",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
+      "behavior": "Gravity pull multiplies1.12,not generic attack damage.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "prism_filter",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "behavior": "Enables one network relay;linked sphere required;relay multiplier0.42.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "gravity_hook",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "behavior": "Gravity pull1.10 and cadence0.92.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "pulse_driver",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "behavior": "Pulse interval0.90;description explicitly interval rather than frequency.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "void_mark",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs",
+      "behavior": "Void hit damage1.10 at targetHPfraction<=0.35.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "void_lantern",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs",
+      "behavior": "Void hit damage1.20 at targetHPfraction<=0.35;not execution chance.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "prism_crown",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "behavior": "Adds one relay when mirror branch/filter opens reflection path.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "orbital_crown",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereFamilies.cs",
+      "behavior": "One total extra contact element,distributed through authored ring-count logic.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    },
+    {
+      "id": "pulse_crown",
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
+      "related": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "behavior": "One additional wave with actual secondary multiplier/radius;modernDPS shares wave rules.",
+      "status": "SOURCE_REVIEWED_SPECIAL_HANDLER"
+    }
+  ],
+  "fileSha256": {
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs": "4acb31896073fa83d0c72c2872067fa0c08e9780a24d4c60633c82d961f7c3ed",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs": "14d2fdcabcf90b4ddcf4874ae252452e1d26dd883e9b85460a3a90f7d7d905cb",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHitCadence.cs": "cec3d82ae4afc4d7561df71073762ad482e14edd237d14faedf91d1bb328d7eb",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeFrame.cs": "016f4e1409490f0a3b26d88654515be2252f615ab6cfb2408a8891b2452d9c6b",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceLoop.cs": "d050e4302f3db2cf3f94d1635f5fb7caf1da2d76e2fb2087286fe5f42e0e4ede",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceModifiers.cs": "67ba1d713f0cd08cc8a36cd48b45541017ab5bc85aa51642e0c6bbc564d77903",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs": "344b31028c6d14f26784e3186e01a2370d4b8ad87a588f72a0c2daebd3bd9010",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs": "25a3e2bbc430302bf77b23019bc842c253cdc0426860c0c5b38f90ed85363cfb",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs": "2e24dead0eccea184f1548e771aef6b28360383b1dbbfe426edd298be925c068",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereFamilies.cs": "918d7579905064b0b364954fb6f817ea29efc4553f0bde700becf6c3e4b0b17c"
+  },
+  "note": "EnemyAgent2D rechecked after addition of isolated already-resolved protocol damage API;existing vampire kill handler unchanged."
+}

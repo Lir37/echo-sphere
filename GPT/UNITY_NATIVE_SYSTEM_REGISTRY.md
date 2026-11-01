@@ -75,3 +75,12 @@ Recovery пользователя и прежние артефакты не чи
 2026-10-29 gameplay: RunEconomyRules/State owns new-run Echo/merchant stock and timers, persists via RunSnapshotCodec;legacy null unchanged. NativeMerchantView owns retained shop UI. NativeWorldFleet owns Rift hulls/rigid parts;NativeWorldCreatures still owns common status/telegraph overlays. Selected Region.Pockets now owns drawn pocket boundaries. See UNITY_GAMEPLAY_COMPLETION_2026-10-29.md.
 
 2026-10-29 gameplay stats: modern pause damage/range/cadence/DPS now read simulation/agent getters rather than the imported duplicate formulas. ArtifactGameplayRules owns new-run effect deltas/conditional node context/descriptions; legacy catalog and old save behavior preserved. See UNITY_GAMEPLAY_COMPLETION_2026-10-29.md.
+
+
+2026-11-01 artifact campaign ownership:Core ArtifactRewardRules.Catalog(true)90,
+Catalog(false)82;CampaignArtifactSets8supplements+12source sets;NativeRunCatalog
+GetSets/GetSynergies caches modern projections without mutating imported assets.
+EchoSphereArtifactProtocolProcs owns20bounded hit counters in runtime snapshot.
+Only positive authored hits enter;legacy null-economy and secondary hits gated.
+EnemyAgent2D.ReceiveArtifactProtocolDamage takes already-resolved damage with
+owner credit and no recursive procs/double global buff.

@@ -58,8 +58,8 @@ namespace EchoSphere.Runtime
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "diagnostics", Heading = ru ? "Диагностика билда" : "Build Diagnostics", Cards = cards });
             cards = new List<NativePauseSynergiesState.Card>();
-            var activeSynergies=new HashSet<string>();foreach(var synergy in NativeOwnedArtifactSynergies(_ownedArtifacts))activeSynergies.Add(synergy.Id);
-            foreach(var set in catalog.Sets){int count=0;foreach(var id in set.SynergyIds)if(activeSynergies.Contains(id))count++;bool complete=count==set.SynergyIds.Count;
+            var activeSynergies=new HashSet<string>();foreach(var synergy in NativeOwnedArtifactSynergies(_ownedArtifacts,null,_runEconomy!=null))activeSynergies.Add(synergy.Id);
+            foreach(var set in catalog.GetSets(_runEconomy!=null)){int count=0;foreach(var id in set.SynergyIds)if(activeSynergies.Contains(id))count++;bool complete=count==set.SynergyIds.Count;
                 cards.Add(new NativePauseSynergiesState.Card {Id=set.Id,Name=complete?set.Name(ru):"???",Description=complete?set.Description(ru):(ru?"Сет ещё не открыт.":"Set not discovered yet."),Status=count+"/"+set.SynergyIds.Count,Tone=complete?"gold":"base",Pulse=complete});
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "sets", Heading = ru ? "Наборы артефактов" : "Artifact Sets", Cards = cards });

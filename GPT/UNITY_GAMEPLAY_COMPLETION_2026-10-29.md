@@ -405,3 +405,40 @@ Core14034assertions+47389sourcecomparisonsPASS. Initial compile found missing
 Core import in pause projection; fixed before Editor acceptance. Existing bonus
 formulas unchanged. This is authored starting balance,not Android/30min acceptance.
 Sets expansion and15remaining artifact behavioral reviews still OPEN.
+
+
+## 2026-11-01 — artifact implementation milestone:90items/20sets/12protocols
+Eight authored sets now supplement the12legacy sets:Glass Bastion,Kinetic Relay,
+Frozen Optics,Wave Rotor,Living Fortress,Chronicle,Blood Cycle,Unstable Echo.
+Each requires three exact existing artifacts;effects are event-driven shielding,
+attack advancement,freeze,knockback,healing,Resonance or additional strike.
+Explicit family/HP/time-control conditions;RU/EN descriptions show cadence.
+Same persisted bounded counter model as protocols;no new RNG draw and secondary
+hits/zero damage cannot proc. Cached counter IDs avoid per-hit string creation.
+Native card badges,reward previews,set details,completion summaries and pause
+synergies use modern20set catalog;legacy views retain12and original synergies.
+Modern protocol UI now reads the same actual conditions as gameplay rather than
+maintaining a second geometry/status predicate. Imported assets untouched.
+Actual Editor86PASS:12protocols,8sets,20visible completions,real effects,legacy
+isolation,countercodec roundtrip and proc guards. Core14075assertions+47389source
+comparisonsPASS;272NodePASS;fiveC#profilesPASS. Extra fixture job was invalidated
+by import/domain reload;rerun after reload passed with no compile diagnostics.
+Last15existing special handlers source-reviewed,with traced behavior/related
+call sites and SHA256 evidence in UNITY_SPECIAL_ARTIFACT_REVIEW_2026-11-01.json.
+Inventory distinguishes source review from runtime acceptance;0unreviewed does
+NOT mean each15handler individually replayed on Android. Existing working
+handlers preserved,descriptions already corrected where proven mismatched.
+Implementation targets90/20/12 reached. Full30minute build balance,phone play,
+all combinations,visual acceptance and sustained performance remain open.
+Do not mark final gameplay acceptance DONE from counts,unit tests or CI alone.
+
+
+Implementation status for requested artifact point1: targets90artifacts,20sets,
+12event-driven protocols implemented. Remaining15old handlers reviewed by source
+with hashed evidence;coverage modes retained separately. Pending acceptance:
+individual replay of every old special handler,all combinations,30min balance,
+Android performance/visual/gameplay acceptance. This is NOT a final DONE gate.
+Additional protocol damage now uses an already-resolved owner-attributed enemy
+API:does not apply global buffs a second time,does not recurse into Sphere
+procs,and preserves kill attribution. Editor asserts exact25%/15% hit deltas.
+Acceptance fixture restores RNG as well as borrowed state.

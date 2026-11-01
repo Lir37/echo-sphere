@@ -39,7 +39,7 @@ namespace EchoSphere.Runtime
    if(_ownedArtifacts.Contains("triangle_circuit")&&NativeLiveSphereTriangle(sphere))multiplier*=1.15;
    if(_ownedArtifacts.Contains("unified_mind")){double strongest=0;foreach(var level in _sphereLevels.Values)strongest=Math.Max(strongest,level);multiplier*=1+strongest*.03;}
    if(_ownedArtifacts.Contains("zero_sphere"))multiplier*=1.20;
-   var synergies=new HashSet<string>(NativeOwnedArtifactSynergies(_ownedArtifacts).Select(row=>row.Id),StringComparer.Ordinal);var completed=NativeLiveCompletedSets();
+   var synergies=new HashSet<string>(NativeOwnedArtifactSynergies(_ownedArtifacts,null,_runEconomy!=null).Select(row=>row.Id),StringComparer.Ordinal);var completed=NativeLiveCompletedSets();
    if(completed.Contains("void_horizon")&&type=="void")multiplier*=1.08;
    if(completed.Contains("temporal_fold")&&((double)_timeStopTimer>0||(double)_teleportDamageBuffTimer>0))multiplier*=1.08;
    if(synergies.Contains("void_horizon")&&type=="void"&&_enemies.Any(enemy=>enemy!=null&&enemy.IsAlive&&enemy.IsElite))multiplier*=1.15;

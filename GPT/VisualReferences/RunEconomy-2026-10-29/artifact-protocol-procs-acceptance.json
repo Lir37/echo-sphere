@@ -1,1 +1,1 @@
-{"result":"PASS","checks":48,"scope":"Actual twelve protocol gates,counters,side effects and legacy isolation;borrowed state restored,no prefs writes"}
+{"result":"PASS","checks":86,"scope":"Actual twelve protocols,eight sets,side effects,counter persistence,proc guards and legacy isolation;borrowed state restored,no prefs writes"}

@@ -29,17 +29,18 @@ namespace EchoSphere.Runtime
    var network=NativeMobileNetwork();
    Add("network",new List<string>{(ru?"Типов сфер: ":"Sphere types: ")+typeCount,(ru?"Связей: ":"Links: ")+network.Links.Count.ToString(System.Globalization.CultureInfo.InvariantCulture),geometrySignal});
    Add("resonance",new List<string>{(ru?"Резонанс: ":"Resonance: ")+NativePresentationMath.NumberText(Math.Floor(_resonanceCharge))+"/100",geometrySignal});
-   var completed=NativeLiveCompletedSets();var synergy=catalog.Sets.Where(set=>completed.Contains(set.Id)).Select(set=>set.Name(ru)).ToList();synergy.AddRange(NativeLiveProtocols().Where(row=>row.Active).Select(row=>ru?row.Definition.NameRussian:row.Definition.NameEnglish));
+   var completed=NativeLiveCompletedSets();var synergy=catalog.GetSets(_runEconomy!=null).Where(set=>completed.Contains(set.Id)).Select(set=>set.Name(ru)).ToList();synergy.AddRange(NativeLiveProtocols().Where(row=>row.Active).Select(row=>ru?row.Definition.NameRussian:row.Definition.NameEnglish));
    int count=catalog.SphereAbilityLinks.Count(link=>NativeLiveSphereLevel(link.Sphere)>=7&&NativeLiveSphereBranch(link.Sphere)==link.Branch&&NativeLiveAbilityLevel(link.Ability)>=7&&NativeLiveAbilityChoice(PlannerAbility(link.Ability),catalog.GetAbility(link.Ability),7)?.Id==link.AbilityFinal);
    if(count>0)synergy.Add((ru?"Активных синергий сфер: ":"Active Sphere synergies: ")+count);Add("synergy",synergy);return rows;
   }
   private HashSet<string> NativeLiveCompletedSets()
   {
-   var active=new HashSet<string>(NativeOwnedArtifactSynergies(_ownedArtifacts).Select(row=>row.Id),StringComparer.Ordinal);
-   return new HashSet<string>(NativeRunCatalog.Instance.Sets.Where(set=>set.SynergyIds.All(active.Contains)).Select(set=>set.Id),StringComparer.Ordinal);
+   var active=new HashSet<string>(NativeOwnedArtifactSynergies(_ownedArtifacts,null,_runEconomy!=null).Select(row=>row.Id),StringComparer.Ordinal);
+   return new HashSet<string>(NativeRunCatalog.Instance.GetSets(_runEconomy!=null).Where(set=>set.SynergyIds.All(active.Contains)).Select(set=>set.Id),StringComparer.Ordinal);
   }
   private IReadOnlyList<NativeProtocolState> NativeLiveProtocols()
   {
+   if(_runEconomy!=null){var modern=new List<NativeProtocolState>();foreach(var definition in ArtifactProtocolRules.Protocols){bool discovered=IsArtifactProtocolSetComplete(definition.SetId);modern.Add(new NativeProtocolState(definition,discovered,IsArtifactProtocolCurrentlyActive(definition)));}return modern;}
    var completed=NativeLiveCompletedSets();var spheres=_spheres.Where(s=>s!=null&&s.gameObject.activeInHierarchy).ToList();
    var types=new HashSet<string>(spheres.Select(s=>s.Type.ToString().ToLowerInvariant()),StringComparer.Ordinal);
    string geometry=!string.IsNullOrEmpty(_resonanceGeometryKey)?_resonanceGeometryKey:"none";bool geometryActive=geometry=="ring"||geometry=="lattice"||geometry=="fractal";

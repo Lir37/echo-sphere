@@ -34,8 +34,14 @@ namespace EchoSphere.Presentation
         public static NativeRunCatalog Instance {get{if(_instance==null)_instance=Resources.Load<NativeRunCatalog>("EchoSphere/NativeRunCatalog");if(_instance==null)throw new InvalidOperationException("Native run catalog missing");return _instance;}}
         private void OnEnable()=>ClearLookupCaches();
         private void OnValidate()=>ClearLookupCaches();
-        private void ClearLookupCaches(){_spheres=null;_abilities=null;_artifacts=null;_elements=null;_branches=null;}
+        private void ClearLookupCaches(){_spheres=null;_abilities=null;_artifacts=null;_elements=null;_branches=null;_campaignSets=null;_campaignSynergies=null;}
         private static Dictionary<string,T> Index<T>(IEnumerable<T> rows) where T:Definition {var map=new Dictionary<string,T>(StringComparer.Ordinal);foreach(var row in rows)map.Add(row.Id,row);return map;}
+        [NonSerialized] private List<Set> _campaignSets;
+        [NonSerialized] private List<Synergy> _campaignSynergies;
+        public IReadOnlyList<Set> GetSets(bool modern){if(!modern)return Sets;PrepareCampaignSets();return _campaignSets;}
+        public IReadOnlyList<Synergy> GetSynergies(bool modern){if(!modern)return Synergies;PrepareCampaignSets();return _campaignSynergies;}
+        private void PrepareCampaignSets(){if(_campaignSets!=null)return;_campaignSets=new List<Set>(Sets);_campaignSynergies=new List<Synergy>(Synergies);
+            foreach(var row in EchoSphere.Core.CampaignArtifactSets.All){string synergy="campaign:"+row.Id;_campaignSets.Add(new Set{Id=row.Id,NameRu=row.Ru,NameEn=row.En,DescriptionRu=row.DescriptionRu,DescriptionEn=row.DescriptionEn,ArtifactIds=new List<string>(row.Requires),SynergyIds=new List<string>{synergy}});_campaignSynergies.Add(new Synergy{Id=synergy,NameRu=row.Ru,NameEn=row.En,DescriptionRu=row.DescriptionRu,DescriptionEn=row.DescriptionEn,Requires=new List<string>(row.Requires)});}}
         public Sphere GetSphere(string id){if(_spheres==null)_spheres=Index(Spheres);return _spheres.TryGetValue(id,out var row)?row:null;}
         public Ability GetAbility(string id){if(_abilities==null)_abilities=Index(Abilities);return _abilities.TryGetValue(id,out var row)?row:null;}
         public Artifact GetArtifact(string id){if(_artifacts==null)_artifacts=Index(Artifacts);if(_artifacts.TryGetValue(id,out var row))return row;

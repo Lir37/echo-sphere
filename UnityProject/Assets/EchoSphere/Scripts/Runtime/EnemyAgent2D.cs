@@ -572,6 +572,16 @@ namespace EchoSphere.Runtime
             FinishReceivedDamage(sourceSphere);
         }
 
+        // Already-resolved protocol damage: preserve owner/kill attribution without
+        // reapplying global damage buffs or entering authored Sphere procs again.
+        public void ReceiveArtifactProtocolDamage(float damage,SphereAttackAgent owner)
+        {
+            if(_dead||damage<=0f||owner==null)return;
+            _hp-=Mathf.Max(0f,damage);RefreshReceivedDamageVisuals();
+            _runtime?.EmitSourceHitFeedback(this,damage,false,false,false,owner.Type);
+            FinishReceivedDamage(owner.Type,owner,damage);
+        }
+
         private void RefreshReceivedDamageVisuals()
         {
             _sourceHitFlash = .15f;
