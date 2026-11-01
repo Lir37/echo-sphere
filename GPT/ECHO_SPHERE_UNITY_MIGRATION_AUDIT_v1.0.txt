@@ -6340,3 +6340,21 @@ Assertion count changes because two IDs leave unchanged-metadata comparison
 loop; their legacy compatibility comparisons remain. Editor and Android
 execution/balance remain open. Next: Universal Fold and remaining behavioral
 reviews, then abilities and regional roadmap.
+
+
+## 2026-11-01 — Universal Fold and Editor acceptance fixture
+Universal Fold's generic +15% damage/-8% cooldown placeholder is replaced in
+modern runs by +2% Sphere damage per completed artifact synergy pair, capped
++20%. Counts the 20 existing ArtifactSynergyRules gates without reflection,
+LINQ, allocation or duplicated requirement data. Partial pairs do not count.
+RU/EN explains the authored starting balance. Legacy runs retain old effects.
+Core PASS13792 assertions+47389 comparisons;five actual Unity-API compile profiles
+PASS. Equal assertion total reflects moving one ID out of unchanged-metadata
+checks and adding six behavior checks. No Editor gameplay execution claimed.
+New scripts/check-unity-modern-artifact-state.cs is a pending runtime fixture:
+charge source,DoT Mandala,invulnerability and two field codec roundtrip.
+It is NOT accepted as passing until executed. Unity was launched successfully,
+but is blocked on Scene Backup Detected, awaiting the user's recovery choice
+to avoid replacing their unsaved scene. No recovery files touched.
+Next: execute fixture and previous acceptance suites; finish16artifact reviews,
+then abilities/regional roadmap. Full completion remains OPEN.

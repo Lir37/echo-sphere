@@ -35,6 +35,12 @@ internal static class ArtifactGameplayChecks
   Near(ArtifactGameplayRules.ResonanceChargeMultiplier(new List<string>{"resonance_lattice"},true),1.15f,"lattice charge");
   Near(ArtifactGameplayRules.ResonanceChargeMultiplier(new List<string>{"resonant_leaf","resonance_lattice"},true),1.25f,"additive resonance gain");
   Near(ArtifactGameplayRules.ResonanceChargeMultiplier(new List<string>{"resonant_leaf","resonance_lattice"},false),1,"legacy resonance charge");
+  Near(ArtifactGameplayRules.UniversalFoldMultiplier(null,true),1,"no fold inventory");
+  Near(ArtifactGameplayRules.UniversalFoldMultiplier(new List<string>{"universal_fold"},true),1,"fold needs completed synergy");
+  Near(ArtifactGameplayRules.UniversalFoldMultiplier(new List<string>{"universal_fold","heavy_core","resonance_core"},true),1.02f,"fold counts completed pair");
+  Near(ArtifactGameplayRules.UniversalFoldMultiplier(new List<string>{"universal_fold","heavy_core"},true),1,"fold ignores partial pair");
+  Near(ArtifactGameplayRules.UniversalFoldMultiplier(ArtifactRewardRules.All.Select(x=>x.Id).ToList(),true),1.20f,"fold caps ten pairs");
+  Near(ArtifactGameplayRules.UniversalFoldMultiplier(ArtifactRewardRules.All.Select(x=>x.Id).ToList(),false),1,"legacy fold path");
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
   foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);

@@ -27,7 +27,7 @@ namespace EchoSphere.Runtime
                 if(other.ProgressionLevel>=7)context.AnotherLevelSeven=true;
                 if((other.transform.position-sphere.transform.position).sqrMagnitude<=nearby)context.NearOtherSphere=true;
             }
-            return family*ArtifactGameplayRules.ConditionalDamageMultiplier(_ownedArtifacts,context);
+            return family*ArtifactGameplayRules.ConditionalDamageMultiplier(_ownedArtifacts,context)*ArtifactGameplayRules.UniversalFoldMultiplier(_ownedArtifacts,true);
         }
         public float NetworkRecoverySpeed=>ArtifactGameplayRules.RecoverySpeedMultiplier(_ownedArtifacts,_runEconomy!=null);
         public int GetArtifactChainExtraJumps()=>ArtifactGameplayRules.ExtraChainJumps(_ownedArtifacts,_runEconomy!=null);

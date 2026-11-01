@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Static inventory for Unity production. Literal references do not prove invocation, integration, correct semantics or acceptance. Unreviewed entries are not claimed broken.",
-  "baselineCommit": "80cf0f8301c5872523a6ac406de1da185fe0bccd",
+  "baselineCommit": "82f3a9c76c168ac0b20ecec9ead7bd5fda5a5383",
   "artifactCatalogSha256": "c8b8bf7550cae1b3e9ec5c1d4a78af49e761cd6dcc3f56f903b57e53ed284f3b",
   "catalogCounts": {
     "SourceCommit": 0,
@@ -19,10 +19,10 @@
     "Rarities": 5,
     "SphereAbilityLinks": 30
   },
-  "verifiedArtifactCorrections": 38,
+  "verifiedArtifactCorrections": 39,
   "clarifiedDescriptionsPendingRuntimeReview": 10,
   "reviewedUnchangedArtifactConsumers": 27,
-  "remainingArtifactReviews": 17,
+  "remainingArtifactReviews": 16,
   "artifacts": [
     {
       "id": "crystal_speed",
@@ -1699,8 +1699,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     }
   ]
 }

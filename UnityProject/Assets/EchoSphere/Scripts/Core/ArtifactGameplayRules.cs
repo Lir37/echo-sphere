@@ -10,11 +10,12 @@ namespace EchoSphere.Core
     }
     public static class ArtifactGameplayRules
     {
-        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed","echo_weaver","axiom_core","time_splitter","stasis_mandala","resonant_leaf","resonance_lattice"};
+        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed","echo_weaver","axiom_core","time_splitter","stasis_mandala","resonant_leaf","resonance_lattice","universal_fold"};
         private static readonly string[] DescriptionOnlyIds = {"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver","prism_filter","prism_crown"};
         public static string DescriptionOverride(string id,bool ru)
         {
             switch(id){
+                case "universal_fold":return ru?"+2% урона сфер за каждую собранную пару синергии артефактов, до +20%.":"+2% Sphere damage per completed artifact synergy pair, up to +20%.";
                 case "resonant_leaf":return ru?"+10% к получаемому заряду Резонанса.":"+10% Resonance charge gained.";
                 case "resonance_lattice":return ru?"+15% к получаемому заряду Резонанса.":"+15% Resonance charge gained.";
                 case "stasis_mandala":return ru?"Каждые 50 потерянных HP дают заряд щита. Не более одного заряда за попадание; максимум 5 зарядов. Смертельный урон не спасает.":"Every 50 HP lost grants a shield charge. At most one charge per hit; maximum 5 charges. Does not prevent lethal damage.";
@@ -68,6 +69,32 @@ namespace EchoSphere.Core
             if(type==SphereNetworkFormation.Fractal){if(owned.Contains("fractal_engine"))multiplier*=1.12f;if(owned.Contains("fractal_seed"))multiplier*=1.10f;}
             return multiplier;
         }
+        public static float UniversalFoldMultiplier(IList<string> owned,bool modern)
+        {
+            if(!modern||owned==null||!owned.Contains("universal_fold"))return 1f;
+            int count=0;
+            if(ArtifactSynergyRules.HasFortressNetworkSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasGlassCannonSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasSingularitySynergy(owned))count++;
+            if(ArtifactSynergyRules.HasCoreRelaySynergy(owned))count++;
+            if(ArtifactSynergyRules.HasTemporalEchoSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasVoidHorizonSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasOrbitalPrismSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasGravityPulseSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasPerfectNetworkSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasHunterDoctrineSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasPulseEngineeringSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasCoreForgeSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasHunterFocusSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasPulseOverloadSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasAxiomFoldSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasGeometryLoopSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasLatticeMemorySynergy(owned))count++;
+            if(ArtifactSynergyRules.HasNetworkMemorySynergy(owned))count++;
+            if(ArtifactSynergyRules.HasStatusCircuitSynergy(owned))count++;
+            if(ArtifactSynergyRules.HasStatusLoopSynergy(owned))count++;
+            return 1f+.02f*Math.Min(10,count);
+        }
         public static float ResonanceChargeMultiplier(IList<string> owned,bool modern)
         {
             if(!modern||owned==null)return 1f;
@@ -93,7 +120,7 @@ namespace EchoSphere.Core
         {
             if(item==null||key==null)return 0;
             if(modern){
-                if(item.Id=="resonant_leaf"||item.Id=="resonance_lattice"||item.Id=="echo_weaver"||item.Id=="time_splitter"||item.Id=="stasis_mandala")return 0f;
+                if(item.Id=="universal_fold"||item.Id=="resonant_leaf"||item.Id=="resonance_lattice"||item.Id=="echo_weaver"||item.Id=="time_splitter"||item.Id=="stasis_mandala")return 0f;
                 if(item.Id=="axiom_core")return key=="sphereDamage"||key=="sphereRadius"?.05f:key=="sphereDelay"||key=="cooldown"?-.05f:0f;
                 if(item.Id=="mirror_dust"||item.Id=="signal_knot"||item.Id=="echo_thread"||item.Id=="triangle_engine"||item.Id=="ring_engine"||item.Id=="lattice_engine"||item.Id=="fractal_engine"||item.Id=="lattice_chip"||item.Id=="fractal_seed")return 0f;
                 if(item.Id=="chain_battery")return key=="chainDamage"?.10f:0f;
