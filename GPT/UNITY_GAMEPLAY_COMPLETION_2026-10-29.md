@@ -378,3 +378,14 @@ values,all8reward reachability and legacy exclusion. Source catalog/preflightPAS
 Remaining:old15special reviews,20sets and meaningful protocols;archive discovery
 for supplemental cards and full trade-off/balance acceptance not yet complete.
 This stage does NOT close artifact point1.
+
+
+## 2026-11-01 — archive integration for the full90item campaign catalog
+Native archive now includes the eight supplemental campaign definitions,using
+existing artifact:ID discovery keys and existing localized-name search. Loaded
+legacy ScriptableObject is not modified. Fixed another actual mismatch:archive
+entries use artifact:ID but description adapter expected bare ID,so corrected
+card descriptions previously did not reach archive. Normalize the prefix only
+for description lookup,not identity/discovery. Actual Editor fixture28PASS
+includes90archive cards plus card projection,reward and effect-adapter checks.
+No save-key changes. Remaining artifact scope is still open.
