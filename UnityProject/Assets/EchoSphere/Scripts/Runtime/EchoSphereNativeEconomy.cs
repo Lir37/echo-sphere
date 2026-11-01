@@ -8,6 +8,12 @@ namespace EchoSphere.Runtime
     {
         private RunEconomyState _runEconomy;
         private float _timeSplitterBuffTimer;
+        private float _mandalaDamageStored;
+        private void ApplyMandalaHpLoss(float hpBefore)
+        {
+            if(_playerCore==null)return;
+            if(ArtifactGameplayRules.AccumulateMandala(ref _mandalaDamageStored,hpBefore-_playerCore.CurrentHp,_playerCore.ShieldCharges,!_playerCore.IsDead,_runEconomy!=null&&_ownedArtifacts.Contains("stasis_mandala")))GrantPlayerShieldCharge(1);
+        }
         private float GetRunArtifactEffectTotal(string key)=>ArtifactGameplayRules.EffectTotal(_ownedArtifacts,key,_runEconomy!=null);
         private float GetArtifactSphereDamageMultiplier(SphereAttackAgent sphere)
         {

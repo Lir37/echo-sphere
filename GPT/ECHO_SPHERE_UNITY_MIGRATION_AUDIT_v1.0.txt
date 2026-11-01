@@ -6308,3 +6308,18 @@ Legacy null-economy runs keep original effects and do not start this timer.
 Descriptions RU/EN state exact new values. Core PASS: 13793 assertions,
 47389 source comparisons. Inventory: 35 corrected,27 unchanged reviewed,20
 remaining reviews. Runtime Editor and Android acceptance not yet performed.
+
+
+## 2026-11-01 — Stasis Mandala damage-to-shield implementation
+Replaced the modern placeholder global damage/critical buff with actual
+damage-to-shield conversion. Authored starting balance: every 50 HP actually
+lost grants one shield charge; at most one per damage event; carry-over bounded
+to 49 HP; existing 5-charge cap. Damage while capped is not banked. Dodges,
+blocked hits and incoming damage before armor do not contribute. Lethal damage
+does not grant a saving charge. Both direct and DoT damage feed the same helper.
+Accumulator lives in runtime model, saved by existing snapshot codec, reset on
+new run and before restoring a snapshot with missing field. Legacy runs retain
+old effects. RU/EN card explicitly states thresholds and limits.
+Core PASS: 13799 assertions,47389 source comparisons. Pure contracts cover partial
+loss,threshold,large hit,cap,blocked damage,death and legacy. Actual Editor damage
+execution,save roundtrip and Android balance remain open. No APK built.

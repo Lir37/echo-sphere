@@ -22,6 +22,14 @@ internal static class ArtifactGameplayChecks
   Near(ArtifactGameplayRules.TickTimeSplitter(5,.1f,0,.2f,false),0,"legacy no time splitter timer");
   Near(ArtifactGameplayRules.TickTimeSplitter(0,2,1,1,true),0,"time splitter not during stop");
   Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("time_splitter"),"critChance",true),0,"no hidden time splitter crit");
+  float stored=0;
+  Near(ArtifactGameplayRules.AccumulateMandala(ref stored,30,0,true,true)?1:0,0,"mandala partial");Near(stored,30,"mandala accumulates HP loss");
+  Near(ArtifactGameplayRules.AccumulateMandala(ref stored,20,0,true,true)?1:0,1,"mandala threshold");Near(stored,0,"mandala consumes threshold");
+  Near(ArtifactGameplayRules.AccumulateMandala(ref stored,300,0,true,true)?1:0,1,"mandala at most one per hit");Near(stored,49,"mandala bounded remainder");
+  Near(ArtifactGameplayRules.AccumulateMandala(ref stored,20,5,true,true)?1:0,0,"mandala full shield cap");Near(stored,49,"full shields do not bank damage");
+  Near(ArtifactGameplayRules.AccumulateMandala(ref stored,100,0,false,true)?1:0,0,"mandala cannot prevent death");
+  Near(ArtifactGameplayRules.AccumulateMandala(ref stored,0,0,true,true)?1:0,0,"blocked hits no charge");
+  Near(ArtifactGameplayRules.AccumulateMandala(ref stored,100,0,true,false)?1:0,0,"legacy no mandala");Near(stored,0,"disabled clears accumulation");
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
   foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);

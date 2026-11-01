@@ -2893,8 +2893,10 @@ namespace EchoSphere.Runtime
             if (GetAbilityBranch(RunUpgradeKind.Shield) == "shield_bastion" && _shieldTimer > 0f)
                 received *= 0.70f;
             var shieldsBefore = _playerCore.ShieldCharges;
+            var hpBefore = _playerCore.CurrentHp;
             if (_playerCore.TryTakeDamage(received))
             {
+                ApplyMandalaHpLoss(hpBefore);
                 if (_playerCore.IsDead) _deathTimer = PlayerLoopRules.DeathDuration;
                 ResetCombo();
                 _characterScreenShakeIntensity = Mathf.Min(0.4f, _characterScreenShakeIntensity + 0.2f);
@@ -2934,9 +2936,11 @@ namespace EchoSphere.Runtime
 
         public void TryDamagePlayerOverTime(float damage)
         {
+            var hpBefore = _playerCore == null ? 0f : _playerCore.CurrentHp;
             if (_playerCore != null && !_playerCore.IsDead &&
                 _playerCore.TryTakeDotDamage(Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier()))
             {
+                ApplyMandalaHpLoss(hpBefore);
                 if (_playerCore.IsDead) _deathTimer = PlayerLoopRules.DeathDuration;
                 _characterScreenShakeIntensity = Mathf.Min(0.25f, _characterScreenShakeIntensity + 0.04f);
             }
@@ -7043,6 +7047,7 @@ namespace EchoSphere.Runtime
             _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
             _runEconomy=RunEconomyRules.Create(_rng.State);
             _timeSplitterBuffTimer=0f;
+            _mandalaDamageStored=0f;
             _sourceLightningVisuals.Clear(); _mutationStage = 0; _chaosOrbTimer = _chaosOrbBuffTimer = _buffTimer = _deathTimer = 0f; _chaosOrbBuff = null;
             ClearRunSnapshot();
             _regionLoreDiscovered.Clear();
