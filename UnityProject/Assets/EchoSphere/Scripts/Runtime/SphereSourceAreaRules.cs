@@ -20,11 +20,10 @@ namespace EchoSphere.Runtime
                 radius *= _sourceModifiers.radius;
                 if (branch == "pulse_wave") radius *= (mode == 1 ? 1.24f : 1.10f) * power;
                 if (cluster > 0f) radius *= 1f + .06f * cluster;
-                var waves = 1 + (_runtime.HasArtifact("pulse_crown") ? 1 : 0) + (branch == "pulse_burst" && (mode == 2 || mode < 0) ? 1 : 0);
+                var waves = SphereEvolutionCombatRules.GetPulseWaveCount(branch, mode, _runtime.HasArtifact("pulse_crown"));
                 for (var wave = 0; wave < waves; wave++)
                 {
-                    var secondaryPower = branch == "pulse_burst" && mode < 0 ? power : 1f;
-                    var waveDamage = damage * (wave == 0 ? 1f : .46f + (branch == "pulse_burst" ? .14f : 0f) * secondaryPower * power);
+                    var waveDamage = damage * SphereEvolutionCombatRules.GetPulseWaveDamageMultiplier(branch, mode, power, wave);
                     var range = radius * (wave == 0 ? 1f : .68f);
                     foreach (var enemy in _runtime.SourceRadarEnemies) if (Near(enemy, range))
                     { enemy.ReceiveSphereDamage(this, waveDamage); if (branch == "pulse_wave") enemy.ApplySlow(1.2f, .6f); }

@@ -6274,3 +6274,19 @@ legacy cards and imported catalog remain unchanged. Core PASS: 13600 assertions,
 47389 source comparisons; artifact checks 912. Full Editor integration remains
 open because no reachable Unity Pipeline is running. These two items are
 description-clarified, not fully runtime-accepted. No APK built.
+
+
+## 2026-11-01 — Pulse crown and mutation DPS consistency
+Confirmed that pause DPS counted the Crown's secondary wave as 100% damage,
+whereas actual area combat uses 46% (and burst branch adjustments). It also
+omitted burst's extra wave. Extracted existing wave count and damage arithmetic
+to SphereEvolutionCombatRules; combat calls the same formulas, without changing
+wave order, radius, damage, effects or RNG. Modern pause estimates sum those
+actual wave multipliers. This remains potential DPS assuming targets inside
+the smaller secondary-wave radius, not a measured damage rate. Legacy estimates
+retain their prior path. Added 192 cases covering branches, final modes, power
+and Crown combinations against the previous combat expression. Core PASS:
+13792 assertions, 47389 source comparisons. Updated Editor acceptance fixture
+to request the modern estimator. Actual Editor/phone acceptance remains open.
+Next: remaining special artifacts and full gameplay roadmap; do not count this
+stat display correction as completing artifact behavior review or game balance.

@@ -70,7 +70,7 @@ namespace EchoSphere.Runtime
   }
   private double NativeLivePlannerSphereDps(SphereAttackAgent sphere)
   {
-   if(_runEconomy!=null)return sphere.GetSourceDpsEstimate(GetSourceSphereAttackDamage(sphere),sphere.EffectiveAttackInterval);
+   if(_runEconomy!=null)return sphere.GetSourceDpsEstimate(GetSourceSphereAttackDamage(sphere),sphere.EffectiveAttackInterval,true);
    string type=sphere.Type.ToString().ToLowerInvariant();var definition=NativeRunCatalog.Instance.GetSphere(type);var mods=GetSourceSphereModifiers(sphere.Type);double damage=NativeLivePlannerSphereDamage(sphere),delay=Math.Max(.05,NativeLivePlannerSphereDelay(sphere)*definition.DelayMultiplier*(double)mods.delay);
    if(type=="orbital"){double level=NativeLiveSphereLevel("orbital");bool dance=GetSphereBranch(EchoSphere.Core.SphereId.Orbital)=="orbital_dance"&&NativeSphereFinalIndex(EchoSphere.Core.SphereId.Orbital)==2;var counts=EchoSphere.Core.OrbitalVisualGeometryRules.RingCounts(level,(_ownedArtifacts.Contains("orbital_crown")?1:0)+(dance?1:0));double angular=(1.8+Math.Min(2.4,Math.Max(1,level)*.28))*(double)mods.rotationSpeed,rate=(counts.Inner+counts.Outer)*angular/(Math.PI*2);return damage*.95*rate;}
    if(type=="prism")return damage*Math.Max(1,1+(double)mods.multishot)/delay;

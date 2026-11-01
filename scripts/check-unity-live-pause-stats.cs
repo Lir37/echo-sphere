@@ -18,7 +18,7 @@ public static class LivePauseStatsAcceptance
    spheres.Clear();levels.Clear();inventory.Clear();inventory.AddRange(new[]{"sniper_scope","sniper_crown","chain_crown","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","zero_sphere","formation_compass"});policy.SetValue(r,RunEconomyRules.Create(1));
    foreach(var definition in GameCatalog.Spheres){levels[definition.Id]=1;var go=new GameObject("Live pause stats acceptance");created.Add(go);var sphere=go.AddComponent<SphereAttackAgent>();sphere.Initialize(r,player,definition.Id,12);spheres.Add(sphere);}
    var ui=r.ReadNativePauseStatsState();
-   foreach(var sphere in spheres){string id=sphere.Type.ToString().ToLowerInvariant();var card=ui.Spheres.Single(x=>x.Id==id);Check(card.OnField,"Missing placed card "+id);float damage=r.GetSourceSphereAttackDamage(sphere),interval=sphere.EffectiveAttackInterval;float dps=sphere.GetSourceDpsEstimate(damage,interval);
+   foreach(var sphere in spheres){string id=sphere.Type.ToString().ToLowerInvariant();var card=ui.Spheres.Single(x=>x.Id==id);Check(card.OnField,"Missing placed card "+id);float damage=r.GetSourceSphereAttackDamage(sphere),interval=sphere.EffectiveAttackInterval;float dps=sphere.GetSourceDpsEstimate(damage,interval,true);
     Check(card.Metrics[0].Value.Split('/')[0]==Round(damage),"Damage differs from simulation: "+id);
     Check(card.Metrics[1].Value==interval.ToString("F2",CultureInfo.InvariantCulture)+"с","Cadence differs from attack timer: "+id);
     Check(card.Metrics[2].Value==Round(sphere.AttackRange/SpherePlacementRules.SourcePixelsToWorld),"Range differs from targeting: "+id);

@@ -90,7 +90,7 @@ namespace EchoSphere.Runtime
         public int PierceCount => _levelStats.Pierce;
         // Read the same cadence used by Tick; pause UI must not maintain a second formula.
         public float EffectiveAttackInterval=>_runtime==null?AttackDelay:_type==SphereId.Aura?GetSourceCadenceInterval():GetSourceCadenceInterval()/Mathf.Max(.01f,_runtime.GetSphereAttackSpeedMultiplier(_type));
-        public float GetSourceDpsEstimate(float damage, float delay)
+        public float GetSourceDpsEstimate(float damage, float delay, bool accuratePulse = false)
         {
             var multishot = _sourceModifiers.multishot;
             if (_type == SphereId.Orbital)
@@ -100,6 +100,15 @@ namespace EchoSphere.Runtime
                 return damage * 0.95f * (inner + outer) * rotation / (Mathf.PI * 2f);
             }
             if (_type == SphereId.Prism) return damage * Mathf.Max(1, 1 + multishot) / delay;
+            if (_type == SphereId.Pulse && accuratePulse)
+            {
+                var branch=_runtime.GetSphereBranch(_type);var final=_runtime.GetSphereFinal(_type)??"";
+                var mode=final.EndsWith("_final_1")?0:final.EndsWith("_final_2")?1:final.EndsWith("_final_3")?2:-1;
+                var power=mode<0?(_progressionLevel>=6?1.3f:_progressionLevel>=5?1.15f:1f):1f;
+                var waves=SphereEvolutionCombatRules.GetPulseWaveCount(branch,mode,_runtime.HasArtifact("pulse_crown"));
+                float total=0;for(int wave=0;wave<waves;wave++)total+=SphereEvolutionCombatRules.GetPulseWaveDamageMultiplier(branch,mode,power,wave);
+                return damage*total*4f/Mathf.Max(.08f,EffectiveAttackInterval);
+            }
             if (_type == SphereId.Pulse) return damage * (_runtime.HasArtifact("pulse_crown") ? 2f : 1f) * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));
             if (_type == SphereId.Gravity) return damage * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));
             if (_type == SphereId.Chain) return damage * (1f + (_sourceModifiers.chainTargets + (_runtime==null?0:_runtime.GetArtifactChainExtraJumps())) * 0.7f) / delay;

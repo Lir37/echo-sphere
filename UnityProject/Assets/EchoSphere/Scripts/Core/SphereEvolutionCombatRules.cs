@@ -140,6 +140,14 @@ namespace EchoSphere.Core
             return multiplier;
         }
 
+        public static int GetPulseWaveCount(string branch,int mode,bool crown) =>
+            1+(crown?1:0)+(branch=="pulse_burst"&&(mode==2||mode<0)?1:0);
+        public static float GetPulseWaveDamageMultiplier(string branch,int mode,float power,int wave)
+        {
+            var secondaryPower=branch=="pulse_burst"&&mode<0?power:1f;
+            return wave==0?1f:.46f+(branch=="pulse_burst"?.14f:0f)*secondaryPower*power;
+        }
+
         public static float GetPrismFormationDamageMultiplier(float lineBonus, float latticeBonus) =>
             1f + 0.12f * Math.Max(0f, lineBonus) + 0.08f * Math.Max(0f, latticeBonus);
 

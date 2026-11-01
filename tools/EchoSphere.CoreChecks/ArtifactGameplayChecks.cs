@@ -7,6 +7,11 @@ internal static class ArtifactGameplayChecks
   Near(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_split","",true,false,false),1,"filter enables one relay");
   Near(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_split","",true,true,false),2,"crown adds one relay");
   Near(SphereEvolutionCombatRules.GetPrismNetworkRelayDamageMultiplier(),.42f,"relay actual damage");
+  foreach(var branch in new[]{"pulse_wave","pulse_burst","pulse_resonator"})foreach(int mode in new[]{-1,0,1,2})foreach(float power in new[]{1f,1.15f,1.3f})foreach(bool hasCrown in new[]{false,true}){
+   int count=1+(hasCrown?1:0)+(branch=="pulse_burst"&&(mode==2||mode<0)?1:0);
+   Near(SphereEvolutionCombatRules.GetPulseWaveCount(branch,mode,hasCrown),count,"pulse authored wave count");
+   for(int wave=0;wave<count;wave++)Near(SphereEvolutionCombatRules.GetPulseWaveDamageMultiplier(branch,mode,power,wave),wave==0?1f:.46f+(branch=="pulse_burst"?.14f:0f)*(branch=="pulse_burst"&&mode<0?power:1f)*power,"pulse extraction preserves combat");
+  }
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
   foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);
