@@ -62,7 +62,8 @@ namespace EchoSphere.Runtime
                     for(int i=0;i<p.Count;i++)
                     {
                         float a=angle+i*Mathf.PI*2/p.Count;
-                        _runtime.SpawnBossMinion(origin+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*60f*scale,20f+_wave*4f,BossCombatRules.ToWorldUnits(90f),2,_bossType=="stella_warden"?"moth":"wisp",_color);
+                        var child=_runtime.SpawnBossMinion(origin+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*60f*scale,20f+_wave*4f,BossCombatRules.ToWorldUnits(90f),2,_bossType=="stella_warden"?"moth":"wisp",_color);
+                        if(child!=null&&_agent.CampaignRegionStyle>=0)child.SetCampaignRegion((EchoRegionId)_agent.CampaignRegionStyle);
                     }
                     break;
                 case CampaignBossAttack.Dash: _campaignDashRemaining=.5f;_campaignDashSpeed=p.Speed;break;

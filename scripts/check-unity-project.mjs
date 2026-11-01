@@ -281,7 +281,8 @@ assert.ok(runtime.includes('profile.XpReward * pocket.Xp * challengeXp') &&
   runtime.includes('profile.HpBase + _wave * profile.HpPerWave') &&
   runtime.includes('profile.SpeedBase + _wave * profile.SpeedPerWave') &&
   runtime.includes('profile.DamageBase + _wave * profile.DamagePerWave') &&
-  runtime.includes('EnemySpawnRules.ShouldBeElite(_wave, _rng.NextFloat())') &&
+  runtime.includes('SpawnEnemy()=>SpawnRegionalEnemy(false)') &&
+  runtime.includes('var eliteRoll=_rng.NextFloat();') && runtime.includes('EnemySpawnRules.ShouldBeElite(_wave,eliteRoll)') &&
   runtime.includes('hp *= 3f') && runtime.includes('damage *= 1.5f') &&
   runtime.includes('xpReward *= 5f') &&
   runtime.includes('ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier)') &&
@@ -424,7 +425,7 @@ assert.ok(runtime.includes('BeginSelectedRegionRun()') && runtime.includes('Camp
 const regionFieldVisuals = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs'), 'utf8');
 for (const pocket of ['Prism Shift', 'Mirror Shoal', 'Ember Fault', 'Silent Lattice', 'Null Garden', 'Axis Node', 'Glass Flow', 'Pressure Field'])
   assert.ok(regionFieldVisuals.includes(pocket), 'source Region pocket visual missing: ' + pocket);
-assert.ok(regionFieldVisuals.includes('SetRegion(EchoRegionId regionId)') && runtime.includes('_regionFieldVisuals?.SetRegion(_selectedRegion)'),
+assert.ok(regionFieldVisuals.includes('SetRegion(EchoRegionId regionId,bool preservePois=false)') && runtime.includes('_regionFieldVisuals?.SetRegion(_selectedRegion)'),
   'selected Region must rebuild the matching source pocket field');
 const regionSchedule = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs'), 'utf8');
 for (const sourceBoss of ['conductor','architect','null','aura','stella_warden']) assert.ok(regionSchedule.includes('"' + sourceBoss + '"'), 'Region schedule source boss missing: ' + sourceBoss);

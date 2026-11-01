@@ -15,6 +15,9 @@ namespace EchoSphere.Runtime
         // The visual variant belongs to the entity, including when no view exists.
         // SavedEntity.variant remains the persisted representation.
         private string _visualVariant = "wisp";
+        private int _campaignRegionStyle=-1;
+        public int CampaignRegionStyle=>_campaignRegionStyle;
+        public void SetCampaignRegion(EchoRegionId region)=>_campaignRegionStyle=(int)region;
         internal string SourceVisualVariant => _visualVariant;
         internal BossCombatAgent2D SourceProjectionBossCombat => _bossCombat;
         private EchoSphereRuntime _runtime;

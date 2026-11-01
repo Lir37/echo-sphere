@@ -58,6 +58,13 @@ namespace EchoSphere.Runtime
                 string id="artifact:"+item.Id;
                 cards.Add(new NativeArchiveScreen.Card{Id=id,Group="",Title=name,Description=ru?item.DescriptionRussian:item.DescriptionEnglish,Details="",Open=_knownKnowledgeIds.Contains(id),BasicIndex=-1});
             }
+            if(_knowledgeSection=="regions")foreach(var lore in CampaignRegionLore.All)
+            {
+                string title=NativeRunCatalog.Instance.GetRegion(RegionSourceId(lore.Region)).Name(ru)+" · "+(lore.Index+1)+"/5";
+                string description=ru?lore.Ru:lore.En;
+                if(query.Length>0&&!title.ToLowerInvariant().Contains(query)&&!description.ToLowerInvariant().Contains(query))continue;
+                cards.Add(new NativeArchiveScreen.Card{Id=lore.Id,Group=RegionSourceId(lore.Region),Title=title,Description=description,Details="",Open=_knownKnowledgeIds.Contains(lore.Id),BasicIndex=-1});
+            }
             return new NativeArchiveScreen.State {Russian=ru,Section=_knowledgeSection,Query=_knowledgeQuery,Known=_knownKnowledgeIds.Count,Cards=cards};
         }
     }

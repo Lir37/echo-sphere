@@ -109,16 +109,16 @@
     }
   ],
   "fileSha256": {
-    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs": "4acb31896073fa83d0c72c2872067fa0c08e9780a24d4c60633c82d961f7c3ed",
-    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs": "9c016ff79df6e55e9d7a8da5a7efe220dc42723097aa6c1062a9ec948a3a9fc0",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs": "074ae0224176644decc6d96cb5f59862017903eae6f8ed8a8fb761e6c1597941",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs": "c75a4f25a8a5d9b6952de8384336837c82d054b5f5f8b6353672acc826d2d0fc",
     "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHitCadence.cs": "cec3d82ae4afc4d7561df71073762ad482e14edd237d14faedf91d1bb328d7eb",
     "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeFrame.cs": "016f4e1409490f0a3b26d88654515be2252f615ab6cfb2408a8891b2452d9c6b",
-    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceLoop.cs": "d050e4302f3db2cf3f94d1635f5fb7caf1da2d76e2fb2087286fe5f42e0e4ede",
+    "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceLoop.cs": "940a5d7cfdcd04ea8ac41235f3a34b0761a1a25f0c6ce624cea4208e2919d210",
     "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceModifiers.cs": "67ba1d713f0cd08cc8a36cd48b45541017ab5bc85aa51642e0c6bbc564d77903",
     "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs": "344b31028c6d14f26784e3186e01a2370d4b8ad87a588f72a0c2daebd3bd9010",
     "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs": "25a3e2bbc430302bf77b23019bc842c253cdc0426860c0c5b38f90ed85363cfb",
     "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs": "2e24dead0eccea184f1548e771aef6b28360383b1dbbfe426edd298be925c068",
     "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeSphereFamilies.cs": "918d7579905064b0b364954fb6f817ea29efc4553f0bde700becf6c3e4b0b17c"
   },
-  "note": "Reviewed regional identity/unlock/HUD/schedule changes including preservation of legacy Basin unlock flag. Existing artifact handler bodies unchanged."
+  "note": "Reviewed regional content diff: existing special artifact handlers unchanged; AddResonanceCharge now applies the explicit campaign Silent Core contract factor after the existing artifact/ability/region factors. Child/enemy faction tags are saved model data; original RNG draws retained for ordinary and legacy spawning. Clear preserves earned POI XP only for modern runs."
 }

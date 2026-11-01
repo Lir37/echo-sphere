@@ -463,3 +463,15 @@ Native warning shapes and RU/EN family labels wired to actual combat state.
 Authored starting balance, attack table, source trace and verification limits:
 UNITY_ENEMY_BOSS_COMPLETION_2026-11-01.md. Implementation target reached;
 Android/full-run balance/visual acceptance OPEN. Ability expansion remains removed.
+
+
+## 2026-11-01 — пункт5: программная реализация завершена
+У всех6регионов:3контракта/3разныецели мастерства/5записейлора/Endless после
+первой стабилизации. Исправлены цикл7POI, реальные локальные элиты и потеря
+XPсигналов приclear современных забегов. Convergence доступен после6clears:
+вращение6экологий, смешанные фракции, события25/40мин и эскалация после40.
+Сохранение режима/прогресса/регионального облика врагов и потомства подключено.
+Полный отчёт:UNITY_REGIONAL_CONTENT_COMPLETION_2026-11-01.md.
+Это завершение реализации пункта5, не Android/длинный бой/финальный баланс.
+Следующий отдельный пункт6: экономика30мин, exploration budget и руны.
+Расширение способностей остаётся исключённым; весь общий план НЕ DONE.

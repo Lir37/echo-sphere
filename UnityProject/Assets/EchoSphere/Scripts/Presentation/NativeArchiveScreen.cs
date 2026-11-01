@@ -9,12 +9,12 @@ namespace EchoSphere.Presentation
     {
         public sealed class Card { public string Id,Group,Title,Description,Details;public bool Open;public int BasicIndex=-1; }
         public sealed class State { public bool Russian;public string Section,Query;public int Known;public IReadOnlyList<Card> Cards; }
-        private static readonly string[] Sections={"basics","spheres","monsters","bosses","abilities","artifacts","evolutions"};
-        private static readonly string[] Icons={"BookOpen","CircleDot","Swords","Shield","Zap","Gem","Network"};
-        private static readonly string[] LabelsRu={"Ядро игры","Сферы","Монстры","Боссы","Способности","Артефакты","Эволюции"};
-        private static readonly string[] LabelsEn={"Core","Spheres","Monsters","Bosses","Abilities","Artifacts","Evolutions"};
-        private static readonly string[] SubRu={"Как работает забег","Узлы боевой сети","Противники","Главные угрозы","Активные и пассивные","Редкие усиления","Ветки и финалы"};
-        private static readonly string[] SubEn={"How a run works","Combat network nodes","Enemies","Major threats","Active and passive","Rare upgrades","Branches and finals"};
+        private static readonly string[] Sections={"basics","spheres","monsters","bosses","abilities","artifacts","evolutions","regions"};
+        private static readonly string[] Icons={"BookOpen","CircleDot","Swords","Shield","Zap","Gem","Network","BookOpen"};
+        private static readonly string[] LabelsRu={"Ядро игры","Сферы","Монстры","Боссы","Способности","Артефакты","Эволюции","Регионы"};
+        private static readonly string[] LabelsEn={"Core","Spheres","Monsters","Bosses","Abilities","Artifacts","Evolutions","Regions"};
+        private static readonly string[] SubRu={"Как работает забег","Узлы боевой сети","Противники","Главные угрозы","Активные и пассивные","Редкие усиления","Ветки и финалы","Сигналы и история регионов"};
+        private static readonly string[] SubEn={"How a run works","Combat network nodes","Enemies","Major threats","Active and passive","Rare upgrades","Branches and finals","Regional signals and records"};
         private NativePanelLease _panelLease;
         private UIDocument _document;private PanelSettings _panel;private NativeMainMenuBackground _background;
         private VisualElement _root,_page,_header,_layout,_nav,_main,_searchBox,_cards,_known;
@@ -103,7 +103,7 @@ namespace EchoSphere.Presentation
             if(card.BasicIndex==1){int index=0;foreach(string paragraph in card.Details.Split(new[]{"\n\n"},StringSplitOptions.None)){var text=Text(parent,"resonance-explanation",paragraph,14,index++==3?"#a5f3fc":"#cbd5e1","400",true,24d/14);text.style.marginTop=index==1?16:12;}return;}
             Text(parent,"archive-details",card.Details,12,_state.Section=="spheres"?"#94a3b8":"#64748b","400",true,_state.Section=="spheres"?20d/12:1.5).style.marginTop=_state.Section=="monsters"?8:12;
         }
-        private string GroupName(string group)=>group=="sphere-branches"?L("ВЕТКИ СФЕР","SPHERE BRANCHES"):group=="sphere-finals"?L("ФИНАЛЬНЫЕ ФОРМЫ СФЕР","FINAL SPHERE FORMS"):L("ЭВОЛЮЦИИ СПОСОБНОСТЕЙ","ABILITY EVOLUTIONS");
+        private string GroupName(string group)=>_state.Section=="regions"?NativeRunCatalog.Instance.GetRegion(group).Name(_state.Russian):group=="sphere-branches"?L("ВЕТКИ СФЕР","SPHERE BRANCHES"):group=="sphere-finals"?L("ФИНАЛЬНЫЕ ФОРМЫ СФЕР","FINAL SPHERE FORMS"):L("ЭВОЛЮЦИИ СПОСОБНОСТЕЙ","ABILITY EVOLUTIONS");
         private void Surface(VisualElement e,bool card){e.style.borderLeftWidth=e.style.borderRightWidth=e.style.borderTopWidth=e.style.borderBottomWidth=1;e.style.borderLeftColor=e.style.borderRightColor=e.style.borderTopColor=e.style.borderBottomColor=Color.clear;Paint(e,NativeProgressionScreen.CardPaint(true,default,default),card);}
         private void Paint(VisualElement e,NativeMenuBrush.Paint paint,bool card){var surface=new NativeHudSurface(e,paint);(card?_cardPaint:_chrome).Add(surface);}
         private Button Button(VisualElement parent,string name,Action action){var button=new Button(action){name=name};button.AddToClassList("progression-button");parent.Add(button);_buttons.Add(button);return button;}

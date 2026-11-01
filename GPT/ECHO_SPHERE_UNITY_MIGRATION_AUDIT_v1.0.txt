@@ -6495,3 +6495,14 @@ actual count/radius/direction,with cached geometry and distinct RU/EN labels.
 Authored balance and acceptance limits: UNITY_ENEMY_BOSS_COMPLETION_2026-11-01.md.
 Implementation milestone only; Android and full-run balance acceptance OPEN.
 No APK and no user settings/recovery changes included.
+
+
+2026-11-01 POINT5 REGIONAL CONTENT IMPLEMENTATION
+All6regions expose3contracts,3mastery objectives,5lore records and Endless.
+7POI sequence persists after collection/expiry/restore; modern elite POIs
+spawn actual local elites; earned signalXP survives clear reward assignment.
+Convergence after6stabilizations:6ecology rotation,mixed factions,25/40min
+boss events and post40escalation. Saved model owns mode/progress/faction,
+including offspring; legacy rules and ordinary RNG order retained.
+Report:UNITY_REGIONAL_CONTENT_COMPLETION_2026-11-01.md. Implementation milestone;
+Android,long real battles and final balance OPEN. No APK/user settings changes.

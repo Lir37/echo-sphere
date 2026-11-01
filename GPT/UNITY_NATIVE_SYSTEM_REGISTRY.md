@@ -101,3 +101,12 @@ new state,including locked aim and remaining dash duration/speed.
 NativeWorldEnemyEffects draws retained warning geometry from typed state,
 without body facing/scale affecting attack coordinates. Legacy path remains
 active only for legacy runs. Details: UNITY_ENEMY_BOSS_COMPLETION_2026-11-01.md.
+
+
+2026-11-01 point5:CampaignRegionContent owns18contracts/18regional objectives
+and support ecology;CampaignRegionLore owns30RUENrecords;ConvergenceRules/State
+own six-ecology rotation and25/40min/post40boss schedule. Runtime regional
+progress and enemy faction tags are model data in existing snapshots. Native
+region/archive views project these definitions; mobile and HUD share placement
+capacity. RegionFieldVisuals owns persisted monotonic POI IDs, not derived from
+the live list. Convergence ecology does not rewrite existing enemy views.

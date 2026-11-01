@@ -14,6 +14,7 @@ internal static class Program
             Check(CheckRng);
             Check(()=>_assertions += CampaignRegionChecks.Run());
             Check(()=>_assertions += CampaignBossChecks.Run());
+            Check(()=>_assertions += RegionalContentChecks.Run());
             Check(()=>_assertions += RunEconomyChecks.Run());
             Check(()=>_assertions += ArtifactGameplayChecks.Run());
             Check(()=>_assertions += SpatialIndexChecks.Run());

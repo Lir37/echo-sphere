@@ -201,14 +201,16 @@ namespace EchoSphere.Runtime
             _timeSplitterBuffTimer=0f;
             _mandalaDamageStored=0f;
             _artifactProtocolHitCounters.Clear();
+            _campaignRegionProgress=null;_convergenceRun=false;_convergenceState=null;
             _runEconomy=null; // Missing economy in a legacy snapshot must remain legacy.
             RunSnapshotCodec.Restore(save.runtime, GetType(), this, field => !NonRunFields.Contains(field.Name));
+            InitializeRestoredCampaignProgress();
             if(_runEconomy!=null)_runEconomy.Open=false; // Reopen the same saved stock after the resume gate.
             // JSON keeps lightning positions/lifetime but drops sourceSphere.
             foreach(var lightning in _sourceLightningVisuals)lightning.sphereType=null;
             RunSnapshotCodec.Restore(save.player, typeof(PlayerCoreController2D), _playerCore);
             _player.position = save.playerPosition;
-            _regionFieldVisuals.SetRegion(_selectedRegion);
+            _regionFieldVisuals.SetRegion(ActiveCampaignRegion);
             _regionFieldVisuals.RestorePoiState(save.regionPois);
             foreach (var entity in save.entities) RestoreSavedEntity(entity);
             // Recreating Unity presentation can call entity initializers which draw random values.

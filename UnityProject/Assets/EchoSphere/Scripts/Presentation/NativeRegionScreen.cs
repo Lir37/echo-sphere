@@ -9,7 +9,7 @@ namespace EchoSphere.Presentation
     public sealed class NativeRegionScreen : MonoBehaviour
     {
         public sealed class Challenge { public string Id,Name,Description,Accent; public bool Completed; }
-        public sealed class Region { public string Id,Name,Subtitle,Accent,UnlockRu,UnlockEn; public bool Available,Stable,Endless; public IReadOnlyList<Challenge> Challenges; public int Completed; }
+        public sealed class Region { public string Id,Name,Subtitle,Accent,UnlockRu,UnlockEn; public bool Available,Stable,Endless,Convergence; public IReadOnlyList<string> Mastery; public int MasteryMask,LoreKnown; public IReadOnlyList<Challenge> Challenges; public int Completed; }
         public sealed class State { public bool Russian; public IReadOnlyList<Region> Regions; }
         private NativePanelLease _panelLease;
         private UIDocument _document;
@@ -80,7 +80,9 @@ namespace EchoSphere.Presentation
             else Icon(header,"LockKeyhole",15,C("#67869a"));
             var rule=Box(card,"region-rule");rule.style.height=1;rule.style.marginTop=rule.style.marginBottom=10;rule.style.backgroundColor=A(100,190,230,.08f);
             if(!region.Available){var locked=Box(card,"region-locked-message",true);locked.style.alignItems=Align.Center;locked.style.minHeight=54;locked.style.paddingLeft=locked.style.paddingRight=4;Icon(locked,"LockKeyhole",15,C("#688296")).style.marginRight=9;Text(locked,"region-lock-copy",(_state.Russian?region.UnlockRu:region.UnlockEn)??L("Откроется после стабилизации Резонансного Бассейна.","Unlocks after Resonance Basin is stabilized."),8,"#688296","400",.012f,true).style.flexShrink=1;return;}
-            var run=Button(card,"start-"+region.Id,()=>_start?.Invoke(region.Id,"stabilization","none"));Pad(run,10);Border(run,7);
+            if(region.Convergence){var enter=Button(card,"start-convergence",()=>_start?.Invoke(region.Id,"endless","none"));Pad(enter,12);Border(enter,7);Paint(enter,new NativeMenuBrush.Paint{Radius=7,Border=1,BorderColor=A(255,194,103,.42f),Fill=A(52,39,18,.30f)});IconFrame(enter,"Infinity",20,C("#ffd47c"),A(255,205,120,.30f),A(17,11,5,.46f)).style.marginRight=9;Text(enter,"convergence-start",L("НАЧАТЬ СХОЖДЕНИЕ","ENTER CONVERGENCE"),10,"#f3d18b","700");return;}
+            if(region.Mastery!=null){Text(card,"region-mastery-heading",L("МАСТЕРСТВО","MASTERY")+" · "+CountBits(region.MasteryMask)+"/3 · "+L("ЛОР ","LORE ")+region.LoreKnown+"/5",7,"#89a9bd","700");for(int m=0;m<region.Mastery.Count;m++)Text(card,"mastery-"+m,((region.MasteryMask&(1<<m))!=0?"✓ ":"· ")+region.Mastery[m],6.5f,"#7593a7",wrap:true);}
+            var run=Button(card,"start-"+region.Id,()=>_start?.Invoke(region.Id,"stabilization","none"));Pad(run,10);Border(run,7);run.style.marginTop=7;
             Paint(run,new NativeMenuBrush.Paint {Radius=7,Border=1,BorderColor=Alpha(accent,.36f),Linear=true,Colors=new[]{A(27,88,109,.30f),A(9,31,45,.52f)},Stops=new[]{0f,1f}});
             var runIcon=IconFrame(run,"Swords",17,accent,Alpha(accent,.32f),A(2,8,15,.72f));runIcon.style.marginRight=10;
             var runCopy=Box(run,"run-copy");runCopy.style.flexGrow=1;runCopy.style.flexShrink=1;runCopy.style.marginRight=10;
@@ -95,8 +97,9 @@ namespace EchoSphere.Presentation
             IconFrame(endless,"Infinity",20,C("#ffd47c"),A(255,205,120,.30f),A(17,11,5,.46f)).style.marginRight=9;
             var endlessCopy=Box(endless,"endless-copy");endlessCopy.style.flexGrow=1;endlessCopy.style.flexShrink=1;endlessCopy.style.marginRight=9;
             Text(endlessCopy,"endless-title",L("БЕСКОНЕЧНОСТЬ","ENDLESS"),9,"#eee5d1","700",.09f);
-            Text(endlessCopy,"endless-description",region.Endless?L("Все три испытания пройдены · вход открыт","All three challenges cleared · access open"):L("Закрыто · испытания ","Locked · challenges ")+region.Completed+"/3",6.5f,"#9b8662","400",.012f,true).style.marginTop=2;Icon(endless,region.Endless?"ChevronRight":"LockKeyhole",region.Endless?18:15,C("#eee5d1"));
+            Text(endlessCopy,"endless-description",region.Endless?L("Регион стабилизирован · вход открыт","Region stabilized · access open"):L("Сначала стабилизируйте регион","Stabilize the region first"),6.5f,"#9b8662","400",.012f,true).style.marginTop=2;Icon(endless,region.Endless?"ChevronRight":"LockKeyhole",region.Endless?18:15,C("#eee5d1"));
         }
+        private static int CountBits(int mask){int n=0;for(uint v=(uint)mask;v!=0;v&=v-1)n++;return n;}
         private void BuildChallenge(VisualElement parent,Region region,Challenge challenge,int index)
         {
             Color accent=C(challenge.Accent);var button=Button(parent,"challenge-"+challenge.Id,()=>{if(region.Stable)_start?.Invoke(region.Id,"stabilization",challenge.Id);});button.SetEnabled(region.Stable);button.style.opacity=region.Stable?1:.48f;button.style.paddingLeft=button.style.paddingRight=9;button.style.paddingTop=button.style.paddingBottom=8;if(index>0)button.style.marginTop=5;Border(button,6);

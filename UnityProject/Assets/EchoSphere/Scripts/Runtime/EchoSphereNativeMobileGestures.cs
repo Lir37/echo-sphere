@@ -65,7 +65,7 @@ namespace EchoSphere.Runtime
         // Preview and commit share the existing native placement gate.
         private bool NativeMobileCanPlace(double x,double y)=>CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,null);
         private bool NativeMobileCanMove(NativeMobileSphereHandle sphere,double x,double y){var agent=sphere?.Agent;if(agent==null||!_spheres.Contains(agent))return false;var point=NativeSourcePixels(agent.transform.position);sphere.X=point.x;sphere.Y=point.y;return CanPlaceSphereAt(new Vector2((float)x,-(float)y)*EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld,agent);}
-        private int NativeMobileMaximum=>Math.Min(5+GetAbilityLevel(EchoSphere.Core.RunUpgradeKind.MaxSpheres)+GetShopUpgradeLevel("spheres"),8);
+        private int NativeMobileMaximum=>GetCurrentMaxSpheres();
         internal struct NativeMobileNode {internal double X,Y,DisabledTimer;internal bool Alive;}
         private List<NativeMobileNode> ProjectNativeMobileNodes()
         {

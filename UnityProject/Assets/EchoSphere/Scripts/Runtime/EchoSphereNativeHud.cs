@@ -59,8 +59,8 @@ namespace EchoSphere.Runtime
             foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive){var point=NativeSourcePixels(enemy.transform.position);enemies.Add(new NativeHudRadarView.Enemy(point.x,point.y,enemy.CurrentHp>0,enemy.IsBoss,enemy.IsElite));boss|=enemy.IsBoss;}
             var pois=new System.Collections.Generic.List<NativeHudRadarView.Poi>();foreach(var poi in _nativeRegionPois){var point=NativeSourcePixels(poi.Position);pois.Add(new NativeHudRadarView.Poi(point.x,point.y,true,poi.Type));}
             int spheres=0;foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy)spheres++;
-            var network=_networkState;var position=NativeSourcePixels(PlayerPosition);double time=_runTime,maxSpheres=Math.Min(5+GetAbilityLevel(EchoSphere.Core.RunUpgradeKind.MaxSpheres)+GetShopUpgradeLevel("spheres"),8);
-            var config=NativeRunCatalog.Instance.GetRegion(RegionSourceId(_selectedRegion));var pocket=config.Pockets[0];foreach(var item in config.Pockets)if(item.Id==_regionHudPocketId){pocket=item;break;}
+            var network=_networkState;var position=NativeSourcePixels(PlayerPosition);double time=_runTime,maxSpheres=GetCurrentMaxSpheres();
+            var config=NativeRunCatalog.Instance.GetRegion(RegionSourceId(ActiveCampaignRegion));var pocket=config.Pockets[0];foreach(var item in config.Pockets)if(item.Id==_regionHudPocketId){pocket=item;break;}
             string mode=_regionEndlessMode?(ru?"БЕСКОНЕЧНЫЙ":"ENDLESS"):(ru?"СТАБИЛИЗАЦИЯ":"STABILIZATION");
             return new NativeHudView.State {
                 Russian=ru,Level=T("level")+" "+N(_level),Hp=N(Math.Ceiling(_playerCore.CurrentHp))+"/"+N(Math.Ceiling(_playerCore.MaxHp)),
@@ -68,7 +68,7 @@ namespace EchoSphere.Runtime
                 ResonancePercent=Percent(_resonanceCharge),ResonanceReady=_resonanceCharge>=100,Resonance=N(Math.Floor(_resonanceCharge))+"/100",
                 Spheres=T("spheres").ToUpperInvariant()+" <color=#cde8f6><b>"+N(spheres)+"/"+N(maxSpheres)+"</b></color>",Wave=T("wave").ToUpperInvariant()+" <color=#cde8f6><b>"+N(_wave)+"</b></color>",Links=N(network==null?0:network.Links.Count),
                 Timer=N(Math.Floor(time/60)).PadLeft(2,'0')+":"+N(Math.Floor(time%60)).PadLeft(2,'0'),Dominant=Formation(network?.DominantFormation),Secondary=Formation(network?.SecondaryFormation),HasRegion=true,
-                PlayerX=position.x,PlayerY=position.y,Enemies=enemies,Pois=pois,Boss=boss,BossLabel=T("bossWave").ToUpperInvariant(),Region=config.Name(ru),Phase=NativeRunCatalog.Instance.RegionPhases[NativeRegionPhaseIndex(time)].Name(ru),Pocket=pocket.Name(ru)+" · "+mode
+                PlayerX=position.x,PlayerY=position.y,Enemies=enemies,Pois=pois,Boss=boss,BossLabel=T("bossWave").ToUpperInvariant(),Region=_convergenceRun?(ru?"СХОЖДЕНИЕ":"CONVERGENCE"):config.Name(ru),Phase=NativeRunCatalog.Instance.RegionPhases[NativeRegionPhaseIndex(time)].Name(ru),Pocket=pocket.Name(ru)+" · "+mode
             };
         }
 #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)

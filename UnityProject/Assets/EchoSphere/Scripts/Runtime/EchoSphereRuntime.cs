@@ -391,6 +391,7 @@ namespace EchoSphere.Runtime
         {
             if (string.IsNullOrEmpty(poiType)) return;
             _regionLoreDiscovered.Add(poiType);
+            RecordCampaignPoi(poiType);
             var radiusScale = SpherePlacementRules.SourcePixelsToWorld;
             switch (poiType)
             {
@@ -416,10 +417,11 @@ namespace EchoSphere.Runtime
                     break;
                 case "elite_nest":
                     ShowTimedCombatMessage(IsRussianUi ? "ГНЕЗДО ЭЛИТЫ · 2 ЭЛИТНЫХ ВРАГА" : "ELITE NEST · 2 ELITE HOSTILES", 1.35f);
-                    SpawnEnemy();
-                    SpawnEnemy();
+                    if(UsesCampaignCombat){SpawnRegionalEnemy(true,PlayerPosition);SpawnRegionalEnemy(true,PlayerPosition);}
+                    else {SpawnEnemy();SpawnEnemy();}
                     break;
                 case "boss_trace":
+                    if(UsesCampaignCombat)SpawnRegionalEnemy(true,PlayerPosition);
                     ShowTimedCombatMessage(IsRussianUi ? "СЛЕД БОССА · БЛИЗКИЙ СТРАЖ" : "BOSS TRACE · NEAR WARDEN", 1.35f);
                     break;
             }
@@ -440,6 +442,7 @@ namespace EchoSphere.Runtime
             (region==EchoRegionId.SpectralRift&&PlayerPrefs.GetInt(BasinStabilizedPreferenceKey,0)==1)||CampaignRegions.IsUnlocked(region, IsRegionStabilized);
         public float GetRegionRepulsionMultiplier()
         {
+            if (HasCampaignContract(RegionContractRule.LowGravity)) return 0.55f;
             if (_regionChallengeId == "low_gravity") return 0.55f;
             if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "phase_drift") return 0.62f;
             return 1f;
@@ -457,20 +460,18 @@ namespace EchoSphere.Runtime
                 PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1 ? 1 : 0) == 1;
         private string[] GetCompletedRegionChallenges(EchoRegionId region)
         {
-            if((int)region>=2)return Array.Empty<string>();
             var raw = PlayerPrefs.GetString(RegionChallengesKey(region), string.Empty);
             if (string.IsNullOrEmpty(raw)) return Array.Empty<string>();
-            var valid = region == EchoRegionId.ResonanceBasin
-                ? new[] { "fractured_network", "overload", "low_gravity" }
-                : new[] { "mirror_tide", "volatile_core", "phase_drift" };
+            var definitions=CampaignRegionContent.GetContracts(region);
+            var valid=new string[definitions.Count];for(int i=0;i<valid.Length;i++)valid[i]=definitions[i].Id;
             var result = new List<string>();
             foreach (var id in raw.Split(','))
                 if (Array.IndexOf(valid, id) >= 0 && !result.Contains(id)) result.Add(id);
             return result.ToArray();
         }
         private bool IsRegionEndlessUnlocked(EchoRegionId region) =>
-            GetCompletedRegionChallenges(region).Length >= 3 &&
-            PlayerPrefs.GetInt(RegionEndlessKey(region), 0) == 1;
+            IsRegionStabilized(region) || (GetCompletedRegionChallenges(region).Length >= 3 &&
+            PlayerPrefs.GetInt(RegionEndlessKey(region), 0) == 1);
         private void MarkRegionChallengeComplete()
         {
             if (_regionChallengeId == "none" || _regionEndlessMode) return;
@@ -507,7 +508,7 @@ namespace EchoSphere.Runtime
         public float GetRegionEnemyDamageMultiplier()
         {
             var pocketDamage = _player == null ? 1f :
-                RegionPocketRules.GetAt(_selectedRegion, _player.position.x, -_player.position.y).Damage;
+                RegionPocketRules.GetAt(ActiveCampaignRegion, _player.position.x, -_player.position.y).Damage;
             if (_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "overload") return pocketDamage * 1.08f;
             if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "mirror_tide")
                 return pocketDamage * (Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.16f);
@@ -516,6 +517,7 @@ namespace EchoSphere.Runtime
         }
         private float GetChallengeMovementMultiplier()
         {
+            if (HasCampaignContract(RegionContractRule.LowGravity)) return 1.12f;
             if (_regionChallengeId == "low_gravity") return 1.12f;
             if (_selectedRegion == EchoRegionId.SpectralRift &&
                 (_regionChallengeId == "volatile_core" || _regionChallengeId == "phase_drift")) return 1.10f;
@@ -1024,6 +1026,7 @@ namespace EchoSphere.Runtime
             if(PlayerPrefs.GetInt("echo-sphere:open_region_select",0)==1){PlayerPrefs.DeleteKey("echo-sphere:open_region_select");PlayerPrefs.Save();_regionSelect=true;}
             if (PlayerPrefs.GetInt("echo-sphere:start_selected_region_after_reload", 0) == 1)
             {
+                _convergenceRun=PlayerPrefs.GetInt("echo-sphere:pending_convergence",0)==1;PlayerPrefs.DeleteKey("echo-sphere:pending_convergence");
                 _regionChallengeId=PlayerPrefs.GetString("echo-sphere:pending_region_challenge","none");_regionEndlessMode=PlayerPrefs.GetInt("echo-sphere:pending_region_endless",0)==1;
                 PlayerPrefs.DeleteKey("echo-sphere:start_selected_region_after_reload");
                 PlayerPrefs.DeleteKey("echo-sphere:pending_region_challenge");PlayerPrefs.DeleteKey("echo-sphere:pending_region_endless");
@@ -1338,11 +1341,12 @@ namespace EchoSphere.Runtime
             root.transform.localScale=Vector3.one*scale;return root;
         }
 
-        private void SpawnEnemy()
+        private void SpawnEnemy()=>SpawnRegionalEnemy(false);
+        private void SpawnRegionalEnemy(bool forceElite,Vector2? near=null)
         {
             var angle = _rng.NextFloat() * Mathf.PI * 2f;
-            var position = (Vector2)_player.position +
-                new Vector2(Mathf.Cos(angle), -Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
+            var position = (near??(Vector2)_player.position) +
+                new Vector2(Mathf.Cos(angle), -Mathf.Sin(angle)) * (near.HasValue?BossCombatRules.ToWorldUnits(90f):BossCombatRules.BossSpawnDistanceWorld);
 
             // Match src/engineEnemies.ts RNG order: base archetype, base visual,
             // role, elite conversion, then elite variant (only when converted).
@@ -1353,9 +1357,10 @@ namespace EchoSphere.Runtime
             // getRegionEnemyRole(), even when the regional pool replaces that fallback.
             _rng.NextFloat();
             var roleRoll = _rng.NextRegionFloat();
+            var ecologyRegion=_convergenceRun&&UsesCampaignCombat?ConvergenceRules.SpawnRegion(_runTime,roleRoll):_selectedRegion;
             var role = _runEconomy==null
                 ? RegionPocketRules.SelectRole(_selectedRegion,_player.position.x,-_player.position.y,roleRoll)
-                : RegionPocketRules.SelectCampaignRole(_selectedRegion,_player.position.x,-_player.position.y,roleRoll,_runTime);
+                : CampaignSpawnRole(ecologyRegion,roleRoll);
             var roleHp = 1f;
             var roleSpeed = 1f;
             var roleDamage = 1f;
@@ -1380,7 +1385,7 @@ namespace EchoSphere.Runtime
 
             var isPhaseRole = role == "phase";
             var difficulty = CurrentDifficulty;
-            var pocket = RegionPocketRules.GetAt(_selectedRegion, _player.position.x, -_player.position.y);
+            var pocket = RegionPocketRules.GetAt(ecologyRegion, _player.position.x, -_player.position.y);
             var challengeHp = GetChallengeEnemyHpMultiplier();
             var challengeSpeed = GetChallengeEnemySpeedMultiplier();
             var challengeXp = GetChallengeEnemyXpMultiplier();
@@ -1393,7 +1398,9 @@ namespace EchoSphere.Runtime
             var damage = (profile.DamageBase + _wave * profile.DamagePerWave) *
                 difficulty.EnemyDamageMultiplier * GetRegionEnemyDamageMultiplier() * roleDamage;
             var xpReward = profile.XpReward * pocket.Xp * challengeXp;
-            var isElite = EnemySpawnRules.ShouldBeElite(_wave, _rng.NextFloat());
+            var eliteRoll=_rng.NextFloat();
+            var isElite = forceElite || EnemySpawnRules.ShouldBeElite(_wave,eliteRoll);
+            if(UsesCampaignCombat&&(_regionEndlessMode||_convergenceRun))isElite|=eliteRoll<Mathf.Min(.25f,.10f+Mathf.Floor(_runTime/300f)*.015f);
             var eliteVariant = "";
             if (isElite)
             {
@@ -1412,7 +1419,7 @@ namespace EchoSphere.Runtime
             var agent = go.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, xpReward,
                 visualVariant, "", isElite, archetype, isPhaseRole,
-                role, roleDamage, roleRadius, eliteVariant, damage); agent.SetSourceAppearance(tint); agent.SetSourceVisualTier(_bossesDefeated);
+                role, roleDamage, roleRadius, eliteVariant, damage); if(UsesCampaignCombat)agent.SetCampaignRegion(ecologyRegion);agent.SetSourceAppearance(tint); agent.SetSourceVisualTier(_bossesDefeated);
             _enemies.Add(agent); RegisterEnemyQuery(agent);
         }
         private bool HasActiveBoss()
@@ -1441,6 +1448,7 @@ namespace EchoSphere.Runtime
         private void TickRegionMastery(float dt)
         {
             if (_regionStabilized || _playerCore == null) return;
+            TickCampaignRegionProgress(dt);
             var formation = _networkState == null ? null : _networkState.DominantFormation;
             if (formation == null) return;
             _regionMasteryGeometryTypes.Add(formation.Type);
@@ -1449,7 +1457,7 @@ namespace EchoSphere.Runtime
 
         private void TickSourceRegionFracture()
         {
-            if (_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "fractured_network")
+            if ((_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "fractured_network") || HasCampaignContract(RegionContractRule.Fracture))
             {
                 var interval = Mathf.FloorToInt(_runTime / 45f);
                 if (interval > _fractureIntervalIndex)
@@ -1475,6 +1483,7 @@ namespace EchoSphere.Runtime
 
         private void AdvanceRegionBossSchedule()
         {
+            if(_convergenceRun&&UsesCampaignCombat){if(_convergenceState==null)_convergenceState=new ConvergenceState();_sourceRegionBossForFrame=ConvergenceRules.Advance(_convergenceState,_runTime,HasActiveBoss());return;}
             if (_regionEndlessMode)
             {
                 if (_runTime >= _endlessNextBossAt && !HasActiveBoss())
@@ -1482,7 +1491,7 @@ namespace EchoSphere.Runtime
                     var basinTypes = new[] { "conductor", "architect", "stella_warden" };
                     var riftTypes = new[] { "null", "aura", "stella_warden" };
                     var types = (int)_selectedRegion>=2?new[]{CampaignRegions.Get(_selectedRegion).FirstBoss,CampaignRegions.Get(_selectedRegion).SecondBoss,CampaignRegions.Get(_selectedRegion).FinalBoss}:_selectedRegion == EchoRegionId.SpectralRift ? riftTypes : basinTypes;
-                    var bossType = types[Mathf.Min(_endlessBossesSpawned, types.Length - 1)];
+                    var bossType = types[UsesCampaignCombat?_endlessBossesSpawned%types.Length:Mathf.Min(_endlessBossesSpawned, types.Length - 1)];
                     _endlessBossesSpawned++;
                     _endlessNextBossAt += 150f;
                     _sourceRegionBossForFrame = bossType;
@@ -1507,7 +1516,8 @@ namespace EchoSphere.Runtime
                 _regionMasteryChallengesCompleted = RegionBossScheduleRules.GetMasteryChallengesCompleted(
                     _regionMasteryGeometryTypes.Count, _regionMasteryDominantSeconds, GetActiveCharacterSphereCount());
                 _regionGoldReward = RegionBossScheduleRules.GetRegionGoldReward(_selectedRegion, _runEliteKills, _bossesDefeated);
-                _regionXpReward = RegionBossScheduleRules.GetRegionXpReward(_level);
+                _regionXpReward = (UsesCampaignCombat?_regionXpReward:0)+RegionBossScheduleRules.GetRegionXpReward(_level);
+                CompleteCampaignRegionalProgress();PlayerPrefs.Save();
             }
         }
 
@@ -1541,6 +1551,7 @@ namespace EchoSphere.Runtime
             var combat = root.AddComponent<BossCombatAgent2D>();
             combat.Initialize(this, _player, agent, type, wave, speed, damage, tint);
             agent.SetBossCombat(combat);
+            if(UsesCampaignCombat){agent.SetCampaignRegion(ActiveCampaignRegion);DiscoverCampaignLore(ActiveCampaignRegion,4);}
             return agent;
         }
 
@@ -1551,6 +1562,7 @@ namespace EchoSphere.Runtime
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant, damage: 8f);
             agent.SetSourceAppearance(tint); agent.SetSourceRadius(10f);
+            if(UsesCampaignCombat)agent.SetCampaignRegion(ActiveCampaignRegion);
             _enemies.Add(agent); RegisterEnemyQuery(agent);
             return agent;
         }
@@ -2030,6 +2042,7 @@ namespace EchoSphere.Runtime
             amount *= LevelUpAbilityRules.GetResonanceGainMultiplier(GetAbilityLevel(RunUpgradeKind.Resonance));
             amount *= RegionBossScheduleRules.GetResonanceMultiplier(
                 _selectedRegion, _regionChallengeId, _runTime, _resonanceCharge);
+            if(HasCampaignContract(RegionContractRule.Silent))amount*=.65f;
             var events = ResonanceRules.Add(ref _resonanceCharge, amount);
             for (var i = 0; i < events; i++) TriggerResonanceEvent();
         }
@@ -2786,7 +2799,7 @@ namespace EchoSphere.Runtime
                 SourceAudio2D.Play("boss");
                 SpawnSourceParticle(position,Vector2.zero,1.2f,9f,"#ffb84d",1.2f);
             }
-            if (enemy != null && enemy.IsElite) _runEliteKills++;
+            if (enemy != null && enemy.IsElite){_runEliteKills++;DiscoverCampaignLore(enemy.CampaignRegionStyle>=0?(EchoRegionId)enemy.CampaignRegionStyle:ActiveCampaignRegion,3);}
             SourceAudio2D.Play(enemy != null && enemy.IsBoss ? "explosion" : "kill");
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
@@ -7020,6 +7033,7 @@ namespace EchoSphere.Runtime
                 return;
             }
 
+            if(_regionChallengeId!="none"&&CampaignRegionContent.Find(_selectedRegion,_regionChallengeId)==null){_regionChallengeId="none";return;}
             var challengeAllowed = IsRegionStabilized(_selectedRegion);
             if (_regionChallengeId != "none" && !challengeAllowed)
             {
@@ -7028,9 +7042,10 @@ namespace EchoSphere.Runtime
                 _regionEndlessMode = false;
                 return;
             }
-            if (_regionEndlessMode && !IsRegionEndlessUnlocked(_selectedRegion))
+            if (_convergenceRun&&!IsConvergenceUnlocked()){_convergenceRun=false;return;}
+            if (_regionEndlessMode && !_convergenceRun && !IsRegionEndlessUnlocked(_selectedRegion))
             {
-                ShowMessage(IsRussianUi ? "СНАЧАЛА ПРОЙДИ ТРИ ИСПЫТАНИЯ" : "CLEAR ALL THREE CHALLENGES FIRST");
+                ShowMessage(IsRussianUi ? "СНАЧАЛА СТАБИЛИЗИРУЙ РЕГИОН" : "STABILIZE THE REGION FIRST");
                 _regionEndlessMode = false;
                 return;
             }
@@ -7055,6 +7070,7 @@ namespace EchoSphere.Runtime
             _nativePresentedDominant=_nativePresentedSecondary=null;
             _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
             _runEconomy=RunEconomyRules.Create(_rng.State);
+            ResetCampaignRegionalProgress();
             _timeSplitterBuffTimer=0f;
             _mandalaDamageStored=0f;
             _artifactProtocolHitCounters.Clear();
@@ -7371,7 +7387,7 @@ namespace EchoSphere.Runtime
         }
 
         private int GetCurrentMaxSpheres() =>
-            SpherePlacementRules.GetMaxSpheres(GetAbilityLevel(RunUpgradeKind.MaxSpheres), PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")));
+            Math.Min(HasCampaignContract(RegionContractRule.Capacity)?4:8,SpherePlacementRules.GetMaxSpheres(GetAbilityLevel(RunUpgradeKind.MaxSpheres), PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres"))));
 
         private int CountSpheresOfType(SphereId type)
         {
@@ -8027,21 +8043,21 @@ namespace EchoSphere.Runtime
             _regionPocketNoticeTimer = Mathf.Max(0f, _regionPocketNoticeTimer - dt);
             if (_player == null) return;
 
-            if((int)_selectedRegion>=2){var profile=CampaignRegions.Get(_selectedRegion);var pocket=CampaignRegions.Nearest(_selectedRegion,_player.position.x,-_player.position.y);if(_tutorialStep<0&&!_regionStabilized&&_runTime>1f&&_regionHudPocketId!=pocket.Id){_regionPocketNotice=IsRussianUi?pocket.Ru:pocket.En;_regionPocketNoticeTimer=1.35f;ShowTimedCombatMessage(_regionPocketNotice,1.35f,profile.Accent,"boundary");}_regionHudPocketId=pocket.Id;return;}
+            if((int)ActiveCampaignRegion>=2){var profile=CampaignRegions.Get(ActiveCampaignRegion);var pocket=CampaignRegions.Nearest(ActiveCampaignRegion,_player.position.x,-_player.position.y);if(_tutorialStep<0&&!_regionStabilized&&_runTime>1f&&_regionHudPocketId!=pocket.Id){_regionPocketNotice=IsRussianUi?pocket.Ru:pocket.En;_regionPocketNoticeTimer=1.35f;ShowTimedCombatMessage(_regionPocketNotice,1.35f,profile.Accent,"boundary");}_regionHudPocketId=pocket.Id;return;}
             var sourceX = _player.position.x / (12.6f / 720f);
             var sourceY = -_player.position.y / (12.6f / 720f);
-            var pocketNames = _selectedRegion == EchoRegionId.SpectralRift
+            var pocketNames = ActiveCampaignRegion == EchoRegionId.SpectralRift
                 ? new[] { "prism", "shoal", "ember", "silent", "null" }
                 : new[] { "axis", "glass", "fracture", "hollow", "pressure" };
-            var pocketLabelsRu = _selectedRegion == EchoRegionId.SpectralRift
+            var pocketLabelsRu = ActiveCampaignRegion == EchoRegionId.SpectralRift
                 ? new[] { "ПРИЗМАТИЧЕСКИЙ СДВИГ", "ЗЕРКАЛЬНАЯ МЕЛЬ", "ТЛЕЮЩИЙ ИЗЛОМ", "ТИХАЯ РЕШЁТКА", "НУЛЕВОЙ САД" }
                 : new[] { "ОСЕВОЙ УЗЕЛ", "СТЕКЛЯННЫЙ ПОТОК", "РАЗЛОМ", "ПУСТОЙ КОНТУР", "ЗОНА ДАВЛЕНИЯ" };
-            var pocketLabelsEn = _selectedRegion == EchoRegionId.SpectralRift
+            var pocketLabelsEn = ActiveCampaignRegion == EchoRegionId.SpectralRift
                 ? new[] { "PRISM SHIFT", "MIRROR SHOAL", "EMBER FAULT", "SILENT LATTICE", "NULL GARDEN" }
                 : new[] { "AXIS NODE", "GLASS FLOW", "FRACTURE", "HOLLOW CONTOUR", "PRESSURE FIELD" };
-            var pocketX = _selectedRegion == EchoRegionId.SpectralRift
+            var pocketX = ActiveCampaignRegion == EchoRegionId.SpectralRift
                 ? new[] { 0f, 520f, 470f, -500f, -520f } : new[] { 0f, 520f, 500f, -480f, -520f };
-            var pocketY = _selectedRegion == EchoRegionId.SpectralRift
+            var pocketY = ActiveCampaignRegion == EchoRegionId.SpectralRift
                 ? new[] { 0f, -270f, 450f, 430f, -290f } : new[] { 0f, -260f, 430f, 430f, -300f };
             var closest = 0;
             var closestDistance = float.MaxValue;
@@ -8056,7 +8072,7 @@ namespace EchoSphere.Runtime
             if (_tutorialStep < 0 && !_regionStabilized && _runTime > 1f && _regionHudPocketId != pocketNames[closest])
             {
                 EnsureKnowledgeLoaded();
-                var regionId = _selectedRegion == EchoRegionId.SpectralRift ? "spectral_rift" : "resonance_basin";
+                var regionId = ActiveCampaignRegion == EchoRegionId.SpectralRift ? "spectral_rift" : "resonance_basin";
                 var pocket = PlannerEntry("region-pocket", regionId + "|" + pocketNames[closest]);
                 _regionPocketNotice = PlannerDesc(pocket); _regionPocketNoticeTimer = 1.35f;
                 ShowTimedCombatMessage(_regionPocketNotice, 1.35f, pocket?.color ?? "#39d8ff", "boundary");

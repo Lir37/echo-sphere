@@ -34,7 +34,7 @@ namespace EchoSphere.Runtime
         [Serializable] public sealed class PoiState
         { public int id; public string type; public Vector2 position; public float expiresAt; }
         [Serializable] public sealed class PoiSnapshot
-        { public float nextPoiAt; public List<PoiState> pois = new List<PoiState>(); }
+        { public float nextPoiAt; public int nextPoiId; public List<PoiState> pois = new List<PoiState>(); }
         internal readonly struct PresentationPoi
         {
             internal readonly int Id;internal readonly string Type;internal readonly Vector2 Position;
@@ -44,7 +44,7 @@ namespace EchoSphere.Runtime
         {output.Clear();foreach(var poi in _pois)output.Add(new PresentationPoi(poi.Id,poi.Type,poi.Position));}
         public PoiSnapshot CapturePoiState()
         {
-            var save = new PoiSnapshot { nextPoiAt = _nextPoiAt };
+            var save = new PoiSnapshot { nextPoiAt = _nextPoiAt,nextPoiId=_nextPoiId };
             foreach (var poi in _pois) save.pois.Add(new PoiState { id = poi.Id, type = poi.Type, position = poi.Position, expiresAt = poi.ExpiresAt });
             return save;
         }
@@ -52,6 +52,7 @@ namespace EchoSphere.Runtime
         {
             if (save == null) return;
             _nextPoiAt = save.nextPoiAt;
+            _nextPoiId=save.nextPoiId>0?save.nextPoiId:Mathf.Max(1,1+Mathf.FloorToInt((save.nextPoiAt-70f)/38f));foreach(var p in save.pois)_nextPoiId=Mathf.Max(_nextPoiId,p.id+1);
             _pois.Clear();
             foreach (var poi in save.pois) CreatePoi(poi.id, poi.type, poi.position, poi.expiresAt);
         }
@@ -59,6 +60,7 @@ namespace EchoSphere.Runtime
         private readonly List<PocketVisual> _pockets = new List<PocketVisual>();
         private readonly List<PoiVisual> _pois = new List<PoiVisual>();
         private float _nextPoiAt = 70f;
+        private int _nextPoiId=1;
         private EchoSphereRuntime _runtime;
 #if UNITY_EDITOR
         private Texture2D _radarTexture;
@@ -75,12 +77,11 @@ namespace EchoSphere.Runtime
             SetRegion(regionId);
         }
 
-        public void SetRegion(EchoRegionId regionId)
+        public void SetRegion(EchoRegionId regionId,bool preservePois=false)
         {
             if (!_initialized) return;
             _pockets.Clear();
-            _pois.Clear();
-            _nextPoiAt = 70f;
+            if(!preservePois){_pois.Clear();_nextPoiAt=70f;_nextPoiId=1;}
             ActiveRegionId = regionId;
 
             if((int)regionId>=2){var profile=CampaignRegions.Get(regionId);for(int i=0;i<profile.Pockets.Length;i++){var p=profile.Pockets[i];AddPocket(p.Id,p.X,p.Y,i==0?340:330,profile.Accent,i==0);}return;}
@@ -144,8 +145,7 @@ namespace EchoSphere.Runtime
 
         private void SpawnPoi(float time)
         {
-            var id = 1;
-            for (var i = 0; i < _pois.Count; i++) id = Mathf.Max(id, _pois[i].Id + 1);
+            var id = _nextPoiId++;
             if (_pockets.Count == 0) return;
             var pocketIndex = (id + Mathf.FloorToInt(time / 60f)) % _pockets.Count;
             var pocket = _pockets[pocketIndex];
@@ -155,11 +155,7 @@ namespace EchoSphere.Runtime
                 new Vector2(0.88f, 0.48f), new Vector2(-0.82f, 0.55f),
                 new Vector2(-0.92f, -0.34f)
             };
-            var types = new[]
-            {
-                "resonance_cache", "breach_node", "echo_relay", "lost_signal",
-                "elite_nest", "rupture", "boss_trace"
-            };
+            var types = CampaignRegionContent.PoiTypes;
             var type = types[(id - 1) % types.Length];
             var sourceDirection = directions[id % directions.Length];
             var position = pocket.Center + new Vector2(sourceDirection.x, -sourceDirection.y) * pocket.Radius * 0.62f;

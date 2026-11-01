@@ -13,9 +13,9 @@ namespace EchoSphere.Runtime
         private bool _knowledgeLoaded;
         private string _knowledgeSection = "basics", _knowledgeQuery = "";
         private float _knowledgeTick;
-        private static readonly string[] KnowledgeSections = { "basics", "spheres", "monsters", "bosses", "abilities", "artifacts", "evolutions" };
-        private static readonly string[] KnowledgeLabelsRu = { "Ядро игры", "Сферы", "Монстры", "Боссы", "Способности", "Артефакты", "Эволюции" };
-        private static readonly string[] KnowledgeLabelsEn = { "Core", "Spheres", "Monsters", "Bosses", "Abilities", "Artifacts", "Evolutions" };
+        private static readonly string[] KnowledgeSections = { "basics", "spheres", "monsters", "bosses", "abilities", "artifacts", "evolutions", "regions" };
+        private static readonly string[] KnowledgeLabelsRu = { "Ядро игры", "Сферы", "Монстры", "Боссы", "Способности", "Артефакты", "Эволюции", "Регионы" };
+        private static readonly string[] KnowledgeLabelsEn = { "Core", "Spheres", "Monsters", "Bosses", "Abilities", "Artifacts", "Evolutions", "Regions" };
         private void EnsureKnowledgeLoaded()
         {
             if (_knowledgeLoaded) return;
