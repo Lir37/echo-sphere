@@ -440,6 +440,10 @@ namespace EchoSphere.Runtime
             }
         }
         public bool IsRegionAvailable(EchoRegionId region) =>
+#if ECHO_REGION_TEST_ACCESS
+            // Build-only review access: never marks a region stabilized or grants rewards.
+            ((int)region>=0&&(int)region<6)||
+#endif
             (region==EchoRegionId.SpectralRift&&PlayerPrefs.GetInt(BasinStabilizedPreferenceKey,0)==1)||CampaignRegions.IsUnlocked(region, IsRegionStabilized);
         public float GetRegionRepulsionMultiplier()
         {
