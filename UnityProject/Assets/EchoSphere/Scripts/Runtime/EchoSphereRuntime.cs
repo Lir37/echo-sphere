@@ -2903,9 +2903,7 @@ namespace EchoSphere.Runtime
                 ResetCombo();
                 _characterScreenShakeIntensity = Mathf.Min(0.4f, _characterScreenShakeIntensity + 0.2f);
                 SourceAudio2D.Play("damage");
-                if (_ownedArtifacts.Contains("stasis_core"))
-                    for (var i = 0; i < _enemies.Count; i++)
-                        if (_enemies[i] != null && _enemies[i].IsAlive) _enemies[i].ApplySlow(2f, 0.5f);
+                ApplyStasisCoreOnDamage();
             }
             else if (_playerCore.ShieldCharges < shieldsBefore)
             {
@@ -2943,9 +2941,17 @@ namespace EchoSphere.Runtime
                 _playerCore.TryTakeDotDamage(Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier()))
             {
                 ApplyMandalaHpLoss(hpBefore);
+                if (_runEconomy != null && _playerCore.CurrentHp < hpBefore) ApplyStasisCoreOnDamage();
                 if (_playerCore.IsDead) _deathTimer = PlayerLoopRules.DeathDuration;
                 _characterScreenShakeIntensity = Mathf.Min(0.25f, _characterScreenShakeIntensity + 0.04f);
             }
+        }
+
+        private void ApplyStasisCoreOnDamage()
+        {
+            if (!_ownedArtifacts.Contains("stasis_core")) return;
+            for (var i=0;i<_enemies.Count;i++)
+                if (_enemies[i]!=null&&_enemies[i].IsAlive) _enemies[i].ApplySlow(2f,.5f);
         }
 
         private void ResetCombo()

@@ -1,1 +1,1 @@
-{"result":"PASS","checks":14,"scope":"Actual runtime charge,DoT shield consumer,invulnerability and snapshot codec; no PlayerPrefs writes"}
+{"result":"PASS","checks":16,"scope":"Actual runtime charge,DoT shield consumer,invulnerability and snapshot codec; no PlayerPrefs writes"}

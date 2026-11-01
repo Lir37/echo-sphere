@@ -349,3 +349,16 @@ Play entered. Full actual spawn scenario and phone acceptance still OPEN.
 Пункт 2 последнего списка (весь блок расширения/переработки способностей)
 удалён по прямому указанию пользователя. Этот отказ приоритетнее прежнего
 плана и исторических указаний продолжать способности. Остальные этапы остаются.
+
+
+## 2026-11-01 — Stasis Core actual damage-path audit
+Found a real missing consumer: modern Stasis Core slowed enemies after direct
+damage only, while its card says taking damage. Extracted existing slow handler
+and connected it to positive actual HP loss in the DoT path for modern runs.
+Direct damage behavior,2s duration,0.5speed and living-enemy selection unchanged.
+Legacy DoT retains previous behavior. No new balance numbers. Actual Editor
+fixture now16PASS:includes live enemy slowing after DoT and no new legacy slow.
+One initial fixture failure was retained slow from previous case; reset isolated
+fixture's slow timer before checking legacy. No production change for that test
+setup issue. Console ground truth0errors/0warnings. Full artifact expansion,
+sets/protocols and remaining15behavior reviews still OPEN.

@@ -10,7 +10,7 @@ namespace EchoSphere.Core
     }
     public static class ArtifactGameplayRules
     {
-        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed","echo_weaver","axiom_core","time_splitter","stasis_mandala","resonant_leaf","resonance_lattice","universal_fold"};
+        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed","echo_weaver","axiom_core","time_splitter","stasis_mandala","resonant_leaf","resonance_lattice","universal_fold","stasis_core"};
         private static readonly string[] DescriptionOnlyIds = {"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver","prism_filter","prism_crown"};
         public static string DescriptionOverride(string id,bool ru)
         {
