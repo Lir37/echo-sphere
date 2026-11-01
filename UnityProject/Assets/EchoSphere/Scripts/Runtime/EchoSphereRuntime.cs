@@ -1352,8 +1352,9 @@ namespace EchoSphere.Runtime
             // getRegionEnemyRole(), even when the regional pool replaces that fallback.
             _rng.NextFloat();
             var roleRoll = _rng.NextRegionFloat();
-            var role = RegionPocketRules.SelectRole(
-                _selectedRegion, _player.position.x, -_player.position.y, roleRoll);
+            var role = _runEconomy==null
+                ? RegionPocketRules.SelectRole(_selectedRegion,_player.position.x,-_player.position.y,roleRoll)
+                : RegionPocketRules.SelectCampaignRole(_selectedRegion,_player.position.x,-_player.position.y,roleRoll,_runTime);
             var roleHp = 1f;
             var roleSpeed = 1f;
             var roleDamage = 1f;

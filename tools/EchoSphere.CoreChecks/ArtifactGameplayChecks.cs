@@ -41,6 +41,9 @@ internal static class ArtifactGameplayChecks
   Near(ArtifactGameplayRules.UniversalFoldMultiplier(new List<string>{"universal_fold","heavy_core"},true),1,"fold ignores partial pair");
   Near(ArtifactGameplayRules.UniversalFoldMultiplier(ArtifactRewardRules.All.Select(x=>x.Id).ToList(),true),1.20f,"fold caps ten pairs");
   Near(ArtifactGameplayRules.UniversalFoldMultiplier(ArtifactRewardRules.All.Select(x=>x.Id).ToList(),false),1,"legacy fold path");
+  for(int n=0;n<100;n++){float roll=n/100f;Near(RegionPocketRules.SelectCampaignRole(EchoRegionId.ResonanceBasin,0,0,roll,1000)==RegionPocketRules.SelectRole(EchoRegionId.ResonanceBasin,0,0,roll)?1:0,1,"Basin ecology unchanged");}
+  Near(RegionPocketRules.SelectCampaignRole(EchoRegionId.SpectralRift,0,0,0,0)=="ranged"?1:0,1,"fleet origin ranged patrol");
+  Near(RegionPocketRules.SelectCampaignRole(EchoRegionId.SpectralRift,0,0,0,900)=="disruptor"?1:0,1,"fleet late wave role");
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
   foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);

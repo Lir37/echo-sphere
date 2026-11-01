@@ -262,6 +262,27 @@ namespace EchoSphere.Core
             return roles[System.Math.Min(roles.Length - 1, (int)(value * roles.Length))];
         }
 
+        // Authored fleet ecology for new campaign runs. Uses existing behavior roles,
+        // the supplied regional RNG draw and no additional random consumption.
+        private static readonly string[][] FleetPools = {
+            new[]{"ranged","charger","phase","anchor"},
+            new[]{"swarmer","phase","scavenger","ranged"},
+            new[]{"tank_guard","sniper","ranged","healer"},
+            new[]{"phase","disruptor","corruptor","sniper"},
+            new[]{"leech","bomber","anchor","healer"}
+        };
+        public static string SelectCampaignRole(EchoRegionId region,float worldX,float worldY,float roll,float runTime)
+        {
+            if(region!=EchoRegionId.SpectralRift)return SelectRole(region,worldX,worldY,roll);
+            int ecology=0;float nearest=float.PositiveInfinity;
+            for(int i=0;i<Rift.Length;i++){float dx=Rift[i].X-worldX,dy=Rift[i].Y-worldY,d=dx*dx+dy*dy;if(d<nearest){nearest=d;ecology=Rift[i].Ecology;}}
+            float value=float.IsNaN(roll)||float.IsInfinity(roll)?.5f:System.Math.Max(0,System.Math.Min(.999999f,roll));
+            var pool=FleetPools[ecology];int slot=System.Math.Min(pool.Length-1,(int)(value*pool.Length));
+            // Established special roles enter late waves without raising base stats.
+            if(runTime>=900f&&slot==0)return ecology==0?"disruptor":ecology==1?"bomber":ecology==2?"anchor":ecology==3?"corruptor":"sniper";
+            return pool[slot];
+        }
+
         public static bool SelectsPhaseRole(EchoRegionId region, float worldX, float worldY, float roll) =>
             SelectRole(region, worldX, worldY, roll) == "phase";
     }

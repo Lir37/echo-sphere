@@ -6373,3 +6373,17 @@ PlayerPrefs; other new fixture did not write prefs. Console ground truth0errors,
 0warnings after suites. Runtime evidence:modern-artifact-state-acceptance.json.
 This closes the scoped Editor verification gap, not Android,balance,visual
 acceptance of the full game or the remaining gameplay roadmap.
+
+
+## 2026-11-01 — Rift simulation roster, first regional gameplay step
+New campaign Rift runs now use authored fleet-role pools per existing pocket,
+with late-wave special roles after900seconds. Origin:ranged/charger/phase/anchor;
+swarm:swarmer/phase/scavenger/ranged;pressure:tank/sniper/ranged/healer;
+fracture:phase/disruptor/corruptor/sniper;hollow:leech/bomber/anchor/healer.
+Late first slots:disruptor,bomber,anchor,corruptor,sniper respectively.
+Existing behavior handlers and stats reused; same pre-existing regional RNG draw,
+no extra draw. Basin and all legacy saves keep original role selection.
+This is authored starting ecology,not accepted30minute balance or a claim that
+four other regions exist. Core13894 assertions+47389comparisonsPASS.
+Actual Editor compiled imported code; selector returned disruptor at900s;
+Play entered. Full actual spawn scenario and phone acceptance still OPEN.
