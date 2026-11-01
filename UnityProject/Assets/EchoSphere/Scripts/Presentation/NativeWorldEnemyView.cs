@@ -76,7 +76,7 @@ namespace EchoSphere.Presentation
             if(DisableEarlyBodyCullingForValidation)bodyVisible=true;
 #endif
             if(bodyVisible)DrawOuterGlow(surface,e.Radius*(e.Boss?1.65:1.15),statusColor,e.Boss?.21:.10,root);
-            if(e.Boss){DrawBossSignal(surface,e.Signal,t,root);if(bodyVisible){if(e.RegionStyle>=2)DrawRegionalCreature(e,poseTime,root);else if(e.Fleet)DrawFleet(e,poseTime,root);else Draw(surface,e.Radius,e.Color,poseTime,e.Variant,true,root);}}
+            if(e.Boss){DrawBossSignal(surface,e.Signal,t,e.Signal.Campaign?T(e.X,e.Y):root);if(bodyVisible){if(e.RegionStyle>=2)DrawRegionalCreature(e,poseTime,root);else if(e.Fleet)DrawFleet(e,poseTime,root);else Draw(surface,e.Radius,e.Color,poseTime,e.Variant,true,root);}}
             else if(bodyVisible){
                 if(e.RegionStyle>=2)DrawRegionalCreature(e,poseTime,root);else if(e.Fleet)DrawFleet(e,poseTime,root);else Draw(surface,e.Radius,e.Color,poseTime,e.Variant,false,root);if(e.Elite)DrawElite(surface,e.Radius,e.Color,t,root);
                 if(e.Tier>0){double n=Math.Min(3,e.Tier);var local=root*T(0,-e.Radius*1.55,t*.35);var ray=Get(44,e.Radius,0,1.2,()=>Straight(P(e.Radius*.10,0),P(e.Radius*.38,0)),false);for(int i=0;i<n;i++)Paint(ray,local*T(angle:i*Math.PI*2/n),null,A(statusColor,.46));}

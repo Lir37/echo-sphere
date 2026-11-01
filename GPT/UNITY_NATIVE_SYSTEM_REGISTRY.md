@@ -91,3 +91,13 @@ catalog projections,RegionFieldVisuals and HUD bind new profile data. EnemyView
 RegionStyle selects four retained native anatomies; RegionalGeometry/RegionalEllipse
 cache geometry outside hot drawing. Old art dictionary owns meshes;Dispose clears
 regional reference caches. Stable IDs0/1 preserved,new IDs2–5 appended.
+
+
+2026-11-01 point4: Core.CampaignBossRules/State own deterministic campaign boss
+patterns and phase,including the phase of an already warned attack.
+Runtime.BossCampaignCombat executes existing combat APIs; UsesCampaignCombat
+is explicitly null-economy legacy policy. Boss auxiliary snapshot owns all
+new state,including locked aim and remaining dash duration/speed.
+NativeWorldEnemyEffects draws retained warning geometry from typed state,
+without body facing/scale affecting attack coordinates. Legacy path remains
+active only for legacy runs. Details: UNITY_ENEMY_BOSS_COMPLETION_2026-11-01.md.

@@ -7,7 +7,7 @@ namespace EchoSphere.Runtime
     /// Boss behaviour port from src/engineEnemies.ts:updateEnemies.
     /// Spawn time remains controlled by the Region boss event, never by a timer here.
     /// </summary>
-    public sealed class BossCombatAgent2D : MonoBehaviour
+    public sealed partial class BossCombatAgent2D : MonoBehaviour
     {
         private EchoSphereRuntime _runtime;
         private Transform _player;
@@ -34,6 +34,8 @@ namespace EchoSphere.Runtime
             _player = player;
             _agent = agent;
             _bossType = bossType ?? "";
+            _campaign = runtime != null && runtime.UsesCampaignCombat ? new CampaignBossState() : null;
+            _campaignDashRemaining = 0f; _campaignDashSpeed = 0f;
             _wave = Mathf.Max(0, wave);
             _moveSpeed = Mathf.Max(0f, moveSpeed);
             _damage = Mathf.Max(0f, damage);
@@ -47,6 +49,7 @@ namespace EchoSphere.Runtime
         {
             if (_runtime == null || _player == null || _agent == null || !_agent.IsAlive || _runtime.IsGameplayPaused) return;
             var dt = Mathf.Max(0f, deltaTime);
+            if (_runtime.UsesCampaignCombat) { TickCampaignBoss(dt); return; }
             _rotation += dt;
             var playerPos = (Vector2)_player.position;
             var toPlayer = playerPos - (Vector2)transform.position;

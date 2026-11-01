@@ -68,6 +68,14 @@ namespace EchoSphere.Runtime
             ColorUtility.TryParseHtmlString(enemy.SourceColorHtml,out var color);var combat=enemy.SourceProjectionBossCombat;var target=enemy.SourceProjectionLinkBreakerTarget;
             Vector2 direction=combat==null?Vector2.zero:combat.ChargeDirection*scale;
             var signal=new NativeWorldCreatures.BossSignal {Boss=boss,Charging=combat!=null&&combat.IsCharging,Type=type,Radius=enemy.SourceRadius,ChargeTimer=combat==null?double.NaN:combat.ChargeTimer,ChargeX=combat==null?double.NaN:direction.x/scale,ChargeY=combat==null?double.NaN:-direction.y/scale,ShootTimer=combat==null?double.NaN:combat.ShootTimer,SummonTimer=combat==null?double.NaN:combat.SummonTimer,AuraRadius=combat==null?double.NaN:combat.AuraRadius/scale,TargetX=playerX-x,TargetY=playerY-y,ShooterWindow=.7,SummonerWindow=.9,AuraWindow=.8};
+            if(combat?.CampaignState!=null)
+            {
+                var state=combat.CampaignState;var pattern=combat.CampaignPattern;
+                name=EchoSphere.Core.CampaignBossRules.Name(type,localize&&ru);
+                signal.Campaign=true;signal.Telegraph=state.Telegraphing;signal.Phase=state.Phase;
+                signal.Attack=(int)pattern.Attack;signal.Count=pattern.Count;signal.Range=pattern.Radius;
+                signal.Remaining=state.Remaining;signal.Window=pattern.Windup;signal.AimX=state.AimX;signal.AimY=-state.AimY;
+            }
             Vector2 targetPosition=target==null?Vector2.zero:(Vector2)target.transform.position;
             return new NativeWorldCreatures.EnemyView {Identity=enemy,X=x,Y=y,Radius=enemy.SourceRadius,HasRotation=true,Rotation=enemy.SourceProjectionRotation,HitFlash=enemy.SourceProjectionHitFlash,Tier=enemy.SourceVisualTier,Hp=enemy.CurrentHp,MaxHp=enemy.MaxHp,Boss=boss,Elite=enemy.IsElite,Fire=enemy.SourceProjectionFireTimer>0,Poison=enemy.SourceProjectionPoisonTimer>0,Freeze=enemy.SourceProjectionFreezeTimer>0,Variant=boss?type:enemy.SourceVisualVariant,BossName=name,Color=color,Signal=signal,LinkTarget=target!=null,LinkTimer=enemy.SourceProjectionLinkBreakerTelegraphTimer,LinkX=target==null?double.NaN:targetPosition.x/scale,LinkY=target==null?double.NaN:-targetPosition.y/scale,LinkWindow=.75};
         }

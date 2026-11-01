@@ -7,7 +7,9 @@ namespace EchoSphere.Presentation
     {
         internal struct BossSignal
         {
-            internal bool Boss,Charging;
+            internal bool Boss,Charging,Campaign,Telegraph;
+            internal int Phase,Attack,Count;
+            internal double Remaining,Window,Range,AimX,AimY;
             internal string Type;
             internal double Radius,ChargeTimer,ChargeX,ChargeY,ShootTimer,SummonTimer,AuraRadius,TargetX,TargetY;
             internal double ShooterWindow,SummonerWindow,AuraWindow;
@@ -45,6 +47,37 @@ namespace EchoSphere.Presentation
         internal void DrawBossSignal(NativeWorldSurface surface,BossSignal e,double t,Matrix4x4? parent=null)
         {
             if(!e.Boss)return;_surface=surface;var root=parent??Matrix4x4.identity;double r=e.Radius,pulse=.55+Math.Sin(t*14)*.16;
+            if(e.Campaign)
+            {
+                var color=C(255,184,77,.55+pulse*.2);
+                if(e.Phase>0){var phase=Get(90,r,0,1.5,()=>Oval(r*1.7,r*1.7),false);Paint(phase,root,null,C(255,92,132,.45));}
+                if(!e.Telegraph)return;
+                double progress=1-Clamp(e.Remaining/Math.Max(.01,e.Window));
+                var kind=(EchoSphere.Core.CampaignBossAttack)e.Attack;
+                if(kind==EchoSphere.Core.CampaignBossAttack.Fan||kind==EchoSphere.Core.CampaignBossAttack.Radial||kind==EchoSphere.Core.CampaignBossAttack.Cross||kind==EchoSphere.Core.CampaignBossAttack.Dash)
+                {
+                    var ray=Get(91,e.Range,r,1.5,()=>Straight(P(r*1.05,0),P(e.Range,0)),false);
+                    double angle=Math.Atan2(e.AimY,e.AimX);
+                    int n=kind==EchoSphere.Core.CampaignBossAttack.Dash?1:e.Count;
+                    for(int i=0;i<n;i++)
+                    {
+                        double a=angle+(kind==EchoSphere.Core.CampaignBossAttack.Fan?(i-(n-1)*.5)*.20:i*Math.PI*2/n);
+                        Paint(ray,root*T(angle:a),null,color,(float)(.4+progress*.6),forceOver:true);
+                    }
+                }
+                else
+                {
+                    var ring=Get(92,e.Range,0,2,()=>Oval(e.Range,e.Range),false);
+                    Paint(ring,root,null,color,(float)(.4+progress*.6),forceOver:true);
+                    if(kind==EchoSphere.Core.CampaignBossAttack.Summon)
+                    {
+                        var marker=Get(93,0,0,1.5,()=>Oval(7,7),false);
+                        double a=Math.Atan2(e.AimY,e.AimX);
+                        for(int i=0;i<e.Count;i++){double at=a+i*Math.PI*2/e.Count;Paint(marker,root*T(Math.Cos(at)*60,Math.Sin(at)*60),null,color,forceOver:true);}
+                    }
+                }
+                return;
+            }
             if(e.Type=="charger"&&e.Charging){bool windup=e.ChargeTimer>.35;double reach=r*(windup?2.7:4.2);var line=Dynamic(Straight(Vector2.zero,P(e.ChargeX*reach,e.ChargeY*reach)),windup?Math.Max(2,r*.025):Math.Max(3,r*.04),false);Paint(line,root,null,windup?C(255,184,77,.58+pulse*.25):C(255,98,87,.70+pulse*.20));
                 if(windup){double nx=-e.ChargeY,ny=e.ChargeX,tip=r*2.05,half=r*.55;var cone=Dynamic(Poly(P(e.ChargeX*r*.82,e.ChargeY*r*.82),P(e.ChargeX*tip+nx*half,e.ChargeY*tip+ny*half),P(e.ChargeX*tip-nx*half,e.ChargeY*tip-ny*half)));Paint(cone,root,C(255,184,77,.08+pulse*.05),null);}}
             if(e.Type=="shooter"&&e.ShootTimer<=e.ShooterWindow){double angle=Math.Atan2(e.TargetY,e.TargetX);var line=Get(34,r,0,Math.Max(1.5,r*.018),()=>Straight(P(r*1.05,0),P(r*4.8,0)),false);for(int k=-1;k<=1;k++)Paint(line,root*T(angle:angle+k*.11),null,C(255,106,95,.46+pulse*.22));}

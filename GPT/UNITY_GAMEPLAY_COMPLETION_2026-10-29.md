@@ -452,3 +452,14 @@ UNITY_REGION_CAMPAIGN_PROGRESS_2026-11-01.md. Core20194assertions+47389compariso
 Editor148checks,GPU96samples/69retainedArt/5movingframes,fiveC#profiles and
 Node272PASS. Full real battles,balance,Android,point4boss completeness and
 point5regional content acceptance remain OPEN; do not mark full campaign DONE.
+
+
+## 2026-11-01 — point4 implementation milestone
+15active roles and10elite variants retained and replayed in actual Editor.
+Eight campaign boss families now each execute3distinct warned attacks and latch
+phaseII at50%HP; warning parameters lock across a phase transition. Boss model
+saves current attack/warned phase/aim/timer/dash, legacy saves retain old rules.
+Native warning shapes and RU/EN family labels wired to actual combat state.
+Authored starting balance, attack table, source trace and verification limits:
+UNITY_ENEMY_BOSS_COMPLETION_2026-11-01.md. Implementation target reached;
+Android/full-run balance/visual acceptance OPEN. Ability expansion remains removed.
