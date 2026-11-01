@@ -362,3 +362,19 @@ One initial fixture failure was retained slow from previous case; reset isolated
 fixture's slow timer before checking legacy. No production change for that test
 setup issue. Console ground truth0errors/0warnings. Full artifact expansion,
 sets/protocols and remaining15behavior reviews still OPEN.
+
+
+## 2026-11-01 — campaign catalog reaches90; legacy catalog stays82
+Added eight authored trade-off artifacts:Glass Capacitor,Kinetic Brace,Dense
+Lens,Rapid Coil,Living Alloy,Ritual Clock,Blood Crystal,Unstable Sigil. Explicit
+RU/EN cards expose both bonuses and costs. Reuse established damage,radius,
+cadence,speed,HP,regen,XP,cooldown and damage-reduction consumers. No new abilities.
+Catalog(true)90;Catalog(false)/All82. Get resolves both;modern rewards and
+merchant use campaign pool;legacy rewards keep82/order/weights. Existing imported
+ScriptableObject stays exact305strings. Native card lookup lazily caches authored
+Core definitions missing from imported legacy presentation,without editing asset.
+Core13998assertions+47389parityPASS;actualEditor27PASS for new cards,adapter
+values,all8reward reachability and legacy exclusion. Source catalog/preflightPASS.
+Remaining:old15special reviews,20sets and meaningful protocols;archive discovery
+for supplemental cards and full trade-off/balance acceptance not yet complete.
+This stage does NOT close artifact point1.

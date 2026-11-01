@@ -48,7 +48,7 @@ namespace EchoSphere.Core
             if(state==null||!state.Pending||state.Prepared)return;
             var rng=new SeededRng(1);rng.RestoreState(state.RngState);
             var pools=new List<ArtifactRewardDefinition>[4];for(int i=0;i<4;i++)pools[i]=new List<ArtifactRewardDefinition>();
-            foreach(var item in ArtifactRewardRules.All){int r=(int)item.Rarity;if(r<0||r>3||owned.Contains(item.Id))continue;pools[r].Add(item);}
+            foreach(var item in ArtifactRewardRules.Catalog(true)){int r=(int)item.Rarity;if(r<0||r>3||owned.Contains(item.Id))continue;pools[r].Add(item);}
             var weights=new[]{30,35,25,10};state.Offers.Clear();
             for(int slot=0;slot<8;slot++){
                 int total=0;for(int r=0;r<4;r++)if(pools[r].Count>0)total+=weights[r];if(total==0)break;

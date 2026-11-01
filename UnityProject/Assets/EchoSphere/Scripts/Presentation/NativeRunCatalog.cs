@@ -38,7 +38,9 @@ namespace EchoSphere.Presentation
         private static Dictionary<string,T> Index<T>(IEnumerable<T> rows) where T:Definition {var map=new Dictionary<string,T>(StringComparer.Ordinal);foreach(var row in rows)map.Add(row.Id,row);return map;}
         public Sphere GetSphere(string id){if(_spheres==null)_spheres=Index(Spheres);return _spheres.TryGetValue(id,out var row)?row:null;}
         public Ability GetAbility(string id){if(_abilities==null)_abilities=Index(Abilities);return _abilities.TryGetValue(id,out var row)?row:null;}
-        public Artifact GetArtifact(string id){if(_artifacts==null)_artifacts=Index(Artifacts);return _artifacts.TryGetValue(id,out var row)?row:null;}
+        public Artifact GetArtifact(string id){if(_artifacts==null)_artifacts=Index(Artifacts);if(_artifacts.TryGetValue(id,out var row))return row;
+            var item=EchoSphere.Core.ArtifactRewardRules.Get(id);if(item==null)return null;
+            row=new Artifact{Id=item.Id,NameRu=item.NameRussian,NameEn=item.NameEnglish,DescriptionRu=item.DescriptionRussian,DescriptionEn=item.DescriptionEnglish,Rarity=item.Rarity.ToString().ToLowerInvariant(),Mechanic=item.Mechanic};foreach(var effect in item.Effects)row.Effects.Add(new Effect{Id=effect.Key,Value=effect.Value});_artifacts[id]=row;return row;}
         public Element GetElement(string id){if(id==null)return null;if(_elements==null)_elements=Index(Elements);return _elements.TryGetValue(id,out var row)?row:null;}
         public Choice GetSphereBranch(string id){if(id==null)return null;if(_branches==null){_branches=new Dictionary<string,Choice>(StringComparer.Ordinal);foreach(var sphere in Spheres)foreach(var branch in sphere.Branches)_branches.Add(branch.Id,branch);}return _branches.TryGetValue(id,out var row)?row:null;}
         public Region GetRegion(string id){foreach(var row in Regions)if(row.Id==id)return row;if(Regions.Count==0)throw new InvalidOperationException("Native region catalog missing");return Regions[0];}

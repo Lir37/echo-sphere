@@ -118,11 +118,23 @@ namespace EchoSphere.Core
             new ArtifactRewardDefinition("axiom_core", "axiom core", "Аксиома ядра", "+5% to key combat effects", "+5% ко всем ключевым эффектам", ArtifactRarity.Legendary, "", new Dictionary<string, float>(StringComparer.Ordinal) { { "sphereDamage", 0.15f }, { "cooldown", -0.08f } }),
             new ArtifactRewardDefinition("universal_fold", "universal fold", "Универсальный сгиб", "All assembled systems gain a small synergy bonus", "все собранные системы получают небольшой синергетический бонус", ArtifactRarity.Legendary, "", new Dictionary<string, float>(StringComparer.Ordinal) { { "sphereDamage", 0.15f }, { "cooldown", -0.08f } }),
         };
+        private static readonly List<ArtifactRewardDefinition> CampaignItems = BuildCampaignItems();
+        private static List<ArtifactRewardDefinition> BuildCampaignItems(){var items=new List<ArtifactRewardDefinition>(Items);
+            items.Add(new ArtifactRewardDefinition("glass_capacitor","Glass Capacitor","Стеклянный конденсатор","+18% Sphere damage, +12% damage taken.","+18% урона сфер, +12% получаемого урона.",ArtifactRarity.Epic,"",new Dictionary<string,float>{{"sphereDamage",0.18f},{"damageTakenReduction",-0.12f}}));
+            items.Add(new ArtifactRewardDefinition("kinetic_brace","Kinetic Brace","Кинетическая скоба","+12% move speed, +8% Sphere attack delay.","+12% скорости движения, +8% задержки атак сфер.",ArtifactRarity.Rare,"",new Dictionary<string,float>{{"moveSpeed",0.12f},{"sphereDelay",0.08f}}));
+            items.Add(new ArtifactRewardDefinition("dense_lens","Dense Lens","Плотная линза","+18% Sphere radius, -8% Sphere damage.","+18% радиуса сфер, −8% урона сфер.",ArtifactRarity.Rare,"",new Dictionary<string,float>{{"sphereRadius",0.18f},{"sphereDamage",-0.08f}}));
+            items.Add(new ArtifactRewardDefinition("rapid_coil","Rapid Coil","Быстрая катушка","-15% Sphere attack delay, -10% Sphere radius.","−15% задержки атак сфер, −10% радиуса сфер.",ArtifactRarity.Epic,"",new Dictionary<string,float>{{"sphereDelay",-0.15f},{"sphereRadius",-0.1f}}));
+            items.Add(new ArtifactRewardDefinition("living_alloy","Living Alloy","Живой сплав","+40 max HP, -5% move speed.","+40 макс. HP, −5% скорости движения.",ArtifactRarity.Rare,"",new Dictionary<string,float>{{"maxHp",40f},{"moveSpeed",-0.05f}}));
+            items.Add(new ArtifactRewardDefinition("ritual_clock","Ritual Clock","Ритуальные часы","-15% ability cooldowns, -8% Sphere damage.","−15% перезарядки способностей, −8% урона сфер.",ArtifactRarity.Epic,"",new Dictionary<string,float>{{"cooldown",-0.15f},{"sphereDamage",-0.08f}}));
+            items.Add(new ArtifactRewardDefinition("blood_crystal","Blood Crystal","Кровавый кристалл","+2 HP/sec, -10% XP gained.","+2 HP/сек, −10% получаемого опыта.",ArtifactRarity.Rare,"",new Dictionary<string,float>{{"regen",2f},{"xpGain",-0.1f}}));
+            items.Add(new ArtifactRewardDefinition("unstable_sigil","Unstable Sigil","Нестабильная печать","+12% critical chance, +10% damage taken.","+12% шанса крита, +10% получаемого урона.",ArtifactRarity.Epic,"",new Dictionary<string,float>{{"critChance",0.12f},{"damageTakenReduction",-0.1f}}));
+            return items;}
+        public static IReadOnlyList<ArtifactRewardDefinition> Catalog(bool modern)=>modern?CampaignItems:Items;
         private static readonly Dictionary<string, ArtifactRewardDefinition> Index = BuildIndex();
         private static Dictionary<string, ArtifactRewardDefinition> BuildIndex()
         {
             var result = new Dictionary<string, ArtifactRewardDefinition>(StringComparer.Ordinal);
-            for(var i=0;i<Items.Count;i++) result[Items[i].Id]=Items[i];
+            for(var i=0;i<CampaignItems.Count;i++) result[CampaignItems[i].Id]=CampaignItems[i];
             return result;
         }
 
@@ -144,12 +156,13 @@ namespace EchoSphere.Core
             return sum;
         }
 
-        public static List<ArtifactRewardDefinition> PickChoices(IList<string> owned,Func<float> random,bool legendaryOnly,int count)
+        public static List<ArtifactRewardDefinition> PickChoices(IList<string> owned,Func<float> random,bool legendaryOnly,int count,bool modern=false)
         {
             var pool=new List<ArtifactRewardDefinition>();
-            for(var i=0;i<Items.Count;i++)
+            var catalog=Catalog(modern);
+            for(var i=0;i<catalog.Count;i++)
             {
-                var item=Items[i];
+                var item=catalog[i];
                 if(Contains(owned,item.Id))continue;
                 if(legendaryOnly ? item.Rarity!=ArtifactRarity.Legendary : item.Rarity==ArtifactRarity.Legendary)continue;
                 pool.Add(item);

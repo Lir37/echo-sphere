@@ -379,7 +379,8 @@ assert.ok(runtimeArt.includes('SpawnBossForRegionEvent') && runtimeArt.includes(
 const artifactRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ArtifactRewardRules.cs'), 'utf8');
 assert.ok(artifactRules.includes('StellaLegendaryCutoffSeconds = 1500f') && artifactRules.includes('62f') && artifactRules.includes('24f') && artifactRules.includes('9f') && artifactRules.includes('4f'), 'source artifact rarity weights/cutoff missing');
 for (const id of ['zero_sphere','unified_mind','time_splitter','stasis_mandala','axiom_core','universal_fold']) assert.ok(artifactRules.includes('"' + id + '"'), 'source Stella legendary missing: ' + id);
-assert.equal((artifactRules.match(/new ArtifactRewardDefinition\(/g) || []).length, 82, 'source artifact metadata catalog must contain all 82 artifacts');
+assert.equal((artifactRules.split('private static readonly List<ArtifactRewardDefinition> CampaignItems')[0].match(/new ArtifactRewardDefinition\(/g)||[]).length,82,'legacy artifact catalog must retain 82 artifacts');
+assert.equal((artifactRules.match(/items\.Add\(new ArtifactRewardDefinition\(/g)||[]).length,8,'campaign must add eight explicit artifacts');
 const stellaChest = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs'), 'utf8');
 assert.ok(stellaChest.includes('renderer.ts:drawStellaChest') && stellaChest.includes('engineLoop.ts chest proximity collection'), 'Stella chest must map to live source renderer/pickup path');
 assert.ok(stellaChest.includes('BossCombatRules.PlayerRadiusSourceUnits+28f') && stellaChest.includes('CollectStellaChest(this)'), 'Stella source pickup distance/event hook missing');

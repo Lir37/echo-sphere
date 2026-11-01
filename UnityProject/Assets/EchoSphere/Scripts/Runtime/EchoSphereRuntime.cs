@@ -2614,11 +2614,11 @@ namespace EchoSphere.Runtime
             _stellaRewardChoices.Clear();
             var count = ArtifactRewardRules.GetStellaChoiceCount(_ownedArtifacts);
             if (ArtifactRewardRules.IsLegendaryStellaWindow(_runTime))
-                _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(_ownedArtifacts, _rng.NextFloat, true, count));
+                _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(_ownedArtifacts, _rng.NextFloat, true, count,_runEconomy!=null));
             _stellaRewardIsLegendary = _stellaRewardChoices.Count > 0;
             if (_stellaRewardChoices.Count == 0)
                 _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(_ownedArtifacts, _rng.NextFloat, false,
-                    _runEconomy!=null?count:ArtifactRewardRules.BaseStellaChoiceCount));
+                    _runEconomy!=null?count:ArtifactRewardRules.BaseStellaChoiceCount,_runEconomy!=null));
             if (_stellaRewardChoices.Count == 0) { ShowMessage("STELLA CACHE EMPTY"); return; }
             _stellaRewardPending = true;
             _userPaused = false;
@@ -2657,7 +2657,7 @@ namespace EchoSphere.Runtime
             _runChestOpens++;
             _stellaRewardChoices.Clear();
             _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(
-                _ownedArtifacts, _rng.NextFloat, false, ArtifactRewardRules.BaseStellaChoiceCount));
+                _ownedArtifacts, _rng.NextFloat, false, ArtifactRewardRules.BaseStellaChoiceCount,_runEconomy!=null));
             if (_stellaRewardChoices.Count == 0)
             {
                 ShowMessage("ARTIFACT CACHE EMPTY");

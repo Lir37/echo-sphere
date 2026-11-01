@@ -44,6 +44,9 @@ internal static class ArtifactGameplayChecks
   for(int n=0;n<100;n++){float roll=n/100f;Near(RegionPocketRules.SelectCampaignRole(EchoRegionId.ResonanceBasin,0,0,roll,1000)==RegionPocketRules.SelectRole(EchoRegionId.ResonanceBasin,0,0,roll)?1:0,1,"Basin ecology unchanged");}
   Near(RegionPocketRules.SelectCampaignRole(EchoRegionId.SpectralRift,0,0,0,0)=="ranged"?1:0,1,"fleet origin ranged patrol");
   Near(RegionPocketRules.SelectCampaignRole(EchoRegionId.SpectralRift,0,0,0,900)=="disruptor"?1:0,1,"fleet late wave role");
+  Near(ArtifactRewardRules.Catalog(true).Count,90,"campaign ninety artifacts");Near(ArtifactRewardRules.Catalog(false).Count,82,"legacy eighty two artifacts");
+  foreach(var artifact in ArtifactRewardRules.Catalog(true)){Near(ArtifactRewardRules.Get(artifact.Id)==artifact?1:0,1,"catalog lookup "+artifact.Id);if(!ArtifactRewardRules.All.Contains(artifact))foreach(var effect in artifact.Effects)Near(new[]{"sphereDamage","damageTakenReduction","moveSpeed","sphereDelay","sphereRadius","maxHp","cooldown","regen","xpGain","critChance"}.Contains(effect.Key)?1:0,1,"new item uses supported consumer "+artifact.Id);}
+  var legacyOwned=ArtifactRewardRules.All.Select(x=>x.Id).ToList();Near(ArtifactRewardRules.PickChoices(legacyOwned,()=>0,false,20).Count,0,"legacy no campaign offers");Near(ArtifactRewardRules.PickChoices(legacyOwned,()=>0,false,20,true).Count,8,"all extra campaign offers reachable");
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
   foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);

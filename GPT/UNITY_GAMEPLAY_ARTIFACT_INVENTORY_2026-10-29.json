@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "scope": "Static inventory for Unity production. Literal references do not prove invocation, integration, correct semantics or acceptance. Unreviewed entries are not claimed broken.",
-  "baselineCommit": "c2d82ff1d2896121124a170b16f19ef61caa11a4",
-  "artifactCatalogSha256": "c8b8bf7550cae1b3e9ec5c1d4a78af49e761cd6dcc3f56f903b57e53ed284f3b",
+  "baselineCommit": "e0368e79d41d6c29abbdfa08e601cf5ce4825949",
+  "artifactCatalogSha256": "c328c852f5537d69d2cdac0d423386bbff2ab15dac43df925a839a48a2ca2a0d",
   "catalogCounts": {
     "SourceCommit": 0,
     "Spheres": 10,
@@ -22,9 +22,11 @@
   "verifiedArtifactCorrections": 40,
   "clarifiedDescriptionsPendingRuntimeReview": 10,
   "reviewedUnchangedArtifactConsumers": 27,
+  "campaignAdditions": 8,
   "remainingArtifactReviews": 15,
   "artifacts": [
     {
+      "campaignOnly": false,
       "id": "crystal_speed",
       "nameRu": "Кристалл скорости",
       "nameEn": "Crystal of Speed",
@@ -41,6 +43,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "amulet_hp",
       "nameRu": "Амулет здоровья",
       "nameEn": "Health Amulet",
@@ -57,6 +60,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "ring_xp",
       "nameRu": "Кольцо опыта",
       "nameEn": "XP Ring",
@@ -73,6 +77,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "regen_stone",
       "nameRu": "Камень восстановления",
       "nameEn": "Regen Stone",
@@ -89,6 +94,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "radius_shard",
       "nameRu": "Осколок радиуса",
       "nameEn": "Radius Shard",
@@ -105,6 +111,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "vampire_ring",
       "nameRu": "Кольцо вампира",
       "nameEn": "Vampire Ring",
@@ -127,6 +134,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "swift_boots",
       "nameRu": "Ботинки скорости",
       "nameEn": "Swift Boots",
@@ -149,6 +157,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "luck_talisman",
       "nameRu": "Талисман удачи",
       "nameEn": "Luck Talisman",
@@ -165,6 +174,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "mage_pendant",
       "nameRu": "Кулон мага",
       "nameEn": "Mage Pendant",
@@ -181,6 +191,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "long_lens",
       "nameRu": "Дальняя линза",
       "nameEn": "Long Lens",
@@ -203,6 +214,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "stasis_core",
       "nameRu": "Ядро стазиса",
       "nameEn": "Stasis Core",
@@ -220,6 +232,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "dragon_heart",
       "nameRu": "Сердце дракона",
       "nameEn": "Dragon Heart",
@@ -240,6 +253,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "mirror",
       "nameRu": "Зеркало",
       "nameEn": "Mirror",
@@ -262,6 +276,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "predator_claw",
       "nameRu": "Коготь хищника",
       "nameEn": "Predator Claw",
@@ -284,6 +299,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "foresight_eye",
       "nameRu": "Око предвидения",
       "nameEn": "Foresight Eye",
@@ -315,6 +331,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "echo_conductor",
       "nameRu": "Проводник Эха",
       "nameEn": "Echo Conductor",
@@ -331,6 +348,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "heavy_core",
       "nameRu": "Тяжёлое ядро",
       "nameEn": "Heavy Core",
@@ -347,6 +365,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "scattering_matrix",
       "nameRu": "Матрица рассеивания",
       "nameEn": "Scattering Matrix",
@@ -363,6 +382,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "aura_lens",
       "nameRu": "Линза ауры",
       "nameEn": "Aura Lens",
@@ -379,6 +399,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "network_relay",
       "nameRu": "Сетевой реле",
       "nameEn": "Network Relay",
@@ -401,6 +422,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "chaos_orb",
       "nameRu": "Матрица стабильности",
       "nameEn": "Stability Matrix",
@@ -418,6 +440,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "resonance_core",
       "nameRu": "Сердце резонанса",
       "nameEn": "Resonance Core",
@@ -450,6 +473,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "lone_bastion",
       "nameRu": "Одинокий бастион",
       "nameEn": "Lone Bastion",
@@ -472,6 +496,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "fivefold_resonance",
       "nameRu": "Резонанс пяти",
       "nameEn": "Fivefold Resonance",
@@ -494,6 +519,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "relay_matrix",
       "nameRu": "Релейная матрица",
       "nameEn": "Relay Matrix",
@@ -516,6 +542,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "triangle_circuit",
       "nameRu": "Треугольный контур",
       "nameEn": "Triangle Circuit",
@@ -548,6 +575,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "overclock",
       "nameRu": "Разгон ядра",
       "nameEn": "Overclock",
@@ -579,6 +607,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "soul_engine",
       "nameRu": "Двигатель душ",
       "nameEn": "Soul Engine",
@@ -599,6 +628,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "time_anchor",
       "nameRu": "Якорь времени",
       "nameEn": "Time Anchor",
@@ -615,6 +645,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "void_contract",
       "nameRu": "Контракт пустоты",
       "nameEn": "Void Contract",
@@ -635,6 +666,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "mirror_network",
       "nameRu": "Зеркальная сеть",
       "nameEn": "Mirror Network",
@@ -657,6 +689,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "singularity_engine",
       "nameRu": "Двигатель сингулярности",
       "nameEn": "Singularity Engine",
@@ -679,6 +712,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "quantum_core",
       "nameRu": "Квантовое ядро",
       "nameEn": "Quantum Core",
@@ -699,6 +733,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "zero_sphere",
       "nameRu": "Нулевая сфера",
       "nameEn": "Zero Sphere",
@@ -731,6 +766,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "unified_mind",
       "nameRu": "Единый разум",
       "nameEn": "Unified Mind",
@@ -763,6 +799,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "network_anchor",
       "nameRu": "Якорь сети",
       "nameEn": "Network Anchor",
@@ -779,6 +816,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "pulse_lens",
       "nameRu": "Линза импульса",
       "nameEn": "Pulse Lens",
@@ -795,6 +833,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "orbit_charm",
       "nameRu": "Талисман орбиты",
       "nameEn": "Orbit Charm",
@@ -811,6 +850,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "prism_shard",
       "nameRu": "Осколок призмы",
       "nameEn": "Prism Shard",
@@ -827,6 +867,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "gravity_bead",
       "nameRu": "Гравитационная бусина",
       "nameEn": "Gravity Bead",
@@ -844,6 +885,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "void_ink",
       "nameRu": "Чернила пустоты",
       "nameEn": "Void Ink",
@@ -860,6 +902,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "echo_thread",
       "nameRu": "Нить Эха",
       "nameEn": "Echo Thread",
@@ -876,6 +919,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "folded_core",
       "nameRu": "Складное ядро",
       "nameEn": "Folded Core",
@@ -892,6 +936,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "paper_ward",
       "nameRu": "Бумажный щит",
       "nameEn": "Paper Ward",
@@ -908,6 +953,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "mirror_dust",
       "nameRu": "Зеркальная пыль",
       "nameEn": "Mirror Dust",
@@ -924,6 +970,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "resonant_leaf",
       "nameRu": "Резонансный лист",
       "nameEn": "Resonant Leaf",
@@ -940,6 +987,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "signal_knot",
       "nameRu": "Сигнальный узел",
       "nameEn": "Signal Knot",
@@ -956,6 +1004,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "lattice_chip",
       "nameRu": "Чип решётки",
       "nameEn": "Lattice Chip",
@@ -972,6 +1021,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "fractal_seed",
       "nameRu": "Фрактальное семя",
       "nameEn": "Fractal Seed",
@@ -988,6 +1038,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "sniper_scope",
       "nameRu": "Прицел охотника",
       "nameEn": "Sniper Scope",
@@ -1004,6 +1055,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "chain_battery",
       "nameRu": "Цепной аккумулятор",
       "nameEn": "Chain Battery",
@@ -1020,6 +1072,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "shotgun_shell",
       "nameRu": "Дробь усиления",
       "nameEn": "Shotgun Shell",
@@ -1036,6 +1089,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "aura_mist",
       "nameRu": "Туман ауры",
       "nameEn": "Aura Mist",
@@ -1052,6 +1106,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "orbital_blade",
       "nameRu": "Орбитальный клинок",
       "nameEn": "Orbital Blade",
@@ -1089,6 +1144,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "prism_filter",
       "nameRu": "Призматический фильтр",
       "nameEn": "Prism Filter",
@@ -1111,6 +1167,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "gravity_hook",
       "nameRu": "Гравитационный крюк",
       "nameEn": "Gravity Hook",
@@ -1133,6 +1190,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "pulse_driver",
       "nameRu": "Импульсный драйвер",
       "nameEn": "Pulse Driver",
@@ -1165,6 +1223,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "void_mark",
       "nameRu": "Метка пустоты",
       "nameEn": "Void Mark",
@@ -1187,6 +1246,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "formation_compass",
       "nameRu": "Компас формации",
       "nameEn": "Formation Compass",
@@ -1209,6 +1269,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "geometry_die",
       "nameRu": "Куб геометрии",
       "nameEn": "Geometry Die",
@@ -1231,6 +1292,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "network_coil",
       "nameRu": "Сетевая катушка",
       "nameEn": "Network Coil",
@@ -1253,6 +1315,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "crit_sigil",
       "nameRu": "Критическая печать",
       "nameEn": "Crit Sigil",
@@ -1269,6 +1332,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "tempo_ring",
       "nameRu": "Кольцо темпа",
       "nameEn": "Tempo Ring",
@@ -1285,6 +1349,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "triangle_engine",
       "nameRu": "Двигатель треугольника",
       "nameEn": "Triangle Engine",
@@ -1305,6 +1370,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "ring_engine",
       "nameRu": "Двигатель кольца",
       "nameEn": "Ring Engine",
@@ -1325,6 +1391,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "lattice_engine",
       "nameRu": "Двигатель решётки",
       "nameEn": "Lattice Engine",
@@ -1345,6 +1412,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "fractal_engine",
       "nameRu": "Двигатель фрактала",
       "nameEn": "Fractal Engine",
@@ -1365,6 +1433,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "resonance_lattice",
       "nameRu": "Резонансная решётка",
       "nameEn": "Resonance Lattice",
@@ -1385,6 +1454,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "echo_weaver",
       "nameRu": "Ткач Эха",
       "nameEn": "Echo Weaver",
@@ -1405,6 +1475,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "gravity_crown",
       "nameRu": "Корона гравитации",
       "nameEn": "Gravity Crown",
@@ -1421,6 +1492,7 @@
       "verification": "check-unity-artifact-data-consumers.cs: 95 checks; scoped evidence, not Android acceptance"
     },
     {
+      "campaignOnly": false,
       "id": "void_lantern",
       "nameRu": "Фонарь пустоты",
       "nameEn": "Void Lantern",
@@ -1438,6 +1510,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "prism_crown",
       "nameRu": "Корона призмы",
       "nameEn": "Prism Crown",
@@ -1455,6 +1528,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "orbital_crown",
       "nameRu": "Корона орбиты",
       "nameEn": "Orbital Crown",
@@ -1487,6 +1561,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "pulse_crown",
       "nameRu": "Корона импульса",
       "nameEn": "Pulse Crown",
@@ -1524,6 +1599,7 @@
       "verification": null
     },
     {
+      "campaignOnly": false,
       "id": "chain_crown",
       "nameRu": "Корона цепи",
       "nameEn": "Chain Crown",
@@ -1544,6 +1620,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "sniper_crown",
       "nameRu": "Корона снайпера",
       "nameEn": "Sniper Crown",
@@ -1564,6 +1641,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "time_splitter",
       "nameRu": "Разделитель времени",
       "nameEn": "Time Splitter",
@@ -1595,6 +1673,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "stasis_mandala",
       "nameRu": "Мандала стазиса",
       "nameEn": "stasis mandala",
@@ -1621,6 +1700,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "quantum_fold",
       "nameRu": "Квантовый сгиб",
       "nameEn": "quantum fold",
@@ -1641,6 +1721,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "void_star",
       "nameRu": "Звезда пустоты",
       "nameEn": "void star",
@@ -1663,6 +1744,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "axiom_core",
       "nameRu": "Аксиома ядра",
       "nameEn": "axiom core",
@@ -1683,6 +1765,7 @@
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
+      "campaignOnly": false,
       "id": "universal_fold",
       "nameRu": "Универсальный сгиб",
       "nameEn": "universal fold",
@@ -1701,6 +1784,174 @@
       "literalRuntimeReferences": [],
       "status": "CORRECTED_NEW_RUNS_AND_TESTED",
       "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
+    },
+    {
+      "campaignOnly": true,
+      "id": "glass_capacitor",
+      "nameRu": "Стеклянный конденсатор",
+      "nameEn": "Glass Capacitor",
+      "descriptionRu": "+18% урона сфер, +12% получаемого урона.",
+      "descriptionEn": "+18% Sphere damage, +12% damage taken.",
+      "legacyEffects": [
+        {
+          "key": "sphereDamage",
+          "legacyValue": 0.18
+        },
+        {
+          "key": "damageTakenReduction",
+          "legacyValue": -0.12
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CAMPAIGN_CARD_ADAPTER_REWARD_CHECKED",
+      "verification": null
+    },
+    {
+      "campaignOnly": true,
+      "id": "kinetic_brace",
+      "nameRu": "Кинетическая скоба",
+      "nameEn": "Kinetic Brace",
+      "descriptionRu": "+12% скорости движения, +8% задержки атак сфер.",
+      "descriptionEn": "+12% move speed, +8% Sphere attack delay.",
+      "legacyEffects": [
+        {
+          "key": "moveSpeed",
+          "legacyValue": 0.12
+        },
+        {
+          "key": "sphereDelay",
+          "legacyValue": 0.08
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CAMPAIGN_CARD_ADAPTER_REWARD_CHECKED",
+      "verification": null
+    },
+    {
+      "campaignOnly": true,
+      "id": "dense_lens",
+      "nameRu": "Плотная линза",
+      "nameEn": "Dense Lens",
+      "descriptionRu": "+18% радиуса сфер, −8% урона сфер.",
+      "descriptionEn": "+18% Sphere radius, -8% Sphere damage.",
+      "legacyEffects": [
+        {
+          "key": "sphereRadius",
+          "legacyValue": 0.18
+        },
+        {
+          "key": "sphereDamage",
+          "legacyValue": -0.08
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CAMPAIGN_CARD_ADAPTER_REWARD_CHECKED",
+      "verification": null
+    },
+    {
+      "campaignOnly": true,
+      "id": "rapid_coil",
+      "nameRu": "Быстрая катушка",
+      "nameEn": "Rapid Coil",
+      "descriptionRu": "−15% задержки атак сфер, −10% радиуса сфер.",
+      "descriptionEn": "-15% Sphere attack delay, -10% Sphere radius.",
+      "legacyEffects": [
+        {
+          "key": "sphereDelay",
+          "legacyValue": -0.15
+        },
+        {
+          "key": "sphereRadius",
+          "legacyValue": -0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CAMPAIGN_CARD_ADAPTER_REWARD_CHECKED",
+      "verification": null
+    },
+    {
+      "campaignOnly": true,
+      "id": "living_alloy",
+      "nameRu": "Живой сплав",
+      "nameEn": "Living Alloy",
+      "descriptionRu": "+40 макс. HP, −5% скорости движения.",
+      "descriptionEn": "+40 max HP, -5% move speed.",
+      "legacyEffects": [
+        {
+          "key": "maxHp",
+          "legacyValue": 40
+        },
+        {
+          "key": "moveSpeed",
+          "legacyValue": -0.05
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CAMPAIGN_CARD_ADAPTER_REWARD_CHECKED",
+      "verification": null
+    },
+    {
+      "campaignOnly": true,
+      "id": "ritual_clock",
+      "nameRu": "Ритуальные часы",
+      "nameEn": "Ritual Clock",
+      "descriptionRu": "−15% перезарядки способностей, −8% урона сфер.",
+      "descriptionEn": "-15% ability cooldowns, -8% Sphere damage.",
+      "legacyEffects": [
+        {
+          "key": "cooldown",
+          "legacyValue": -0.15
+        },
+        {
+          "key": "sphereDamage",
+          "legacyValue": -0.08
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CAMPAIGN_CARD_ADAPTER_REWARD_CHECKED",
+      "verification": null
+    },
+    {
+      "campaignOnly": true,
+      "id": "blood_crystal",
+      "nameRu": "Кровавый кристалл",
+      "nameEn": "Blood Crystal",
+      "descriptionRu": "+2 HP/сек, −10% получаемого опыта.",
+      "descriptionEn": "+2 HP/sec, -10% XP gained.",
+      "legacyEffects": [
+        {
+          "key": "regen",
+          "legacyValue": 2
+        },
+        {
+          "key": "xpGain",
+          "legacyValue": -0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CAMPAIGN_CARD_ADAPTER_REWARD_CHECKED",
+      "verification": null
+    },
+    {
+      "campaignOnly": true,
+      "id": "unstable_sigil",
+      "nameRu": "Нестабильная печать",
+      "nameEn": "Unstable Sigil",
+      "descriptionRu": "+12% шанса крита, +10% получаемого урона.",
+      "descriptionEn": "+12% critical chance, +10% damage taken.",
+      "legacyEffects": [
+        {
+          "key": "critChance",
+          "legacyValue": 0.12
+        },
+        {
+          "key": "damageTakenReduction",
+          "legacyValue": -0.1
+        }
+      ],
+      "literalRuntimeReferences": [],
+      "status": "CAMPAIGN_CARD_ADAPTER_REWARD_CHECKED",
+      "verification": null
     }
   ]
 }

@@ -30,7 +30,7 @@ internal static class RunEconomyChecks
             Assert(a.Offers.Select(x=>x.ArtifactId).SequenceEqual(b.Offers.Select(x=>x.ArtifactId)),"seeded stock reproducible");
             Assert(a.RngState==b.RngState&&a.Offers.Count(x=>x.Discount)==1,"seeded state and sale");
         }
-        var complete=RunEconomyRules.Create(1);RunEconomyRules.AdvanceMerchant(complete,390);RunEconomyRules.Prepare(complete,ArtifactRewardRules.All.Select(x=>x.Id).ToList());Assert(complete.Prepared&&complete.Offers.Count==0,"exhausted catalog safe");
+        var complete=RunEconomyRules.Create(1);RunEconomyRules.AdvanceMerchant(complete,390);RunEconomyRules.Prepare(complete,ArtifactRewardRules.Catalog(true).Select(x=>x.Id).ToList());Assert(complete.Prepared&&complete.Offers.Count==0,"exhausted catalog safe");
         Console.WriteLine("Run economy: "+checks+" behavioral checks PASS");return checks;
     }
 }
