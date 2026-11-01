@@ -5,16 +5,19 @@ namespace EchoSphere.Core
     // Correct card contracts in new rulesets; historical catalog values remain readable for legacy runs.
     public struct ArtifactDamageContext
     {
-        public int UniqueTypes,StrongestLevel;
+        public int UniqueTypes,StrongestLevel,ActiveNetworkLinks;
         public bool AnotherLevelSeven,NearOtherSphere,TriangleActive,AnyActiveGeometry,HasActiveLink;
     }
     public static class ArtifactGameplayRules
     {
-        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed"};
+        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed","echo_weaver","axiom_core","time_splitter"};
         private static readonly string[] DescriptionOnlyIds = {"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver","prism_filter","prism_crown"};
         public static string DescriptionOverride(string id,bool ru)
         {
             switch(id){
+                case "time_splitter":return ru?"После окончания Остановки времени: +15% урона сфер на 5 секунд.":"After Time Stop ends: +15% Sphere damage for 5 seconds.";
+                case "echo_weaver":return ru?"+1% урона сфер за каждую активную связь сети, до +10%.":"+1% Sphere damage per active Network link, up to +10%.";
+                case "axiom_core":return ru?"+5% урона и радиуса сфер. −5% задержки атак сфер и перезарядки способностей.":"+5% Sphere damage and radius. −5% Sphere attack delay and ability cooldowns.";
                 case "prism_filter":return ru?"Призма получает +1 сетевое отражение через связанные сферы. Урон отражения — 42% урона атаки.":"Prism gains +1 network reflection through linked Spheres. Reflections deal 42% of attack damage.";
                 case "prism_crown":return ru?"+1 сетевое отражение Призмы при наличии Призматического фильтра или зеркальной ветки. Нужна связанная сфера.":"+1 Prism network reflection with Prism Filter or the mirror branch. Requires a linked Sphere.";
                 case "vampire_ring":return ru?"+3% вампиризма. Каждое убийство восстанавливает 5 HP.":"+3% lifesteal. Each kill restores 5 HP.";
@@ -37,6 +40,7 @@ namespace EchoSphere.Core
         {
             float m=1;if(owned==null)return m;
             foreach(var id in owned)switch(id){
+                case "echo_weaver":m*=1+.01f*Math.Max(0,Math.Min(10,c.ActiveNetworkLinks));break;
                 case "unified_mind":m*=1+.03f*Math.Max(0,Math.Min(7,c.StrongestLevel));break;
                 case "lone_bastion":if(c.UniqueTypes==1)m*=1.30f;break;
                 case "fivefold_resonance":m*=1+.04f*Math.Max(0,Math.Min(5,c.UniqueTypes));break;
@@ -61,6 +65,11 @@ namespace EchoSphere.Core
             if(type==SphereNetworkFormation.Fractal){if(owned.Contains("fractal_engine"))multiplier*=1.12f;if(owned.Contains("fractal_seed"))multiplier*=1.10f;}
             return multiplier;
         }
+        public static float TickTimeSplitter(float remaining,float previousStop,float currentStop,float dt,bool enabled)
+        {
+            if(!enabled)return 0f;
+            return previousStop>0f&&currentStop<=0f?5f:Math.Max(0f,remaining-Math.Max(0f,dt));
+        }
         public static float RecoverySpeedMultiplier(IList<string> owned,bool modern)=>modern&&owned!=null&&owned.Contains("signal_knot")?1.05f:1f;
         public static float RecoveryDurationMultiplier(IList<string> owned,bool modern)=>1f/RecoverySpeedMultiplier(owned,modern);
         public static float CounterattackChance(IList<string> owned,bool modern)=>(owned!=null&&owned.Contains("mirror")?.20f:0)+(modern&&owned!=null&&owned.Contains("mirror_dust")?.08f:0);
@@ -68,6 +77,8 @@ namespace EchoSphere.Core
         {
             if(item==null||key==null)return 0;
             if(modern){
+                if(item.Id=="echo_weaver"||item.Id=="time_splitter")return 0f;
+                if(item.Id=="axiom_core")return key=="sphereDamage"||key=="sphereRadius"?.05f:key=="sphereDelay"||key=="cooldown"?-.05f:0f;
                 if(item.Id=="mirror_dust"||item.Id=="signal_knot"||item.Id=="echo_thread"||item.Id=="triangle_engine"||item.Id=="ring_engine"||item.Id=="lattice_engine"||item.Id=="fractal_engine"||item.Id=="lattice_chip"||item.Id=="fractal_seed")return 0f;
                 if(item.Id=="chain_battery")return key=="chainDamage"?.10f:0f;
                 if(item.Id=="shotgun_shell")return key=="shotgunDamage"?.10f:0f;

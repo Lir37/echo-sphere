@@ -246,3 +246,21 @@ and Crown combinations against the previous combat expression. Core PASS:
 to request the modern estimator. Actual Editor/phone acceptance remains open.
 Next: remaining special artifacts and full gameplay roadmap; do not count this
 stat display correction as completing artifact behavior review or game balance.
+
+
+## 2026-11-01 — authored special artifact effects for new runs
+Three generic placeholder implementations replaced under the approved authority
+to complete missing rules/balance. These are authored starting values, not
+recovered original formulas, and require gameplay balance acceptance:
+- Echo Weaver: +1% Sphere damage per active undirected Network link, capped +10%.
+  Uses existing analyzed active Links.Count, no per-hit collection allocation.
+- Axiom Core: +5% Sphere damage/radius, -5% Sphere attack delay/ability cooldown.
+  Removed hidden +15% damage/-8% cooldown for modern runs.
+- Time Splitter: +15% Sphere damage for 5 seconds after Time Stop actually ends.
+  Removed unconditional +12% damage/+3pp critical chance for modern runs.
+Timer is simulation-owned and captured by existing runtime snapshot codec; reset
+on new run and before restoring missing old fields. Pause does not tick it.
+Legacy null-economy runs keep original effects and do not start this timer.
+Descriptions RU/EN state exact new values. Core PASS: 13793 assertions,
+47389 source comparisons. Inventory: 35 corrected,27 unchanged reviewed,20
+remaining reviews. Runtime Editor and Android acceptance not yet performed.

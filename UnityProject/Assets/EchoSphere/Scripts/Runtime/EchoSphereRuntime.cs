@@ -1074,7 +1074,9 @@ namespace EchoSphere.Runtime
             TickSimulationPhase<ArtifactChestAgent2D>(dt, true);
             TickSourceMutation();
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
+            var previousTimeStop = _timeStopTimer;
             _timeStopTimer = Mathf.Max(0f, _timeStopTimer - dt);
+            _timeSplitterBuffTimer=ArtifactGameplayRules.TickTimeSplitter(_timeSplitterBuffTimer,previousTimeStop,_timeStopTimer,dt,_runEconomy!=null&&_ownedArtifacts.Contains("time_splitter"));
             _teleportDamageBuffTimer = Mathf.Max(0f, _teleportDamageBuffTimer - dt);
             _teleportCooldown = Mathf.Max(0f, _teleportCooldown - dt);
             _timeStopCooldown = Mathf.Max(0f, _timeStopCooldown - dt);
@@ -7040,6 +7042,7 @@ namespace EchoSphere.Runtime
             _nativePresentedDominant=_nativePresentedSecondary=null;
             _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
             _runEconomy=RunEconomyRules.Create(_rng.State);
+            _timeSplitterBuffTimer=0f;
             _sourceLightningVisuals.Clear(); _mutationStage = 0; _chaosOrbTimer = _chaosOrbBuffTimer = _buffTimer = _deathTimer = 0f; _chaosOrbBuff = null;
             ClearRunSnapshot();
             _regionLoreDiscovered.Clear();

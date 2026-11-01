@@ -7,11 +7,12 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private RunEconomyState _runEconomy;
+        private float _timeSplitterBuffTimer;
         private float GetRunArtifactEffectTotal(string key)=>ArtifactGameplayRules.EffectTotal(_ownedArtifacts,key,_runEconomy!=null);
         private float GetArtifactSphereDamageMultiplier(SphereAttackAgent sphere)
         {
             float family=GetArtifactSphereFamilyDamageMultiplier(sphere.Type);if(_runEconomy==null)return family;
-            var context=new ArtifactDamageContext {UniqueTypes=CountUniqueActiveSphereTypes(),StrongestLevel=GetStrongestSphereLevel(),
+            var context=new ArtifactDamageContext {ActiveNetworkLinks=_networkState?.Links.Count??0,UniqueTypes=CountUniqueActiveSphereTypes(),StrongestLevel=GetStrongestSphereLevel(),
                 AnyActiveGeometry=_networkState?.DominantFormation?.Active==true||_networkState?.SecondaryFormation?.Active==true,
                 TriangleActive=_networkState?.GetFormation(SphereNetworkFormation.Triangle)?.Active==true&&GetFormationBonus(SphereNetworkFormation.Triangle,GetSphereIndex(sphere))>0};
             int index=GetSphereIndex(sphere);if(_networkState!=null)foreach(var link in _networkState.Links)if(link.A==index||link.B==index){context.HasActiveLink=true;break;}

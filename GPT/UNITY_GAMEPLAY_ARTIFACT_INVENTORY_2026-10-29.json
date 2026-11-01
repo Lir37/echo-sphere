@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Static inventory for Unity production. Literal references do not prove invocation, integration, correct semantics or acceptance. Unreviewed entries are not claimed broken.",
-  "baselineCommit": "6b3fb0fba23471e9154fc79dd9a1edf5d7be2b77",
+  "baselineCommit": "d44c60797d1c40efe41c01becddc3a591c624ba2",
   "artifactCatalogSha256": "c8b8bf7550cae1b3e9ec5c1d4a78af49e761cd6dcc3f56f903b57e53ed284f3b",
   "catalogCounts": {
     "SourceCommit": 0,
@@ -19,10 +19,10 @@
     "Rarities": 5,
     "SphereAbilityLinks": 30
   },
-  "verifiedArtifactCorrections": 32,
+  "verifiedArtifactCorrections": 35,
   "clarifiedDescriptionsPendingRuntimeReview": 10,
   "reviewedUnchangedArtifactConsumers": 27,
-  "remainingArtifactReviews": 23,
+  "remainingArtifactReviews": 20,
   "artifacts": [
     {
       "id": "crystal_speed",
@@ -136,12 +136,12 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 2775,
+          "line": 2777,
           "text": "if (_ownedArtifacts.Contains(\"swift_boots\")) _swiftBootsTimer = 3f;"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 2961,
+          "line": 2963,
           "text": "if (_swiftBootsTimer > 0f && _ownedArtifacts.Contains(\"swift_boots\")) multiplier *= 1.10f;"
         }
       ],
@@ -195,7 +195,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 6179,
+          "line": 6181,
           "text": "sphere.Type == SphereId.Sniper, _ownedArtifacts.Contains(\"long_lens\"));"
         }
       ],
@@ -212,7 +212,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 2900,
+          "line": 2902,
           "text": "if (_ownedArtifacts.Contains(\"stasis_core\"))"
         }
       ],
@@ -393,7 +393,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3020,
+          "line": 3022,
           "text": "if (_ownedArtifacts.Contains(\"network_relay\") && uniqueTypes >= 2) multiplier *= 1.05f;"
         }
       ],
@@ -442,7 +442,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3030,
+          "line": 3032,
           "text": "if (_ownedArtifacts.Contains(\"resonance_core\") && SphereNearAnotherType(type)) multiplier *= 1.12f;"
         }
       ],
@@ -464,7 +464,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3017,
+          "line": 3019,
           "text": "if (_ownedArtifacts.Contains(\"lone_bastion\") && uniqueTypes <= 1) multiplier *= 1.30f;"
         }
       ],
@@ -486,7 +486,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3018,
+          "line": 3020,
           "text": "if (_ownedArtifacts.Contains(\"fivefold_resonance\") && uniqueTypes > 1) multiplier *= 1f + 0.04f * Mathf.Min(5, uniqueTypes);"
         }
       ],
@@ -508,7 +508,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3019,
+          "line": 3021,
           "text": "if (_ownedArtifacts.Contains(\"relay_matrix\") && HasLevelSevenSphere()) multiplier *= 1.10f;"
         }
       ],
@@ -540,7 +540,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3025,
+          "line": 3027,
           "text": "if (_ownedArtifacts.Contains(\"triangle_circuit\"))"
         }
       ],
@@ -649,7 +649,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3023,
+          "line": 3025,
           "text": "if (_ownedArtifacts.Contains(\"mirror_network\") && uniqueTypes >= 2) multiplier *= 1.12f;"
         }
       ],
@@ -671,7 +671,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3024,
+          "line": 3026,
           "text": "if (_ownedArtifacts.Contains(\"singularity_engine\") && uniqueTypes <= 2) multiplier *= 1.18f;"
         }
       ],
@@ -723,7 +723,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3015,
+          "line": 3017,
           "text": "if (_ownedArtifacts.Contains(\"zero_sphere\")) multiplier *= 1.20f;"
         }
       ],
@@ -755,7 +755,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3016,
+          "line": 3018,
           "text": "if (_ownedArtifacts.Contains(\"unified_mind\")) multiplier *= 1f + GetStrongestSphereLevel() * 0.03f;"
         }
       ],
@@ -836,7 +836,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
-          "line": 48,
+          "line": 47,
           "text": "var pull = 34f * (_progressionLevel >= 1 ? 1.2f : 1f) * (_runtime.HasArtifact(\"gravity_bead\") ? 1.12f : 1f) * (_runtime.HasArtifact(\"gravity_hook\") ? 1.1f : 1f) * (1f + .20f * cluster);"
         }
       ],
@@ -1076,12 +1076,12 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 4616,
+          "line": 4618,
           "text": "if (HasActiveAbilitySynergy(SphereId.Orbital, \"orbital_blade\", ability, \"darkritual_void_pact_f3\"))"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 551,
+          "line": 560,
           "text": "if (_runtime.HasArtifact(\"orbital_blade\") && _runtime.HasArtifact(\"prism_filter\"))"
         }
       ],
@@ -1098,12 +1098,12 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 551,
+          "line": 560,
           "text": "if (_runtime.HasArtifact(\"orbital_blade\") && _runtime.HasArtifact(\"prism_filter\"))"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 745,
+          "line": 754,
           "text": "var prismFilter = _runtime.HasArtifact(\"prism_filter\");"
         }
       ],
@@ -1120,12 +1120,12 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 290,
+          "line": 299,
           "text": "if (_runtime.HasArtifact(\"gravity_hook\")) gravityInterval *= 0.92f;"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
-          "line": 48,
+          "line": 47,
           "text": "var pull = 34f * (_progressionLevel >= 1 ? 1.2f : 1f) * (_runtime.HasArtifact(\"gravity_bead\") ? 1.12f : 1f) * (_runtime.HasArtifact(\"gravity_hook\") ? 1.1f : 1f) * (1f + .20f * cluster);"
         }
       ],
@@ -1152,12 +1152,12 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 6183,
+          "line": 6185,
           "text": "sphere.Type == SphereId.Pulse, _ownedArtifacts.Contains(\"pulse_driver\"));"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 296,
+          "line": 305,
           "text": "if (_runtime.HasArtifact(\"pulse_driver\")) pulseInterval *= 0.90f;"
         }
       ],
@@ -1201,7 +1201,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 2982,
+          "line": 2984,
           "text": "if (_runEconomy==null && _ownedArtifacts.Contains(\"formation_compass\")) multiplier *= 1.08f;"
         }
       ],
@@ -1223,7 +1223,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3022,
+          "line": 3024,
           "text": "if (_ownedArtifacts.Contains(\"geometry_die\") && _networkState != null && _networkState.DominantFormation != null && _networkState.DominantFormation.Active) multiplier *= 1.08f;"
         }
       ],
@@ -1245,7 +1245,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-          "line": 3021,
+          "line": 3023,
           "text": "if (_ownedArtifacts.Contains(\"network_coil\") && uniqueTypes >= 2) multiplier *= 1.08f;"
         }
       ],
@@ -1401,8 +1401,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "gravity_crown",
@@ -1447,7 +1447,7 @@
       "literalRuntimeReferences": [
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 752,
+          "line": 761,
           "text": "branch, finalId, prismFilter, _runtime.HasArtifact(\"prism_crown\"), ringReflection);"
         }
       ],
@@ -1479,7 +1479,7 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 384,
+          "line": 393,
           "text": "var extraElements = (_runtime.HasArtifact(\"orbital_crown\") ? 1 : 0)"
         }
       ],
@@ -1506,13 +1506,18 @@
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
-          "line": 103,
+          "line": 108,
+          "text": "var waves=SphereEvolutionCombatRules.GetPulseWaveCount(branch,mode,_runtime.HasArtifact(\"pulse_crown\"));"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+          "line": 112,
           "text": "if (_type == SphereId.Pulse) return damage * (_runtime.HasArtifact(\"pulse_crown\") ? 2f : 1f) * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));"
         },
         {
           "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
           "line": 23,
-          "text": "var waves = 1 + (_runtime.HasArtifact(\"pulse_crown\") ? 1 : 0) + (branch == \"pulse_burst\" && (mode == 2 || mode < 0) ? 1 : 0);"
+          "text": "var waves = SphereEvolutionCombatRules.GetPulseWaveCount(branch, mode, _runtime.HasArtifact(\"pulse_crown\"));"
         }
       ],
       "status": "REQUIRES_BEHAVIORAL_REVIEW",
@@ -1574,9 +1579,20 @@
           "legacyValue": 0.03
         }
       ],
-      "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "literalRuntimeReferences": [
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+          "line": 1079,
+          "text": "_timeSplitterBuffTimer=ArtifactGameplayRules.TickTimeSplitter(_timeSplitterBuffTimer,previousTimeStop,_timeStopTimer,dt,_runEconomy!=null&&_ownedArtifacts.Contains(\"time_splitter\"));"
+        },
+        {
+          "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceModifiers.cs",
+          "line": 31,
+          "text": "if(_runEconomy!=null&&_timeSplitterBuffTimer>0f&&_ownedArtifacts.Contains(\"time_splitter\"))damage*=1.15f;"
+        }
+      ],
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "stasis_mandala",
@@ -1657,8 +1673,8 @@
         }
       ],
       "literalRuntimeReferences": [],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
-      "verification": null
+      "status": "CORRECTED_NEW_RUNS_AND_TESTED",
+      "verification": "ArtifactGameplayChecks + check-unity-artifact-contracts.cs"
     },
     {
       "id": "universal_fold",

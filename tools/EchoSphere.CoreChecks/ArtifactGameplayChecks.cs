@@ -12,6 +12,16 @@ internal static class ArtifactGameplayChecks
    Near(SphereEvolutionCombatRules.GetPulseWaveCount(branch,mode,hasCrown),count,"pulse authored wave count");
    for(int wave=0;wave<count;wave++)Near(SphereEvolutionCombatRules.GetPulseWaveDamageMultiplier(branch,mode,power,wave),wave==0?1f:.46f+(branch=="pulse_burst"?.14f:0f)*(branch=="pulse_burst"&&mode<0?power:1f)*power,"pulse extraction preserves combat");
   }
+  foreach(int links in new[]{-1,0,1,5,10,50})Near(ArtifactGameplayRules.ConditionalDamageMultiplier(new List<string>{"echo_weaver"},new ArtifactDamageContext{ActiveNetworkLinks=links}),1+.01f*Math.Clamp(links,0,10),"weaver active link cap");
+  foreach(var key in new[]{"sphereDamage","sphereRadius","sphereDelay","cooldown","critChance"})Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("axiom_core"),key,true),key=="sphereDamage"||key=="sphereRadius"?.05f:key=="sphereDelay"||key=="cooldown"?-.05f:0f,"axiom explicit effects");
+  Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("echo_weaver"),"sphereDamage",true),0,"weaver no unconditional damage");
+  Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("echo_weaver"),"cooldown",true),0,"weaver no hidden cooldown");
+  Near(ArtifactGameplayRules.TickTimeSplitter(0,.1f,0,.2f,true),5,"time splitter starts at stop end");
+  Near(ArtifactGameplayRules.TickTimeSplitter(5,0,0,1,true),4,"time splitter counts down");
+  Near(ArtifactGameplayRules.TickTimeSplitter(1,0,0,2,true),0,"time splitter expires");
+  Near(ArtifactGameplayRules.TickTimeSplitter(5,.1f,0,.2f,false),0,"legacy no time splitter timer");
+  Near(ArtifactGameplayRules.TickTimeSplitter(0,2,1,1,true),0,"time splitter not during stop");
+  Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("time_splitter"),"critChance",true),0,"no hidden time splitter crit");
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
   foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);

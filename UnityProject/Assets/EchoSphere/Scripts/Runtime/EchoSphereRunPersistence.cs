@@ -198,6 +198,7 @@ namespace EchoSphere.Runtime
             _spheres.Clear(); _enemies.Clear(); _enemyQueries?.Clear(); _maximumEnemyQueryRadius=0; _enemyQueryListCount=-1; _abilityDrones.Clear();
             // Old snapshots may contain UI ownership flags. Apply the same boundary
             // while reading as while writing so a live menu cannot be orphaned.
+            _timeSplitterBuffTimer=0f;
             _runEconomy=null; // Missing economy in a legacy snapshot must remain legacy.
             RunSnapshotCodec.Restore(save.runtime, GetType(), this, field => !NonRunFields.Contains(field.Name));
             if(_runEconomy!=null)_runEconomy.Open=false; // Reopen the same saved stock after the resume gate.
