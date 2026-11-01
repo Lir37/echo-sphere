@@ -12,6 +12,7 @@ internal static class Program
             var failures = new List<Exception>();
             void Check(Action action) { try { action(); } catch (Exception error) { failures.Add(error); } }
             Check(CheckRng);
+            Check(()=>_assertions += CampaignRegionChecks.Run());
             Check(()=>_assertions += RunEconomyChecks.Run());
             Check(()=>_assertions += ArtifactGameplayChecks.Run());
             Check(()=>_assertions += SpatialIndexChecks.Run());

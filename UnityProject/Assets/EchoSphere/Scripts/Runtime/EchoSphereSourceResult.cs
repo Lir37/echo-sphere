@@ -19,10 +19,10 @@ namespace EchoSphere.Runtime
                 new KeyValuePair<string, string>(IsRussianUi ? "Золото получено" : "Gold earned", _runGoldEarned.ToString()) };
             if (_regionStabilized)
             {
-                // App.tsx uses the default Basin persistence accessors for these result rows.
-                rows.Add(new KeyValuePair<string, string>(IsRussianUi ? "ИСПЫТАНИЯ" : "CHALLENGES", GetCompletedRegionChallenges(EchoRegionId.ResonanceBasin).Length + "/3"));
-                rows.Add(new KeyValuePair<string, string>(IsRussianUi ? "БЕСКОНЕЧНЫЙ" : "ENDLESS", IsRegionEndlessUnlocked(EchoRegionId.ResonanceBasin) ? IsRussianUi ? "ОТКРЫТ" : "UNLOCKED" : IsRussianUi ? "ЗАКРЫТ" : "LOCKED"));
-                rows.Add(new KeyValuePair<string, string>(IsRussianUi ? "МАСТЕРСТВО" : "MASTERY", _regionMasteryChallengesCompleted + "/3"));
+                // Campaign results use the selected region and only available challenge content.
+                if((int)_selectedRegion<2){rows.Add(new KeyValuePair<string, string>(IsRussianUi ? "ИСПЫТАНИЯ" : "CHALLENGES", GetCompletedRegionChallenges(_selectedRegion).Length + "/3"));
+                rows.Add(new KeyValuePair<string, string>(IsRussianUi ? "БЕСКОНЕЧНЫЙ" : "ENDLESS", IsRegionEndlessUnlocked(_selectedRegion) ? IsRussianUi ? "ОТКРЫТ" : "UNLOCKED" : IsRussianUi ? "ЗАКРЫТ" : "LOCKED"));
+                }rows.Add(new KeyValuePair<string, string>(IsRussianUi ? "МАСТЕРСТВО" : "MASTERY", _regionMasteryChallengesCompleted + "/3"));
             }
             if (_sourceResultRank > 0 && _sourceResultRank <= 10) rows.Add(new KeyValuePair<string, string>(IsRussianUi ? "Место" : "Rank", "#" + _sourceResultRank));
             var width = Mathf.Min(384f, _uiWidth - 48f); var height = 155f + rows.Count * 28f + (_sourceResultNewRecord ? 42f : 0f);

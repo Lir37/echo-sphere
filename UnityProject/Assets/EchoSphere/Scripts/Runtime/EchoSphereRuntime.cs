@@ -437,7 +437,7 @@ namespace EchoSphere.Runtime
             }
         }
         public bool IsRegionAvailable(EchoRegionId region) =>
-            RegionUnlockRules.IsAvailable(region, PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1);
+            (region==EchoRegionId.SpectralRift&&PlayerPrefs.GetInt(BasinStabilizedPreferenceKey,0)==1)||CampaignRegions.IsUnlocked(region, IsRegionStabilized);
         public float GetRegionRepulsionMultiplier()
         {
             if (_regionChallengeId == "low_gravity") return 0.55f;
@@ -445,7 +445,7 @@ namespace EchoSphere.Runtime
             return 1f;
         }
         private static string RegionSourceId(EchoRegionId region) =>
-            region == EchoRegionId.SpectralRift ? "spectral_rift" : "resonance_basin";
+            CampaignRegions.SourceId(region);
         private static string RegionStabilizedKey(EchoRegionId region) =>
             RegionChallengePreferencePrefix + RegionSourceId(region) + ":stabilized";
         private static string RegionChallengesKey(EchoRegionId region) =>
@@ -457,6 +457,7 @@ namespace EchoSphere.Runtime
                 PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1 ? 1 : 0) == 1;
         private string[] GetCompletedRegionChallenges(EchoRegionId region)
         {
+            if((int)region>=2)return Array.Empty<string>();
             var raw = PlayerPrefs.GetString(RegionChallengesKey(region), string.Empty);
             if (string.IsNullOrEmpty(raw)) return Array.Empty<string>();
             var valid = region == EchoRegionId.ResonanceBasin
@@ -1003,7 +1004,7 @@ namespace EchoSphere.Runtime
             _unlockedAchievementIds = LoadUnlockedAchievementIds();
             ConfigureCamera();
             var savedRegionValue = PlayerPrefs.GetInt(SelectedRegionPreferenceKey, (int)EchoRegionId.ResonanceBasin);
-            _selectedRegion = (EchoRegionId)Mathf.Clamp(savedRegionValue, (int)EchoRegionId.ResonanceBasin, (int)EchoRegionId.SpectralRift);
+            _selectedRegion = (EchoRegionId)Mathf.Clamp(savedRegionValue, (int)EchoRegionId.ResonanceBasin, (int)EchoRegionId.NullArchive);
             if (!IsRegionAvailable(_selectedRegion)) _selectedRegion = EchoRegionId.ResonanceBasin;
             _regionChallengeId = "none";
             _regionEndlessMode = false;
@@ -1480,7 +1481,7 @@ namespace EchoSphere.Runtime
                 {
                     var basinTypes = new[] { "conductor", "architect", "stella_warden" };
                     var riftTypes = new[] { "null", "aura", "stella_warden" };
-                    var types = _selectedRegion == EchoRegionId.SpectralRift ? riftTypes : basinTypes;
+                    var types = (int)_selectedRegion>=2?new[]{CampaignRegions.Get(_selectedRegion).FirstBoss,CampaignRegions.Get(_selectedRegion).SecondBoss,CampaignRegions.Get(_selectedRegion).FinalBoss}:_selectedRegion == EchoRegionId.SpectralRift ? riftTypes : basinTypes;
                     var bossType = types[Mathf.Min(_endlessBossesSpawned, types.Length - 1)];
                     _endlessBossesSpawned++;
                     _endlessNextBossAt += 150f;
@@ -7035,7 +7036,7 @@ namespace EchoSphere.Runtime
             }
             PlayerPrefs.SetInt(SelectedRegionPreferenceKey, (int)_selectedRegion);
             _regionSchedule = RegionBossScheduleRules.Create(_selectedRegion, EchoRegionMode.Stabilization);
-            _endlessNextBossAt = _selectedRegion == EchoRegionId.SpectralRift ? 450f : 480f;
+            _endlessNextBossAt = RegionBossScheduleRules.GetRegularBossTime(_selectedRegion,0);
             _endlessBossesSpawned = 0;
             _fractureIntervalIndex = 0;
             _regionStabilized = false;
@@ -8026,6 +8027,7 @@ namespace EchoSphere.Runtime
             _regionPocketNoticeTimer = Mathf.Max(0f, _regionPocketNoticeTimer - dt);
             if (_player == null) return;
 
+            if((int)_selectedRegion>=2){var profile=CampaignRegions.Get(_selectedRegion);var pocket=CampaignRegions.Nearest(_selectedRegion,_player.position.x,-_player.position.y);if(_tutorialStep<0&&!_regionStabilized&&_runTime>1f&&_regionHudPocketId!=pocket.Id){_regionPocketNotice=IsRussianUi?pocket.Ru:pocket.En;_regionPocketNoticeTimer=1.35f;ShowTimedCombatMessage(_regionPocketNotice,1.35f,profile.Accent,"boundary");}_regionHudPocketId=pocket.Id;return;}
             var sourceX = _player.position.x / (12.6f / 720f);
             var sourceY = -_player.position.y / (12.6f / 720f);
             var pocketNames = _selectedRegion == EchoRegionId.SpectralRift

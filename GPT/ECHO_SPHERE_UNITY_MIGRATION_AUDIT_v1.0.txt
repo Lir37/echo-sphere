@@ -6474,3 +6474,13 @@ handlers preserved,descriptions already corrected where proven mismatched.
 Implementation targets90/20/12 reached. Full30minute build balance,phone play,
 all combinations,visual acceptance and sustained performance remain open.
 Do not mark final gameplay acceptance DONE from counts,unit tests or CI alone.
+
+
+## 2026-11-01 — six-region implementation and four native factions
+New four campaign profiles wired to selection/unlocks/save identity/ecology/
+world/radar/HUD/boss schedule; native articulated insects,crystals,energy vortices
+and Void hybrids. Source Basin/Rift preserved. Details/evidence and exact limits:
+UNITY_REGION_CAMPAIGN_PROGRESS_2026-11-01.md. Core20194assertions+47389comparisons,
+Editor148checks,GPU96samples/69retainedArt/5movingframes,fiveC#profiles and
+Node272PASS. Full real battles,balance,Android,point4boss completeness and
+point5regional content acceptance remain OPEN; do not mark full campaign DONE.

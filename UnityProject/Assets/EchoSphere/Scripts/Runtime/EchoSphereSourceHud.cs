@@ -56,8 +56,8 @@ namespace EchoSphere.Runtime
             DrawSourceFormationChips(left);
             _regionFieldVisuals.DrawSourceRadar(new Rect(right.xMax - 145f, right.y + 14f, 130f, 130f));
             SourceUiLabel(new Rect(right.x + 12f, right.y + 150f, right.width - 24f, 28f), "•  " + FormatTime(_runTime) + "  •", 17, "#dcecff", true, true);
-            var regionId = _selectedRegion == EchoRegionId.SpectralRift ? "spectral_rift" : "resonance_basin";
-            SourceUiLabel(new Rect(right.x + 12f, right.y + 195f, right.width - 24f, 22f), PlannerName(PlannerEntry("region", regionId)), 13, "#66dfc7", false, true);
+            var regionId = RegionSourceId(_selectedRegion);
+            SourceUiLabel(new Rect(right.x + 12f, right.y + 195f, right.width - 24f, 22f), EchoSphere.Presentation.NativeRunCatalog.Instance.GetRegion(regionId).Name(IsRussianUi), 13, "#66dfc7", false, true);
             SourceUiLabel(new Rect(right.x + 12f, right.y + 222f, right.width - 24f, 20f), GetRegionPhaseLabel(), 13, "#e0eff5");
             SourceUiLabel(new Rect(right.x + 12f, right.y + 248f, right.width - 24f, 24f), GetSourcePocketName(_regionHudPocketId) + " · " + (_regionEndlessMode ? IsRussianUi ? "БЕСКОНЕЧНЫЙ" : "ENDLESS" : IsRussianUi ? "СТАБИЛИЗАЦИЯ" : "STABILIZATION"), 11, "#7a96aa");
             DrawSourceJoystick();

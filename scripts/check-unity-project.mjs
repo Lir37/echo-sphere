@@ -417,7 +417,7 @@ assert.ok(shopDashCounterCheck.includes('DashCount++'), 'Dash counter must follo
 const regionUnlockRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs'), 'utf8');
 assert.ok(regionUnlockRules.includes('resonanceBasinStabilized') && regionUnlockRules.includes('EchoRegionId.SpectralRift'),
   'Rift unlock must follow source Basin stabilization');
-assert.ok(runtime.includes('BeginSelectedRegionRun()') && runtime.includes('RegionUnlockRules.IsAvailable') &&
+assert.ok(runtime.includes('BeginSelectedRegionRun()') && runtime.includes('CampaignRegions.IsUnlocked') &&
   runtime.includes('BasinStabilizedPreferenceKey') && runtime.includes('SelectedRegionPreferenceKey') &&
   runtime.includes('_regionSchedule = RegionBossScheduleRules.Create(_selectedRegion, EchoRegionMode.Stabilization)'),
   'Region selector must preserve the selected available Region, persist Basin unlock and use its matching boss schedule');

@@ -83,6 +83,7 @@ namespace EchoSphere.Runtime
             _nextPoiAt = 70f;
             ActiveRegionId = regionId;
 
+            if((int)regionId>=2){var profile=CampaignRegions.Get(regionId);for(int i=0;i<profile.Pockets.Length;i++){var p=profile.Pockets[i];AddPocket(p.Id,p.X,p.Y,i==0?340:330,profile.Accent,i==0);}return;}
             if (regionId == EchoRegionId.SpectralRift)
             {
                 // Exact pocket layout from new-desing/src/region.ts:RIFT_POCKETS.

@@ -1,6 +1,6 @@
 namespace EchoSphere.Core
 {
-    public enum EchoRegionId { ResonanceBasin, SpectralRift }
+    public enum EchoRegionId { ResonanceBasin, SpectralRift, FracturedBastion, GravityFolds, ResonanceStorm, NullArchive }
     public enum EchoRegionMode { Stabilization, Endless }
     public enum RegionBossSignalKind { None, SpawnBoss, RegionCleared }
 
@@ -64,12 +64,13 @@ namespace EchoSphere.Core
 
         public static string GetRegularBossType(EchoRegionId regionId, int index)
         {
+            if((int)regionId>=2){var p=CampaignRegions.Get(regionId);return index<=0?p.FirstBoss:p.SecondBoss;}
             if (regionId == EchoRegionId.SpectralRift)
                 return index <= 0 ? "null" : "aura";
             return index <= 0 ? "conductor" : "architect";
         }
 
-        public static string GetFinalBossType(EchoRegionId regionId) => "stella_warden";
+        public static string GetFinalBossType(EchoRegionId regionId) => (int)regionId>=2?CampaignRegions.Get(regionId).FinalBoss:"stella_warden";
 
         public static int GetBaseGoldReward(EchoRegionId regionId) =>
             regionId == EchoRegionId.SpectralRift ? 360 : 250;
@@ -141,6 +142,7 @@ namespace EchoSphere.Core
 
         private static string GetEndlessBossType(EchoRegionId regionId, int index)
         {
+            if((int)regionId>=2){var p=CampaignRegions.Get(regionId);return index==0?p.FirstBoss:index==1?p.SecondBoss:p.FinalBoss;}
             if (regionId == EchoRegionId.SpectralRift)
                 return index == 0 ? "null" : index == 1 ? "aura" : "stella_warden";
             return index == 0 ? "conductor" : index == 1 ? "architect" : "stella_warden";
@@ -220,7 +222,8 @@ namespace EchoSphere.Core
                 }
             }
 
-            switch (nearest.Ecology)
+            var ecology=(int)region>=2?CampaignRegions.Nearest(region,worldX,worldY).Ecology:nearest.Ecology;
+            switch (ecology)
             {
                 case 1: return new RegionPocketMultipliers(0.82f, 1.22f, 0.88f, 1.05f);
                 case 2: return new RegionPocketMultipliers(1.28f, 0.86f, 1.18f, 1.22f);
@@ -273,6 +276,7 @@ namespace EchoSphere.Core
         };
         public static string SelectCampaignRole(EchoRegionId region,float worldX,float worldY,float roll,float runTime)
         {
+            if((int)region>=2)return CampaignRegions.SelectRole(region,worldX,worldY,roll,runTime);
             if(region!=EchoRegionId.SpectralRift)return SelectRole(region,worldX,worldY,roll);
             int ecology=0;float nearest=float.PositiveInfinity;
             for(int i=0;i<Rift.Length;i++){float dx=Rift[i].X-worldX,dy=Rift[i].Y-worldY,d=dx*dx+dy*dy;if(d<nearest){nearest=d;ecology=Rift[i].Ecology;}}

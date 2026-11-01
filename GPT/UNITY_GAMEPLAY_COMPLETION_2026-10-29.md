@@ -442,3 +442,13 @@ Additional protocol damage now uses an already-resolved owner-attributed enemy
 API:does not apply global buffs a second time,does not recurse into Sphere
 procs,and preserves kill attribution. Editor asserts exact25%/15% hit deltas.
 Acceptance fixture restores RNG as well as borrowed state.
+
+
+## 2026-11-01 — six-region implementation and four native factions
+New four campaign profiles wired to selection/unlocks/save identity/ecology/
+world/radar/HUD/boss schedule; native articulated insects,crystals,energy vortices
+and Void hybrids. Source Basin/Rift preserved. Details/evidence and exact limits:
+UNITY_REGION_CAMPAIGN_PROGRESS_2026-11-01.md. Core20194assertions+47389comparisons,
+Editor148checks,GPU96samples/69retainedArt/5movingframes,fiveC#profiles and
+Node272PASS. Full real battles,balance,Android,point4boss completeness and
+point5regional content acceptance remain OPEN; do not mark full campaign DONE.

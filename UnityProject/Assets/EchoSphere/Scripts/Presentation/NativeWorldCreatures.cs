@@ -190,6 +190,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){foreach(var art in _art.Values)art.Dispose();_art.Clear();_defaultView.Dispose();foreach(var view in _entityViews.Values)view.Dispose();_entityViews.Clear();_expiredViews.Clear();foreach(var view in _freeEntityViews)view.Dispose();_freeEntityViews.Clear();Destroy(_solid);Destroy(_radial);}
+        public void Dispose(){ClearRegionalArt();foreach(var art in _art.Values)art.Dispose();_art.Clear();_defaultView.Dispose();foreach(var view in _entityViews.Values)view.Dispose();_entityViews.Clear();_expiredViews.Clear();foreach(var view in _freeEntityViews)view.Dispose();_freeEntityViews.Clear();Destroy(_solid);Destroy(_radial);}
     }
 }

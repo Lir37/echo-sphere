@@ -9,7 +9,7 @@ namespace EchoSphere.Presentation
     public sealed class NativeRegionScreen : MonoBehaviour
     {
         public sealed class Challenge { public string Id,Name,Description,Accent; public bool Completed; }
-        public sealed class Region { public string Id,Name,Subtitle,Accent; public bool Available,Stable,Endless; public IReadOnlyList<Challenge> Challenges; public int Completed; }
+        public sealed class Region { public string Id,Name,Subtitle,Accent,UnlockRu,UnlockEn; public bool Available,Stable,Endless; public IReadOnlyList<Challenge> Challenges; public int Completed; }
         public sealed class State { public bool Russian; public IReadOnlyList<Region> Regions; }
         private NativePanelLease _panelLease;
         private UIDocument _document;
@@ -79,13 +79,14 @@ namespace EchoSphere.Presentation
             if(region.Available)Text(header,"region-status",region.Stable?L("СТАБИЛЕН","STABLE"):L("ДОСТУПЕН","AVAILABLE"),6,region.Stable?"#70e7c7":"#67869a","900",.12f);
             else Icon(header,"LockKeyhole",15,C("#67869a"));
             var rule=Box(card,"region-rule");rule.style.height=1;rule.style.marginTop=rule.style.marginBottom=10;rule.style.backgroundColor=A(100,190,230,.08f);
-            if(!region.Available){var locked=Box(card,"region-locked-message",true);locked.style.alignItems=Align.Center;locked.style.minHeight=54;locked.style.paddingLeft=locked.style.paddingRight=4;Icon(locked,"LockKeyhole",15,C("#688296")).style.marginRight=9;Text(locked,"region-lock-copy",L("Откроется после стабилизации Резонансного Бассейна.","Unlocks after Resonance Basin is stabilized."),8,"#688296","400",.012f,true).style.flexShrink=1;return;}
+            if(!region.Available){var locked=Box(card,"region-locked-message",true);locked.style.alignItems=Align.Center;locked.style.minHeight=54;locked.style.paddingLeft=locked.style.paddingRight=4;Icon(locked,"LockKeyhole",15,C("#688296")).style.marginRight=9;Text(locked,"region-lock-copy",(_state.Russian?region.UnlockRu:region.UnlockEn)??L("Откроется после стабилизации Резонансного Бассейна.","Unlocks after Resonance Basin is stabilized."),8,"#688296","400",.012f,true).style.flexShrink=1;return;}
             var run=Button(card,"start-"+region.Id,()=>_start?.Invoke(region.Id,"stabilization","none"));Pad(run,10);Border(run,7);
             Paint(run,new NativeMenuBrush.Paint {Radius=7,Border=1,BorderColor=Alpha(accent,.36f),Linear=true,Colors=new[]{A(27,88,109,.30f),A(9,31,45,.52f)},Stops=new[]{0f,1f}});
             var runIcon=IconFrame(run,"Swords",17,accent,Alpha(accent,.32f),A(2,8,15,.72f));runIcon.style.marginRight=10;
             var runCopy=Box(run,"run-copy");runCopy.style.flexGrow=1;runCopy.style.flexShrink=1;runCopy.style.marginRight=10;
             Text(runCopy,"run-title",region.Stable?L("ПОВТОРИТЬ СТАБИЛИЗАЦИЮ","REPLAY STABILIZATION"):L("СТАБИЛИЗАЦИЯ · 30:00","STABILIZATION · 30:00"),9,"#e8fbff","700",.06f);
-            Text(runCopy,"run-description",L("Базовый маршрут · открывает историю региона","Base route · opens the region story"),7,"#7593a7").style.marginTop=2;Icon(run,"ChevronRight",18,C("#e8fbff"));
+            Text(runCopy,"run-description",(region.Challenges==null||region.Challenges.Count==0)?L("Базовый маршрут региона.","Base route through the region."):L("Базовый маршрут · открывает историю региона","Base route · opens the region story"),7,"#7593a7").style.marginTop=2;Icon(run,"ChevronRight",18,C("#e8fbff"));
+            if(region.Challenges==null||region.Challenges.Count==0)return;
             var section=Box(card,"region-challenge-heading",true);section.style.justifyContent=Justify.SpaceBetween;section.style.marginTop=11;section.style.marginBottom=6;section.style.marginLeft=section.style.marginRight=2;
             Text(section,"challenges-label",L("ИСПЫТАНИЯ","CHALLENGES"),7,"#648299","900",.16f);Text(section,"challenges-progress",region.Completed+"/3",7,"#cfe8f4","900",.16f);
             for(int i=0;i<region.Challenges.Count;i++)BuildChallenge(card,region,region.Challenges[i],i);

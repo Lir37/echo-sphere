@@ -38,6 +38,7 @@ namespace EchoSphere.Runtime
                 foreach(string challengeId in entry.requires){var definition=PlannerEntry("region-challenge",challengeId);challenges.Add(new NativeRegionScreen.Challenge {Id=challengeId,Name=PlannerName(definition),Description=PlannerDesc(definition),Accent=NativeRegionChallengeAccent(challengeId,entry.color),Completed=Array.IndexOf(completed,challengeId)>=0});}
                 regions.Add(new NativeRegionScreen.Region {Id=entry.id,Name=PlannerName(entry),Subtitle=PlannerDesc(entry),Accent=entry.color,Available=available,Stable=available&&IsRegionStabilized(id),Endless=available&&IsRegionEndlessUnlocked(id),Completed=completed.Length,Challenges=challenges});
             }
+            foreach(var profile in CampaignRegions.Additional){bool available=IsRegionAvailable(profile.Region);var previous=(EchoRegionId)((int)profile.Region-1);var prior=NativeRunCatalog.Instance.GetRegion(CampaignRegions.SourceId(previous));regions.Add(new NativeRegionScreen.Region{Id=profile.Id,Name=IsRussianUi?profile.Ru:profile.En,Subtitle=IsRussianUi?profile.DescriptionRu:profile.DescriptionEn,Accent=profile.Accent,Available=available,Stable=IsRegionStabilized(profile.Region),Endless=false,Completed=0,Challenges=new List<NativeRegionScreen.Challenge>(),UnlockRu="Откроется после стабилизации: "+prior.Name(true)+".",UnlockEn="Unlocks after stabilizing "+prior.Name(false)+"."});}
             return new NativeRegionScreen.State {Russian=IsRussianUi,Regions=regions};
         }
         // EchoMapScreen.tsx challengeAccent; the shared planner catalog has no
@@ -49,7 +50,7 @@ namespace EchoSphere.Runtime
         private void StartNativeRegion(string sourceId,string mode,string challenge)
         {
             if(!_mainMenu||!_regionSelect||NativeRoutes.RegionLaunchPending){TraceNativeRoute("rejected-region-start");return;}
-            EchoRegionId region=sourceId=="spectral_rift"?EchoRegionId.SpectralRift:EchoRegionId.ResonanceBasin;
+            if(!CampaignRegions.TryParse(sourceId,out var region))return;
             if(!IsRegionAvailable(region))return;
             if(mode=="endless"&&!IsRegionEndlessUnlocked(region))return;
             if(challenge!="none"&&!IsRegionStabilized(region))return;

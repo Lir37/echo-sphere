@@ -30,11 +30,12 @@ namespace EchoSphere.Presentation
         public List<Definition> Rarities=new List<Definition>();public List<SphereAbilityLink> SphereAbilityLinks=new List<SphereAbilityLink>();
         [NonSerialized] private Dictionary<string,Sphere> _spheres;[NonSerialized] private Dictionary<string,Ability> _abilities;[NonSerialized] private Dictionary<string,Artifact> _artifacts;
         [NonSerialized] private Dictionary<string,Element> _elements;[NonSerialized] private Dictionary<string,Choice> _branches;
+        [NonSerialized] private Dictionary<string,Region> _campaignRegions;
         private static NativeRunCatalog _instance;
         public static NativeRunCatalog Instance {get{if(_instance==null)_instance=Resources.Load<NativeRunCatalog>("EchoSphere/NativeRunCatalog");if(_instance==null)throw new InvalidOperationException("Native run catalog missing");return _instance;}}
         private void OnEnable()=>ClearLookupCaches();
         private void OnValidate()=>ClearLookupCaches();
-        private void ClearLookupCaches(){_spheres=null;_abilities=null;_artifacts=null;_elements=null;_branches=null;_campaignSets=null;_campaignSynergies=null;}
+        private void ClearLookupCaches(){_spheres=null;_abilities=null;_artifacts=null;_elements=null;_branches=null;_campaignSets=null;_campaignSynergies=null;_campaignRegions=null;}
         private static Dictionary<string,T> Index<T>(IEnumerable<T> rows) where T:Definition {var map=new Dictionary<string,T>(StringComparer.Ordinal);foreach(var row in rows)map.Add(row.Id,row);return map;}
         [NonSerialized] private List<Set> _campaignSets;
         [NonSerialized] private List<Synergy> _campaignSynergies;
@@ -49,7 +50,9 @@ namespace EchoSphere.Presentation
             row=new Artifact{Id=item.Id,NameRu=item.NameRussian,NameEn=item.NameEnglish,DescriptionRu=item.DescriptionRussian,DescriptionEn=item.DescriptionEnglish,Rarity=item.Rarity.ToString().ToLowerInvariant(),Mechanic=item.Mechanic};foreach(var effect in item.Effects)row.Effects.Add(new Effect{Id=effect.Key,Value=effect.Value});_artifacts[id]=row;return row;}
         public Element GetElement(string id){if(id==null)return null;if(_elements==null)_elements=Index(Elements);return _elements.TryGetValue(id,out var row)?row:null;}
         public Choice GetSphereBranch(string id){if(id==null)return null;if(_branches==null){_branches=new Dictionary<string,Choice>(StringComparer.Ordinal);foreach(var sphere in Spheres)foreach(var branch in sphere.Branches)_branches.Add(branch.Id,branch);}return _branches.TryGetValue(id,out var row)?row:null;}
-        public Region GetRegion(string id){foreach(var row in Regions)if(row.Id==id)return row;if(Regions.Count==0)throw new InvalidOperationException("Native region catalog missing");return Regions[0];}
+        public Region GetRegion(string id){foreach(var row in Regions)if(row.Id==id)return row;
+            if(EchoSphere.Core.CampaignRegions.TryParse(id,out var region)&&(int)region>=2){if(_campaignRegions==null)_campaignRegions=new Dictionary<string,Region>();if(_campaignRegions.TryGetValue(id,out var cached))return cached;var profile=EchoSphere.Core.CampaignRegions.Get(region);var value=new Region{Id=id,NameRu=profile.Ru,NameEn=profile.En,DescriptionRu=profile.DescriptionRu,DescriptionEn=profile.DescriptionEn};foreach(var p in profile.Pockets)value.Pockets.Add(new Pocket{Id=p.Id,NameRu=p.Ru,NameEn=p.En,X=p.X,Y=p.Y,Radius=p.Ecology==0?340:330,Accent=profile.Accent});_campaignRegions[id]=value;return value;}
+if(Regions.Count==0)throw new InvalidOperationException("Native region catalog missing");return Regions[0];}
         public Character GetCharacter(string id){foreach(var row in Characters)if(row.Id==id)return row;throw new InvalidOperationException("Unknown native character: "+id);}
         public Element GetRune(string id){foreach(var rune in Runes)if(rune.Id==id)return rune;throw new InvalidOperationException("Unknown native rune: "+id);}
         public string RarityLabel(string id,bool ru){foreach(var row in Rarities)if(row.Id==id)return row.Name(ru);return "undefined";}

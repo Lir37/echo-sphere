@@ -84,3 +84,10 @@ EchoSphereArtifactProtocolProcs owns20bounded hit counters in runtime snapshot.
 Only positive authored hits enter;legacy null-economy and secondary hits gated.
 EnemyAgent2D.ReceiveArtifactProtocolDamage takes already-resolved damage with
 owner credit and no recursive procs/double global buff.
+
+2026-11-01 regional extension:Core.CampaignRegions owns four additional profiles,
+20pockets and20ecology tables; legacy Basin/Rift definitions retained. Native
+catalog projections,RegionFieldVisuals and HUD bind new profile data. EnemyView
+RegionStyle selects four retained native anatomies; RegionalGeometry/RegionalEllipse
+cache geometry outside hot drawing. Old art dictionary owns meshes;Dispose clears
+regional reference caches. Stable IDs0/1 preserved,new IDs2–5 appended.
