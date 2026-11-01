@@ -10,11 +10,13 @@ namespace EchoSphere.Core
     }
     public static class ArtifactGameplayRules
     {
-        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed","echo_weaver","axiom_core","time_splitter","stasis_mandala"};
+        private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed","echo_weaver","axiom_core","time_splitter","stasis_mandala","resonant_leaf","resonance_lattice"};
         private static readonly string[] DescriptionOnlyIds = {"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver","prism_filter","prism_crown"};
         public static string DescriptionOverride(string id,bool ru)
         {
             switch(id){
+                case "resonant_leaf":return ru?"+10% к получаемому заряду Резонанса.":"+10% Resonance charge gained.";
+                case "resonance_lattice":return ru?"+15% к получаемому заряду Резонанса.":"+15% Resonance charge gained.";
                 case "stasis_mandala":return ru?"Каждые 50 потерянных HP дают заряд щита. Не более одного заряда за попадание; максимум 5 зарядов. Смертельный урон не спасает.":"Every 50 HP lost grants a shield charge. At most one charge per hit; maximum 5 charges. Does not prevent lethal damage.";
                 case "time_splitter":return ru?"После окончания Остановки времени: +15% урона сфер на 5 секунд.":"After Time Stop ends: +15% Sphere damage for 5 seconds.";
                 case "echo_weaver":return ru?"+1% урона сфер за каждую активную связь сети, до +10%.":"+1% Sphere damage per active Network link, up to +10%.";
@@ -66,6 +68,11 @@ namespace EchoSphere.Core
             if(type==SphereNetworkFormation.Fractal){if(owned.Contains("fractal_engine"))multiplier*=1.12f;if(owned.Contains("fractal_seed"))multiplier*=1.10f;}
             return multiplier;
         }
+        public static float ResonanceChargeMultiplier(IList<string> owned,bool modern)
+        {
+            if(!modern||owned==null)return 1f;
+            return 1f+(owned.Contains("resonant_leaf")?.10f:0f)+(owned.Contains("resonance_lattice")?.15f:0f);
+        }
         public static bool AccumulateMandala(ref float stored,float actualHpLost,int shieldCharges,bool alive,bool enabled)
         {
             if(!enabled){stored=0;return false;}
@@ -86,7 +93,7 @@ namespace EchoSphere.Core
         {
             if(item==null||key==null)return 0;
             if(modern){
-                if(item.Id=="echo_weaver"||item.Id=="time_splitter"||item.Id=="stasis_mandala")return 0f;
+                if(item.Id=="resonant_leaf"||item.Id=="resonance_lattice"||item.Id=="echo_weaver"||item.Id=="time_splitter"||item.Id=="stasis_mandala")return 0f;
                 if(item.Id=="axiom_core")return key=="sphereDamage"||key=="sphereRadius"?.05f:key=="sphereDelay"||key=="cooldown"?-.05f:0f;
                 if(item.Id=="mirror_dust"||item.Id=="signal_knot"||item.Id=="echo_thread"||item.Id=="triangle_engine"||item.Id=="ring_engine"||item.Id=="lattice_engine"||item.Id=="fractal_engine"||item.Id=="lattice_chip"||item.Id=="fractal_seed")return 0f;
                 if(item.Id=="chain_battery")return key=="chainDamage"?.10f:0f;

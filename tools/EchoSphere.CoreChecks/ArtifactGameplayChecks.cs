@@ -30,6 +30,11 @@ internal static class ArtifactGameplayChecks
   Near(ArtifactGameplayRules.AccumulateMandala(ref stored,100,0,false,true)?1:0,0,"mandala cannot prevent death");
   Near(ArtifactGameplayRules.AccumulateMandala(ref stored,0,0,true,true)?1:0,0,"blocked hits no charge");
   Near(ArtifactGameplayRules.AccumulateMandala(ref stored,100,0,true,false)?1:0,0,"legacy no mandala");Near(stored,0,"disabled clears accumulation");
+  Near(ArtifactGameplayRules.ResonanceChargeMultiplier(null,true),1,"empty resonance inventory");
+  Near(ArtifactGameplayRules.ResonanceChargeMultiplier(new List<string>{"resonant_leaf"},true),1.10f,"leaf charge");
+  Near(ArtifactGameplayRules.ResonanceChargeMultiplier(new List<string>{"resonance_lattice"},true),1.15f,"lattice charge");
+  Near(ArtifactGameplayRules.ResonanceChargeMultiplier(new List<string>{"resonant_leaf","resonance_lattice"},true),1.25f,"additive resonance gain");
+  Near(ArtifactGameplayRules.ResonanceChargeMultiplier(new List<string>{"resonant_leaf","resonance_lattice"},false),1,"legacy resonance charge");
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
   foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);

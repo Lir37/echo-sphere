@@ -279,3 +279,20 @@ old effects. RU/EN card explicitly states thresholds and limits.
 Core PASS: 13799 assertions,47389 source comparisons. Pure contracts cover partial
 loss,threshold,large hit,cap,blocked damage,death and legacy. Actual Editor damage
 execution,save roundtrip and Android balance remain open. No APK built.
+
+
+## 2026-11-01 — Resonance resource artifacts
+Resonant Leaf and Resonance Lattice now affect the real player-level Resonance
+resource in new runs rather than hidden unconditional Sphere damage/cooldown.
+Authored completion decision under approved balance authority: +10% and +15%
+charge gained, additive to each other (1.25 combined), multiplicative with
+existing ability/region multipliers. RU/EN explicitly say charge gained rather
+than claiming all heterogeneous event effects are scaled. Existing event damage,
+shield counts, geometry, thresholds and RNG remain unchanged. All charge sources
+converge at AddResonanceCharge; multiplier applies once, after event-active gate.
+Legacy runs retain old metadata effects and unchanged charge. Five focused
+contracts plus full suite PASS:13792 assertions,47389 source comparisons.
+Assertion count changes because two IDs leave unchanged-metadata comparison
+loop; their legacy compatibility comparisons remain. Editor and Android
+execution/balance remain open. Next: Universal Fold and remaining behavioral
+reviews, then abilities and regional roadmap.

@@ -2024,6 +2024,7 @@ namespace EchoSphere.Runtime
         public void AddResonanceCharge(float amount)
         {
             if (_resonanceEventActive) return;
+            amount *= ArtifactGameplayRules.ResonanceChargeMultiplier(_ownedArtifacts,_runEconomy!=null);
             amount *= LevelUpAbilityRules.GetResonanceGainMultiplier(GetAbilityLevel(RunUpgradeKind.Resonance));
             amount *= RegionBossScheduleRules.GetResonanceMultiplier(
                 _selectedRegion, _regionChallengeId, _runTime, _resonanceCharge);
