@@ -37,7 +37,7 @@ namespace EchoSphere.Runtime {
     }return;
    }
    _regionalCooldown-=dt;
-   float limit=(p.Range>0?p.Range+100:145)*SpherePlacementRules.SourcePixelsToWorld;
+   float limit=(p.Range>0?p.Range:145)*SpherePlacementRules.SourcePixelsToWorld;
    if(_regionalCooldown<=0&&distance<limit){_regionalAim=target;_regionalWindup=p.Windup;}
   }
  }

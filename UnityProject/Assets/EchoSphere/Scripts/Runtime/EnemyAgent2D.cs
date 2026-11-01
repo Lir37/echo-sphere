@@ -473,7 +473,10 @@ namespace EchoSphere.Runtime
             if (_eliteVariant == "phantom_hunter" && distanceToPlayer > 180f * SpherePlacementRules.SourcePixelsToWorld) speedMultiplier *= 1.35f;
             if (_eliteVariant == "scavenger_prime" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
             var movement = _campaignRegionStyle>=0 ? RegionalMovement(dt,directionToPlayer,distanceToPlayer) : directionToPlayer;
-            if(_campaignRegionStyle>0)movement=_runtime.SteerRegionalEnemy(this,movement);
+            if(_campaignRegionStyle>0){movement=_runtime.SteerRegionalEnemy(this,movement);
+                // Separation may move sideways but cannot turn approach into flight.
+                float retreat=Vector2.Dot(movement,directionToPlayer);if(retreat<0)movement-=directionToPlayer*retreat;
+            }
             transform.position += (Vector3)(movement * _moveSpeed * speedMultiplier * dt);
             if(_campaignRegionStyle>=0)TickRegionalAttack(dt,target,distanceToPlayer);
             _runtime?.RefreshEnemyQuery(this);

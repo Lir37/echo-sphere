@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-02",
+  "baseline": "d112417422cb46ddf24c42c47c483ec8e3ed55c7",
+  "coreAssertions": 259447,
+  "sourceComparisons": 47389,
+  "editorMovementAndSnapshot": {
+    "result": "PASS",
+    "checks": 121
+  },
+  "playProjectiles": {
+    "result": "PASS",
+    "checks": 54
+  },
+  "consoleErrors": 0,
+  "consoleWarnings": 0,
+  "apkBuilt": false,
+  "phoneAcceptance": "OPEN_NEW_APK_NOT_INSTALLED"
+}
