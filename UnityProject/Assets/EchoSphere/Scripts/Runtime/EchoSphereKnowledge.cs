@@ -51,22 +51,22 @@ namespace EchoSphere.Runtime
             if (_knowledgeTick < 0.35f && !_gameOver) return;
             _knowledgeTick = 0f; EnsureKnowledgeLoaded();
             var previous = _knownKnowledgeIds.Count;
-            foreach (var sphere in _spheres) if (sphere != null) _knownKnowledgeIds.Add("sphere:" + sphere.Type.ToString().ToLowerInvariant());
-            foreach (var pair in _sphereLevels) if (pair.Value > 0) _knownKnowledgeIds.Add("sphere:" + pair.Key.ToString().ToLowerInvariant());
-            foreach (var enemy in _enemies) if (enemy != null) _knownKnowledgeIds.Add(enemy.IsBoss ? "boss:" + enemy.BossType : "monster:" + enemy.SourceMonsterType);
-            foreach (var pair in _abilityLevels) if (pair.Value > 0) _knownKnowledgeIds.Add("ability:" + SourceAbilityId(pair.Key));
-            foreach (var artifact in _ownedArtifacts) _knownKnowledgeIds.Add("artifact:" + artifact);
-            foreach (var pair in _sphereBranches) _knownKnowledgeIds.Add("sphere-branch:" + pair.Value);
+            foreach (var sphere in _spheres) if (sphere != null) RecordNaturalKnowledge("sphere:" + sphere.Type.ToString().ToLowerInvariant());
+            foreach (var pair in _sphereLevels) if (pair.Value > 0) RecordNaturalKnowledge("sphere:" + pair.Key.ToString().ToLowerInvariant());
+            foreach (var enemy in _enemies) if (enemy != null) RecordNaturalKnowledge(enemy.IsBoss ? "boss:" + enemy.BossType : "monster:" + enemy.SourceMonsterType);
+            foreach (var pair in _abilityLevels) if (pair.Value > 0) RecordNaturalKnowledge("ability:" + SourceAbilityId(pair.Key));
+            foreach (var artifact in _ownedArtifacts) RecordNaturalKnowledge("artifact:" + artifact);
+            foreach (var pair in _sphereBranches) RecordNaturalKnowledge("sphere-branch:" + pair.Value);
             foreach (var pair in _sphereFinals)
             {
                 if (!_sphereBranches.TryGetValue(pair.Key, out var branch) || string.IsNullOrEmpty(pair.Value)) continue;
                 var suffix = pair.Value[pair.Value.Length - 1] - '1';
-                _knownKnowledgeIds.Add("sphere-final:" + pair.Key.ToString().ToLowerInvariant() + ":" + branch + ":" + suffix);
+                RecordNaturalKnowledge("sphere-final:" + pair.Key.ToString().ToLowerInvariant() + ":" + branch + ":" + suffix);
             }
-            foreach (var pair in _abilityBranches) _knownKnowledgeIds.Add("ability-evolution:" + pair.Value);
-            foreach (var pair in _abilityFinals) _knownKnowledgeIds.Add("ability-evolution:" + pair.Value);
+            foreach (var pair in _abilityBranches) RecordNaturalKnowledge("ability-evolution:" + pair.Value);
+            foreach (var pair in _abilityFinals) RecordNaturalKnowledge("ability-evolution:" + pair.Value);
             if (previous != _knownKnowledgeIds.Count)
-            { PlayerPrefs.SetString("echosphere_knowledge_v1", JsonUtility.ToJson(new KnowledgeSave { ids = new List<string>(_knownKnowledgeIds) })); PlayerPrefs.Save(); }
+            { PersistKnowledgeProgress(); }
         }
         private void DrawSourceKnowledgeBaseScreen()
         {

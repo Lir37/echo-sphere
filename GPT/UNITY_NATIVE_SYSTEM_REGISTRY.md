@@ -121,3 +121,15 @@ Native pickable geometry owns Cell glyph; existing archive projects10RuneRules
 definitions. Old null-economy policy retains legacy behavior. Source catalogs
 remain read-only imports; Unity source count361. Details/acceptance limits in
 UNITY_ECONOMY_RUNES_COMPLETION_2026-11-01.md.
+
+
+2026-11-01 point7: Core.MetaCurrencyRules/MetaWallet own three persistent
+balances and transaction receipts; Echo remains exclusively RunEconomyState.
+Runtime.EchoSphereMetaCurrencies owns versioned PlayerPrefs JSON/cache/backup
+and paid-entitlement recovery. EchoSphereMetaProgression owns approved initial
+Shard/Data rates, one-time legacy backfill, optional existing-mastery research
+and lore research. Known-record grants batch into the existing knowledge save.
+Meta wallet/cache/pending discoveries are NonRunFields; only the run receipt
+and per-run reward counters belong to run snapshots. Native UI projects wallet
+state and expected mastery level; no Renderer is used as financial storage.
+Runtime source count364; see UNITY_META_CURRENCIES_COMPLETION_2026-11-01.md.

@@ -24,16 +24,17 @@ namespace EchoSphere.Runtime
                 _nativeCharacterState=ReadNativeCharacterState();_nativeCharacterWasActive=true;
                 _camera.cullingMask=0;
             }
-            _nativeCharacterScreen.Show(_nativeCharacterState,NativeSubmenuScale,()=>_mainMenuPage=MainMenuPage.Home,ChooseNativeCharacter,ExpandNativeCharacter);
+            _nativeCharacterScreen.Show(_nativeCharacterState,NativeSubmenuScale,()=>_mainMenuPage=MainMenuPage.Home,ChooseNativeCharacter,ExpandNativeCharacter,ResearchNativeCharacterMastery);
             return true;
         }
         private void ChooseNativeCharacter(string id)
         {
             if(!_mainMenu||_mainMenuPage!=MainMenuPage.Characters||!CharacterRules.TryParseSourceId(id,out var character))return;
-            var profile=GetCharacterProfile(character);var definition=CharacterRules.Get(character);
+            GetGold();var profile=GetCharacterProfile(character);var definition=CharacterRules.Get(character);
             if(!profile.unlocked){
-                if(GetGold()<definition.UnlockCost){_nativeCharacterMessage=IsRussianUi?"Недостаточно золота.":"Not enough gold.";_nativeCharacterState=ReadNativeCharacterState();return;}
-                profile.unlocked=true;SaveCharacterProfiles();SaveGold(GetGold()-definition.UnlockCost);
+                if(GetMetaBalance(CurrencyId.ResonanceShards)<MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost)&&!MetaCurrencyRules.HasReceipt(ReadMetaWallet(),"purchase:character:"+id)){_nativeCharacterMessage=IsRussianUi?"Недостаточно осколков резонанса.":"Not enough Resonance Shards.";_nativeCharacterState=ReadNativeCharacterState();return;}
+                if(!TryBuyMeta("purchase:character:"+id,CurrencyId.ResonanceShards,MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost)))return;
+                profile.unlocked=true;SaveCharacterProfiles();
             }
             // Match CharacterSelect choose/unlock + saveCharacterId binding.
             // Do not call the old IMGUI helper: it also rewrites prepared HP and
@@ -50,7 +51,7 @@ namespace EchoSphere.Runtime
         }
         private NativeCharacterScreen.State ReadNativeCharacterState()
         {
-            EnsureCharacterProfilesLoaded();bool ru=IsRussianUi;
+            EnsureCharacterProfilesLoaded();GetGold();bool ru=IsRussianUi;
             string L(string a,string b)=>ru?a:b;
             var rows=new List<NativeCharacterScreen.Character>();
             foreach(var definition in CharacterRules.All){
@@ -69,11 +70,13 @@ namespace EchoSphere.Runtime
                     Unlocked=profile.unlocked,Selected=_sphereCharacterId==definition.Id,Expanded=_expandedCharacterId==id,Complete=string.IsNullOrEmpty(nextTitle),Affinities=affinities,Masteries=mastery,
                     MasteryLabel=L("Мастерство ","Mastery ")+profile.masteryLevel+"/10"+(currentTitle.Length>0?" · "+currentTitle:""),MasteryXp=next<0?L("МАКС","MAX"):profile.masteryXp+"/"+next+" XP",
                     MasteryPercent=next<0?100:Mathf.Clamp01((profile.masteryXp-previous)/(float)Math.Max(1,next-previous))*100,
-                    Action=profile.unlocked?(_sphereCharacterId==definition.Id?L("Выбран","Selected"):L("Выбрать","Select")):"🪙 "+definition.UnlockCost,
+                    Action=profile.unlocked?(_sphereCharacterId==definition.Id?L("Выбран","Selected"):L("Выбрать","Select")):MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost)+(ru?" ОР":" RS"),
                     Toggle=_expandedCharacterId==id?L("Скрыть мастерство","Hide mastery"):L("Показать мастерство","Show mastery"),
+                    MasteryNextLevel=profile.masteryLevel+1,CanResearchMastery=profile.unlocked&&profile.masteryLevel<10&&GetMetaBalance(CurrencyId.ResonanceShards)>=MetaCurrencyRules.MasteryResearchShards(profile.masteryLevel),
+                    MasteryAction=profile.unlocked&&profile.masteryLevel<10?L("Исследовать мастерство · ","Research mastery · ")+MetaCurrencyRules.MasteryResearchShards(profile.masteryLevel)+L(" ОР"," RS"):"",
                     NextLabel=string.IsNullOrEmpty(nextTitle)?L("Мастерство полностью развито.","Mastery fully developed."):L("Следующий уровень · ещё ","Next level · ")+Math.Max(0,next-profile.masteryXp)+L(" XP"," XP remaining"),NextTitle=nextTitle,NextDescription=nextDescription});
             }
-            return new NativeCharacterScreen.State {Russian=ru,Gold="🪙 "+GetGold(),Message=_nativeCharacterMessage,Characters=rows};
+            return new NativeCharacterScreen.State {Russian=ru,Gold=MetaBalanceLabel(CurrencyId.ResonanceShards),Message=_nativeCharacterMessage,Characters=rows};
         }
     }
 }

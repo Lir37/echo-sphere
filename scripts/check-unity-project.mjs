@@ -658,8 +658,8 @@ assert.ok(menuRuntime.includes('MainMenuPage.Shop') && menuRuntime.includes('Mai
   menuRuntime.includes('MainMenuPage.Leaderboard') && menuRuntime.includes('MainMenuPage.Achievements'),
   'home navigation must route each implemented source menu destination');
 assert.ok(menuRuntime.includes('PersistentUpgradeRules.GetCost(id, level)') &&
-  menuRuntime.includes('SaveGold(GetGold() - cost)') && menuRuntime.includes('SaveShopState()'),
-  'persistent shop purchases must use source cost/cap rules, deduct gold and persist the level');
+  menuRuntime.includes('TryBuyMeta("purchase:shop:"+id+":"+(level+1),CurrencyId.Credits,cost)') && menuRuntime.includes('SaveShopState()'),
+  'persistent shop purchases must use source cost/cap rules, receipt-backed Credits and persist the level');
 assert.ok(menuRuntime.includes('JsonUtility.FromJson<LeaderboardSaveData>') &&
   menuRuntime.includes('SaveLeaderboardEntries()') && menuRuntime.includes('LeaderboardPreferenceKey'),
   'source leaderboard array must be loaded, sorted, capped and saved by the runtime');
@@ -670,7 +670,7 @@ assert.ok(menuRuntime.includes('FinalizeRunResult()') && menuRuntime.includes('_
   menuRuntime.includes('Math.Floor(goldFormula * difficulty.GoldMultiplier)') &&
   menuRuntime.includes('RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion)') &&
   menuRuntime.includes('SaveLeaderboardEntries()'),
-  'game-over must award source-formula gold and persist one leaderboard result per run');
+  'game-over must award source-formula Credits and persist one leaderboard result per run');
 assert.ok(menuRuntime.includes('UnlockAchievementIf(_kills >= 500, "kills_500")') &&
   menuRuntime.includes('UnlockAchievementIf(_playerCore != null && _playerCore.DashCount >= 50, "dash_50")') &&
   menuRuntime.includes('UnlockAchievementIf(_runChestOpens >= 5, "chest_5")'),
@@ -679,6 +679,15 @@ assert.ok(menuRuntime.includes('ResetPersistentProgress()') && menuRuntime.inclu
   menuRuntime.includes('PlayerPrefs.DeleteKey(AchievementPreferenceKey)'),
   'settings reset must clear the source persistent progress groups');
 
+// Point7: existing Gold is Credits1:1; unlocks use the approved Shard economy.
+// The global wallet must never become rewindable active-run state.
+const metaPersistence = readFileSync(join(root,'Assets/EchoSphere/Scripts/Runtime/EchoSphereRunPersistence.cs'),'utf8');
+for (const field of ['_metaWallet','_metaWalletRaw','_metaEntitlementsRaw','_pendingKnowledgeRewards']) {
+  assert.ok(metaPersistence.includes('"'+field+'"'), 'meta-only state must be excluded from active-run snapshots: '+field);
+}
+assert.ok(menuRuntime.includes('MetaCurrencyRules.MigrateGold(PlayerPrefs.GetInt(GoldPreferenceKey,0))') &&
+  menuRuntime.includes('GrantMetaOnce("run:"+_runMetaReceipt,_runGoldEarned,_runShardsEarned,0)'),
+  'gold migration must remain1:1 and run payouts must use a persisted receipt');
 // Source character selection/profile migration contracts. These validate selected
 // runtime behavior and the complete source data catalogue, not only class names.
 const characterRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/CharacterRules.cs'), 'utf8');
@@ -695,7 +704,7 @@ for (const token of [
   'CharacterRules.GetNextMasteryThreshold(profile.masteryLevel)',
   'CharacterRules.GetMasteryThreshold(mastery.Level)',
   'definition.UnlockCost',
-  'SaveGold(GetGold() - definition.UnlockCost)',
+  'CurrencyId.ResonanceShards,MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost)',
 ]) {
   assert.ok(menuRuntime.includes(token), `source character persistence/select flow missing: ${token}`);
 }

@@ -1,0 +1,45 @@
+{
+  "baseline": "79d3af29ca00a63c80ff8cbca50a7d0e1b013efd",
+  "date": "2026-11-01",
+  "status": "IMPLEMENTATION_VERIFIED_NOT_ANDROID_OR_FINAL_BALANCE",
+  "coreAssertions": 186988,
+  "sourceComparisons": 47389,
+  "nodeTests": 272,
+  "editor": {
+    "meta-currency-acceptance.json": {
+      "result": "PASS",
+      "checks": 29,
+      "scope": "Actual Unity PlayerPrefs migration,independent balances,transaction receipts,corruption recovery,run isolation and progression preservation;synthetic keys restored,no phone writes"
+    },
+    "meta-commerce-acceptance.json": {
+      "result": "PASS",
+      "checks": 13,
+      "scope": "Actual native character/shop handlers,unchanged prices,mastery preservation,owned selection and interrupted entitlement recovery;original prefs/runtime restored"
+    },
+    "meta-progression-acceptance.json": {
+      "result": "PASS",
+      "checks": 15,
+      "scope": "Actual migration backfill,natural and POI discovery,paid/replayed/recovered lore,region gate and production run payout helper;all synthetic prefs and runtime restored"
+    },
+    "meta-reset-acceptance.json": {
+      "result": "PASS",
+      "checks": 25,
+      "scope": "Actual wallet/regional reset helpers and remigration;all original typed keys and cached records restored,no full user reset invoked"
+    },
+    "meta-ui/acceptance.json": {
+      "result": "PASS",
+      "checks": 103,
+      "languages": [
+        "ru",
+        "en"
+      ],
+      "screens": 4,
+      "scope": "Actual portrait1080x2400 UI Toolkit currency labels,research buttons/callbacks,scroll reachability and result bounds;synthetic displayed balances,no purchases or phone writes"
+    },
+    "economy-rune-acceptance.json": {
+      "result": "PASS",
+      "checks": 61,
+      "scope": "Actual Editor runtime economy/runes/casts/pause/save; no full-battle balance or Android acceptance"
+    }
+  }
+}

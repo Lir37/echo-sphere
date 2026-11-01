@@ -689,12 +689,12 @@ namespace EchoSphere.Runtime
             PlayerPrefs.Save();
         }
 
-        private int GetGold() => Mathf.Max(0, PlayerPrefs.GetInt(GoldPreferenceKey, 0));
+        // Compatibility name for source adapters; Credits is the authoritative meta balance.
+        private int GetGold() => GetMetaBalance(CurrencyId.Credits);
 
         private void SaveGold(int value)
         {
-            PlayerPrefs.SetInt(GoldPreferenceKey, Mathf.Max(0, value));
-            PlayerPrefs.Save();
+            var wallet=ReadMetaWallet();wallet.Credits=Mathf.Max(0,value);WriteMetaWallet(wallet);
         }
 
         private List<LeaderboardEntry> LoadLeaderboardEntries()
@@ -842,18 +842,18 @@ namespace EchoSphere.Runtime
 
         private bool SelectOrUnlockCharacter(SphereCharacterId id)
         {
+            GetGold();
             EnsureCharacterProfilesLoaded();
             var definition = CharacterRules.Get(id);
             var profile = FindCharacterProfile(id);
             if (profile == null) return false;
             if (!profile.unlocked)
             {
-                if (GetGold() < definition.UnlockCost)
+                if (!TryBuyMeta("purchase:character:"+CharacterRules.ToSourceId(id),CurrencyId.ResonanceShards,MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost)))
                 {
-                    ShowMessage(IsRussianUi ? "НЕДОСТАТОЧНО ЗОЛОТА" : "NOT ENOUGH GOLD");
+                    ShowMessage(IsRussianUi ? "НЕДОСТАТОЧНО ОСКОЛКОВ" : "NOT ENOUGH SHARDS");
                     return false;
                 }
-                SaveGold(GetGold() - definition.UnlockCost);
                 profile.unlocked = true;
             }
             _sphereCharacterId = id;
@@ -909,17 +909,7 @@ namespace EchoSphere.Runtime
             _characterMasteryLevel = characterProfile.masteryLevel;
             SaveCharacterProfiles();
 
-            var difficulty = CurrentDifficulty;
-            var goldFormula = System.Math.Floor(_runTime) * 0.15d + _bossesDefeated * 25d + _kills * 0.05d;
-            _runGoldEarned = (int)System.Math.Floor(goldFormula * difficulty.GoldMultiplier);
-            if (_regionStabilized)
-            {
-                // Exact src/region.ts reward: region base + 5 per elite + 35 per defeated boss.
-                _runGoldEarned += RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion) +
-                    _runEliteKills * 5 + _bossesDefeated * 35;
-            }
-            _runGoldEarned=(int)Math.Min(int.MaxValue,(long)_runGoldEarned+RuneRules.CellReward(_runEconomy?.Runes));
-            SaveGold((int)Math.Min(int.MaxValue,(long)GetGold() + _runGoldEarned));
+            GrantCompletedRunCurrencies();
 
             var fallbackName = IsRussianUi ? "Игрок" : "Player";
             var entry = new LeaderboardEntry
@@ -960,6 +950,7 @@ namespace EchoSphere.Runtime
         {
             ClearRunSnapshot();
             _knownKnowledgeIds.Clear();
+            ClearMetaWallet();
             PlayerPrefs.DeleteKey(GoldPreferenceKey);
             PlayerPrefs.DeleteKey(ShopPreferenceKey);
             PlayerPrefs.DeleteKey(LeaderboardPreferenceKey);
@@ -976,12 +967,7 @@ namespace EchoSphere.Runtime
             _artifactProtocolKnowledgeLoaded = true;
             _artifactPanelOpen = false;
             PlayerPrefs.DeleteKey("echosphere_tutorial_completed_v1");
-            PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:stabilized");
-            PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:challenges");
-            PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:endless");
-            PlayerPrefs.DeleteKey("echo-sphere:region:spectral_rift:stabilized");
-            PlayerPrefs.DeleteKey("echo-sphere:region:spectral_rift:challenges");
-            PlayerPrefs.DeleteKey("echo-sphere:region:spectral_rift:endless");
+            ClearRegionalProgressKeys();
             PlayerPrefs.DeleteKey(SelectedRegionPreferenceKey);
             PlayerPrefs.Save();
 
@@ -1001,6 +987,8 @@ namespace EchoSphere.Runtime
             Application.lowMemory+=OnNativeLowMemory;TraceNativeRoute("runtime-start");
             Application.targetFrameRate = 60;
             SourceAudio2D.SetEnabled(PlayerPrefs.GetInt(SoundPreferenceKey, 1) != 0);
+            ReconcileMetaEntitlements(ReadMetaWallet());
+            InitializeMetaProgression();
             EnsureShopSaveLoaded();
             EnsureCharacterProfilesLoaded();
             _playerName = PlayerPrefs.GetString(NamePreferenceKey, "");
@@ -6762,11 +6750,11 @@ namespace EchoSphere.Runtime
 
         private void PurchasePersistentUpgrade(string id)
         {
+            GetGold();
             var level = GetShopUpgradeLevel(id);
             var cost = PersistentUpgradeRules.GetCost(id, level);
-            if (level >= PersistentUpgradeRules.GetMaxLevel(id) || cost <= 0 || GetGold() < cost) return;
+            if (level >= PersistentUpgradeRules.GetMaxLevel(id) || cost <= 0 || !TryBuyMeta("purchase:shop:"+id+":"+(level+1),CurrencyId.Credits,cost)) return;
             _shopSave.upgrades.Set(id, level + 1);
-            SaveGold(GetGold() - cost);
             SaveShopState();
             ShowMessage((IsRussianUi ? "КУПЛЕНО: " : "PURCHASED: ") + GetShopUpgradeName(id));
         }
@@ -7073,6 +7061,8 @@ namespace EchoSphere.Runtime
             _nativePresentedDominant=_nativePresentedSecondary=null;
             _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
             _runEconomy=RunEconomyRules.Create(_rng.State);
+            _runMetaReceipt=Guid.NewGuid().ToString("N");
+            _runShardsEarned=_runArchiveDataEarned=0;_pendingKnowledgeRewards.Clear();
             ResetCampaignRegionalProgress();
             _timeSplitterBuffTimer=0f;
             _mandalaDamageStored=0f;

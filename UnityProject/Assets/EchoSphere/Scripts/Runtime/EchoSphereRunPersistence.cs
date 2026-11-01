@@ -56,7 +56,7 @@ namespace EchoSphere.Runtime
         }
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
-            "_nativeMerchantView", "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
+            "_pendingKnowledgeRewards", "_metaWallet", "_metaWalletRaw", "_metaEntitlementsRaw", "_nativeMerchantView", "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
             "_nativeNetworkProjection", "_nativePausedWorldFrame",
             "_nativeTransientPools",
             "_simulationTypes", "_simulationPhases",
@@ -202,8 +202,10 @@ namespace EchoSphere.Runtime
             _mandalaDamageStored=0f;
             _artifactProtocolHitCounters.Clear();
             _campaignRegionProgress=null;_convergenceRun=false;_convergenceState=null;
+            _runMetaReceipt=null;_runShardsEarned=_runArchiveDataEarned=0;_pendingKnowledgeRewards.Clear();
             _runEconomy=null; // Missing economy in a legacy snapshot must remain legacy.
             RunSnapshotCodec.Restore(save.runtime, GetType(), this, field => !NonRunFields.Contains(field.Name));
+            if(string.IsNullOrEmpty(_runMetaReceipt))_runMetaReceipt="legacy:"+Hash128.Compute(PlayerPrefs.GetString(RunSnapshotKey,JsonUtility.ToJson(save))).ToString();
             InitializeRestoredCampaignProgress();
             if(_runEconomy!=null)_runEconomy.Open=false; // Reopen the same saved stock after the resume gate.
             // JSON keeps lightning positions/lifetime but drops sourceSphere.

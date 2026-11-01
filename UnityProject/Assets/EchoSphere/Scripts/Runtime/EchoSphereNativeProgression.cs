@@ -34,9 +34,10 @@ namespace EchoSphere.Runtime
             // Same guards, cost and save schema as App.tsx buy. UI never mutates
             // gameplay stats directly; a new run reads the existing shop save.
             if(!_mainMenu||_mainMenuPage!=MainMenuPage.Shop||Array.IndexOf(PersistentUpgradeRules.Ids,id)<0)return;
-            int level=GetShopUpgradeLevel(id),cost=PersistentUpgradeRules.GetCost(id,level),gold=GetGold();
-            if(level>=PersistentUpgradeRules.GetMaxLevel(id)||cost<=0||gold<cost)return;
-            _shopSave.upgrades.Set(id,level+1);SaveShopState();SaveGold(gold-cost);
+            int gold=GetGold(),level=GetShopUpgradeLevel(id),cost=PersistentUpgradeRules.GetCost(id,level);
+            if(level>=PersistentUpgradeRules.GetMaxLevel(id)||cost<=0||(gold<cost&&!MetaCurrencyRules.HasReceipt(ReadMetaWallet(),"purchase:shop:"+id+":"+(level+1))))return;
+            if(!TryBuyMeta("purchase:shop:"+id+":"+(level+1),CurrencyId.Credits,cost))return;
+            _shopSave.upgrades.Set(id,level+1);SaveShopState();
             _nativeProgressionState=ReadNativeProgressionState();_nativeProgressionScreen.UpdateShop(_nativeProgressionState);
         }
         private NativeProgressionScreen.State ReadNativeProgressionState()
@@ -45,10 +46,10 @@ namespace EchoSphere.Runtime
             string T(string key)=>NativeText(key,lang=="ru");
             var state=new NativeProgressionScreen.State {Back=T("back")};
             if(_mainMenuPage==MainMenuPage.Shop){
-                EnsureShopSaveLoaded();state.Page=NativeProgressionScreen.Page.Shop;state.Title=T("shopTitle");state.Gold=GetGold().ToString(CultureInfo.InvariantCulture);
+                EnsureShopSaveLoaded();state.Page=NativeProgressionScreen.Page.Shop;state.Title=T("shopTitle");state.Gold=GetGold().ToString(CultureInfo.InvariantCulture)+(IsRussianUi?" КР":" CR");
                 var items=new List<NativeProgressionScreen.ShopItem>();
                 foreach(string id in PersistentUpgradeRules.Ids){int level=GetShopUpgradeLevel(id),max=PersistentUpgradeRules.GetMaxLevel(id),cost=PersistentUpgradeRules.GetCost(id,level);bool maxed=level>=max;
-                    items.Add(new NativeProgressionScreen.ShopItem {Id=id,Name=GetShopUpgradeName(id),Description=GetShopUpgradeDescription(id),Owned=T("owned")+": "+level+"/"+max,Price=maxed?T("max"):cost+" ●",Maxed=maxed,CanBuy=!maxed&&GetGold()>=cost});
+                    items.Add(new NativeProgressionScreen.ShopItem {Id=id,Name=GetShopUpgradeName(id),Description=GetShopUpgradeDescription(id),Owned=T("owned")+": "+level+"/"+max,Price=maxed?T("max"):cost+(IsRussianUi?" КР":" CR"),Maxed=maxed,CanBuy=!maxed&&GetGold()>=cost});
                 }state.Shop=items;
             }else if(_mainMenuPage==MainMenuPage.Leaderboard){
                 state.Page=NativeProgressionScreen.Page.Leaderboard;state.Title=T("leaderTitle");state.Empty=T("noScores");

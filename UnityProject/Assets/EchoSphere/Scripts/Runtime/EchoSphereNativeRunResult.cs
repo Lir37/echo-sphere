@@ -24,7 +24,9 @@ namespace EchoSphere.Runtime
             string lang=IsRussianUi?"ru":"en";string T(string key)=>NativeText(key,lang=="ru");
             var rows=new List<NativeRunResultView.Row> {
                 new NativeRunResultView.Row(T("survived"),Mathf.FloorToInt(_runTime)+" "+T("seconds")),
-                new NativeRunResultView.Row(T("wave"),_wave.ToString()),new NativeRunResultView.Row(IsRussianUi?"УБИЙСТВА":"KILLS",_kills.ToString()),new NativeRunResultView.Row(T("goldEarned"),_runGoldEarned.ToString())};
+                new NativeRunResultView.Row(T("wave"),_wave.ToString()),new NativeRunResultView.Row(IsRussianUi?"УБИЙСТВА":"KILLS",_kills.ToString()),new NativeRunResultView.Row(IsRussianUi?"КРЕДИТЫ":"CREDITS",_runGoldEarned.ToString())};
+            rows.Add(new NativeRunResultView.Row(IsRussianUi?"ОСКОЛКИ РЕЗОНАНСА":"RESONANCE SHARDS",_runShardsEarned.ToString()));
+            rows.Add(new NativeRunResultView.Row(IsRussianUi?"ДАННЫЕ АРХИВА":"ARCHIVE DATA",_runArchiveDataEarned.ToString()));
             // All six regions now own playable contracts, mastery and Endless.
             if(_regionStabilized){rows.Add(new NativeRunResultView.Row(IsRussianUi?"ИСПЫТАНИЯ":"CHALLENGES",GetCompletedRegionChallenges(_selectedRegion).Length+"/3"));rows.Add(new NativeRunResultView.Row(IsRussianUi?"БЕСКОНЕЧНЫЙ":"ENDLESS",IsRegionEndlessUnlocked(_selectedRegion)?(IsRussianUi?"ОТКРЫТ":"UNLOCKED"):(IsRussianUi?"ЗАКРЫТ":"LOCKED")));rows.Add(new NativeRunResultView.Row(IsRussianUi?"МАСТЕРСТВО":"MASTERY",_regionMasteryChallengesCompleted+"/3"));}
             if(_sourceResultRank>0&&_sourceResultRank<=10)rows.Add(new NativeRunResultView.Row(T("rank"),"#"+_sourceResultRank));

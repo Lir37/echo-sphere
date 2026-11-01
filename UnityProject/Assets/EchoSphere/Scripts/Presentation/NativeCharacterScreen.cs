@@ -12,7 +12,8 @@ namespace EchoSphere.Presentation
         public sealed class Affinity { public string Text,Color; }
         public sealed class Character
         {
-            public string Id,Name,Role,Description,Mechanic,Color,MasteryLabel,MasteryXp,Action,Toggle,NextLabel,NextTitle,NextDescription;
+            public string Id,Name,Role,Description,Mechanic,Color,MasteryLabel,MasteryXp,Action,Toggle,NextLabel,NextTitle,NextDescription,MasteryAction;
+            public int MasteryNextLevel;public bool CanResearchMastery;
             public bool Unlocked,Selected,Expanded,Complete;public float MasteryPercent;
             public IReadOnlyList<Affinity> Affinities;public IReadOnlyList<Mastery> Masteries;
         }
@@ -27,7 +28,7 @@ namespace EchoSphere.Presentation
         private readonly List<VisualElement> _cards=new List<VisualElement>();
         private readonly List<(Image image,string id)> _portraits=new List<(Image,string)>();
         private readonly NativeCharacterArtwork.Lease _portraitLease=new NativeCharacterArtwork.Lease();
-        private State _state;private Action _back;private Action<string> _choose,_expand;
+        private State _state;private Action _back;private Action<string> _choose,_expand;private Action<string,int> _researchMastery;
         private bool _visible,_narrow,_restoreScroll;private int _geometryFrame;private Vector2 _pendingScroll;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         private static Color A(int r,int g,int b,float a)=>new Color(r/255f,g/255f,b/255f,a);
@@ -43,9 +44,9 @@ namespace EchoSphere.Presentation
             _body=_scroll.contentContainer;NativePauseScreenView.ConfigureMobileScroll(_scroll);
             _page.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
         }
-        public void Show(State state,float scale,Action back,Action<string> choose,Action<string> expand)
+        public void Show(State state,float scale,Action back,Action<string> choose,Action<string> expand,Action<string,int> researchMastery=null)
         {
-            Ensure();_back=back;_choose=choose;_expand=expand;_panel.scale=scale;_visible=true;_root.style.display=DisplayStyle.Flex;NativeMenuRetainedState.Visible(_root,true);
+            Ensure();_back=back;_choose=choose;_expand=expand;_researchMastery=researchMastery;_panel.scale=scale;_visible=true;_root.style.display=DisplayStyle.Flex;NativeMenuRetainedState.Visible(_root,true);
             bool narrow=Screen.width/scale<=650;
             if(!NativeMenuRetainedState.Same(_state,state)||narrow!=_narrow){
                 _pendingScroll=_state==null?Vector2.zero:_scroll.scrollOffset;_restoreScroll=true;
@@ -67,7 +68,7 @@ namespace EchoSphere.Presentation
             Paint(_page,new NativeMenuBrush.Paint {Linear=true,Colors=new[]{A(2,7,14,.98f),A(3,8,15,.98f)},Stops=new[]{0f,1f}});
             var top=Box(_heading,"character-top",true);top.style.justifyContent=Justify.SpaceBetween;top.style.alignItems=Align.Center;top.style.marginBottom=16;
             var back=Button(top,"character-back",()=>_back?.Invoke());back.style.flexDirection=FlexDirection.Row;back.style.alignItems=Align.Center;back.style.paddingLeft=back.style.paddingRight=12;back.style.paddingTop=back.style.paddingBottom=8;Border(back,6);Paint(back,new NativeMenuBrush.Paint {Radius=6,Border=1,Fill=C("#0d1726"),BorderColor=C("#243b55")});Icon(back,"ArrowLeft",18,C("#dcecff")).style.marginRight=8;Text(back,"back",L("Назад","Back"),16,"#dcecff");
-            Text(top,"character-gold",_state.Gold,14,"#dcecff","700");
+            var balance=Text(top,"character-gold",_state.Gold,12,"#dcecff","700",true);balance.style.minWidth=0;balance.style.flexShrink=1;balance.style.maxWidth=Length.Percent(65);balance.style.unityTextAlign=TextAnchor.MiddleRight;
             var title=Text(_heading,"character-title",L("ПЕРСОНАЖИ","CHARACTERS"),24,"#e9f8ff","500");title.style.letterSpacing=18;
             Text(_heading,"character-subtitle",L("Персонаж меняет стиль билда, но не управление.","Characters change your build style, not the controls."),12,"#648198","400",true).style.marginTop=4;
             _message.style.display=string.IsNullOrEmpty(_state.Message)?DisplayStyle.None:DisplayStyle.Flex;
@@ -121,9 +122,12 @@ namespace EchoSphere.Presentation
             var next=Box(block,"mastery-next");next.style.marginTop=8;next.style.paddingLeft=next.style.paddingRight=12;next.style.paddingTop=next.style.paddingBottom=8;Border(next,12);Paint(next,new NativeMenuBrush.Paint {Radius=12,Border=1,Fill=character.Complete?A(90,140,74,.10f):A(255,184,77,.10f),BorderColor=character.Complete?A(90,140,74,.30f):A(212,148,61,.30f)});
             if(character.Complete)Text(next,"mastery-complete",character.NextLabel,_narrow?10:12,"#4b713d","700",true);
             else {Text(next,"mastery-next-label",character.NextLabel.ToUpperInvariant(),9,"#a86631","700",true);Text(next,"mastery-next-name",character.NextTitle,_narrow?10:12,"#e8f8ff","700",true).style.marginTop=4;Text(next,"mastery-next-description",character.NextDescription,10,"#dcecff","400",true,1.625).style.marginTop=2;}
+            if(!string.IsNullOrEmpty(character.MasteryAction)){
+                var research=Button(next,"mastery-research-"+character.Id,()=>_researchMastery?.Invoke(character.Id,character.MasteryNextLevel),false);Paint(research,new NativeMenuBrush.Paint{Radius=6,Border=1,Fill=A(57,216,255,.06f),BorderColor=A(57,216,255,.25f)});research.style.color=C(character.CanResearchMastery?"#a5f3fc":"#64748b");var researchCopy=Text(research,"mastery-research-copy",character.MasteryAction,10,character.CanResearchMastery?"#a5f3fc":"#64748b","500",true);researchCopy.style.unityTextAlign=TextAnchor.MiddleCenter;researchCopy.style.flexGrow=1;research.SetEnabled(character.CanResearchMastery);research.style.fontSize=10;research.style.marginTop=8;research.style.minHeight=32;research.style.whiteSpace=WhiteSpace.Normal;research.style.minWidth=0;
+            }
         }
         private NativeHudSurface Paint(VisualElement node,NativeMenuBrush.Paint paint){var surface=new NativeHudSurface(node,paint);_surfaces.Add(surface);return surface;}
-        private Button Button(VisualElement parent,string name,Action action){var button=new Button(action){name=name};button.AddToClassList("progression-button");parent.Add(button);_buttons.Add(button);return button;}
+        private Button Button(VisualElement parent,string name,Action action,bool track=true){var button=new Button(action){name=name};button.AddToClassList("progression-button");parent.Add(button);if(track)_buttons.Add(button);return button;}
         private static VisualElement Box(VisualElement parent,string name,bool row=false)=>NativePauseStatsView.Box(parent,name,row);
         private static Label Text(VisualElement parent,string name,string value,float size,string color,string weight="400",bool wrap=false,double line=1.5){var l=NativePauseStatsView.Text(parent,name,size,color,weight,line,.192f,wrap);l.text=value;return l;}
         private static VisualElement Icon(VisualElement parent,string name,float size,Color color){var e=Box(parent,"icon-"+name);e.style.width=e.style.height=size;e.style.backgroundImage=new StyleBackground(Resources.Load<VectorImage>("EchoSphere/NativeMenuIcons/"+name));e.style.unityBackgroundImageTintColor=color;return e;}
@@ -155,8 +159,9 @@ namespace EchoSphere.Presentation
                 card.Q("expand-"+character.Id).style.display=character.Unlocked?DisplayStyle.Flex:DisplayStyle.None;
                 card.Q<Label>("mastery-toggle").text=character.Toggle.ToUpperInvariant();
                 var action=card.Q<Label>("character-action");action.text=character.Action;action.style.color=C(character.Unlocked?"#63e6ff":"#ffb84d");
+                var research=card.Q<Button>("mastery-research-"+character.Id);if(research!=null){var copy=research.Q<Label>("mastery-research-copy");copy.text=character.MasteryAction;copy.style.color=C(character.CanResearchMastery?"#a5f3fc":"#64748b");research.SetEnabled(character.CanResearchMastery);}
                 var details=card.Q("mastery-details");
-                bool detailChanged=!NativeMenuRetainedState.Same(old.Masteries,character.Masteries)||old.Complete!=character.Complete||old.NextLabel!=character.NextLabel||old.NextTitle!=character.NextTitle||old.NextDescription!=character.NextDescription;
+                bool detailChanged=!NativeMenuRetainedState.Same(old.Masteries,character.Masteries)||old.Complete!=character.Complete||old.NextLabel!=character.NextLabel||old.NextTitle!=character.NextTitle||old.NextDescription!=character.NextDescription||old.MasteryAction!=character.MasteryAction;
                 if(details!=null&&detailChanged){
                     for(int j=_surfaces.Count-1;j>=0;j--)if(_surfaces[j].Host==details||details.Contains(_surfaces[j].Host)){_surfaces[j].Dispose();_surfaces.RemoveAt(j);}
                     details.RemoveFromHierarchy();details=null;

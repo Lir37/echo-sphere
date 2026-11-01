@@ -24,7 +24,7 @@ namespace EchoSphere.Runtime
                 _knowledgeSection="basics";_knowledgeQuery="";_nativeArchiveState=ReadNativeArchiveState();_nativeArchiveWasActive=true;
                 _camera.cullingMask=0;
             }
-            _nativeArchiveScreen.Show(_nativeArchiveState,NativeSubmenuScale,()=>_mainMenuPage=MainMenuPage.Home,SelectNativeArchiveSection,SearchNativeArchive);
+            _nativeArchiveScreen.Show(_nativeArchiveState,NativeSubmenuScale,()=>_mainMenuPage=MainMenuPage.Home,SelectNativeArchiveSection,SearchNativeArchive,ResearchNativeLore);
             return true;
         }
         private void SelectNativeArchiveSection(string section)
@@ -63,14 +63,17 @@ namespace EchoSphere.Runtime
                 string title=NativeRunCatalog.Instance.GetRegion(RegionSourceId(lore.Region)).Name(ru)+" · "+(lore.Index+1)+"/5";
                 string description=ru?lore.Ru:lore.En;
                 if(query.Length>0&&!title.ToLowerInvariant().Contains(query)&&!description.ToLowerInvariant().Contains(query))continue;
-                cards.Add(new NativeArchiveScreen.Card{Id=lore.Id,Group=RegionSourceId(lore.Region),Title=title,Description=description,Details="",Open=_knownKnowledgeIds.Contains(lore.Id),BasicIndex=-1});
+                cards.Add(new NativeArchiveScreen.Card{Id=lore.Id,Group=RegionSourceId(lore.Region),Title=title,Description=description,Details="",Open=_knownKnowledgeIds.Contains(lore.Id),CanResearch=IsRegionAvailable(lore.Region)&&GetMetaBalance(CurrencyId.ArchiveData)>=MetaCurrencyRules.LoreResearchCost,ResearchAction=IsRegionAvailable(lore.Region)?(ru?"Исследовать · ":"Research · ")+MetaCurrencyRules.LoreResearchCost+(ru?" ДА":" AD"):"",BasicIndex=-1});
+            }
+            if(_knowledgeSection=="basics")foreach(CurrencyId id in Enum.GetValues(typeof(CurrencyId))){
+                cards.Add(new NativeArchiveScreen.Card{Id="currency:"+id,Group="",Title=MetaCurrencyRules.Name(id,ru),Description=MetaCurrencyRules.Purpose(id,ru),Details="",Open=true,BasicIndex=-1});
             }
             if(_knowledgeSection=="runes")for(int i=0;i<RuneRules.Count;i++){
                 string id=RuneRules.TypeAt(i),name=RuneRules.Name(id,ru),description=RuneRules.Description(id,ru);
                 if(query.Length>0&&!name.ToLowerInvariant().Contains(query)&&!description.ToLowerInvariant().Contains(query))continue;
                 cards.Add(new NativeArchiveScreen.Card{Id="rune:"+id,Group="",Title=name,Description=description,Details=ru?"Временный полевой предмет · 22 с до исчезновения":"Temporary field pickup ·expires after 22 s",Open=true,BasicIndex=-1});
             }
-            return new NativeArchiveScreen.State {Russian=ru,Section=_knowledgeSection,Query=_knowledgeQuery,Known=_knownKnowledgeIds.Count,Cards=cards};
+            return new NativeArchiveScreen.State {Russian=ru,Section=_knowledgeSection,Query=_knowledgeQuery,Known=_knownKnowledgeIds.Count,WalletSummary=MetaBalanceLabel(CurrencyId.Credits)+" · "+MetaBalanceLabel(CurrencyId.ResonanceShards)+" · "+MetaBalanceLabel(CurrencyId.ArchiveData),Cards=cards};
         }
     }
 }

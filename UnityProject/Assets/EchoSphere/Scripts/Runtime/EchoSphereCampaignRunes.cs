@@ -27,7 +27,7 @@ namespace EchoSphere.Runtime
             }
             SpawnImpact(position,RuneAgent2D.GetRuneColor(type));
             string text=RuneRules.Name(type,IsRussianUi);
-            if(type=="runic_cell")text+=IsRussianUi?" · +5 К ИТОГУ ЗАБЕГА":" · +5 AT RUN END";
+            if(type=="runic_cell")text+=IsRussianUi?" · +5 КРЕДИТОВ К ИТОГУ":" · +5 CREDITS AT RUN END";
             ShowTimedCombatMessage(text,1.4f);
         }
         private void TickCampaignRunes(float dt)

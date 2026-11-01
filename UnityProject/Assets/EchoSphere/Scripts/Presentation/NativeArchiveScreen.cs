@@ -7,14 +7,15 @@ namespace EchoSphere.Presentation
 {
     public sealed class NativeArchiveScreen : MonoBehaviour
     {
-        public sealed class Card { public string Id,Group,Title,Description,Details;public bool Open;public int BasicIndex=-1; }
-        public sealed class State { public bool Russian;public string Section,Query;public int Known;public IReadOnlyList<Card> Cards; }
+        public sealed class Card { public string Id,Group,Title,Description,Details,ResearchAction;public bool Open,CanResearch;public int BasicIndex=-1; }
+        public sealed class State { public bool Russian;public string Section,Query,WalletSummary;public int Known;public IReadOnlyList<Card> Cards; }
         private static readonly string[] Sections={"basics","spheres","monsters","bosses","abilities","artifacts","evolutions","regions","runes"};
         private static readonly string[] Icons={"BookOpen","CircleDot","Swords","Shield","Zap","Gem","Network","BookOpen","Zap"};
         private static readonly string[] LabelsRu={"Ядро игры","Сферы","Монстры","Боссы","Способности","Артефакты","Эволюции","Регионы","Руны"};
         private static readonly string[] LabelsEn={"Core","Spheres","Monsters","Bosses","Abilities","Artifacts","Evolutions","Regions","Runes"};
         private static readonly string[] SubRu={"Как работает забег","Узлы боевой сети","Противники","Главные угрозы","Активные и пассивные","Редкие усиления","Ветки и финалы","Сигналы и история регионов","Временные эффекты"};
         private static readonly string[] SubEn={"How a run works","Combat network nodes","Enemies","Major threats","Active and passive","Rare upgrades","Branches and finals","Regional signals and records","Temporary effects"};
+        private Label _walletSummary;
         private NativePanelLease _panelLease;
         private UIDocument _document;private PanelSettings _panel;private NativeMainMenuBackground _background;
         private VisualElement _root,_page,_header,_layout,_nav,_main,_searchBox,_cards,_known;
@@ -26,7 +27,7 @@ namespace EchoSphere.Presentation
         private readonly List<Button> _tabs=new List<Button>();
         private readonly List<Button> _buttons=new List<Button>();
         private readonly List<Label> _tabLabels=new List<Label>();
-        private State _state;private Action _back;private Action<string> _select,_query;
+        private State _state;private Action _back;private Action<string> _select,_query,_research;
         private bool _visible;private int _geometryFrame;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         private string L(string ru,string en)=>_state.Russian?ru:en;
@@ -38,13 +39,14 @@ namespace EchoSphere.Presentation
             _background=new NativeMainMenuBackground(_root,"EchoSphere/NativeAppBackground");
             _page=_root.Q<VisualElement>("native-archive-page");_page.RegisterCallback<GeometryChangedEvent>(_=>_geometryFrame=Time.frameCount);
         }
-        public void Show(State state,float scale,Action back,Action<string> select,Action<string> query)
+        public void Show(State state,float scale,Action back,Action<string> select,Action<string> query,Action<string> research=null)
         {
-            Ensure();_back=back;_select=select;_query=query;_panel.scale=scale;_root.style.display=DisplayStyle.Flex;NativeMenuRetainedState.Visible(_root,true);
+            Ensure();_back=back;_select=select;_query=query;_research=research;_panel.scale=scale;_root.style.display=DisplayStyle.Flex;NativeMenuRetainedState.Visible(_root,true);
             if(_state!=null&&_state.Russian!=state.Russian){Clear();_state=null;}
             bool opening=_state==null;_visible=true;bool changed=!NativeMenuRetainedState.Same(_state,state);_state=state;
             if(opening){BuildChrome();_geometryFrame=Time.frameCount;_page.style.opacity=0;}
             if(changed){_search.SetValueWithoutNotify(state.Query);_searchBox.style.display=state.Section=="basics"?DisplayStyle.None:DisplayStyle.Flex;BindCards();_geometryFrame=Time.frameCount;_cards.style.opacity=0;_count.text=state.Known.ToString();for(int i=0;i<_tabs.Count;i++){var color=C(Sections[i]==state.Section?"#cffafe":"#64748b");_tabLabels[i].style.color=color;}}
+            _walletSummary.text=state.WalletSummary??"";_walletSummary.style.display=string.IsNullOrEmpty(state.WalletSummary)?DisplayStyle.None:DisplayStyle.Flex;
             float width=Screen.width/scale;bool sm=width>=640,md=width>=768;Pad(_page,sm?20:12);
             _page.style.paddingTop=Mathf.Max(sm?20:12,(Screen.height-Screen.safeArea.yMax)/scale);_page.style.paddingBottom=Mathf.Max(sm?20:12,Screen.safeArea.yMin/scale);
             _title.style.fontSize=sm?24:20;_known.style.display=sm?DisplayStyle.Flex:DisplayStyle.None;
@@ -68,6 +70,7 @@ namespace EchoSphere.Presentation
             _title=Text(copy,"archive-title",L("Архив Эха","Echo Archive"),24,"#f1f5f9","600");_title.style.marginTop=4;_title.style.letterSpacing=2.5f;
             Text(copy,"archive-subtitle",L("База знаний, которая открывается вместе с твоим прогрессом.","A knowledge base that grows with your progress."),12,"#64748b","400",true);
             _known=Box(_header,"archive-known");_known.style.paddingLeft=_known.style.paddingRight=12;_known.style.paddingTop=_known.style.paddingBottom=8;_known.style.marginLeft=12;Surface(_known,false);Text(_known,"archive-known-label",L("ОТКРЫТО ЗАПИСЕЙ","ENTRIES UNLOCKED"),8,"#64748b");_count=Text(_known,"archive-known-count","",14,"#a5f3fc","700");_count.style.unityTextAlign=TextAnchor.MiddleRight;
+            _walletSummary=Text(_page,"archive-wallet",_state.WalletSummary??"",11,"#94a3b8","400",true);_walletSummary.style.marginTop=6;
             _layout=Box(_page,"archive-layout");_layout.style.flexGrow=1;_layout.style.flexShrink=1;_layout.style.minHeight=0;_layout.style.marginTop=12;
             _navigation=new ScrollView(ScrollViewMode.Vertical);NativePauseScreenView.ConfigureMobileScroll(_navigation);_navigation.style.flexShrink=0;_navigation.horizontalScrollerVisibility=_navigation.verticalScrollerVisibility=ScrollerVisibility.Hidden;_layout.Add(_navigation);_nav=_navigation.contentContainer;
             for(int i=0;i<Sections.Length;i++){int index=i;var button=Button(_nav,"archive-section-"+Sections[i],()=>_select?.Invoke(Sections[index]));button.style.flexDirection=FlexDirection.Row;button.style.alignItems=Align.Center;button.style.paddingLeft=button.style.paddingRight=12;button.style.paddingTop=button.style.paddingBottom=8;Surface(button,false);Icon(button,Icons[i],17,C("#64748b")).style.marginRight=8;var label=Box(button,"archive-section-copy");_tabLabels.Add(Text(label,"section-label",_state.Russian?LabelsRu[i]:LabelsEn[i],12,"#64748b","600"));_subtitles.Add(Text(label,"section-subtitle",_state.Russian?SubRu[i]:SubEn[i],9,"#475569"));Icon(button,"ChevronRight",13,C("#64748b66")).style.marginLeft=8;_tabs.Add(button);}
@@ -95,6 +98,9 @@ namespace EchoSphere.Presentation
                 Text(copy,"archive-card-title",card.Open?card.Title:L("Запись не открыта","Entry locked"),16,"#f1f5f9","600",true);
                 Text(copy,"archive-card-description",card.Open?card.Description:L("Получите этот объект во время игры, чтобы открыть запись.","Obtain or encounter this during a run to unlock the entry."),12,"#94a3b8","400",true,20d/12).style.marginTop=4;
                 if(card.Open&&!string.IsNullOrEmpty(card.Details))Details(copy,card);
+                if(!card.Open&&!string.IsNullOrEmpty(card.ResearchAction)){
+                    var research=Button(copy,"archive-research-"+card.Id,()=>_research?.Invoke(card.Id),false);Surface(research,true);research.style.color=C(card.CanResearch?"#a5f3fc":"#64748b");var researchCopy=Text(research,"archive-research-copy",card.ResearchAction,11,card.CanResearch?"#a5f3fc":"#64748b","500",true);researchCopy.style.unityTextAlign=TextAnchor.MiddleCenter;researchCopy.style.flexGrow=1;research.SetEnabled(card.CanResearch);research.style.fontSize=11;research.style.marginTop=8;research.style.minHeight=32;research.style.whiteSpace=WhiteSpace.Normal;research.style.minWidth=0;
+                }
             }
         }
         private void Details(VisualElement parent,Card card)
@@ -106,7 +112,7 @@ namespace EchoSphere.Presentation
         private string GroupName(string group)=>_state.Section=="regions"?NativeRunCatalog.Instance.GetRegion(group).Name(_state.Russian):group=="sphere-branches"?L("ВЕТКИ СФЕР","SPHERE BRANCHES"):group=="sphere-finals"?L("ФИНАЛЬНЫЕ ФОРМЫ СФЕР","FINAL SPHERE FORMS"):L("ЭВОЛЮЦИИ СПОСОБНОСТЕЙ","ABILITY EVOLUTIONS");
         private void Surface(VisualElement e,bool card){e.style.borderLeftWidth=e.style.borderRightWidth=e.style.borderTopWidth=e.style.borderBottomWidth=1;e.style.borderLeftColor=e.style.borderRightColor=e.style.borderTopColor=e.style.borderBottomColor=Color.clear;Paint(e,NativeProgressionScreen.CardPaint(true,default,default),card);}
         private void Paint(VisualElement e,NativeMenuBrush.Paint paint,bool card){var surface=new NativeHudSurface(e,paint);(card?_cardPaint:_chrome).Add(surface);}
-        private Button Button(VisualElement parent,string name,Action action){var button=new Button(action){name=name};button.AddToClassList("progression-button");parent.Add(button);_buttons.Add(button);return button;}
+        private Button Button(VisualElement parent,string name,Action action,bool track=true){var button=new Button(action){name=name};button.AddToClassList("progression-button");parent.Add(button);if(track)_buttons.Add(button);return button;}
         private static VisualElement Box(VisualElement parent,string name,bool row=false)=>NativePauseStatsView.Box(parent,name,row);
         private static Label Text(VisualElement parent,string name,string value,float size,string color,string weight="400",bool wrap=false,double line=1.5){var text=NativePauseStatsView.Text(parent,name,size,color,weight,line,.192f,wrap);text.text=value;return text;}
         private static VisualElement Icon(VisualElement parent,string name,float size,Color color){var e=Box(parent,"icon-"+name);e.style.width=e.style.height=size;e.style.backgroundImage=new StyleBackground(Resources.Load<VectorImage>("EchoSphere/NativeMenuIcons/"+name));e.style.unityBackgroundImageTintColor=color;return e;}

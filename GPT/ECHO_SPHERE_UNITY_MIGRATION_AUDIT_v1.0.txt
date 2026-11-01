@@ -6515,3 +6515,14 @@ Native Rune archive and Cell glyph; same Unity presentation and save schema.
 18432seeded economic sensitivity scenarios executed,not complete battle/AI
 simulations. Assumed throughput and collection; final Android/full-run balance
 OPEN. Report:UNITY_ECONOMY_RUNES_COMPLETION_2026-11-01.md. No APK.
+
+
+2026-11-01 POINT7 FOUR-CURRENCY IMPLEMENTATION
+Echo/run,Credits/meta-shop,ResonanceShards/unlocks+optional existing mastery,
+ArchiveData/collection+lore now wired to native UI and persisted owners.
+Legacygold1:1,existing purchases/mastery preserved; authored initial rates
+approved by user. Global wallet excluded from active-run restore; receipts/
+backup/paid-entitlement recovery and one-time legacy compensation implemented.
+All6regional reset keys cleared to prevent reward resurrection. Core186988
+contracts and Editor wallet/progression/UI checks PASS; Android/full meta-game
+balance OPEN. Report:UNITY_META_CURRENCIES_COMPLETION_2026-11-01.md. No APK.

@@ -30,8 +30,8 @@ namespace EchoSphere.Runtime
   {
    if(!UsesCampaignCombat)return;EnsureKnowledgeLoaded();
    string id="region-lore:"+RegionSourceId(region)+":"+index;
-   if(!_knownKnowledgeIds.Add(id))return;
-   PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new List<string>(_knownKnowledgeIds)}));PlayerPrefs.Save();
+   if(!RecordNaturalKnowledge(id))return;
+   PersistKnowledgeProgress();
   }
   private void TickCampaignRegionProgress(float dt)
   {

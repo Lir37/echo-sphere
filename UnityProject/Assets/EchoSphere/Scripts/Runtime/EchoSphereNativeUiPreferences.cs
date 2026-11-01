@@ -19,8 +19,9 @@ namespace EchoSphere.Runtime
         }
         private void NativeResetAllProgress()
         {
+            ClearMetaWallet();
             foreach(var key in new[]{GoldPreferenceKey,ShopPreferenceKey,LeaderboardPreferenceKey,AchievementPreferenceKey,DifficultyPreferenceKey,SoundPreferenceKey,CharacterPreferenceKey,CharacterProfilesPreferenceKey,HandednessPreferenceKey,LanguagePreferenceKey,NamePreferenceKey,"echosphere_knowledge_v1",TutorialCompletedPreferenceKey})PlayerPrefs.DeleteKey(key);
-            foreach(var region in new[]{EchoSphere.Core.EchoRegionId.ResonanceBasin,EchoSphere.Core.EchoRegionId.SpectralRift}){PlayerPrefs.DeleteKey(RegionStabilizedKey(region));PlayerPrefs.DeleteKey(RegionChallengesKey(region));PlayerPrefs.DeleteKey(RegionEndlessKey(region));}
+            ClearRegionalProgressKeys();
             ClearRunSnapshot();PlayerPrefs.Save();
         }
     }

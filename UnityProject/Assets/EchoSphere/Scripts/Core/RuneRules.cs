@@ -52,7 +52,7 @@ namespace EchoSphere.Core
             case "hunt":return ru?"Помечает ближайшую элиту или босса на 8 с. Метка поддерживает действующие бонусы Охотника.":"Marks the nearest Elite or Boss for 8 s, supporting the Hunter’s existing mark bonuses.";
             case "echo":return ru?"Повторяет следующую успешную атаку сферы. Пустая атака заряд не расходует; заряды не складываются.":"Repeats the next successful Sphere attack. Empty attacks do not consume it; charges do not stack.";
             case "gravity":return ru?"На 4 с создаёт зону радиусом 240; тянет врагов к центру со скоростью 90 в секунду.":"Creates a 240-radius pull zone for 4 s; pulls enemies toward its center at 90 per second.";
-            case "runic_cell":return ru?"+5 к метанаграде в конце забега. Выпадает только в Endless и Convergence.":"+5 meta reward at run end. Drops only in Endless and Convergence.";
+            case "runic_cell":return ru?"+5 кредитов в конце забега. Выпадает только в Endless и Convergence.":"+5 Credits at run end. Drops only in Endless and Convergence.";
             default:return "";
         }}
         public static int Count=>Types.Length;

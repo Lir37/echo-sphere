@@ -17,6 +17,7 @@ internal static class Program
             Check(()=>_assertions += RegionalContentChecks.Run());
             Check(()=>_assertions += RunEconomyChecks.Run());
             Check(()=>_assertions += RuneChecks.Run());
+            Check(()=>_assertions += MetaCurrencyChecks.Run());
             Check(()=>_assertions += ArtifactGameplayChecks.Run());
             Check(()=>_assertions += SpatialIndexChecks.Run());
             Check(()=>_assertions += CollisionScratchChecks.Run());
