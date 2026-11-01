@@ -18,6 +18,7 @@ namespace EchoSphere.Runtime
         private EchoSphereRuntime _runtime;
         private string _type;
         private float _life;
+        private bool _consumed;
         private Vector3 _origin;
 
         public void Initialize(EchoSphereRuntime runtime, string type, Vector2 position, float lifetime)
@@ -32,11 +33,11 @@ namespace EchoSphere.Runtime
 
         public void SimulationTick(float dt)
         {
-            if (_runtime == null || _runtime.IsGameplayPaused) return;
+            if (_runtime == null || _runtime.IsGameplayPaused || _consumed) return;
             _life -= _runtime.SimulationDeltaTime;
             if (_life <= 0f)
             {
-                Destroy(gameObject);
+                _consumed=true;gameObject.SetActive(false);Destroy(gameObject);
                 return;
             }
 
@@ -49,6 +50,7 @@ namespace EchoSphere.Runtime
             _savedColor = tint;
             if (Vector2.Distance(transform.position, _runtime.PlayerPosition) <= 31f * EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld)
             {
+                _consumed=true;gameObject.SetActive(false);
                 _runtime.ActivateRunePickup(_type, transform.position);
                 Destroy(gameObject);
             }
@@ -67,6 +69,7 @@ namespace EchoSphere.Runtime
                 case "hunt": return new Color(1f, 0.62f, 0.3f);
                 case "echo": return new Color(0.85f, 0.97f, 1f);
                 case "gravity": return new Color(0.65f, 0.48f, 1f);
+                case "runic_cell": return new Color(.55f,1f,.72f);
                 default: return Color.white;
             }
         }

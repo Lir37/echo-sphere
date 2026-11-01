@@ -110,3 +110,14 @@ progress and enemy faction tags are model data in existing snapshots. Native
 region/archive views project these definitions; mobile and HUD share placement
 capacity. RegionFieldVisuals owns persisted monotonic POI IDs, not derived from
 the live list. Convergence ecology does not rewrite existing enemy views.
+
+
+2026-11-01 point6: Core.RunEconomyState owns exploration reservations/cycle,
+versioned new-run prices and Echo telemetry. Core.RuneRunState owns temporary
+boosts,gravity center,Echo and deferred Cell reward. EnemyAgent2D owns persisted
+Rune Hunt expiry,independent of runtime Unity-object references. Cast execution
+remains in existing SphereAttackAgent; a rune requests exactly one repeat.
+Native pickable geometry owns Cell glyph; existing archive projects10RuneRules
+definitions. Old null-economy policy retains legacy behavior. Source catalogs
+remain read-only imports; Unity source count361. Details/acceptance limits in
+UNITY_ECONOMY_RUNES_COMPLETION_2026-11-01.md.

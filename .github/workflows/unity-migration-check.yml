@@ -7,6 +7,7 @@ on:
     paths:
       - 'UnityProject/**'
       - 'tools/EchoSphere.CoreChecks/**'
+      - 'tools/EchoSphere.BalanceSim/**'
       - 'tools/EchoSphere.VisualChecks/**'
       - 'tools/EchoSphere.NativeControlArt/**'
       - 'tools/EchoSphere.UnityTypeChecks/**'
@@ -73,6 +74,8 @@ jobs:
           dotnet-version: 8.0.x
       - name: Run pure C# gameplay contract checks
         run: dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release
+      - name: Check seeded economy sensitivity and transaction invariants
+        run: dotnet run --project tools/EchoSphere.BalanceSim --configuration Release -- 2 "$RUNNER_TEMP/economy-smoke.json" 2
       - name: Compare native presentation with checked-in original TypeScript and browser references
         run: dotnet run --project tools/EchoSphere.VisualChecks/EchoSphere.VisualChecks.csproj --configuration Release
       - name: Setup Node

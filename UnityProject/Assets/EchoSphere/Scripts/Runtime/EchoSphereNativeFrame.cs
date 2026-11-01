@@ -54,7 +54,7 @@ namespace EchoSphere.Runtime
             DrawNativeViewFormationMemory();DrawNativeViewSphereNetwork();
             DrawNativeExperienceLayer();
             DrawNativeHealthLayer();
-            DrawNativeRuneLayer();
+            DrawNativeRuneLayer();DrawNativeRuneZone();
             DrawNativeChestLayer(false);
             DrawNativeChestLayer(true);
             foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy)DrawNativeSphereFrame(sphere,time);

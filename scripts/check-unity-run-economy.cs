@@ -14,7 +14,7 @@ public static class RunEconomyAcceptance
   var go=new GameObject("Merchant UI acceptance");var panel=ScriptableObject.CreateInstance<PanelSettings>();
   var target=new RenderTexture(1080,2400,24);target.Create();panel.scaleMode=PanelScaleMode.ConstantPixelSize;panel.scale=2.75f;panel.forceGammaRendering=true;panel.targetTexture=target;panel.clearColor=true;panel.clearDepthStencil=true;panel.colorClearValue=Color.black;panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
   var doc=go.AddComponent<UIDocument>();doc.panelSettings=panel;var root=doc.rootVisualElement;root.style.position=Position.Absolute;root.style.left=root.style.right=root.style.top=root.style.bottom=0;
-  var state=RunEconomyRules.Create(123);var owned=new System.Collections.Generic.List<string>();RunEconomyRules.AdvanceMerchant(state,390);RunEconomyRules.Prepare(state,owned);state.Open=true;state.Echo=500;
+  var state=RunEconomyRules.Create(123);var owned=new System.Collections.Generic.List<string>();RunEconomyRules.AdvanceMerchant(state,390);RunEconomyRules.Prepare(state,owned);state.Open=true;state.Echo=20000;
   var viewType=type.Assembly.GetType("EchoSphere.Presentation.NativeMerchantView");int clicks=0,checks=0;Action<int> buy=i=>{if(RunEconomyRules.TryBuy(state,i,owned))clicks++;};
   var view=Activator.CreateInstance(viewType,F,null,new object[]{root,(Action)(()=>state.Open=true),(Action)(()=>RunEconomyRules.Close(state)),buy},null);
   void Bind(bool ru)=>viewType.GetMethod("Bind",F).Invoke(view,new object[]{state,owned,ru,430d,true,false,false});

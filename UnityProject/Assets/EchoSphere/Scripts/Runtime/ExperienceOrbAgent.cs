@@ -29,6 +29,7 @@ namespace EchoSphere.Runtime
         {
             if (_collected || _runtime == null) return;
             _collected = true;
+            gameObject.SetActive(false);
             _runtime.CollectExperienceOrb(_amount,_echoAmount<0?_amount:_echoAmount);
             Destroy(gameObject);
         }
@@ -46,6 +47,7 @@ namespace EchoSphere.Runtime
             if (distance < EchoSphere.Core.PlayerLoopRules.OrbPickupRadiusPixels * EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld)
             {
                 _collected = true;
+            gameObject.SetActive(false);
                 SourceAudio2D.Play("pickup");
                 _runtime.CollectExperienceOrb(_amount,_echoAmount<0?_amount:_echoAmount);
                 Destroy(gameObject);

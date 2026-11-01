@@ -9,6 +9,8 @@ namespace EchoSphere.Runtime
         void IRunSaveColor.RestoreSavedColor(Color color) => _savedColor = color;
         private EchoSphereRuntime _runtime;
         private Vector3 _origin;
+        private bool _consumed;
+        internal bool TryConsume(){if(_consumed)return false;_consumed=true;gameObject.SetActive(false);return true;}
 
         public void Initialize(EchoSphereRuntime runtime)
         {
@@ -19,7 +21,7 @@ namespace EchoSphere.Runtime
 
         public void SimulationTick(float dt)
         {
-            if (_runtime == null || _runtime.IsGameplayPaused) return;
+            if (_runtime == null || _runtime.IsGameplayPaused || _consumed) return;
             var pulse = 1f + Mathf.Sin(Time.time * 2.8f) * 0.06f;
             transform.position = _origin;
             transform.localScale = Vector3.one * (0.28f * pulse);

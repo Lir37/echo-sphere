@@ -12,6 +12,7 @@ namespace EchoSphere.Runtime
         private EchoSphereRuntime _runtime;
         private float _time;
         private bool _collected;
+        internal bool TryConsume(){if(_collected)return false;_collected=true;gameObject.SetActive(false);return true;}
 
         public void Initialize(EchoSphereRuntime runtime, Vector2 position)
         {
@@ -30,7 +31,6 @@ namespace EchoSphere.Runtime
             if(Vector2.Distance(transform.position,_runtime.PlayerPosition) <
                 BossCombatRules.ToWorldUnits(BossCombatRules.PlayerRadiusSourceUnits+28f))
             {
-                _collected=true;
                 _runtime.CollectStellaChest(this);
             }
         }

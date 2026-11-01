@@ -75,6 +75,9 @@ namespace EchoSphere.Runtime
         private Color _baseColor = Color.white;
         private BossCombatAgent2D _bossCombat;
         private string _bossType = "";
+        private float _runeHuntUntil;
+        public bool IsRuneHuntMarked => _runtime!=null && _runeHuntUntil>_runtime.CurrentRunTime;
+        public void ApplyRuneHuntMark(float duration){_runeHuntUntil=(_runtime==null?0:_runtime.CurrentRunTime)+Mathf.Max(0,duration);ApplyRuneMark(duration);}
         public bool IsMarked => _markTimer > 0f;
         public void ApplyRuneMark(float duration) => _markTimer = Mathf.Max(_markTimer, Mathf.Max(0f, duration));
         public bool IsBoss => !string.IsNullOrEmpty(_bossType);

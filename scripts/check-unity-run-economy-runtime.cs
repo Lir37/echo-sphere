@@ -12,6 +12,7 @@ public static class RunEconomyRuntimeAcceptance
   var names=new[]{"_runEconomy","_mainMenu","_gameOver","_paused","_userPaused","_levelUp","_choosingEvolution","_stellaRewardPending","_tutorialStep","_xp"};var old=new Dictionary<string,object>();foreach(var n in names)old[n]=Get(n);
   var owned=(List<string>)Get("_ownedArtifacts");var before=owned.ToArray();var core=Get("_playerCore");var player=RunSnapshotCodec.Capture(core);string key="echosphere_active_run_v1";bool had=PlayerPrefs.HasKey(key);string prefs=PlayerPrefs.GetString(key,"");int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
   try{
+   ((EchoSphere.Runtime.PlayerCoreController2D)core).SetMaxHpForNewRun(100000);((EchoSphere.Runtime.PlayerCoreController2D)core).Tick(100);
    var state=RunEconomyRules.Create(123);RunEconomyRules.AdvanceMerchant(state,390);state.Echo=5000;Set("_runEconomy",state);Set("_mainMenu",false);Set("_gameOver",false);Set("_paused",false);Set("_userPaused",false);Set("_levelUp",false);Set("_choosingEvolution",false);Set("_stellaRewardPending",false);Set("_tutorialStep",-1);
    Call("OpenNativeMerchant");Check(state.Open&&(bool)Get("_paused"),"merchant owns pause");int money=state.Echo;
    Call("BuyNativeMerchant",0);Check(state.Offers[0].Sold&&owned.Contains(state.Offers[0].ArtifactId)&&state.Echo<money,"runtime purchase applies");int paid=state.Echo;Call("BuyNativeMerchant",0);Check(state.Echo==paid,"runtime repeat is rejected");

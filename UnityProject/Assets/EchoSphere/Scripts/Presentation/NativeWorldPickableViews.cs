@@ -57,6 +57,8 @@ namespace EchoSphere.Presentation
             void Draw(Art art,Color? fill,Color? stroke,Matrix4x4? local=null)=>Paint(art,root*(local??Matrix4x4.identity),fill,stroke,color,8);
             switch(type)
             {
+                case "runic_cell":
+                    Draw(Get(40,0,0,1.5f,()=>new[]{PolylineContour(true,P(0,-16),P(12,-7),P(12,7),P(0,16),P(-12,7),P(-12,-7))}),dark,color);Draw(Oval(5),color,Color.white);break;
                 case "phase":
                     Draw(Get(20,0,0,1.5f,()=>new[]{PolylineContour(true,P(0,-16),P(8,-8),P(16,0),P(8,8),P(0,16),P(-8,8),P(-16,0),P(-8,-8))}),dark,color);Draw(Get(21,0,0,1.5f,()=>new[]{PolylineContour(false,P(-7,-7),P(7,7)),PolylineContour(false,P(7,-7),P(-7,7))},false),null,C(234,255,255));break;
                 case "harvest":

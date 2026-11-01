@@ -9,12 +9,12 @@ namespace EchoSphere.Presentation
     {
         public sealed class Card { public string Id,Group,Title,Description,Details;public bool Open;public int BasicIndex=-1; }
         public sealed class State { public bool Russian;public string Section,Query;public int Known;public IReadOnlyList<Card> Cards; }
-        private static readonly string[] Sections={"basics","spheres","monsters","bosses","abilities","artifacts","evolutions","regions"};
-        private static readonly string[] Icons={"BookOpen","CircleDot","Swords","Shield","Zap","Gem","Network","BookOpen"};
-        private static readonly string[] LabelsRu={"Ядро игры","Сферы","Монстры","Боссы","Способности","Артефакты","Эволюции","Регионы"};
-        private static readonly string[] LabelsEn={"Core","Spheres","Monsters","Bosses","Abilities","Artifacts","Evolutions","Regions"};
-        private static readonly string[] SubRu={"Как работает забег","Узлы боевой сети","Противники","Главные угрозы","Активные и пассивные","Редкие усиления","Ветки и финалы","Сигналы и история регионов"};
-        private static readonly string[] SubEn={"How a run works","Combat network nodes","Enemies","Major threats","Active and passive","Rare upgrades","Branches and finals","Regional signals and records"};
+        private static readonly string[] Sections={"basics","spheres","monsters","bosses","abilities","artifacts","evolutions","regions","runes"};
+        private static readonly string[] Icons={"BookOpen","CircleDot","Swords","Shield","Zap","Gem","Network","BookOpen","Zap"};
+        private static readonly string[] LabelsRu={"Ядро игры","Сферы","Монстры","Боссы","Способности","Артефакты","Эволюции","Регионы","Руны"};
+        private static readonly string[] LabelsEn={"Core","Spheres","Monsters","Bosses","Abilities","Artifacts","Evolutions","Regions","Runes"};
+        private static readonly string[] SubRu={"Как работает забег","Узлы боевой сети","Противники","Главные угрозы","Активные и пассивные","Редкие усиления","Ветки и финалы","Сигналы и история регионов","Временные эффекты"};
+        private static readonly string[] SubEn={"How a run works","Combat network nodes","Enemies","Major threats","Active and passive","Rare upgrades","Branches and finals","Regional signals and records","Temporary effects"};
         private NativePanelLease _panelLease;
         private UIDocument _document;private PanelSettings _panel;private NativeMainMenuBackground _background;
         private VisualElement _root,_page,_header,_layout,_nav,_main,_searchBox,_cards,_known;

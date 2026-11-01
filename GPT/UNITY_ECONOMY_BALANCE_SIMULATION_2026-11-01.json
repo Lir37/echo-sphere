@@ -1,0 +1,934 @@
+{
+  "date": "2026-11-01",
+  "baselineCommit": "5951d548e70356a2c701d1b9816ab7fcb777ae81",
+  "status": "ECONOMY_SENSITIVITY_NOT_FULL_COMBAT_BALANCE",
+  "totalScenarios": 18432,
+  "toolSha256": "aecba2c3347265d6165ce8da2e5cea12cedf05e6c3cb467fae717c439290e6fd",
+  "comparisonNote": "Both price versions include the same hypothetical two exploration rewards, isolating the price change. Exploration=false groups also recorded. This is not a measured before/after Android run. Enemy lifetimes and collection are assumptions; purchases do not feed back into combat throughput.",
+  "beforePrices": {
+    "Model": "Economy sensitivity, no combat survival/DPS/positions/phone measurements",
+    "PricingVersion": 0,
+    "SeedCount": 64,
+    "TotalRuns": 9216,
+    "Profiles": [
+      {
+        "Name": "slow",
+        "Lifetime": 18,
+        "Collection": 0.55
+      },
+      {
+        "Name": "regular",
+        "Lifetime": 8,
+        "Collection": 0.8
+      },
+      {
+        "Name": "fast",
+        "Lifetime": 3,
+        "Collection": 0.95
+      },
+      {
+        "Name": "ceiling",
+        "Lifetime": 0.5,
+        "Collection": 1
+      }
+    ],
+    "Assumptions": "Normal difficulty; neutral pocket XP; all six regional boss times, 15s regular boss kill delay and final defeated at1750; enemy lifetimes/collection are assumed; 5s loot delay; two discovered POIs at600/1200; no bonus merchant artifacts; no XP/combo income multiplication; exact catalog/prices; same seeds before/after exploration. Rune counts cover defeated enemies including uncollected XP; pickup reach/expiry and tactical use are not simulated; special cells sampled separately, not granted in ordinary campaign.",
+    "Groups": [
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "cheap",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 7,
+        "BoughtP50": 8,
+        "BoughtP90": 9,
+        "ArtifactsP10": 20,
+        "ArtifactsP50": 21,
+        "ArtifactsP90": 22,
+        "TargetShare": 0.9348958333333334,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "cheap",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 7,
+        "BoughtP50": 8,
+        "BoughtP90": 9,
+        "ArtifactsP10": 22,
+        "ArtifactsP50": 23,
+        "ArtifactsP90": 24,
+        "TargetShare": 0.8619791666666666,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "rarity",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 4,
+        "BoughtP50": 5,
+        "BoughtP90": 6,
+        "ArtifactsP10": 17,
+        "ArtifactsP50": 18,
+        "ArtifactsP90": 19,
+        "TargetShare": 0,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "rarity",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 4,
+        "BoughtP50": 5,
+        "BoughtP90": 6,
+        "ArtifactsP10": 19,
+        "ArtifactsP50": 20,
+        "ArtifactsP90": 21,
+        "TargetShare": 0.71875,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "mixed",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 5,
+        "BoughtP50": 6,
+        "BoughtP90": 7,
+        "ArtifactsP10": 18,
+        "ArtifactsP50": 19,
+        "ArtifactsP90": 20,
+        "TargetShare": 0.28125,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "mixed",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 5,
+        "BoughtP50": 6,
+        "BoughtP90": 7,
+        "ArtifactsP10": 20,
+        "ArtifactsP50": 21,
+        "ArtifactsP90": 22,
+        "TargetShare": 0.9401041666666666,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "cheap",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 14,
+        "BoughtP50": 16,
+        "BoughtP90": 18,
+        "ArtifactsP10": 27,
+        "ArtifactsP50": 29,
+        "ArtifactsP90": 31,
+        "TargetShare": 0,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "cheap",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 14,
+        "BoughtP50": 16,
+        "BoughtP90": 18,
+        "ArtifactsP10": 29,
+        "ArtifactsP50": 31,
+        "ArtifactsP90": 33,
+        "TargetShare": 0,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "rarity",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 7,
+        "BoughtP50": 8,
+        "BoughtP90": 11,
+        "ArtifactsP10": 20,
+        "ArtifactsP50": 21,
+        "ArtifactsP90": 24,
+        "TargetShare": 0.8776041666666666,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "rarity",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 7,
+        "BoughtP50": 8,
+        "BoughtP90": 11,
+        "ArtifactsP10": 22,
+        "ArtifactsP50": 23,
+        "ArtifactsP90": 26,
+        "TargetShare": 0.5859375,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "mixed",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 10,
+        "BoughtP50": 12,
+        "BoughtP90": 14,
+        "ArtifactsP10": 23,
+        "ArtifactsP50": 25,
+        "ArtifactsP90": 27,
+        "TargetShare": 0.1875,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "mixed",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 11,
+        "BoughtP50": 12,
+        "BoughtP90": 14,
+        "ArtifactsP10": 26,
+        "ArtifactsP50": 27,
+        "ArtifactsP90": 29,
+        "TargetShare": 0.015625,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "cheap",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 22,
+        "BoughtP50": 23,
+        "BoughtP90": 25,
+        "ArtifactsP10": 35,
+        "ArtifactsP50": 36,
+        "ArtifactsP90": 38,
+        "TargetShare": 0,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "cheap",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 22,
+        "BoughtP50": 23,
+        "BoughtP90": 25,
+        "ArtifactsP10": 37,
+        "ArtifactsP50": 38,
+        "ArtifactsP90": 40,
+        "TargetShare": 0,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "rarity",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 13,
+        "BoughtP50": 14,
+        "BoughtP90": 18,
+        "ArtifactsP10": 26,
+        "ArtifactsP50": 27,
+        "ArtifactsP90": 31,
+        "TargetShare": 0,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "rarity",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 13,
+        "BoughtP50": 14,
+        "BoughtP90": 18,
+        "ArtifactsP10": 28,
+        "ArtifactsP50": 29,
+        "ArtifactsP90": 33,
+        "TargetShare": 0,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "mixed",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 17,
+        "BoughtP50": 20,
+        "BoughtP90": 22,
+        "ArtifactsP10": 30,
+        "ArtifactsP50": 33,
+        "ArtifactsP90": 35,
+        "TargetShare": 0,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "mixed",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 17,
+        "BoughtP50": 20,
+        "BoughtP90": 23,
+        "ArtifactsP10": 32,
+        "ArtifactsP50": 35,
+        "ArtifactsP90": 38,
+        "TargetShare": 0,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "cheap",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 25,
+        "BoughtP50": 27,
+        "BoughtP90": 28,
+        "ArtifactsP10": 38,
+        "ArtifactsP50": 40,
+        "ArtifactsP90": 41,
+        "TargetShare": 0,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "cheap",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 25,
+        "BoughtP50": 27,
+        "BoughtP90": 28,
+        "ArtifactsP10": 40,
+        "ArtifactsP50": 42,
+        "ArtifactsP90": 43,
+        "TargetShare": 0,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "rarity",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 17,
+        "BoughtP50": 21,
+        "BoughtP90": 24,
+        "ArtifactsP10": 30,
+        "ArtifactsP50": 34,
+        "ArtifactsP90": 37,
+        "TargetShare": 0,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "rarity",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 17,
+        "BoughtP50": 21,
+        "BoughtP90": 24,
+        "ArtifactsP10": 32,
+        "ArtifactsP50": 36,
+        "ArtifactsP90": 39,
+        "TargetShare": 0,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "mixed",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 22,
+        "BoughtP50": 24,
+        "BoughtP90": 27,
+        "ArtifactsP10": 35,
+        "ArtifactsP50": 37,
+        "ArtifactsP90": 40,
+        "TargetShare": 0,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "mixed",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 21,
+        "BoughtP50": 25,
+        "BoughtP90": 27,
+        "ArtifactsP10": 36,
+        "ArtifactsP50": 40,
+        "ArtifactsP90": 42,
+        "TargetShare": 0,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      }
+    ]
+  },
+  "afterPrices": {
+    "Model": "Economy sensitivity, no combat survival/DPS/positions/phone measurements",
+    "PricingVersion": 2,
+    "SeedCount": 64,
+    "TotalRuns": 9216,
+    "Profiles": [
+      {
+        "Name": "slow",
+        "Lifetime": 18,
+        "Collection": 0.55
+      },
+      {
+        "Name": "regular",
+        "Lifetime": 8,
+        "Collection": 0.8
+      },
+      {
+        "Name": "fast",
+        "Lifetime": 3,
+        "Collection": 0.95
+      },
+      {
+        "Name": "ceiling",
+        "Lifetime": 0.5,
+        "Collection": 1
+      }
+    ],
+    "Assumptions": "Normal difficulty; neutral pocket XP; all six regional boss times, 15s regular boss kill delay and final defeated at1750; enemy lifetimes/collection are assumed; 5s loot delay; two discovered POIs at600/1200; no bonus merchant artifacts; no XP/combo income multiplication; exact catalog/prices; same seeds before/after exploration. Rune counts cover defeated enemies including uncollected XP; pickup reach/expiry and tactical use are not simulated; special cells sampled separately, not granted in ordinary campaign.",
+    "Groups": [
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "cheap",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 2,
+        "BoughtP50": 3,
+        "BoughtP90": 3,
+        "ArtifactsP10": 15,
+        "ArtifactsP50": 16,
+        "ArtifactsP90": 16,
+        "TargetShare": 0,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "cheap",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 2,
+        "BoughtP50": 3,
+        "BoughtP90": 3,
+        "ArtifactsP10": 17,
+        "ArtifactsP50": 18,
+        "ArtifactsP90": 18,
+        "TargetShare": 0,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "rarity",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 2,
+        "BoughtP50": 3,
+        "BoughtP90": 3,
+        "ArtifactsP10": 15,
+        "ArtifactsP50": 16,
+        "ArtifactsP90": 16,
+        "TargetShare": 0,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "rarity",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 2,
+        "BoughtP50": 3,
+        "BoughtP90": 3,
+        "ArtifactsP10": 17,
+        "ArtifactsP50": 18,
+        "ArtifactsP90": 18,
+        "TargetShare": 0,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "mixed",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 2,
+        "BoughtP50": 3,
+        "BoughtP90": 3,
+        "ArtifactsP10": 15,
+        "ArtifactsP50": 16,
+        "ArtifactsP90": 16,
+        "TargetShare": 0,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "slow",
+          "Policy": "mixed",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 2036,
+        "BoughtP10": 2,
+        "BoughtP50": 3,
+        "BoughtP90": 3,
+        "ArtifactsP10": 17,
+        "ArtifactsP50": 18,
+        "ArtifactsP90": 18,
+        "TargetShare": 0,
+        "RunesP50": 47,
+        "SpecialCellsP50": 5
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "cheap",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 7,
+        "BoughtP50": 8,
+        "BoughtP90": 9,
+        "ArtifactsP10": 20,
+        "ArtifactsP50": 21,
+        "ArtifactsP90": 22,
+        "TargetShare": 0.921875,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "cheap",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 7,
+        "BoughtP50": 8,
+        "BoughtP90": 9,
+        "ArtifactsP10": 22,
+        "ArtifactsP50": 23,
+        "ArtifactsP90": 24,
+        "TargetShare": 0.84375,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "rarity",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 4,
+        "BoughtP50": 5,
+        "BoughtP90": 6,
+        "ArtifactsP10": 17,
+        "ArtifactsP50": 18,
+        "ArtifactsP90": 19,
+        "TargetShare": 0.015625,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "rarity",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 4,
+        "BoughtP50": 5,
+        "BoughtP90": 6,
+        "ArtifactsP10": 19,
+        "ArtifactsP50": 20,
+        "ArtifactsP90": 21,
+        "TargetShare": 0.7526041666666666,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "mixed",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 5,
+        "BoughtP50": 6,
+        "BoughtP90": 7,
+        "ArtifactsP10": 18,
+        "ArtifactsP50": 19,
+        "ArtifactsP90": 20,
+        "TargetShare": 0.34375,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "regular",
+          "Policy": "mixed",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 4911,
+        "BoughtP10": 5,
+        "BoughtP50": 6,
+        "BoughtP90": 7,
+        "ArtifactsP10": 20,
+        "ArtifactsP50": 21,
+        "ArtifactsP90": 22,
+        "TargetShare": 0.9375,
+        "RunesP50": 93,
+        "SpecialCellsP50": 9
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "cheap",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 11,
+        "BoughtP50": 12,
+        "BoughtP90": 14,
+        "ArtifactsP10": 24,
+        "ArtifactsP50": 25,
+        "ArtifactsP90": 27,
+        "TargetShare": 0.0625,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "cheap",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 11,
+        "BoughtP50": 12,
+        "BoughtP90": 14,
+        "ArtifactsP10": 26,
+        "ArtifactsP50": 27,
+        "ArtifactsP90": 29,
+        "TargetShare": 0,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "rarity",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 5,
+        "BoughtP50": 7,
+        "BoughtP90": 8,
+        "ArtifactsP10": 18,
+        "ArtifactsP50": 20,
+        "ArtifactsP90": 21,
+        "TargetShare": 0.671875,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "rarity",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 5,
+        "BoughtP50": 7,
+        "BoughtP90": 8,
+        "ArtifactsP10": 20,
+        "ArtifactsP50": 22,
+        "ArtifactsP90": 23,
+        "TargetShare": 0.984375,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "mixed",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 8,
+        "BoughtP50": 10,
+        "BoughtP90": 12,
+        "ArtifactsP10": 21,
+        "ArtifactsP50": 23,
+        "ArtifactsP90": 25,
+        "TargetShare": 0.6458333333333334,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "fast",
+          "Policy": "mixed",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 8190,
+        "BoughtP10": 8,
+        "BoughtP50": 10,
+        "BoughtP90": 12,
+        "ArtifactsP10": 23,
+        "ArtifactsP50": 25,
+        "ArtifactsP90": 27,
+        "TargetShare": 0.20572916666666666,
+        "RunesP50": 135,
+        "SpecialCellsP50": 13
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "cheap",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 13,
+        "BoughtP50": 15,
+        "BoughtP90": 16,
+        "ArtifactsP10": 26,
+        "ArtifactsP50": 28,
+        "ArtifactsP90": 29,
+        "TargetShare": 0,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "cheap",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 13,
+        "BoughtP50": 15,
+        "BoughtP90": 16,
+        "ArtifactsP10": 28,
+        "ArtifactsP50": 30,
+        "ArtifactsP90": 31,
+        "TargetShare": 0,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "rarity",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 6,
+        "BoughtP50": 7,
+        "BoughtP90": 9,
+        "ArtifactsP10": 19,
+        "ArtifactsP50": 20,
+        "ArtifactsP90": 22,
+        "TargetShare": 0.8567708333333334,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "rarity",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 6,
+        "BoughtP50": 7,
+        "BoughtP90": 9,
+        "ArtifactsP10": 21,
+        "ArtifactsP50": 22,
+        "ArtifactsP90": 24,
+        "TargetShare": 0.7994791666666666,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "mixed",
+          "Exploration": false
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 9,
+        "BoughtP50": 12,
+        "BoughtP90": 14,
+        "ArtifactsP10": 22,
+        "ArtifactsP50": 25,
+        "ArtifactsP90": 27,
+        "TargetShare": 0.328125,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      },
+      {
+        "Key": {
+          "Profile": "ceiling",
+          "Policy": "mixed",
+          "Exploration": true
+        },
+        "Runs": 384,
+        "EchoP50": 10210,
+        "BoughtP10": 9,
+        "BoughtP50": 11,
+        "BoughtP90": 14,
+        "ArtifactsP10": 24,
+        "ArtifactsP50": 26,
+        "ArtifactsP90": 29,
+        "TargetShare": 0.046875,
+        "RunesP50": 163,
+        "SpecialCellsP50": 16
+      }
+    ]
+  }
+}

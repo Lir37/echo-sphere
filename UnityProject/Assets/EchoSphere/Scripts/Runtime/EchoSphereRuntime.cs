@@ -384,7 +384,7 @@ namespace EchoSphere.Runtime
             var slowRadius = 300f * SpherePlacementRules.SourcePixelsToWorld;
             return CombatRules.GetEnemySpeedMultiplier(statusSlowMultiplier, abilitySlow, distanceToPlayer, slowRadius);
         }
-        public float GetExperienceMagnetRadiusWorld() => PlayerLoopRules.MagnetRadius(GetAbilityLevel(RunUpgradeKind.Magnet), GetGlobalSphereModifierLevel("magnetic")) * SpherePlacementRules.SourcePixelsToWorld;
+        public float GetExperienceMagnetRadiusWorld() => PlayerLoopRules.MagnetRadius(GetAbilityLevel(RunUpgradeKind.Magnet), GetGlobalSphereModifierLevel("magnetic")) * SpherePlacementRules.SourcePixelsToWorld * RuneRules.Magnet(_runEconomy?.Runes);
         public bool RegionStabilized => _regionStabilized;
         public EchoRegionId SelectedRegion => _selectedRegion;
         public void RegisterRegionPoiCollected(string poiType)
@@ -392,6 +392,7 @@ namespace EchoSphere.Runtime
             if (string.IsNullOrEmpty(poiType)) return;
             _regionLoreDiscovered.Add(poiType);
             RecordCampaignPoi(poiType);
+            if(poiType=="lost_signal"||poiType=="boss_trace")TryCreateExplorationChest();
             var radiusScale = SpherePlacementRules.SourcePixelsToWorld;
             switch (poiType)
             {
@@ -557,7 +558,7 @@ namespace EchoSphere.Runtime
 
         public float GetSphereAttackSpeedMultiplier(SphereId type)
         {
-            var multiplier = AttackSpeedMultiplier;
+            var multiplier = AttackSpeedMultiplier * RuneAttackSpeedMultiplier;
             if (IsFireAlignedSphere(type) && _fireTrailTimer > 0f) multiplier *= 1f / 0.78f;
             return multiplier;
         }
@@ -917,7 +918,8 @@ namespace EchoSphere.Runtime
                 _runGoldEarned += RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion) +
                     _runEliteKills * 5 + _bossesDefeated * 35;
             }
-            SaveGold(GetGold() + _runGoldEarned);
+            _runGoldEarned=(int)Math.Min(int.MaxValue,(long)_runGoldEarned+RuneRules.CellReward(_runEconomy?.Runes));
+            SaveGold((int)Math.Min(int.MaxValue,(long)GetGold() + _runGoldEarned));
 
             var fallbackName = IsRussianUi ? "Игрок" : "Player";
             var entry = new LeaderboardEntry
@@ -1074,6 +1076,7 @@ namespace EchoSphere.Runtime
             var dashWasActive = _playerCore.DashTimer > 0f;
             _playerCore.Tick(dt);
             TickSourceEarlyPlayerState(dt, dashWasActive);
+            TickCampaignRunes(dt);
             TickSimulationPhase<StellaChestAgent2D>(dt, true);
             TickSimulationPhase<ArtifactChestAgent2D>(dt, true);
             TickSourceMutation();
@@ -2623,7 +2626,7 @@ namespace EchoSphere.Runtime
 
         public void CollectStellaChest(StellaChestAgent2D chest)
         {
-            if (chest == null || _gameOver || (!_simulationFrame && (_stellaRewardPending || _levelUp || _choosingEvolution))) return;
+            if (chest == null || _gameOver || _stellaRewardPending || _levelUp || _choosingEvolution || !chest.TryConsume()) return;
             Destroy(chest.gameObject);
             _stellaRewardChoices.Clear();
             var count = ArtifactRewardRules.GetStellaChoiceCount(_ownedArtifacts);
@@ -2666,7 +2669,7 @@ namespace EchoSphere.Runtime
 
         public void CollectArtifactChest(ArtifactChestAgent2D chest)
         {
-            if (chest == null || _gameOver || (!_simulationFrame && (_stellaRewardPending || _levelUp || _choosingEvolution))) return;
+            if (chest == null || _gameOver || _stellaRewardPending || _levelUp || _choosingEvolution || !chest.TryConsume()) return;
             Destroy(chest.gameObject);
             _runChestOpens++;
             _stellaRewardChoices.Clear();
@@ -2687,6 +2690,7 @@ namespace EchoSphere.Runtime
         public void ActivateRunePickup(string runeType, Vector2 position)
         {
             if (_gameOver || _playerCore == null) return;
+            if(_runEconomy!=null){ActivateCampaignRune(runeType,position);return;}
             var scale = SpherePlacementRules.SourcePixelsToWorld;
             switch (runeType)
             {
@@ -2821,15 +2825,14 @@ namespace EchoSphere.Runtime
                 health.AddComponent<HealthPackAgent2D>().Initialize(this);
             }
 
-            var runeChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.35f : 0f;
+            var runeChance = RuneRules.DropChance(enemy != null && enemy.IsBoss, enemy != null && enemy.IsElite);
             if (_rng.NextFloat() < runeChance)
             {
-                var runeTypes = RuneAgent2D.AllTypes;
-                var runeType = runeTypes[Mathf.Min(runeTypes.Length - 1, Mathf.FloorToInt(_rng.NextFloat() * runeTypes.Length))];
+                var runeType = RuneRules.Pick(_rng.NextFloat(),_runEconomy!=null&&(_regionEndlessMode||_convergenceRun));
                 var rune = new GameObject("Tactical Rune · " + runeType);
                 rune.transform.position = position;
                 rune.transform.localScale = Vector3.one * 0.26f;
-                rune.AddComponent<RuneAgent2D>().Initialize(this, runeType, position, 22f);
+                rune.AddComponent<RuneAgent2D>().Initialize(this, runeType, position, RuneRules.PickupLifetime);
             }
 
             var chestChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.2f : 0.02f;
@@ -2905,7 +2908,7 @@ namespace EchoSphere.Runtime
                 var reflected = FindNearestEnemy(PlayerPosition, 180f * SpherePlacementRules.SourcePixelsToWorld);
                 if (reflected != null) reflected.ReceiveDamage(artifactDamage * 1.25f);
             }
-            var received = artifactDamage * GetCharacterDamageTakenMultiplier() * LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
+            var received = artifactDamage * RuneRules.DamageTaken(_runEconomy?.Runes) * GetCharacterDamageTakenMultiplier() * LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
             if (GetAbilityBranch(RunUpgradeKind.Shield) == "shield_bastion" && _shieldTimer > 0f)
                 received *= 0.70f;
             var shieldsBefore = _playerCore.ShieldCharges;
@@ -3012,7 +3015,7 @@ namespace EchoSphere.Runtime
         }
 
         private float GetArtifactDamageTakenMultiplier() =>
-            GetCharacterDamageTakenMultiplier() *
+            GetCharacterDamageTakenMultiplier() * RuneRules.DamageTaken(_runEconomy?.Runes) *
             GetArtifactOnlyDamageTakenMultiplier() *
             LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
 
@@ -3799,7 +3802,7 @@ namespace EchoSphere.Runtime
         public float GetHunterMarkedTargetDamageMultiplier(SphereId source, EnemyAgent2D target)
         {
             if (_sphereCharacterId != SphereCharacterId.Hunter || target == null ||
-                _hunterMarkTarget != target || _hunterMarkTimer <= 0f) return 1f;
+                !((_hunterMarkTarget == target && _hunterMarkTimer > 0f) || (_runEconomy!=null&&target.IsRuneHuntMarked))) return 1f;
 
             return HunterCombatRules.GetMarkedDamageMultiplier(
                 _characterMasteryLevel, true, _hunterHuntTimer > 0f && _hunterHuntTarget == target);
@@ -3809,7 +3812,7 @@ namespace EchoSphere.Runtime
         {
             return _sphereCharacterId == SphereCharacterId.Hunter
                 ? HunterCombatRules.GetMarkedTargetCritBonus(_characterMasteryLevel,
-                    target != null && _hunterMarkTarget == target && _hunterMarkTimer > 0f)
+                    target != null && ((_hunterMarkTarget == target && _hunterMarkTimer > 0f)||(_runEconomy!=null&&target.IsRuneHuntMarked)))
                 : 0f;
         }
 

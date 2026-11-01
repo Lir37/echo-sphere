@@ -37,6 +37,12 @@ namespace EchoSphere.Runtime
             if(_mainMenu||_gameOver||(_paused&&!_simulationFrame))return;
             RunEconomyRules.Collect(_runEconomy,echoAmount);AddExperience(experience);
         }
+        private bool TryCreateExplorationChest()
+        {
+            if(_mainMenu||_gameOver||_tutorialStep>=0||_player==null||!RunEconomyRules.TakeExplorationChest(_runEconomy,_runTime))return false;
+            var chest=new GameObject("Exploration Artifact Cache");chest.transform.position=_player.position+Vector3.left*.55f;
+            chest.AddComponent<ArtifactChestAgent2D>().Initialize(this);return true;
+        }
         private void TickNativeEconomy()
         {
             if(_runEconomy==null||_tutorialStep>=0||_mainMenu||_gameOver||_regionStabilized||_playerCore==null||_playerCore.IsDead)return;

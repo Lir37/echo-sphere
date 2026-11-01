@@ -17,6 +17,7 @@ namespace EchoSphere.Runtime
             bool Near(EnemyAgent2D enemy, float range) => enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, origin) <= range;
             if (_type == SphereId.Pulse)
             {
+                bool hit=false;
                 radius *= _sourceModifiers.radius;
                 if (branch == "pulse_wave") radius *= (mode == 1 ? 1.24f : 1.10f) * power;
                 if (cluster > 0f) radius *= 1f + .06f * cluster;
@@ -26,7 +27,7 @@ namespace EchoSphere.Runtime
                     var waveDamage = damage * SphereEvolutionCombatRules.GetPulseWaveDamageMultiplier(branch, mode, power, wave);
                     var range = radius * (wave == 0 ? 1f : .68f);
                     foreach (var enemy in _runtime.SourceRadarEnemies) if (Near(enemy, range))
-                    { enemy.ReceiveSphereDamage(this, waveDamage); if (branch == "pulse_wave") enemy.ApplySlow(1.2f, .6f); }
+                    { hit=true;enemy.ReceiveSphereDamage(this, waveDamage); if (branch == "pulse_wave") enemy.ApplySlow(1.2f, .6f); }
                     for (var i = 0; i < 14; i++) _runtime.EmitSourceRadialParticle(origin, 90f, .35f, 3f, GetColor(_type));
                     foreach (var enemy in _runtime.SourceRadarEnemies) if (Near(enemy, range)) OnSphereHitApplied(enemy);
                     if (branch == "pulse_wave") foreach (var enemy in _runtime.SourceRadarEnemies)
@@ -38,7 +39,7 @@ namespace EchoSphere.Runtime
                     _runtime.ChargeResonanceFromSource(ResonanceRules.NetworkCharge * (bonus > 0f ? bonus : 1f) * Mathf.Max(1f, _sourceModifiers.resonantCharge / 2f), true);
                 }
                 if (branch == "pulse_burst" && _runtime.HasNetworkCandidateForSphere(SphereNetworkFormation.Cluster, index)) _runtime.ChargeResonanceFromSource(ResonanceRules.GeometryCharge, false);
-                return true;
+                return hit;
             }
             if (_type == SphereId.Gravity)
             {
@@ -69,7 +70,7 @@ namespace EchoSphere.Runtime
                     { enemy.ReceiveDamage(damage * .65f); enemy.ApplySlow(1.2f, .6f); }
                     for (var i = 0; i < 14; i++) _runtime.EmitSourceRadialParticle(origin, 90f, .35f, 3f, GetColor(_type));
                 }
-                return true;
+                return grouped>0;
             }
             radius *= _sourceModifiers.auraRadius; var attacked = false;
             foreach (var enemy in _runtime.SourceRadarEnemies)

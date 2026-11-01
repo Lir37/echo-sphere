@@ -89,7 +89,7 @@ namespace EchoSphere.Runtime
         public float AttackRange { get; private set; } = (130f * SpherePlacementRules.SourcePixelsToWorld);
         public int PierceCount => _levelStats.Pierce;
         // Read the same cadence used by Tick; pause UI must not maintain a second formula.
-        public float EffectiveAttackInterval=>_runtime==null?AttackDelay:_type==SphereId.Aura?GetSourceCadenceInterval():GetSourceCadenceInterval()/Mathf.Max(.01f,_runtime.GetSphereAttackSpeedMultiplier(_type));
+        public float EffectiveAttackInterval=>_runtime==null?AttackDelay:_type==SphereId.Aura?GetSourceCadenceInterval()/Mathf.Max(.01f,_runtime.RuneAttackSpeedMultiplier):GetSourceCadenceInterval()/Mathf.Max(.01f,_runtime.GetSphereAttackSpeedMultiplier(_type));
         public float GetSourceDpsEstimate(float damage, float delay, bool accuratePulse = false)
         {
             var multishot = _sourceModifiers.multishot;
@@ -211,7 +211,7 @@ namespace EchoSphere.Runtime
 
             // Source Aura uses its authored auraPulse interval directly.
             // Gravity/Pulse use special cadence intervals scaled by the global attack-speed path.
-            if (_type == SphereId.Aura) _attackTimer -= dt;
+            if (_type == SphereId.Aura) _attackTimer -= dt * _runtime.RuneAttackSpeedMultiplier;
             else _attackTimer -= dt * _runtime.GetSphereAttackSpeedMultiplier(_type);
             var origin = (Vector2)transform.position;
             var targetRange = _type == SphereId.Prism ? GetPrismSourceRangeWorld() : AttackRange;
@@ -234,6 +234,7 @@ namespace EchoSphere.Runtime
             if (target != null && EngineerRelayRules.ConsumesOnAttack(_type))
                 damage *= _runtime.ConsumeEngineerRelayBonus(this);
             var triggeredEngineerRelay = false;
+            var runeAreaHit = false;
             switch (_type)
             {
                 case SphereId.Standard:
@@ -253,7 +254,7 @@ namespace EchoSphere.Runtime
                     triggeredEngineerRelay = target != null;
                     break;
                 case SphereId.Aura:
-                    triggeredEngineerRelay = DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
+                    triggeredEngineerRelay = runeAreaHit = DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
                     break;
                 case SphereId.Prism:
                     FireAtMultiple(origin, damage);
@@ -262,13 +263,13 @@ namespace EchoSphere.Runtime
                     triggeredEngineerRelay = true;
                     break;
                 case SphereId.Gravity:
-                    DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
+                    runeAreaHit = DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
                     // The source Gravity pulse triggers Relay on its own cadence,
                     // independently of whether an enemy is caught in the field.
                     triggeredEngineerRelay = true;
                     break;
                 case SphereId.Pulse:
-                    DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
+                    runeAreaHit = DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
                     // The source Pulse cadence triggers Relay even in an empty field.
                     triggeredEngineerRelay = true;
                     break;
@@ -278,6 +279,17 @@ namespace EchoSphere.Runtime
                     break;
             }
 
+            if(_runtime.ConsumeRuneEcho(runeAreaHit || (target!=null && _type!=SphereId.Aura && _type!=SphereId.Gravity && _type!=SphereId.Pulse)))
+            {
+                switch(_type){
+                    case SphereId.Standard:case SphereId.Sniper:FireAt(target,origin,damage,ColorFor(_type));break;
+                    case SphereId.Shotgun:FireSpread(target,origin,damage);break;
+                    case SphereId.Chain:ChainTargets(origin,damage);break;
+                    case SphereId.Prism:FireAtMultiple(origin,damage);break;
+                    case SphereId.Void:FireVoid(origin,damage);break;
+                    default:DamageSourceArea(origin,_profile.AuraRadius*SpherePlacementRules.SourcePixelsToWorld,damage,dt);break;
+                }
+            }
             _presentationAttackActive = target != null || _type == SphereId.Aura || _type == SphereId.Gravity || _type == SphereId.Pulse;
             if (_presentationAttackActive) { unchecked { _presentationShotSerial++; } _presentationShotTime = _runtime.CurrentRunTime; }
             if (triggeredEngineerRelay) _runtime.TriggerEngineerRelay(this);
@@ -531,6 +543,10 @@ namespace EchoSphere.Runtime
                     var damageMultiplier = SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(_progressionLevel, branch, finalId);
                     var damage = _runtime.GetSourceSphereAttackDamage(this) * damageMultiplier * (1f + .08f * _runtime.GetFormationBonus(SphereNetworkFormation.Cluster, _runtime.GetSphereIndex(this)));
                     var dealtDamage = enemy.ReceiveSphereDamage(this, damage);
+                    if(_runtime.ConsumeRuneEcho(dealtDamage>0)){
+                        enemy.ReceiveSphereDamage(this,damage);
+                        OnSphereHitApplied(enemy);
+                    }
 
                     OnSphereHitApplied(enemy);
                     _orbitalHitCount++;
