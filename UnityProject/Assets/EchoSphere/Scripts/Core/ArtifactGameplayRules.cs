@@ -11,10 +11,12 @@ namespace EchoSphere.Core
     public static class ArtifactGameplayRules
     {
         private static readonly string[] CorrectedIds = {"sniper_scope","sniper_crown","chain_crown","formation_compass","zero_sphere","unified_mind","lone_bastion","fivefold_resonance","relay_matrix","network_relay","network_coil","geometry_die","mirror_network","singularity_engine","triangle_circuit","resonance_core","chain_battery","shotgun_shell","aura_mist","folded_core","overclock","quantum_fold","void_star","mirror_dust","signal_knot","echo_thread","triangle_engine","ring_engine","lattice_engine","fractal_engine","lattice_chip","fractal_seed"};
-        private static readonly string[] DescriptionOnlyIds = {"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver"};
+        private static readonly string[] DescriptionOnlyIds = {"vampire_ring","predator_claw","foresight_eye","mirror","void_mark","void_lantern","gravity_hook","pulse_driver","prism_filter","prism_crown"};
         public static string DescriptionOverride(string id,bool ru)
         {
             switch(id){
+                case "prism_filter":return ru?"Призма получает +1 сетевое отражение через связанные сферы. Урон отражения — 42% урона атаки.":"Prism gains +1 network reflection through linked Spheres. Reflections deal 42% of attack damage.";
+                case "prism_crown":return ru?"+1 сетевое отражение Призмы при наличии Призматического фильтра или зеркальной ветки. Нужна связанная сфера.":"+1 Prism network reflection with Prism Filter or the mirror branch. Requires a linked Sphere.";
                 case "vampire_ring":return ru?"+3% вампиризма. Каждое убийство восстанавливает 5 HP.":"+3% lifesteal. Each kill restores 5 HP.";
                 case "predator_claw":return ru?"+8% урона сфер. Каждое пятое попадание отдельной сферы наносит двойной урон и считается критическим.":"+8% Sphere damage. Every fifth hit by each Sphere deals double damage and counts as a critical hit.";
                 case "foresight_eye":return ru?"+10% шанса крита, +8% урона Снайпера. Указывает направление к боссу.":"+10% critical chance and +8% Sniper damage. Shows the direction to a boss.";

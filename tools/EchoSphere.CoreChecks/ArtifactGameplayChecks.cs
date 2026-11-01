@@ -2,6 +2,11 @@ using EchoSphere.Core;
 internal static class ArtifactGameplayChecks
 {
  internal static int Run(){int checks=0;void Near(float value,float expected,string why){checks++;if(Math.Abs(value-expected)>.00001f)throw new Exception("Artifact contract: "+why+" "+value+" expected "+expected);}
+  foreach(bool ru in new[]{false,true})foreach(var id in new[]{"prism_filter","prism_crown"}){var text=ArtifactGameplayRules.DescriptionOverride(id,ru);Near(string.IsNullOrWhiteSpace(text)?0:1,1,"prism contract localized "+id);}
+  Near(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_split","",false,true,false),0,"crown requires reflection path");
+  Near(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_split","",true,false,false),1,"filter enables one relay");
+  Near(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_split","",true,true,false),2,"crown adds one relay");
+  Near(SphereEvolutionCombatRules.GetPrismNetworkRelayDamageMultiplier(),.42f,"relay actual damage");
   var keys=new[]{"sphereDamage","cooldown","sniperDamage","sniperRadius","critChance","sphereRadius"};
   foreach(var artifact in ArtifactRewardRules.All)foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,false),artifact.GetEffect(key),"legacy "+artifact.Id+"/"+key);
   foreach(var artifact in ArtifactRewardRules.All.Where(x=>!ArtifactGameplayRules.IsCorrected(x.Id)))foreach(var key in keys)Near(ArtifactGameplayRules.Effect(artifact,key,true),artifact.GetEffect(key),"unrelated "+artifact.Id+"/"+key);

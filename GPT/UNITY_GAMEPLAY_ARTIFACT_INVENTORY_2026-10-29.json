@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Static inventory for Unity production. Literal references do not prove invocation, integration, correct semantics or acceptance. Unreviewed entries are not claimed broken.",
-  "baselineCommit": "48ea3b3291d3cba9672f3561855e0ea63e9ac75c",
+  "baselineCommit": "6b3fb0fba23471e9154fc79dd9a1edf5d7be2b77",
   "artifactCatalogSha256": "c8b8bf7550cae1b3e9ec5c1d4a78af49e761cd6dcc3f56f903b57e53ed284f3b",
   "catalogCounts": {
     "SourceCommit": 0,
@@ -20,7 +20,7 @@
     "SphereAbilityLinks": 30
   },
   "verifiedArtifactCorrections": 32,
-  "clarifiedDescriptionsPendingRuntimeReview": 8,
+  "clarifiedDescriptionsPendingRuntimeReview": 10,
   "reviewedUnchangedArtifactConsumers": 27,
   "remainingArtifactReviews": 23,
   "artifacts": [
@@ -1107,7 +1107,7 @@
           "text": "var prismFilter = _runtime.HasArtifact(\"prism_filter\");"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {
@@ -1451,7 +1451,7 @@
           "text": "branch, finalId, prismFilter, _runtime.HasArtifact(\"prism_crown\"), ringReflection);"
         }
       ],
-      "status": "REQUIRES_BEHAVIORAL_REVIEW",
+      "status": "DESCRIPTION_CLARIFIED_RUNTIME_REVIEW_PENDING",
       "verification": null
     },
     {

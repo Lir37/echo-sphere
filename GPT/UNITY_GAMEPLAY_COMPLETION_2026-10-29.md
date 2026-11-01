@@ -219,3 +219,14 @@ and 23 pending behavioral reviews (including 8 clarified descriptions). These
 scoped checks do not mean full balance or all special interactions are accepted.
 Baseline 48ea3b3291d3cba9672f3561855e0ea63e9ac75c: CI 933 SUCCESS.
 Next: review remaining special handlers against their cards before adding content.
+
+
+## 2026-11-01 — Prism artifact card contracts
+Prism Filter does not add 10% pierce: the existing combat handler enables one
+network relay at 42% attack damage. Prism Crown adds one relay only when the
+filter or mirror branch enables that path; linked Spheres are required.
+Modern RU/EN descriptions now explain these existing conditions. Combat logic,
+legacy cards and imported catalog remain unchanged. Core PASS: 13600 assertions,
+47389 source comparisons; artifact checks 912. Full Editor integration remains
+open because no reachable Unity Pipeline is running. These two items are
+description-clarified, not fully runtime-accepted. No APK built.
