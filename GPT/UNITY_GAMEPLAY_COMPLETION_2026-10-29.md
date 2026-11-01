@@ -55,10 +55,10 @@ A.Матрица фактических эффектов82артефактов,�
 B.Экономика:измерить сбор,проверить10scheduled+3boss+покупки+до2exploration
   за30мин;целевой диапазон20–23не является hardcap;добавитьbudget exploration.
   Руны пока сохранены;аудит полезности/частоты и Runic Cell специальныхрежимов.
-C.15active+15canonicalpassive;пассивные снова в Ability LevelUp;3actives кромеDash,
-  открытия5/12/20;дляmajoractives3веткиIV×3финалаVII.7missingactives:
-  Nova,Gravity Well,Resonance Pulse,Node Swap,Phase Shell,Void Lance,Time Fracture.
-  Legacy IDs остаются читаемыми;10сфер/30IV/90VII не переписывать без дефекта.
+C.Удалено пользователем 2026-11-01: расширение/переработка способностей
+  исключены из текущего плана. Не добавлять семь новых active, не менять
+  passive pool, слоты, открытия или ветки IV/VII в рамках этого плана.
+  Существующие способности сохраняются.
 D.90–120реальныхартефактов,20сетов,>=12содержательныхпротоколов послеисправления
   существующих.Не заменять поведение дополнительнымипроцентами.
 E.Один regionprofile дляsim/render/radar;исправитьобщиеBasinpockets у Rift;
@@ -343,3 +343,9 @@ This is authored starting ecology,not accepted30minute balance or a claim that
 four other regions exist. Core13894 assertions+47389comparisonsPASS.
 Actual Editor compiled imported code; selector returned disruptor at900s;
 Play entered. Full actual spawn scenario and phone acceptance still OPEN.
+
+
+## 2026-11-01 — изменение объёма пользователем
+Пункт 2 последнего списка (весь блок расширения/переработки способностей)
+удалён по прямому указанию пользователя. Этот отказ приоритетнее прежнего
+плана и исторических указаний продолжать способности. Остальные этапы остаются.

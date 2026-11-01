@@ -6387,3 +6387,8 @@ This is authored starting ecology,not accepted30minute balance or a claim that
 four other regions exist. Core13894 assertions+47389comparisonsPASS.
 Actual Editor compiled imported code; selector returned disruptor at900s;
 Play entered. Full actual spawn scenario and phone acceptance still OPEN.
+
+2026-11-01: User removed the ability expansion/rework stage from gameplay
+completion scope. Existing abilities stay; do not implement the previously
+planned seven new actives, passive-pool changes, slots/unlocks or IV/VII rework.
+Other gameplay completion stages remain open.
