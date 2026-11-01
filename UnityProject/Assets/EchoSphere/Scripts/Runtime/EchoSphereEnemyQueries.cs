@@ -26,6 +26,16 @@ namespace EchoSphere.Runtime
         internal void RefreshEnemyQuery(EnemyAgent2D enemy)
         {if(_enemyQueries!=null&&enemy!=null&&_enemyQueries.Contains(enemy))UpdateEnemyQuery(enemy);}
         internal void RemoveEnemyQuery(EnemyAgent2D enemy){if(_enemyQueries!=null)_enemyQueries.Remove(enemy);}
+        // Local separation uses the retained spatial index, not an all-enemy scan.
+        internal Vector2 SteerRegionalEnemy(EnemyAgent2D self,Vector2 desired){
+            if(desired.sqrMagnitude<.001f)return desired;
+            Vector2 position=self.transform.position,avoid=Vector2.zero;
+            float radius=self.SourceRadius*SpherePlacementRules.SourcePixelsToWorld;
+            var nearby=EnemyQuery(position,radius*3,true);
+            foreach(var other in nearby){if(other==null||other==self||!other.IsAlive)continue;Vector2 delta=position-(Vector2)other.transform.position;float d=delta.magnitude,space=radius+other.SourceRadius*SpherePlacementRules.SourcePixelsToWorld;
+                if(d>.001f&&d<space*1.4f)avoid+=delta/d*(1-d/(space*1.4f));}
+            return Vector2.ClampMagnitude(desired+avoid*.85f,1);
+        }
         private List<EnemyAgent2D> EnemyQuery(Vector2 center,float radius,bool includeEnemyRadius=false)
         {
             // Destroy removes an index entry before the source list's end-frame

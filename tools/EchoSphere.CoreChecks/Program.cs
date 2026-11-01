@@ -15,6 +15,7 @@ internal static class Program
             Check(()=>_assertions += CampaignRegionChecks.Run());
             Check(()=>_assertions += CampaignBossChecks.Run());
             Check(()=>_assertions += RegionalContentChecks.Run());
+            Check(()=>_assertions += RegionalEnemyChecks.Run());
             Check(()=>_assertions += RunEconomyChecks.Run());
             Check(()=>_assertions += RuneChecks.Run());
             Check(()=>_assertions += MetaCurrencyChecks.Run());

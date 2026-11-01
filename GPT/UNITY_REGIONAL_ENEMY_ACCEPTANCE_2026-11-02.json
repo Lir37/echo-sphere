@@ -1,0 +1,24 @@
+{
+  "baseline": "514f2c8488ad1799991e5d912e78eb2786313b99",
+  "completed": "2026-11-02",
+  "status": "IMPLEMENTED_EDITOR_VERIFIED_ANDROID_VISUAL_BALANCE_OPEN",
+  "coreAssertions": 196553,
+  "sourceComparisons": 47389,
+  "nodeTests": 272,
+  "runtimeFiles": 367,
+  "editorFiles": 6,
+  "compilerErrors": 0,
+  "compilerWarnings": 0,
+  "consoleErrors": 0,
+  "consoleWarnings": 0,
+  "editorMovementAndSnapshot": {
+    "result": "PASS",
+    "checks": 206
+  },
+  "playAttacksAndProjectiles": {
+    "result": "PASS",
+    "checks": 54
+  },
+  "phoneTested": false,
+  "apkBuilt": false
+}

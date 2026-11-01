@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class EnemyAgent2D : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
+    public sealed partial class EnemyAgent2D : MonoBehaviour, ISourceSimulationAgent, IRunSaveColor
     {
         internal float SourceProjectionHitFlash => _sourceHitFlash;
         internal float SourceProjectionFreezeTimer => _freezeTimer;
@@ -472,12 +472,15 @@ namespace EchoSphere.Runtime
             if (_role == "scavenger" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
             if (_eliteVariant == "phantom_hunter" && distanceToPlayer > 180f * SpherePlacementRules.SourcePixelsToWorld) speedMultiplier *= 1.35f;
             if (_eliteVariant == "scavenger_prime" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
-            transform.position += (Vector3)(directionToPlayer * _moveSpeed * speedMultiplier * dt);
+            var movement = _campaignRegionStyle>=0 ? RegionalMovement(dt,directionToPlayer,distanceToPlayer) : directionToPlayer;
+            if(_campaignRegionStyle>0)movement=_runtime.SteerRegionalEnemy(this,movement);
+            transform.position += (Vector3)(movement * _moveSpeed * speedMultiplier * dt);
+            if(_campaignRegionStyle>=0)TickRegionalAttack(dt,target,distanceToPlayer);
             _runtime?.RefreshEnemyQuery(this);
             if (_role == "leech" && distanceToPlayer < 160f * SpherePlacementRules.SourcePixelsToWorld)
                 _hp = Mathf.Min(_maxHp, _hp + 3f * dt);
 
-            if (_role == "ranged" || _role == "sniper")
+            if (_campaignRegionStyle<0 && (_role == "ranged" || _role == "sniper"))
             {
                 _roleActionTimer -= dt;
                 if (_roleActionTimer <= 0f && distanceToPlayer > 240f * SpherePlacementRules.SourcePixelsToWorld &&

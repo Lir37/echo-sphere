@@ -19,6 +19,7 @@ namespace EchoSphere.Presentation
                 Mesh Stroke(Vector2 a,Vector2 b,float width)=>Line(a,b,width,cap:ending);
                 Mesh Ring(float radius,float sweep,float width)=>Arc(radius,sweep,width,ending,corner,miter);
                 bool enemy=kind<2;
+                if(kind==6){Body=Circle(Vector2.zero,r);Outline=Ring(r,Mathf.PI*2,Mathf.Max(1,r*.055f));Core=Ring(r*.55f,Mathf.PI*2,1);return;}
                 Tail=Stroke(new Vector2(-r*(enemy?4.8f:3.8f),0),new Vector2(-r*.35f,0),Mathf.Max(2,r*(enemy?.55f:.45f)));
                 if(!enemy)InnerTail=Stroke(new Vector2(-r*3.2f,0),new Vector2(-r*.4f,0),Mathf.Max(.6f,r*.08f));
                 Vector2[] points=null;float width;
@@ -52,6 +53,7 @@ namespace EchoSphere.Presentation
             var key=(r,kind,surface.NativeStrokeEnding,surface.NativeStrokeCorner,surface.NativeStrokeMiter);if(!_art.TryGetValue(key,out var art)){art=new Art(r,kind,key.Item3,key.Item4,key.Item5);_art.Add(key,art);}
             bool enemy=kind<2;var transform=Matrix4x4.TRS(new Vector3(x,y,0),Quaternion.Euler(0,0,(float)Math.Atan2(vy,vx)*Mathf.Rad2Deg),Vector3.one);
             void Paint(Mesh mesh,Color tint,Matrix4x4? local=null,bool additive=false,bool detail=false){surface.DrawNativeMesh(mesh,_material,Properties(tint),transform*(local??Matrix4x4.identity),shadow:detail?Color.clear:enemy?(Color?)color:null,shadowBlur:detail?0:enemy?7:0,inheritShadow:!detail&&!enemy,additive:additive,inheritShadowOffsets:enemy);}
+            if(kind==6){Paint(art.Body,Alpha(color,.2f),detail:true);Paint(art.Outline,Alpha(color,.8f),detail:true);Paint(art.Core,Alpha(color,.5f),detail:true);return;}
             Paint(art.Tail,Alpha(color,enemy?.30f:.20f),additive:enemy);
             if(!enemy)Paint(art.InnerTail,new Color(245/255f,252/255f,1,.65f));
             Paint(art.Body,Html(enemy?"#07101a":kind==2?"#06101c":kind==3?"#130b06":kind==4?"#0c0717":"#120511"));Paint(art.Outline,Alpha(color,enemy?1:.95f));

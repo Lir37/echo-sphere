@@ -503,3 +503,7 @@ clears/коллекции; receipts, backup, восстановление опл
 исключён из active-run snapshots. Reset исправлен для всех6регионов.
 Отчёт:UNITY_META_CURRENCIES_COMPLETION_2026-11-01.md. Core186988,Editor82+UI103
 и Rune61PASS; Android/финальный темп OPEN. APK нет. Следующий пункт8.
+
+
+## 2026-11-01 — региональные движения и атаки
+По отдельному разрешению пользователя реализованы RegionalEnemyRules и EnemyRegionalCombat: шесть региональных политик, дистанция/отступление/обход, подготовка атак, разные залпы, споровые пятна и уколы Пустоты. NativeWorldRegionalAttackParts использует сохранённые меши с преобразованиями. Старые неотмеченные враги и боссы сохраняют прежние контроллеры. Отчёт: UNITY_REGIONAL_ENEMY_COMBAT_2026-11-01.md. Editor206+Play54checks PASS; Android/визуальная приёмка/полный баланс OPEN.

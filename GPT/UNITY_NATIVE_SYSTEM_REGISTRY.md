@@ -133,3 +133,7 @@ Meta wallet/cache/pending discoveries are NonRunFields; only the run receipt
 and per-run reward counters belong to run snapshots. Native UI projects wallet
 state and expected mastery level; no Renderer is used as financial storage.
 Runtime source count364; see UNITY_META_CURRENCIES_COMPLETION_2026-11-01.md.
+
+
+## 2026-11-01 — региональные движения и атаки
+По отдельному разрешению пользователя реализованы RegionalEnemyRules и EnemyRegionalCombat: шесть региональных политик, дистанция/отступление/обход, подготовка атак, разные залпы, споровые пятна и уколы Пустоты. NativeWorldRegionalAttackParts использует сохранённые меши с преобразованиями. Старые неотмеченные враги и боссы сохраняют прежние контроллеры. Отчёт: UNITY_REGIONAL_ENEMY_COMBAT_2026-11-01.md. Editor206+Play54checks PASS; Android/визуальная приёмка/полный баланс OPEN.
