@@ -314,3 +314,18 @@ but is blocked on Scene Backup Detected, awaiting the user's recovery choice
 to avoid replacing their unsaved scene. No recovery files touched.
 Next: execute fixture and previous acceptance suites; finish16artifact reviews,
 then abilities/regional roadmap. Full completion remains OPEN.
+
+
+## 2026-11-01 — actual Editor regression acceptance after reopening
+User chose saved scene. Kept scene backups, did not recover/overwrite scene.
+Pipeline confirmed actual project on7800; Editor Play entered successfully.
+ModernArtifactStateAcceptance:14PASS, actual charge multipliers/event gate,
+Mandala DoT damage and invulnerability, saved timer/accumulator roundtrip via
+RunSnapshotCodec, actual timed Sphere damage and legacy charge isolation.
+Re-ran actual Editor suites:artifact contracts22,conditional21,Stella4,
+pause stats50,network14,unchanged consumers95,economy runtime9,fleet5 PASS.
+Total234 actual checks, including the new14. Economy fixture restored original
+PlayerPrefs; other new fixture did not write prefs. Console ground truth0errors,
+0warnings after suites. Runtime evidence:modern-artifact-state-acceptance.json.
+This closes the scoped Editor verification gap, not Android,balance,visual
+acceptance of the full game or the remaining gameplay roadmap.

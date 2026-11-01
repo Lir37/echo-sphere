@@ -12,8 +12,7 @@ public static class ModernArtifactStateAcceptance {
   var r=UnityEngine.Object.FindAnyObjectByType<EchoSphereRuntime>();var t=r.GetType();
   var names=new[]{"_runEconomy","_resonanceCharge","_resonanceEventActive","_timeSplitterBuffTimer","_mandalaDamageStored","_deathTimer","_characterScreenShakeIntensity"};
   var old=new Dictionary<string,object>();foreach(var n in names)old[n]=t.GetField(n,F).GetValue(r);
-  var owned=(List<string>)t.GetField("_ownedArtifacts",F).GetValue(r);var before=owned.ToArray();var core=(PlayerCoreController2D)t.GetField("_playerCore",F).GetValue(r);var player=RunSnapshotCodec.Capture(core);int checks=0;
-  object Call(string n,params object[] args)=>t.GetMethod(n,F).Invoke(r,args);
+  var owned=(List<string>)t.GetField("_ownedArtifacts",F).GetValue(r);var before=owned.ToArray();var core=(PlayerCoreController2D)t.GetField("_playerCore",F).GetValue(r);var player=RunSnapshotCodec.Capture(core);int checks=0;GameObject created=null;
   void Near(float a,float b,string why){checks++;if(Math.Abs(a-b)>.001f)throw new Exception(why+": "+a+" expected "+b);}
   void Equip(params string[] ids){owned.Clear();owned.AddRange(ids);}
   void ChargeReset(){t.GetField("_resonanceCharge",F).SetValue(r,0f);t.GetField("_resonanceEventActive",F).SetValue(r,false);}
@@ -31,7 +30,13 @@ public static class ModernArtifactStateAcceptance {
    t.GetField("_timeSplitterBuffTimer",F).SetValue(r,0f);t.GetField("_mandalaDamageStored",F).SetValue(r,0f);RunSnapshotCodec.Restore(snapshot,t,r);
    Near((float)t.GetField("_timeSplitterBuffTimer",F).GetValue(r),3.25f,"buff snapshot roundtrip");Near((float)t.GetField("_mandalaDamageStored",F).GetValue(r),17f,"mandala snapshot roundtrip");
    t.GetField("_runEconomy",F).SetValue(r,null);Equip("resonant_leaf");ChargeReset();r.AddResonanceCharge(1);Near((float)t.GetField("_resonanceCharge",F).GetValue(r),baseline,"legacy charge unchanged");
+   t.GetField("_runEconomy",F).SetValue(r,RunEconomyRules.Create(9));Equip();
+   created=new GameObject("Modern artifact damage fixture");var sphere=created.AddComponent<SphereAttackAgent>();sphere.Initialize(r,core.transform,SphereId.Standard,12);
+   t.GetField("_timeSplitterBuffTimer",F).SetValue(r,0f);float baseDamage=r.GetSourceSphereAttackDamage(sphere);
+   Equip("time_splitter");Near(r.GetSourceSphereAttackDamage(sphere),baseDamage,"splitter no permanent damage");
+   t.GetField("_timeSplitterBuffTimer",F).SetValue(r,2f);Near(r.GetSourceSphereAttackDamage(sphere),baseDamage*1.15f,"splitter actual timed damage");
+   Equip();Near(r.GetSourceSphereAttackDamage(sphere),baseDamage,"timer alone grants no damage");
    var result=new{result="PASS",checks,scope="Actual runtime charge,DoT shield consumer,invulnerability and snapshot codec; no PlayerPrefs writes"};File.WriteAllText(Path.GetFullPath(Path.Combine(Application.dataPath,"../Library/modern-artifact-state-acceptance.json")),Newtonsoft.Json.JsonConvert.SerializeObject(result));return result;
-  }finally{foreach(var n in names)t.GetField(n,F).SetValue(r,old[n]);owned.Clear();owned.AddRange(before);RunSnapshotCodec.Restore(player,core.GetType(),core);}
+  }finally{if(created!=null)UnityEngine.Object.Destroy(created);foreach(var n in names)t.GetField(n,F).SetValue(r,old[n]);owned.Clear();owned.AddRange(before);RunSnapshotCodec.Restore(player,core.GetType(),core);}
  }
 }
