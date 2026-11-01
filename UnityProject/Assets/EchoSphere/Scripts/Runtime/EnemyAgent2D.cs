@@ -141,6 +141,7 @@ namespace EchoSphere.Runtime
             if (owner != null) _runtime.ApplySourceAfterHitGeometry(owner, this, actual);
             _runtime?.EmitSourceHitFeedback(this, actual, true, allowAuthoredProcs, wasCritical, source);
             _runtime?.HealCoreFromDamage(actual);
+            _runtime?.ApplyCampaignArtifactProtocolHit(owner,this,actual,allowAuthoredProcs);
             FinishReceivedDamage(source, owner, actual);
             return actual;
         }

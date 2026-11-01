@@ -6959,7 +6959,7 @@ namespace EchoSphere.Runtime
                     ? (IsRussianUi ? protocol.NameRussian : protocol.NameEnglish)
                     : "???";
                 var description = discovered
-                    ? (IsRussianUi ? protocol.DescriptionRussian : protocol.DescriptionEnglish)
+                    ? ArtifactProtocolRules.ModernDescription(protocol,IsRussianUi,_runEconomy!=null)
                     : (IsRussianUi ? "Неизвестный протокол." : "Unknown protocol.");
 
                 GUI.Label(new Rect(rect.x + 10f, rect.y + 4f, rect.width - 164f, 24f), title, _label);
@@ -7056,6 +7056,7 @@ namespace EchoSphere.Runtime
             _runEconomy=RunEconomyRules.Create(_rng.State);
             _timeSplitterBuffTimer=0f;
             _mandalaDamageStored=0f;
+            _artifactProtocolHitCounters.Clear();
             _sourceLightningVisuals.Clear(); _mutationStage = 0; _chaosOrbTimer = _chaosOrbBuffTimer = _buffTimer = _deathTimer = 0f; _chaosOrbBuff = null;
             ClearRunSnapshot();
             _regionLoreDiscovered.Clear();

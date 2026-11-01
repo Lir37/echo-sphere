@@ -6432,3 +6432,19 @@ card descriptions previously did not reach archive. Normalize the prefix only
 for description lookup,not identity/discovery. Actual Editor fixture28PASS
 includes90archive cards plus card projection,reward and effect-adapter checks.
 No save-key changes. Remaining artifact scope is still open.
+
+
+## 2026-11-01 — twelve protocols gain actual event behavior
+Modern protocols now supplement their existing conditional bonuses with authored
+hit-cadence effects:Resonance charge,attack advancement,healing,slow,freeze,
+additional strike,knockback and shield. All12 use existing set+runtime gates;
+family/target restrictions apply where stated. No additional RNG draws;only
+authored-proc hits count,so secondary protocol damage cannot recurse.
+RU/EN modern descriptions state cadence/effect. Legacy runs keep previous
+bonuses without new procs. Simulation-owned bounded12-key counters persist via
+runtime snapshot and reset on new run/missing restore field. New fixture:
+48 actualEditorchecksPASS across12gates,counterwrap,real sideeffects and legacy.
+Core14034assertions+47389sourcecomparisonsPASS. Initial compile found missing
+Core import in pause projection; fixed before Editor acceptance. Existing bonus
+formulas unchanged. This is authored starting balance,not Android/30min acceptance.
+Sets expansion and15remaining artifact behavioral reviews still OPEN.

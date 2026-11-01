@@ -89,6 +89,36 @@ namespace EchoSphere.Core
             return false;
         }
 
+        public static int HitCadence(string id){switch(id){
+            case "triangle_resonance":return 6;
+            case "sphere_relay":return 8;
+            case "critical_echo":return 10;
+            case "geometry_circuit":return 10;
+            case "void_horizon_protocol":return 6;
+            case "temporal_fold_protocol":return 8;
+            case "status_circuit_protocol":return 6;
+            case "hunter_doctrine_protocol":return 5;
+            case "pulse_engineering_protocol":return 8;
+            case "core_forge_protocol":return 12;
+            case "prism_dominion_protocol":return 8;
+            case "network_legacy_protocol":return 30;
+            default:return 0;}}
+        public static string ModernDescription(ArtifactProtocolDefinition p,bool ru,bool modern){
+            string original=ru?p.DescriptionRussian:p.DescriptionEnglish;if(!modern)return original;
+            switch(p.Id){
+                case "triangle_resonance":return original+" "+(ru?"После каждых 6 подходящих попаданий: +5 заряда Резонанса.":"Every 6 qualifying hits: +5 Resonance charge.");
+                case "sphere_relay":return original+" "+(ru?"После каждых 8 подходящих попаданий: следующая атака атакующей сферы на 0,2 с раньше.":"Every 8 qualifying hits: advance the attacking Sphere’s next attack by 0.2s.");
+                case "critical_echo":return original+" "+(ru?"После каждых 10 подходящих попаданий: восстановление 2 HP.":"Every 10 qualifying hits: restore 2 HP.");
+                case "geometry_circuit":return original+" "+(ru?"После каждых 10 подходящих попаданий: +8 заряда Резонанса.":"Every 10 qualifying hits: +8 Resonance charge.");
+                case "void_horizon_protocol":return original+" "+(ru?"После каждых 6 попаданий Пустотной по элите или боссу: замедление цели на 30% на 1 с.":"Every 6 Void hits on an Elite or Boss: slow the target by 30% for 1s.");
+                case "temporal_fold_protocol":return original+" "+(ru?"После каждых 8 попаданий во время контроля времени: заморозка цели на 0,25 с.":"Every 8 hits during time control: freeze the target for 0.25s.");
+                case "status_circuit_protocol":return original+" "+(ru?"После каждых 6 попаданий Призмы: замедление цели на 30% на 1 с.":"Every 6 Prism hits: slow the target by 30% for 1s.");
+                case "hunter_doctrine_protocol":return original+" "+(ru?"После каждых 5 попаданий Снайперской по элите или боссу: дополнительный удар на 25% урона попадания.":"Every 5 Sniper hits on an Elite or Boss: an additional strike for 25% of hit damage.");
+                case "pulse_engineering_protocol":return original+" "+(ru?"После каждых 8 попаданий Импульсной: отталкивание цели на 0,2 ед. мира.":"Every 8 Pulse hits: knock the target back by 0.2 world units.");
+                case "core_forge_protocol":return original+" "+(ru?"После каждых 12 подходящих попаданий: восстановление 2 HP.":"Every 12 qualifying hits: restore 2 HP.");
+                case "prism_dominion_protocol":return original+" "+(ru?"После каждых 8 попаданий Призмы или Орбитальной: следующая атака атакующей сферы на 0,2 с раньше.":"Every 8 Prism or Orbital hits: advance the attacking Sphere’s next attack by 0.2s.");
+                case "network_legacy_protocol":return original+" "+(ru?"После каждых 30 подходящих попаданий: +1 заряд щита, до лимита 5.":"Every 30 qualifying hits: +1 shield charge, up to the 5-charge cap.");
+                default:return original;}}
         public static bool IsProtocolActive(bool discovered, bool conditionSatisfied) =>
             discovered && conditionSatisfied;
 

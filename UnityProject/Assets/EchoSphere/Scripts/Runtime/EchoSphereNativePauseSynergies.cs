@@ -1,4 +1,5 @@
 using System;
+using EchoSphere.Core;
 using System.Collections.Generic;
 using EchoSphere.Presentation;
 using UnityEngine;
@@ -65,7 +66,7 @@ namespace EchoSphere.Runtime
             cards = new List<NativePauseSynergiesState.Card>();
             foreach(var state in NativeLiveProtocols()){
                 var protocol=state.Definition;bool active=state.Active,discovered=state.Discovered;
-                cards.Add(new NativePauseSynergiesState.Card {Id=protocol.Id,Name=discovered?(ru?protocol.NameRussian:protocol.NameEnglish):"???",Description=discovered?(ru?protocol.DescriptionRussian:protocol.DescriptionEnglish):(ru?"Неизвестный протокол.":"Unknown protocol."),Status=active?(ru?"АКТИВЕН":"ACTIVE"):discovered?(ru?"ОТКРЫТ":"DISCOVERED"):"???",Tone=active?"ice":"base"});
+                cards.Add(new NativePauseSynergiesState.Card {Id=protocol.Id,Name=discovered?(ru?protocol.NameRussian:protocol.NameEnglish):"???",Description=discovered?ArtifactProtocolRules.ModernDescription(protocol,ru,_runEconomy!=null):(ru?"Неизвестный протокол.":"Unknown protocol."),Status=active?(ru?"АКТИВЕН":"ACTIVE"):discovered?(ru?"ОТКРЫТ":"DISCOVERED"):"???",Tone=active?"ice":"base"});
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "protocols", Heading = ru ? "Протоколы" : "Protocols", Cards = cards });
             cards = new List<NativePauseSynergiesState.Card>();

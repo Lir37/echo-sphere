@@ -1,0 +1,1 @@
+{"result":"PASS","checks":48,"scope":"Actual twelve protocol gates,counters,side effects and legacy isolation;borrowed state restored,no prefs writes"}
