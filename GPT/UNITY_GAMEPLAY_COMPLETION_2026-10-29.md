@@ -206,3 +206,16 @@ Inventory32corrected,8descriptionclarified-runtimepending,42остальных;
 Пятыйкоммитa52f6f65:CI932SUCCESS
 https://github.com/Lir37/echo-sphere/actions/runs/40951044446
 Android/полныйбаланс/остальнойполныйплан OPEN.
+
+
+## 2026-11-01 — unchanged artifact consumer acceptance
+
+Preserved 27 working artifacts rather than rewriting them. Actual Unity Play Mode
+acceptance passed 95 checks: runtime stat consumers, XP collection, HP acquisition
+and seeded critical-hit outcomes. Regen scalar wiring was checked; timed healing
+and Android acceptance remain open. Evidence: VisualReferences/RunEconomy-2026-10-29/artifact-data-consumers-acceptance.json.
+Inventory now separates 32 corrected artifacts, 27 reviewed unchanged consumers,
+and 23 pending behavioral reviews (including 8 clarified descriptions). These
+scoped checks do not mean full balance or all special interactions are accepted.
+Baseline 48ea3b3291d3cba9672f3561855e0ea63e9ac75c: CI 933 SUCCESS.
+Next: review remaining special handlers against their cards before adding content.
