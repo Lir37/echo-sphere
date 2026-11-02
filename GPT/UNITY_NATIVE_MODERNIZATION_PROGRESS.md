@@ -2584,3 +2584,19 @@ FPS/GC в этой проверке не измерялись. Старое Asse
 не считать исправленным. Фото/лог/receipt в external user-feedback.
 Сборочные compile_commands сохранены отдельно и восстановлены;пользовательские
 QualitySettings/Recovery/RelWithDebInfo не изменялись.
+
+
+2026-11-02 — полноценные изолированные кампании. База d74b715b.
+Один production StepGameplay вместо копии фаз в стенде; Editor-only области
+PlayerPrefs и отложенного Destroy, обычные Unity API в player. Triangle reentrancy
+guard исключён из capture/restore. 132 прогона / 130 уникальных / 2 точных повтора,
+6 регионов, 10 персонажей; 21 стабилизация, 107 смертей, 4 лимита без победы.
+5 266 478 шагов, 24.4 виртуальных часа; не человеческий win rate/Android FPS.
+4916 Update-equivalence проверок, 9 sandbox и 3 snapshot PASS; частицы full-run
+182.51622s точно совпали. 9 реальных созданий босса подтвердили масштабирование
+HP/контактного урона по волне, не таймеру. Правило волн/боссов не менялось.
+Core259447 + parity47389, Node272, C#370+6/5профилей PASS. Editor groundTruth
+0errors/0warnings; история содержит InputManager deprecation и исправленную ошибку
+операторской CLI-команды до серии. Play остановлен; APK не собирался.
+Подробности/покрытие/следующий шаг: UNITY_FULL_RUN_BALANCE_2026-11-02.md и RESULTS.json.
+Не считать баланс/Android-приёмку полностью завершёнными. CI фиксируется по коммиту.

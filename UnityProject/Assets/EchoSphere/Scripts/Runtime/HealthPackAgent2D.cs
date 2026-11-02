@@ -27,7 +27,7 @@ namespace EchoSphere.Runtime
             {
                 SourceAudio2D.Play("health");
                 _runtime.CollectHealthPack(transform.position);
-                Destroy(gameObject);
+                NativeSimulationLifetime.Destroy(gameObject);
             }
         }
     }

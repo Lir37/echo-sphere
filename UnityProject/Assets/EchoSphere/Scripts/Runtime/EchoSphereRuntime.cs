@@ -1039,15 +1039,32 @@ namespace EchoSphere.Runtime
             if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending)
                 SetUserPaused(!_userPaused);
             if (_mainMenu || (_paused && !(_tutorialStep == 1 || _tutorialStep == 2)) || _playerCore == null) return;
+            StepGameplay(Mathf.Min(0.05f, Time.deltaTime), Vector2.zero, true, true);
+        }
+
+        // One production phase sequence for both the Editor player and isolated
+        // balance runs. Overrides supply controller input, never gameplay rules.
+        private void StepGameplay(float dt, Vector2 movement, bool nativeInput, bool presentation, Action simulationInput = null)
+        {
+            dt = Mathf.Min(0.05f, Mathf.Max(0f, dt));
+            if (!nativeInput)
+            {
+                PruneDestroyed();
+                if (!_mainMenu) TickSourceKnowledge(dt);
+                if (_mainMenu || (_paused && !(_tutorialStep == 1 || _tutorialStep == 2)) || _playerCore == null) return;
+            }
             _simulationFrame = true;
             try
             {
-            var dt = Mathf.Min(0.05f, Time.deltaTime);
             SimulationDeltaTime = dt;
+            if (nativeInput)
+            {
             if (Input.GetKeyDown(KeyCode.Space)) TrySourceDash();
             foreach (var binding in _activeAbilityHotkeys)
                 if (Input.GetKeyDown(binding.Value)) ActivateActiveAbility(binding.Key);
             if(_sourceUi==null)HandleSpherePointerInput();
+            }
+            else simulationInput?.Invoke();
             _runTime += dt;
             TickRegionHudState(dt);
             TickSourceRegionFrame(dt);
@@ -1103,7 +1120,7 @@ namespace EchoSphere.Runtime
                 _resonanceGeometryMemoryType = SphereNetworkFormation.None;
             }
             _placementFlashTimer = Mathf.Max(0f, _placementFlashTimer - dt);
-            var input = ReadMovement();
+            var input = nativeInput ? ReadMovement() : Vector2.ClampMagnitude(movement, 1f);
             if (input.sqrMagnitude > 0.0001f) _playerCore.RememberMoveDirection(input);
             var requested = new Vec2(input.x, input.y);
             var followMultiplier = _follow ? FormationFollowRules.GetMovementMultiplier(true, _formationStrain, _lastDirection, requested) : 1f;
@@ -1124,6 +1141,8 @@ namespace EchoSphere.Runtime
             TickSimulationPhase<ProjectileAgent>(dt, true);
             TickCharacterSpecialRuntime(dt);
             TickSimulationPhase<AbilityDroneAgent2D>(dt, true);
+            if (presentation)
+            {
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
             var cameraBase = _camera.transform.position - _lastHunterScreenShakeOffset;
             cameraBase = Vector3.Lerp(cameraBase, cameraTarget, 1f - Mathf.Exp(-5f * dt));
@@ -1134,6 +1153,7 @@ namespace EchoSphere.Runtime
                 shakePixelsX * SpherePlacementRules.SourcePixelsToWorld,
                 shakePixelsY * SpherePlacementRules.SourcePixelsToWorld, 0f);
             _camera.transform.position = cameraBase + _lastHunterScreenShakeOffset;
+            }
             TickCharacterMastery();
             if (_tutorialStep < 0)
             {
@@ -1159,7 +1179,7 @@ namespace EchoSphere.Runtime
             TickSimulationPhase<RuneAgent2D>(dt, true);
             TickSimulationPhase<SourceParticle2D>(dt, true); TickSourceLightningVisuals(dt);
             ResolveSourceSpaceCollisions(dt);
-            _camera.transform.position = new Vector3(_player.position.x, _player.position.y, -10f) + _lastHunterScreenShakeOffset;
+            if (presentation) _camera.transform.position = new Vector3(_player.position.x, _player.position.y, -10f) + _lastHunterScreenShakeOffset;
             TickNativeEconomy();
             if (_regionStabilized) { _gameOver = true; _paused = true; FinalizeRunResult(); }
             }

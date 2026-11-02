@@ -31,7 +31,7 @@ namespace EchoSphere.Runtime
             _collected = true;
             gameObject.SetActive(false);
             _runtime.CollectExperienceOrb(_amount,_echoAmount<0?_amount:_echoAmount);
-            Destroy(gameObject);
+            NativeSimulationLifetime.Destroy(gameObject);
         }
 
         public void SimulationTick(float dt)
@@ -50,7 +50,7 @@ namespace EchoSphere.Runtime
             gameObject.SetActive(false);
                 SourceAudio2D.Play("pickup");
                 _runtime.CollectExperienceOrb(_amount,_echoAmount<0?_amount:_echoAmount);
-                Destroy(gameObject);
+                NativeSimulationLifetime.Destroy(gameObject);
             }
         }
     }

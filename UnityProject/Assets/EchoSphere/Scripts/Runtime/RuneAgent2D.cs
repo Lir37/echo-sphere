@@ -37,7 +37,7 @@ namespace EchoSphere.Runtime
             _life -= _runtime.SimulationDeltaTime;
             if (_life <= 0f)
             {
-                _consumed=true;gameObject.SetActive(false);Destroy(gameObject);
+                _consumed=true;gameObject.SetActive(false);NativeSimulationLifetime.Destroy(gameObject);
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
             {
                 _consumed=true;gameObject.SetActive(false);
                 _runtime.ActivateRunePickup(_type, transform.position);
-                Destroy(gameObject);
+                NativeSimulationLifetime.Destroy(gameObject);
             }
         }
 

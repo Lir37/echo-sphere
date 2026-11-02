@@ -56,6 +56,7 @@ namespace EchoSphere.Runtime
         }
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
+            "_sourceTrianglePulseActive",
             "_pendingKnowledgeRewards", "_metaWallet", "_metaWalletRaw", "_metaEntitlementsRaw", "_nativeMerchantView", "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
             "_nativeNetworkProjection", "_nativePausedWorldFrame",
             "_nativeTransientPools",

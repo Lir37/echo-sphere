@@ -563,7 +563,7 @@ namespace EchoSphere.Runtime
             {
                 _dead = true;
                 _runtime.RegisterEnemyDeath(this, transform.position, _xpReward);
-                Destroy(gameObject);
+                NativeSimulationLifetime.Destroy(gameObject);
             }
         }
 
@@ -607,7 +607,7 @@ namespace EchoSphere.Runtime
                 _runtime.ApplySourceVoidReaperKill(this, owner, damage);
                 _dead = true;
                 _runtime.RegisterEnemyDeath(this, transform.position, _xpReward, sourceSphere);
-                Destroy(gameObject);
+                NativeSimulationLifetime.Destroy(gameObject);
             }
         }
         private void TickEliteVariant(float dt, float distanceToPlayer)

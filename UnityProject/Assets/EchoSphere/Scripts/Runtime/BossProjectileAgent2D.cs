@@ -45,13 +45,13 @@ namespace EchoSphere.Runtime
             // Brood spores settle into a short-lived, single-hit corrosive patch.
             // It cannot survive forever when the player walks around it.
             if(_bossType=="regional_spore"&&_time>=.9f){_velocity=Vector2.zero;_hitRadius=24*SpherePlacementRules.SourcePixelsToWorld+BossCombatRules.PlayerRadiusWorld;}
-            if(_bossType.StartsWith("regional_",System.StringComparison.Ordinal)&&_time>5f){_removed=true;Destroy(gameObject);return;}
+            if(_bossType.StartsWith("regional_",System.StringComparison.Ordinal)&&_time>5f){_removed=true;NativeSimulationLifetime.Destroy(gameObject);return;}
             transform.position += (Vector3)(_velocity * dt);
             if (Vector2.Distance(transform.position, _player.position) < _hitRadius)
             {
                 _runtime.TryDamagePlayer(_damage);
                 _removed = true;
-                Destroy(gameObject);
+                NativeSimulationLifetime.Destroy(gameObject);
                 return;
             }
 
@@ -59,7 +59,7 @@ namespace EchoSphere.Runtime
             if (Mathf.Abs(delta.x) > 1000f * SpherePlacementRules.SourcePixelsToWorld || Mathf.Abs(delta.y) > 1000f * SpherePlacementRules.SourcePixelsToWorld)
             {
                 _removed = true;
-                Destroy(gameObject);
+                NativeSimulationLifetime.Destroy(gameObject);
                 return;
             }
         }

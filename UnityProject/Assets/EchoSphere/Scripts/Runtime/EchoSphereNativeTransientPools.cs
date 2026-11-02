@@ -31,7 +31,7 @@ namespace EchoSphere.Runtime
             }
             private T Create<T>(string name) where T:MonoBehaviour
             {var go=new GameObject(name);SceneManager.MoveGameObjectToScene(go,_owner.gameObject.scene);var agent=go.AddComponent<T>();_owned.Add(agent);return agent;}
-            private void DestroyOwned(MonoBehaviour agent){_owned.Remove(agent);if(agent!=null)Destroy(agent.gameObject);}
+            private void DestroyOwned(MonoBehaviour agent){_owned.Remove(agent);if(agent!=null)NativeSimulationLifetime.Destroy(agent.gameObject);}
             private static T Activate<T>(ObjectPool<T> pool) where T:MonoBehaviour
             {T agent;do{agent=pool.Get();}while(agent==null);agent.transform.localScale=Vector3.one;agent.transform.rotation=Quaternion.identity;agent.gameObject.SetActive(true);return agent;}
             internal ProjectileAgent Projectile()=>Activate(_projectiles);
@@ -59,12 +59,12 @@ namespace EchoSphere.Runtime
             public void Dispose()
             {
                 _pending.Clear();_retiring.Clear();_projectiles.Clear();_particles.Clear();
-                foreach(var agent in _owned)if(agent!=null)Destroy(agent.gameObject);_owned.Clear();
+                foreach(var agent in _owned)if(agent!=null)NativeSimulationLifetime.Destroy(agent.gameObject);_owned.Clear();
             }
         }
         private NativeTransientPools _nativeTransientPools;
         private NativeTransientPools TransientPools=>_nativeTransientPools??(_nativeTransientPools=new NativeTransientPools(this));
         internal void RetireNativeTransient(MonoBehaviour agent)
-        {if(_nativeTransientPools==null||!_nativeTransientPools.Retire(agent))Destroy(agent.gameObject);}
+        {if(_nativeTransientPools==null||!_nativeTransientPools.Retire(agent))NativeSimulationLifetime.Destroy(agent.gameObject);}
     }
 }

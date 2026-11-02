@@ -43,7 +43,7 @@ namespace EchoSphere.Runtime
         {
             if (_runtime == null || _runtime.IsGameplayPaused) return;
             _remaining -= dt;
-            if (_remaining <= 0f) { Destroy(gameObject); return; }
+            if (_remaining <= 0f) { NativeSimulationLifetime.Destroy(gameObject); return; }
 
             var origin = (Vector2)transform.position;
             var anchor = _runtime.FindNearestSphereForDrone(_anchorType, origin);
