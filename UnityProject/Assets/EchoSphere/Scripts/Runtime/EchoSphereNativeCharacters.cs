@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
         private NativeCharacterScreen.State ReadNativeCharacterState()
         {
             EnsureCharacterProfilesLoaded();GetGold();bool ru=IsRussianUi;
-            string L(string a,string b)=>ru?a:b;
+            string L(string a,string b)=>NativePlayerCopy.Text(ru?a:b,ru);
             var rows=new List<NativeCharacterScreen.Character>();
             foreach(var definition in CharacterRules.All){
                 var profile=GetCharacterProfile(definition.Id);string id=CharacterRules.ToSourceId(definition.Id);
@@ -62,19 +62,19 @@ namespace EchoSphere.Runtime
                     string name=L(level.TitleRu,level.TitleEn),description=L(level.DescriptionRu,level.DescriptionEn);
                     if(level.Level==profile.masteryLevel)currentTitle=name;
                     if(level.Level==profile.masteryLevel+1){nextTitle=name;nextDescription=description;}
-                    mastery.Add(new NativeCharacterScreen.Mastery {Title=level.Level+". "+name,Description=description,Threshold=CharacterRules.GetMasteryThreshold(level.Level)+" XP",Reached=level.Level<=profile.masteryLevel,Current=level.Level==profile.masteryLevel});
+                    mastery.Add(new NativeCharacterScreen.Mastery {Title=level.Level+". "+name,Description=description,Threshold=CharacterRules.GetMasteryThreshold(level.Level)+L(" опыта"," XP"),Reached=level.Level<=profile.masteryLevel,Current=level.Level==profile.masteryLevel});
                 }
                 var affinities=new List<NativeCharacterScreen.Affinity>();var types=new[]{definition.SignatureSphere,definition.PartnerSphere};
                 for(int i=0;i<types.Length;i++){var sphere=GameCatalog.Spheres[(int)types[i]];affinities.Add(new NativeCharacterScreen.Affinity {Text=(i==0?L("СИГНАТУРНАЯ","SIGNATURE"):L("ПАРТНЁР","PARTNER"))+" · "+L(sphere.DisplayNameRu,sphere.DisplayName),Color=sphere.ColorHex});}
                 rows.Add(new NativeCharacterScreen.Character {Id=id,Name=L(definition.NameRu,definition.NameEn),Role=L(definition.RoleRu,definition.RoleEn).ToUpperInvariant(),Description=L(definition.DescriptionRu,definition.DescriptionEn),Mechanic=L(definition.MechanicRu,definition.MechanicEn),Color=definition.ColorHex,
                     Unlocked=profile.unlocked,Selected=_sphereCharacterId==definition.Id,Expanded=_expandedCharacterId==id,Complete=string.IsNullOrEmpty(nextTitle),Affinities=affinities,Masteries=mastery,
-                    MasteryLabel=L("Мастерство ","Mastery ")+profile.masteryLevel+"/10"+(currentTitle.Length>0?" · "+currentTitle:""),MasteryXp=next<0?L("МАКС","MAX"):profile.masteryXp+"/"+next+" XP",
+                    MasteryLabel=L("Мастерство ","Mastery ")+profile.masteryLevel+"/10"+(currentTitle.Length>0?" · "+currentTitle:""),MasteryXp=next<0?L("МАКС","MAX"):profile.masteryXp+"/"+next+L(" опыта"," XP"),
                     MasteryPercent=next<0?100:Mathf.Clamp01((profile.masteryXp-previous)/(float)Math.Max(1,next-previous))*100,
                     Action=profile.unlocked?(_sphereCharacterId==definition.Id?L("Выбран","Selected"):L("Выбрать","Select")):MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost)+(ru?" ОР":" RS"),
                     Toggle=_expandedCharacterId==id?L("Скрыть мастерство","Hide mastery"):L("Показать мастерство","Show mastery"),
                     MasteryNextLevel=profile.masteryLevel+1,CanResearchMastery=profile.unlocked&&profile.masteryLevel<10&&GetMetaBalance(CurrencyId.ResonanceShards)>=MetaCurrencyRules.MasteryResearchShards(profile.masteryLevel),
                     MasteryAction=profile.unlocked&&profile.masteryLevel<10?L("Исследовать мастерство · ","Research mastery · ")+MetaCurrencyRules.MasteryResearchShards(profile.masteryLevel)+L(" ОР"," RS"):"",
-                    NextLabel=string.IsNullOrEmpty(nextTitle)?L("Мастерство полностью развито.","Mastery fully developed."):L("Следующий уровень · ещё ","Next level · ")+Math.Max(0,next-profile.masteryXp)+L(" XP"," XP remaining"),NextTitle=nextTitle,NextDescription=nextDescription});
+                    NextLabel=string.IsNullOrEmpty(nextTitle)?L("Мастерство полностью развито.","Mastery fully developed."):L("Следующий уровень · ещё ","Next level · ")+Math.Max(0,next-profile.masteryXp)+L(" опыта"," XP remaining"),NextTitle=nextTitle,NextDescription=nextDescription});
             }
             return new NativeCharacterScreen.State {Russian=ru,Gold=MetaBalanceLabel(CurrencyId.ResonanceShards),Message=_nativeCharacterMessage,Characters=rows};
         }

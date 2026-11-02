@@ -80,7 +80,7 @@ namespace EchoSphere.Presentation
             foreach(var pair in _labels)
             {
                 if(pair.Key.StartsWith("prefix:"))continue;
-                pair.Value.text=pair.Key=="interfaceScale"?(_russian?"Масштаб интерфейса":"Interface scale"):T(pair.Key);
+                pair.Value.text=pair.Key=="interfaceScale"?(_russian?"Масштаб интерфейса в бою":"Battle UI scale"):T(pair.Key);
             }
             foreach(var pair in _buttons)
             {

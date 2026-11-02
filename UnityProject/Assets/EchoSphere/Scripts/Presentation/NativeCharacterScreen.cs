@@ -70,7 +70,7 @@ namespace EchoSphere.Presentation
             var back=Button(top,"character-back",()=>_back?.Invoke());back.style.flexDirection=FlexDirection.Row;back.style.alignItems=Align.Center;back.style.paddingLeft=back.style.paddingRight=12;back.style.paddingTop=back.style.paddingBottom=8;Border(back,6);Paint(back,new NativeMenuBrush.Paint {Radius=6,Border=1,Fill=C("#0d1726"),BorderColor=C("#243b55")});Icon(back,"ArrowLeft",18,C("#dcecff")).style.marginRight=8;Text(back,"back",L("Назад","Back"),16,"#dcecff");
             var balance=Text(top,"character-gold",_state.Gold,12,"#dcecff","700",true);balance.style.minWidth=0;balance.style.flexShrink=1;balance.style.maxWidth=Length.Percent(65);balance.style.unityTextAlign=TextAnchor.MiddleRight;
             var title=Text(_heading,"character-title",L("ПЕРСОНАЖИ","CHARACTERS"),24,"#e9f8ff","500");title.style.letterSpacing=18;
-            Text(_heading,"character-subtitle",L("Персонаж меняет стиль билда, но не управление.","Characters change your build style, not the controls."),12,"#648198","400",true).style.marginTop=4;
+            Text(_heading,"character-subtitle",L("Каждый герой открывает свой стиль игры.","Every hero offers a different way to play."),12,"#648198","400",true).style.marginTop=4;
             _message.style.display=string.IsNullOrEmpty(_state.Message)?DisplayStyle.None:DisplayStyle.Flex;
             if(!string.IsNullOrEmpty(_state.Message)){Paint(_message,new NativeMenuBrush.Paint {Radius=12,Border=1,Fill=A(255,184,77,.10f),BorderColor=A(255,107,107,.4f)});Text(_message,"character-error",_state.Message,12,"#ffb84d","400",true);}
             foreach(var character in _state.Characters)Card(character);

@@ -54,13 +54,13 @@ namespace EchoSphere.Runtime
             }else if(_mainMenuPage==MainMenuPage.Leaderboard){
                 state.Page=NativeProgressionScreen.Page.Leaderboard;state.Title=T("leaderTitle");state.Empty=T("noScores");
                 state.Rank=T("rank");state.Player=T("player");state.Wave=T("wave");state.Score=T("score");
-                var scores=new List<NativeProgressionScreen.Score>();foreach(var entry in LoadLeaderboardEntries())scores.Add(new NativeProgressionScreen.Score {Name=entry.name,Wave=entry.wave.ToString(CultureInfo.InvariantCulture),Time=entry.time.ToString("G9",CultureInfo.InvariantCulture)+"s"});state.Scores=scores;
+                var scores=new List<NativeProgressionScreen.Score>();foreach(var entry in LoadLeaderboardEntries())scores.Add(new NativeProgressionScreen.Score {Name=entry.name,Wave=entry.wave.ToString(CultureInfo.InvariantCulture),Time=entry.time.ToString("G9",CultureInfo.InvariantCulture)+(IsRussianUi?" с":" s")});state.Scores=scores;
             }else{
                 state.Page=NativeProgressionScreen.Page.Achievements;state.Title=T("achievementsTitle");
                 if(_nativeProgressionCatalog==null)_nativeProgressionCatalog=Resources.Load<NativeProgressionCatalog>("EchoSphere/NativeProgressionCatalog");
                 if(_nativeProgressionCatalog==null)throw new InvalidOperationException("Native progression catalog missing");
                 var unlocked=LoadUnlockedAchievementIds();state.Count=unlocked.Count+"/"+_nativeProgressionCatalog.Achievements.Count;
-                var rows=new List<NativeProgressionScreen.Achievement>();foreach(var definition in _nativeProgressionCatalog.Achievements){bool has=unlocked.Contains(definition.Id);rows.Add(new NativeProgressionScreen.Achievement {Id=definition.Id,Name=IsRussianUi?definition.NameRu:definition.NameEn,Description=IsRussianUi?definition.DescriptionRu:definition.DescriptionEn,Status=T(has?"achievementsUnlocked":"achievementsLocked"),Unlocked=has});}state.Achievements=rows;
+                var rows=new List<NativeProgressionScreen.Achievement>();foreach(var definition in _nativeProgressionCatalog.Achievements){bool has=unlocked.Contains(definition.Id);rows.Add(new NativeProgressionScreen.Achievement {Id=definition.Id,Name=NativePlayerCopy.Text(IsRussianUi?definition.NameRu:definition.NameEn,IsRussianUi),Description=NativePlayerCopy.Text(IsRussianUi?definition.DescriptionRu:definition.DescriptionEn,IsRussianUi),Status=T(has?"achievementsUnlocked":"achievementsLocked"),Unlocked=has});}state.Achievements=rows;
             }
             return state;
         }

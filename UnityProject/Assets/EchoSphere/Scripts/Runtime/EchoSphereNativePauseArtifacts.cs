@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
                 string[] glyphs={"◇","✦","◈","△","⬡","✧","⊙","✺","⌬","✹","◌","⟡"};
                 string glyphColor=rarity=="legendary"?"#ffb84d":rarity=="special"?"#ff6b6b":rarity=="epic"?"#a98cff":rarity=="rare"?"#39d8ff":"#7f9bb8";
                 string border=rarity=="legendary"?"#ffb84d":rarity=="special"?"#ff6b6b":rarity=="epic"?"#8064a8":rarity=="rare"?"#39d8ff":"#243b55";
-                artifacts.Add(new NativePauseArtifactsState.Artifact {Id=id,Name=definition.Name(ru),Description=(modern?ArtifactGameplayRules.DescriptionOverride(id,ru):null)??definition.Description(ru),Rarity=rarity,
+                artifacts.Add(new NativePauseArtifactsState.Artifact {Id=id,Name=definition.Name(ru),Description=NativePlayerCopy.Text((modern?ArtifactGameplayRules.DescriptionOverride(id,ru):null)??definition.Description(ru),ru),Rarity=rarity,
                     RarityLabel=catalog.RarityLabel(rarity,ru),BorderColor=border,GlyphColor=glyphColor,Glyph=glyphs[sum%glyphs.Length],Sets=sets});
             }
             return new NativePauseArtifactsState {Heading=(ru?"Собрано: ":"Owned: ")+NativePresentationMath.NumberText(owned.Count),Empty=ru?"Артефактов пока нет.":"No artifacts yet.",Artifacts=artifacts};

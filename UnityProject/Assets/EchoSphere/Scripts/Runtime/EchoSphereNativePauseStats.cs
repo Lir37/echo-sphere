@@ -46,19 +46,19 @@ namespace EchoSphere.Runtime
             string Percent(double value)=>Round(value*100)+"%";
             var character=EchoSphere.Core.CharacterRules.Get(_sphereCharacterId);
             var result=new NativePauseStatsState {
-                Russian=ru,Kicker=ru?"Билд забега":"Run Build",
+                Russian=ru,Kicker=ru?"Ваш герой":"Your Hero",
                 Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),
                 Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+NativePresentationMath.NumberText(_level)+" · "+T("wave")+" "+NativePresentationMath.NumberText(_wave),
                 CharacterHeading=ru?"Персонаж":"Character",SpheresHeading=ru?"Сферы":"Spheres",Resume=T("resume"),Return=T("return"),
                 Stats=new[] {
-                    new NativePauseStatsState.Stat("HP",Ceil(_playerCore.CurrentHp)+" / "+Ceil(_playerCore.MaxHp)),
+                    new NativePauseStatsState.Stat(ru?"Здоровье":"Health",Ceil(_playerCore.CurrentHp)+" / "+Ceil(_playerCore.MaxHp)),
                     new NativePauseStatsState.Stat(ru?"Скорость":"Speed",Round(NativeLivePlannerMoveSpeed())),
-                    new NativePauseStatsState.Stat(ru?"Крит":"Crit",Percent(NativeLivePlannerCritChance())),
+                    new NativePauseStatsState.Stat(ru?"Шанс крита":"Crit Chance",Percent(NativeLivePlannerCritChance())),
                     new NativePauseStatsState.Stat(ru?"Уклонение":"Dodge",Percent(NativeLivePlannerDodgeChance())),
                     new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(NativeLivePlannerVampire())),
                     new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",NativePresentationMath.NumberText(_spheres.Count(s=>s!=null&&s.gameObject.activeInHierarchy))+" / "+NativePresentationMath.NumberText(NativeMobileMaximum)),
                     new NativePauseStatsState.Stat(ru?"Убийства":"Kills",NativePresentationMath.NumberText(_kills)),
-                    new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(NativeLiveXpPlannerMultiplier()))
+                    new NativePauseStatsState.Stat(ru?"Получение опыта":"XP Gain",Percent(NativeLiveXpPlannerMultiplier()))
                 }
             };
             var cards=new List<NativePauseStatsState.Sphere>();
@@ -85,10 +85,10 @@ namespace EchoSphere.Runtime
                     FinalName=finalChoice!=null?finalChoice.Name(ru):null
                 };
                 if(live!=null)card.Metrics=new[] {
-                    new NativePauseStatsState.Stat(ru?"урон":"damage",Round(NativeLivePlannerSphereDamage(live))+(type=="aura"?"/имп.":"")),
-                    new NativePauseStatsState.Stat(ru?"интервал":"delay",NativeLivePlannerSphereDelay(live).ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+"с"),
+                    new NativePauseStatsState.Stat(ru?"урон":"damage",Round(NativeLivePlannerSphereDamage(live))+(type=="aura"?(ru?"/имп.":"/pulse"):"")),
+                    new NativePauseStatsState.Stat(ru?"интервал":"delay",NativeLivePlannerSphereDelay(live).ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+(ru?" с":" s")),
                     new NativePauseStatsState.Stat(ru?"дальность":"range",Round(_runEconomy!=null?live.AttackRange/EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld:NativeLiveSphereRadius(sphereType))),
-                    new NativePauseStatsState.Stat("DPS",NativeLivePlannerSphereDps(live).ToString("F1",System.Globalization.CultureInfo.InvariantCulture))
+                    new NativePauseStatsState.Stat(ru?"Урон/с":"Damage/sec",NativeLivePlannerSphereDps(live).ToString("F1",System.Globalization.CultureInfo.InvariantCulture))
                 };
                 cards.Add(card);
             }
@@ -104,19 +104,19 @@ namespace EchoSphere.Runtime
             string Percent(V value)=>Round(value*new V(100))+"%";
             EchoSphere.Core.CharacterRules.TryParseSourceId(player["characterId"].Text,out var characterId);var character=EchoSphere.Core.CharacterRules.Get(characterId);
             var result=new NativePauseStatsState {
-                Russian=ru,Kicker=ru?"Билд забега":"Run Build",
+                Russian=ru,Kicker=ru?"Ваш герой":"Your Hero",
                 Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),
                 Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+player["level"].Text+" · "+T("wave")+" "+scene["wave"].Text,
                 CharacterHeading=ru?"Персонаж":"Character",SpheresHeading=ru?"Сферы":"Spheres",Resume=T("resume"),Return=T("return"),
                 Stats=new[] {
-                    new NativePauseStatsState.Stat("HP",Ceil(player["hp"])+" / "+Ceil(player["maxHp"])),
+                    new NativePauseStatsState.Stat(ru?"Здоровье":"Health",Ceil(player["hp"])+" / "+Ceil(player["maxHp"])),
                     new NativePauseStatsState.Stat(ru?"Скорость":"Speed",Round(new V(NativePlannerMoveSpeed(scene)))),
-                    new NativePauseStatsState.Stat(ru?"Крит":"Crit",Percent(new V(NativePlannerCritChance(scene)))),
+                    new NativePauseStatsState.Stat(ru?"Шанс крита":"Crit Chance",Percent(new V(NativePlannerCritChance(scene)))),
                     new NativePauseStatsState.Stat(ru?"Уклонение":"Dodge",Percent(new V(NativePlannerDodgeChance(scene)))),
                     new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(new V(NativePlannerVampire(scene)))),
                     new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",scene["spheres"]["length"].Text+" / "+NativePresentationMath.NumberText(NativeMaximumSphereCount(scene))),
                     new NativePauseStatsState.Stat(ru?"Убийства":"Kills",player["kills"].Text),
-                    new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(new V(NativeXpPlannerMultiplier(scene))))
+                    new NativePauseStatsState.Stat(ru?"Получение опыта":"XP Gain",Percent(new V(NativeXpPlannerMultiplier(scene))))
                 }
             };
             var cards=new List<NativePauseStatsState.Sphere>();
@@ -146,10 +146,10 @@ namespace EchoSphere.Runtime
                     FinalName=finalChoice!=null?finalChoice.Name(ru):null
                 };
                 if(live.Truth)card.Metrics=new[] {
-                    new NativePauseStatsState.Stat(ru?"урон":"damage",Round(new V(NativePlannerSphereDamage(scene,live)))+(live["type"].Text=="aura"?"/имп.":"")),
-                    new NativePauseStatsState.Stat(ru?"интервал":"delay",NativePlannerSphereDelay(scene,live).ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+"с"),
+                    new NativePauseStatsState.Stat(ru?"урон":"damage",Round(new V(NativePlannerSphereDamage(scene,live)))+(live["type"].Text=="aura"?(ru?"/имп.":"/pulse"):"")),
+                    new NativePauseStatsState.Stat(ru?"интервал":"delay",NativePlannerSphereDelay(scene,live).ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+(ru?" с":" s")),
                     new NativePauseStatsState.Stat(ru?"дальность":"range",Round(new V(NativePlannerSphereRadius(scene,live)))),
-                    new NativePauseStatsState.Stat("DPS",NativePlannerSphereDps(scene,live).ToString("F1",System.Globalization.CultureInfo.InvariantCulture))
+                    new NativePauseStatsState.Stat(ru?"Урон/с":"Damage/sec",NativePlannerSphereDps(scene,live).ToString("F1",System.Globalization.CultureInfo.InvariantCulture))
                 };
                 cards.Add(card);
             }

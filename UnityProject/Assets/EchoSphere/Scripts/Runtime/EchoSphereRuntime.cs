@@ -2773,7 +2773,7 @@ namespace EchoSphere.Runtime
                     break;
             }
             SpawnImpact(position, RuneAgent2D.GetRuneColor(runeType));
-            ShowTimedCombatMessage(RuneAgent2D.GetRuneNameRussian(runeType), 1f);
+            ShowTimedCombatMessage(RuneRules.Name(runeType, IsRussianUi).ToUpperInvariant(), 1f);
         }
 
         public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, float xpReward = 1f, SphereId? sourceSphere = null)
@@ -5957,7 +5957,7 @@ namespace EchoSphere.Runtime
 
             }
             var text=SourceEvolutionText(option);
-            ShowTimedCombatMessage(text?.nameRu ?? option.Name, 2.2f, _pendingFinalEvolution ? "#c4453d" : "#d4943d");
+            ShowTimedCombatMessage(text==null?EchoSphere.Presentation.NativePlayerCopy.Text(option.Name,IsRussianUi):PlannerName(text), 2.2f, _pendingFinalEvolution ? "#c4453d" : "#d4943d");
             SourceAudio2D.Play("evolve");
             _runEvolutions++;
             _choosingEvolution = false;
@@ -6582,7 +6582,7 @@ namespace EchoSphere.Runtime
             }
             _preferredDominantFormation = _networkState.FormationCandidates[currentIndex + 1].Type;
             RefreshNetworkState();
-            ShowMessage("MAIN GEOMETRY: " + _preferredDominantFormation.ToString().ToUpperInvariant());
+            ShowMessage((IsRussianUi?"Основная формация: ":"Main formation: ")+NativeFormationName(_preferredDominantFormation.ToString().ToLowerInvariant(),IsRussianUi));
         }
 
         private void CycleSecondaryFormation()
@@ -6609,7 +6609,7 @@ namespace EchoSphere.Runtime
             }
             _preferredSecondaryFormation = next;
             RefreshNetworkState();
-            ShowMessage("SECONDARY: " + next.ToString().ToUpperInvariant());
+            ShowMessage((IsRussianUi?"Дополнительная формация: ":"Secondary formation: ")+NativeFormationName(next.ToString().ToLowerInvariant(),IsRussianUi));
         }
 
         private void OnDestroy()
@@ -6749,8 +6749,8 @@ namespace EchoSphere.Runtime
                 case "dmg": return IsRussianUi ? "Урон сфер" : "Sphere Damage";
                 case "radius": return IsRussianUi ? "Радиус сфер" : "Sphere Radius";
                 case "speed": return IsRussianUi ? "Скорость движения" : "Move Speed";
-                case "spheres": return IsRussianUi ? "Стартовые сферы" : "Start Spheres";
-                case "hp": return IsRussianUi ? "Стартовое HP" : "Start HP";
+                case "spheres": return IsRussianUi ? "Лимит сфер" : "Sphere Capacity";
+                case "hp": return IsRussianUi ? "Стартовое здоровье" : "Starting Health";
                 case "crit": return IsRussianUi ? "Шанс крита" : "Crit Chance";
                 case "xp": return IsRussianUi ? "Получаемый опыт" : "XP Gain";
                 default: return id;
@@ -6764,8 +6764,8 @@ namespace EchoSphere.Runtime
                 case "dmg": return "+5% " + (IsRussianUi ? "урона" : "damage");
                 case "radius": return "+5% " + (IsRussianUi ? "радиуса" : "radius");
                 case "speed": return "+5% " + (IsRussianUi ? "скорости" : "speed");
-                case "spheres": return "+1 " + (IsRussianUi ? "сфера" : "sphere");
-                case "hp": return "+10 HP";
+                case "spheres": return IsRussianUi?"+1 к максимуму сфер":"+1 maximum Sphere";
+                case "hp": return IsRussianUi?"+10 ОЗ":"+10 HP";
                 case "crit": return "+5% " + (IsRussianUi ? "шанс крита" : "crit chance");
                 case "xp": return "+5% " + (IsRussianUi ? "опыта" : "XP");
                 default: return "";

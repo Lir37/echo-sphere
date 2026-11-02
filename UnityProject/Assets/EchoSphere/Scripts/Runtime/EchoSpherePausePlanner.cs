@@ -13,8 +13,8 @@ namespace EchoSphere.Runtime
         private int _pausePlannerTab;
         private Vector2 _pausePlannerScroll;
         private string _pauseArtifactSetId;
-        private string PlannerName(SourcePlannerEntry entry) => entry == null ? "" : IsRussianUi ? entry.nameRu : entry.nameEn;
-        private string PlannerDesc(SourcePlannerEntry entry) => entry == null ? "" : IsRussianUi ? entry.descRu : entry.descEn;
+        private string PlannerName(SourcePlannerEntry entry) => entry == null ? "" : EchoSphere.Presentation.NativePlayerCopy.Text(IsRussianUi ? entry.nameRu : entry.nameEn,IsRussianUi);
+        private string PlannerDesc(SourcePlannerEntry entry) => entry == null ? "" : EchoSphere.Presentation.NativePlayerCopy.Text(IsRussianUi ? entry.descRu : entry.descEn,IsRussianUi);
         private SourcePlannerEntry PlannerEntry(string category, string id) => _sourceKnowledge?.Planner?.Find(entry => entry.category == category && entry.id == id);
         private RunUpgradeKind PlannerAbility(string id)
         {

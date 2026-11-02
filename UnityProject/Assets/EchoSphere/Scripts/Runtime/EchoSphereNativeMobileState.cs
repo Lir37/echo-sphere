@@ -69,7 +69,7 @@ namespace EchoSphere.Runtime
             if(follow)followControl.Tooltip=(IsRussianUi?"НАГРУЗКА СЕТИ":"NETWORK STRAIN")+" "+NativePresentationMath.NumberText(Math.Floor((double)_formationStrain+.5))+"%";
             state.Controls.Add(new NativeMobileControlsView.Control {Id="dash",Icon="Zap",Name=IsRussianUi?"Рывок":"Dash",Detail=follow?(IsRussianUi?"Недоступно":"Unavailable"):_playerCore.DashCooldown>0?NativeMobileDashLabel(_playerCore.DashCooldown,IsRussianUi):NativeMobileText("ready"),Disabled=follow,Cooldown=0});
 #if UNITY_EDITOR || DEVELOPMENT_BUILD || ECHO_SPHERE_TEST_CONTROLS
-            state.Controls.Add(new NativeMobileControlsView.Control{Id="debug-levelup",Name=IsRussianUi?"Уровень +":"Level +",Detail=IsRussianUi?"ТЕСТ":"TEST",Disabled=_paused||_gameOver||_tutorialStep>=0||_levelUp||_choosingEvolution||_stellaRewardPending,Tooltip=IsRussianUi?"Тест: обычное повышение уровня с выбором улучшения":"Test: normal level-up and upgrade selection"});
+            state.Controls.Add(new NativeMobileControlsView.Control{Id="debug-levelup",Name=IsRussianUi?"Уровень +":"Level +",Detail="+1",Disabled=_paused||_gameOver||_tutorialStep>=0||_levelUp||_choosingEvolution||_stellaRewardPending,Tooltip=IsRussianUi?"Выбрать новое улучшение":"Choose a new upgrade"});
 #endif
             var definitions=NativeRunCatalog.Instance.Spheres;var selected=NativeRunCatalog.Instance.GetSphere(_selectedSphereType.ToString().ToLowerInvariant());state.Name=selected.Name(IsRussianUi);state.Description=selected.Description(IsRussianUi);
             foreach(var sphere in definitions)state.Controls.Add(new NativeMobileControlsView.Control {Id="sphere:"+sphere.Id,Color=sphere.Color,Active=sphere.Id==selected.Id,Tooltip=sphere.Name(IsRussianUi)});

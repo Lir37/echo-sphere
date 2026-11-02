@@ -43,9 +43,9 @@ namespace EchoSphere.Presentation
         {
             _root.style.display=visible&&state!=null?DisplayStyle.Flex:DisplayStyle.None;if(!visible||state==null)return;
             _root.BringToFront();if(leftHanded){_wallet.style.left=12;_wallet.style.right=StyleKeyword.Auto;}else{_wallet.style.right=12;_wallet.style.left=StyleKeyword.Auto;}
-            _wallet.text="Echo: "+state.Echo+(state.Pending?"\n"+(ru?"Торговец":"Merchant")+" · "+Math.Max(0,(int)Math.Ceiling(state.ArrivedAt+40-time))+"s":"");
+            _wallet.text=(ru?"Эхо: ":"Echo: ")+state.Echo+(state.Pending?"\n"+(ru?"Торговец":"Merchant")+" · "+Math.Max(0,(int)Math.Ceiling(state.ArrivedAt+40-time))+(ru?"с":"s"):"");
             _wallet.SetEnabled(canOpen);_overlay.style.display=state.Open?DisplayStyle.Flex:DisplayStyle.None;if(!state.Open)return;
-            _title.text=ru?"ТОРГОВЕЦ ЭХА":"ECHO MERCHANT";_balance.text=(ru?"Доступно: ":"Available: ")+state.Echo+" Echo";_close.text=ru?"Завершить торговлю":"Finish trading";
+            _title.text=ru?"ТОРГОВЕЦ ЭХА":"ECHO MERCHANT";_balance.text=(ru?"Доступно: ":"Available: ")+state.Echo+(ru?" Эхо":" Echo");_close.text=ru?"Завершить торговлю":"Finish trading";
             var key=new StringBuilder().Append(ru).Append('|').Append(state.NextMerchant).Append('|').Append(state.Echo);
             foreach(var row in state.Offers)key.Append('|').Append(row.ArtifactId).Append(':').Append(row.Price).Append(':').Append(row.Sold).Append(':').Append(owned.Contains(row.ArtifactId));
             var signature=key.ToString();if(_signature==signature)return;_signature=signature;_stock.Clear();
@@ -53,10 +53,10 @@ namespace EchoSphere.Presentation
             for(int i=0;i<state.Offers.Count;i++){
                 int slot=i;var row=state.Offers[i];var item=ArtifactRewardRules.Get(row.ArtifactId);if(item==null)continue;
                 var card=new VisualElement();card.style.paddingTop=10;card.style.paddingBottom=10;card.style.marginBottom=8;card.style.borderBottomWidth=1;card.style.borderBottomColor=new Color(.1f,.24f,.3f);
-                var title=new Label(ru?item.NameRussian:item.NameEnglish);title.style.fontSize=17;title.style.color=new Color(.85f,.94f,1);title.style.whiteSpace=WhiteSpace.Normal;card.Add(title);
-                var description=new Label(ArtifactGameplayRules.DescriptionOverride(item.Id,ru)??(ru?item.DescriptionRussian:item.DescriptionEnglish));description.style.fontSize=13;description.style.color=new Color(.55f,.68f,.78f);description.style.whiteSpace=WhiteSpace.Normal;card.Add(description);
+                var title=new Label(NativePlayerCopy.Text(ru?item.NameRussian:item.NameEnglish,ru));title.style.fontSize=17;title.style.color=new Color(.85f,.94f,1);title.style.whiteSpace=WhiteSpace.Normal;card.Add(title);
+                var description=new Label(NativePlayerCopy.Text(ArtifactGameplayRules.DescriptionOverride(item.Id,ru)??(ru?item.DescriptionRussian:item.DescriptionEnglish),ru));description.style.fontSize=13;description.style.color=new Color(.55f,.68f,.78f);description.style.whiteSpace=WhiteSpace.Normal;card.Add(description);
                 bool sold=row.Sold||owned.Contains(row.ArtifactId);
-                var button=new Button(()=>_buy(slot)){text=sold?(ru?"Получено":"Owned"):(ru?"Купить · ":"Buy · ")+row.Price+" Echo"+(row.Discount?" · −25%":"")};
+                var button=new Button(()=>_buy(slot)){text=sold?(ru?"Получено":"Owned"):(ru?"Купить · ":"Buy · ")+row.Price+(ru?" Эхо":" Echo")+(row.Discount?" · −25%":"")};
                 button.style.height=40;button.style.marginTop=5;StyleButton(button);button.SetEnabled(RunEconomyRules.CanBuy(state,slot,owned));card.Add(button);_stock.Add(card);
             }
         }

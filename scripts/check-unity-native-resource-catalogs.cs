@@ -1,8 +1,9 @@
+// Imported base data remains source-exact; intentional player-copy revisions are validated separately.
 var assembly=typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly;
 EchoSphere.Presentation.V Scope(string name)=>(EchoSphere.Presentation.V)assembly.GetType("EchoSphere.Presentation.Visual_"+name,true).GetField("Scope").GetValue(null);
 var catalog=EchoSphere.Presentation.NativeLocalizationCatalog.Instance;var source=Scope("i18n")["translations"];int translations=0,canvas=0,art=0,orbital=0;
 foreach(bool ru in new[]{true,false}){
-    string lang=ru?"ru":"en";foreach(var row in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)source[lang].Raw){if(catalog.Translate(row.Key,ru)!=row.Value.Text)throw new System.Exception("Translation "+lang+"/"+row.Key);translations++;}
+    string lang=ru?"ru":"en";foreach(var row in (System.Collections.Generic.Dictionary<string,EchoSphere.Presentation.V>)source[lang].Raw){if(catalog.Translate(row.Key,ru)!=EchoSphere.Presentation.NativePlayerCopy.Text(row.Value.Text,ru))throw new System.Exception("Translation "+lang+"/"+row.Key);translations++;}
 }
 var oldLocale=EchoSphere.Presentation.VisualBindings.Locale;
 try{
@@ -11,7 +12,7 @@ try{
     foreach(var row in catalog.CanvasPhrases)samples.Add(row.Pattern);
     foreach(var row in catalog.CanvasPatterns)samples.Add(row.Pattern.Replace("\\b", ""));
     foreach(bool ru in new[]{true,false}){EchoSphere.Presentation.VisualBindings.Locale=ru?"ru":"en";foreach(var token in samples)foreach(var text in new[]{token,"x "+token+" y",token+" "+token}){
-        var expected=original.Call(text).Text;var actual=catalog.CanvasText(text,ru);if(expected!=actual)throw new System.Exception("Canvas locale mismatch: "+text+" => "+expected+" / "+actual);canvas++;
+        var revised=EchoSphere.Presentation.NativePlayerCopy.Text(text,ru);var expected=revised!=text?revised:EchoSphere.Presentation.NativePlayerCopy.Text(original.Call(text).Text,ru);var actual=catalog.CanvasText(text,ru);if(expected!=actual)throw new System.Exception("Canvas locale mismatch: "+text+" => "+expected+" / "+actual);canvas++;
     }}
 }finally{EchoSphere.Presentation.VisualBindings.Locale=oldLocale;}
 var originalImages=Scope("renderer")["getArtImage"];var spriteCatalog=UnityEngine.Resources.Load<EchoSphere.Presentation.NativeWorldArtCatalog>("EchoSphere/NativeWorldArtCatalog");

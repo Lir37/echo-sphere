@@ -107,10 +107,11 @@ namespace EchoSphere.Presentation
             if(_disposed)throw new ObjectDisposedException(nameof(NativeMainMenuView));
             if(!_hasState||!_shown.Equals(state)){
                 var ru=state.Russian;
-                Text("menu-subtitle",ru?"СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА":"RESONANCE SURVIVAL SYSTEM");
-                Text("core-caption","ECHO CORE // "+(ru?"ГОТОВ":"READY"));
+                Text("menu-subtitle",ru?"СОБЕРИ СФЕРЫ. ПРОБУДИ РЕЗОНАНС.":"BUILD YOUR SPHERES. UNLEASH RESONANCE.");
+                Text("core-caption",ru?"НАЧНИ ПУТЕШЕСТВИЕ":"BEGIN YOUR JOURNEY");
+                Text("player-name-label",ru?"ИМЯ":"NAME");
                 Text("core-title",ru?"РЕГИОНЫ ЭХА":"ECHO REGIONS");
-                Text("select-run",ru?"ВЫБРАТЬ ЗАБЕГ":"SELECT RUN");
+                Text("select-run",ru?"ВЫБРАТЬ РЕГИОН":"CHOOSE A REGION");
                 Text("core-copy",ru?"Выбери область, стабилизируй её, открой испытания и доберись до Бесконечности.":"Choose a region, stabilize it, unlock challenges and reach Endless.");
                 Text("character-name",state.CharacterName);Text("character-role",state.CharacterRole);Text("difficulty-title",state.DifficultyTitle?.ToUpperInvariant());
                 _name.SetValueWithoutNotify(state.Name??string.Empty);_name.textEdition.placeholder=state.NamePlaceholder;

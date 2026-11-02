@@ -22,9 +22,9 @@ namespace EchoSphere.Runtime
    List<string> SphereNames(string[] types)=>types.Where(id=>NativeLiveSphereLevel(id)>0).Select(id=>catalog.GetSphere(id).Name(ru)+" "+NativePresentationMath.NumberText(NativeLiveSphereLevel(id))).ToList();
    void Add(string id,List<string> signals)=>rows.Add(new NativeDiagnosticRow {Id=id,Signals=signals});
    var offense=SphereNames(new[]{"standard","sniper","shotgun","chain","pulse","void"});if(NativeLiveAbilityLevel("damage")>0)offense.Add(catalog.GetAbility("damage").Name(ru)+" "+NativePresentationMath.NumberText(NativeLiveAbilityLevel("damage")));Add("offense",offense);
-   var control=SphereNames(new[]{"aura","gravity","prism"});if(GetGlobalSphereModifierLevel("freeze")>0)control.Add("Freeze");if(GetGlobalSphereModifierLevel("gravitic")>0)control.Add("Gravity");Add("control",control);
+   var control=SphereNames(new[]{"aura","gravity","prism"});if(GetGlobalSphereModifierLevel("freeze")>0)control.Add(ru?"Заморозка":"Freeze");if(GetGlobalSphereModifierLevel("gravitic")>0)control.Add(ru?"Притяжение":"Gravity");Add("control",control);
    var survival=new List<string>();string[] ids={"vitality","shield","dodge","vampire","movespeed"},russian={"Живучесть","Барьер","Уклонение","Вампиризм","Мобильность"},english={"Vitality","Barrier","Dodge","Vampirism","Mobility"};for(int i=0;i<ids.Length;i++)if(NativeLiveAbilityLevel(ids[i])>0)survival.Add(ru?russian[i]:english[i]);Add("survival",survival);
-   string geometry=!string.IsNullOrEmpty(_resonanceGeometryKey)?_resonanceGeometryKey:"none";string geometrySignal=(ru?"Геометрия: ":"Geometry: ")+geometry;
+   string geometry=NativeFormationName(_resonanceGeometryType.ToString().ToLowerInvariant(),ru);string geometrySignal=(ru?"Геометрия: ":"Geometry: ")+geometry;
    int typeCount=_spheres.Where(sphere=>sphere!=null&&sphere.gameObject.activeInHierarchy).Select(sphere=>sphere.Type.ToString().ToLowerInvariant()).Distinct(StringComparer.Ordinal).Count();
    var network=NativeMobileNetwork();
    Add("network",new List<string>{(ru?"Типов сфер: ":"Sphere types: ")+typeCount,(ru?"Связей: ":"Links: ")+network.Links.Count.ToString(System.Globalization.CultureInfo.InvariantCulture),geometrySignal});
@@ -60,9 +60,9 @@ namespace EchoSphere.Runtime
    List<string> SphereNames(string[] types)=>types.Where(id=>NativeSphereLevel(scene,id)>0).Select(id=>catalog.GetSphere(id).Name(ru)+" "+NativePresentationMath.NumberText(NativeSphereLevel(scene,id))).ToList();
    void Add(string id,List<string> signals)=>rows.Add(new NativeDiagnosticRow {Id=id,Signals=signals});
    var offense=SphereNames(new[]{"standard","sniper","shotgun","chain","pulse","void"});if(abilities["damage"].Number>0)offense.Add(catalog.GetAbility("damage").Name(ru)+" "+abilities["damage"].Text);Add("offense",offense);
-   var control=SphereNames(new[]{"aura","gravity","prism"});if(player["sphereMods"]["freeze"].Number>0)control.Add("Freeze");if(player["sphereMods"]["gravitic"].Number>0)control.Add("Gravity");Add("control",control);
+   var control=SphereNames(new[]{"aura","gravity","prism"});if(player["sphereMods"]["freeze"].Number>0)control.Add(ru?"Заморозка":"Freeze");if(player["sphereMods"]["gravitic"].Number>0)control.Add(ru?"Притяжение":"Gravity");Add("control",control);
    var survival=new List<string>();string[] ids={"vitality","shield","dodge","vampire","movespeed"},russian={"Живучесть","Барьер","Уклонение","Вампиризм","Мобильность"},english={"Vitality","Barrier","Dodge","Vampirism","Mobility"};for(int i=0;i<ids.Length;i++)if(abilities[ids[i]].Number>0)survival.Add(ru?russian[i]:english[i]);Add("survival",survival);
-   string geometry=player["resonanceGeometryKey"].Truth?player["resonanceGeometryKey"].Text:"none";string geometrySignal=(ru?"Геометрия: ":"Geometry: ")+geometry;
+   string geometry=NativeFormationName(scene["nativeNetwork"]["dominantFormation"]["type"].Text,ru);string geometrySignal=(ru?"Геометрия: ":"Geometry: ")+geometry;
    int typeCount=scene["spheres"].Items.Where(sphere=>sphere["alive"].Truth).Select(sphere=>sphere["type"].Text).Distinct(StringComparer.Ordinal).Count();
    var network=NativeAnalyzeSphereNetwork(scene["spheres"]);
    Add("network",new List<string>{(ru?"Типов сфер: ":"Sphere types: ")+typeCount,(ru?"Связей: ":"Links: ")+network.Links.Count.ToString(System.Globalization.CultureInfo.InvariantCulture),geometrySignal});

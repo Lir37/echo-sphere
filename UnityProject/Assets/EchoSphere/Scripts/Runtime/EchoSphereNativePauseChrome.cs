@@ -51,7 +51,7 @@ namespace EchoSphere.Runtime
         private NativePauseChromeState ProjectNativeLivePauseChrome(bool ru,int tab)
         {
             var character=EchoSphere.Core.CharacterRules.Get(_sphereCharacterId);string T(string key)=>NativeText(key,ru);
-            return new NativePauseChromeState {Eyebrow=ru?"Билд забега":"Run Build",Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+NativePresentationMath.NumberText(_level)+" · "+T("wave")+" "+NativePresentationMath.NumberText(_wave),Tabs=ru?new[]{"Показатели","Способности","Артефакты","Синергии"}:new[]{"Stats","Abilities","Artifacts","Synergies"},Resume=T("resume"),Return=T("return"),SelectedTab=tab};
+            return new NativePauseChromeState {Eyebrow=ru?"Ваш герой":"Your Hero",Title=T("pauseTitle")+" · "+(ru?character.NameRu:character.NameEn),Subtitle=(ru?character.RoleRu:character.RoleEn)+" · "+(ru?"уровень":"level")+" "+NativePresentationMath.NumberText(_level)+" · "+T("wave")+" "+NativePresentationMath.NumberText(_wave),Tabs=ru?new[]{"Показатели","Способности","Артефакты","Синергии"}:new[]{"Stats","Abilities","Artifacts","Synergies"},Resume=T("resume"),Return=T("return"),SelectedTab=tab};
         }
 #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         internal static NativePauseChromeState ProjectNativePauseChromeState(V scene, bool ru, int tab)
@@ -59,7 +59,7 @@ namespace EchoSphere.Runtime
             var lang = ru ? "ru" : "en"; EchoSphere.Core.CharacterRules.TryParseSourceId(scene["player"]["characterId"].Text,out var characterId);var character=EchoSphere.Core.CharacterRules.Get(characterId);
             string T(string key) => NativeText(key,lang=="ru");
             return new NativePauseChromeState {
-                Eyebrow = ru ? "Билд забега" : "Run Build", Title = T("pauseTitle") + " · " + (ru?character.NameRu:character.NameEn),
+                Eyebrow = ru ? "Ваш герой" : "Your Hero", Title = T("pauseTitle") + " · " + (ru?character.NameRu:character.NameEn),
                 Subtitle = (ru?character.RoleRu:character.RoleEn) + " · " + (ru ? "уровень" : "level") + " " + scene["player"]["level"].Text + " · " + T("wave") + " " + scene["wave"].Text,
                 Tabs = ru ? new[] { "Показатели", "Способности", "Артефакты", "Синергии" } : new[] { "Stats", "Abilities", "Artifacts", "Synergies" },
                 Resume = T("resume"), Return = T("return"), SelectedTab = tab

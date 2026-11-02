@@ -10,6 +10,9 @@ namespace EchoSphere.Presentation
         [Serializable] public sealed class Entry
         {
             public string section,id,group,nameRu,nameEn,descRu,descEn,detailsRu,detailsEn;
+            public string Name(bool ru)=>NativePlayerCopy.Text(ru?nameRu:nameEn,ru);
+            public string Description(bool ru)=>NativePlayerCopy.Text(ru?descRu:descEn,ru);
+            public string Details(bool ru)=>NativePlayerCopy.Text(ru?detailsRu:detailsEn,ru);
         }
         [Serializable] public sealed class PlannerEntry
         {

@@ -51,7 +51,7 @@ namespace EchoSphere.Runtime
                 var text=SourceUpgradeText(choice);if(text==null)throw new InvalidOperationException("Missing source upgrade text: "+GetUpgradeChoiceKey(choice));
                 var row=new NativeUpgradeInput {Index=result.Count,Type=choice.Kind==RunUpgradeKind.Sphere?"sphere":"ability",CurrentLevel=choice.CurrentLevel,NewLevel=choice.NextLevel,Text=new NativeRunCatalog.Text {NameRu=text.nameRu,NameEn=text.nameEn,DescriptionRu=text.descRu,DescriptionEn=text.descEn},Key=GetUpgradeChoiceKey(choice)};
                 if(choice.Kind==RunUpgradeKind.Sphere){row.SphereType=choice.Sphere.ToString().ToLowerInvariant();row.SphereStage="upgrade";row.SphereBranch=GetSphereBranch(choice.Sphere);}
-                else {var definition=NativeRunCatalog.Instance.GetAbility(SourceAbilityId(choice.Kind));row.Text.NameRu=definition.NameRu;row.Text.NameEn=definition.NameEn;}result.Add(row);
+                else {var definition=NativeRunCatalog.Instance.GetAbility(SourceAbilityId(choice.Kind));row.Text.NameRu=definition.Name(true);row.Text.NameEn=definition.Name(false);}result.Add(row);
             }
             return result;
         }

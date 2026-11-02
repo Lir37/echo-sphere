@@ -21,15 +21,16 @@ namespace EchoSphere.Presentation
         public string Translate(string key,bool russian)
         {
             if(_translations==null){_translations=new Dictionary<string,Translation>(StringComparer.Ordinal);foreach(var row in Translations)_translations.Add(row.Key,row);}
-            return _translations.TryGetValue(key,out var entry)?russian?entry.Ru:entry.En:"undefined";
+            return _translations.TryGetValue(key,out var entry)?NativePlayerCopy.Text(russian?entry.Ru:entry.En,russian):"—";
         }
         public string CanvasText(string text,bool russian)
         {
-            if(!russian)return text;
+            var revised=NativePlayerCopy.Text(text,russian);
+            if(revised!=text||!russian)return revised;
             string result=text;foreach(var row in CanvasPhrases)result=result.Replace(row.Pattern,row.Text);
             if(_patterns==null){_patterns=new List<Regex>();foreach(var row in CanvasPatterns)_patterns.Add(new Regex(row.Pattern,RegexOptions.CultureInvariant));}
             for(int i=0;i<_patterns.Count;i++)result=_patterns[i].Replace(result,CanvasPatterns[i].Text);
-            return result;
+            return NativePlayerCopy.Text(result,true);
         }
     }
 }

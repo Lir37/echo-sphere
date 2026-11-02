@@ -12,7 +12,7 @@ namespace EchoSphere.Runtime
             switch(type){case "line":return ru?"ЛИНИЯ":"LINE";case "triangle":return ru?"ТРЕУГОЛЬНИК":"TRIANGLE";
                 case "square":return ru?"КВАДРАТ":"SQUARE";case "cluster":return ru?"КЛАСТЕР":"CLUSTER";
                 case "ring":return ru?"КОЛЬЦО":"RING";case "lattice":return ru?"РЕШЁТКА":"LATTICE";
-                case "fractal":return ru?"ФРАКТАЛ":"FRACTAL";default:return type.ToUpperInvariant();}
+                case "fractal":return ru?"ФРАКТАЛ":"FRACTAL";case "none":case "":case null:return ru?"Нет формации":"No formation";default:return ru?"Формация":"Formation";}
         }
 #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private static double NativeXpPlannerMultiplier(V scene)
@@ -40,13 +40,13 @@ namespace EchoSphere.Runtime
   switch (label) {
     case "LINE":
       Add("+" + Percent(10) + "%", isSecondary ? " из полного +10% урона попаданий через сеть" : " урона попаданий через активную сеть", "+" + Percent(10) + "%", isSecondary ? " of the full +10% network hit-damage bonus" : " hit damage through the active network");
-      Add("+1", isSecondary ? " пробитие остаётся дискретным сетевым эффектом" : " пробитие для снарядов", "+1", isSecondary ? " pierce remains a discrete network effect" : " projectile pierce");
+      Add("+1", isSecondary ? " дополнительная пробитая цель" : " пробитие для снарядов", "+1", isSecondary ? " extra enemy pierced" : " projectile pierce");
       if (activeTypes.Contains("prism")) Add("+" + Percent(12) + "%", isSecondary ? " из полного +12% урона луча Призмы" : " урона луча Призмы", "+" + Percent(12) + "%", isSecondary ? " of the full +12% Prism beam damage" : " Prism beam damage");
       break;
     case "TRIANGLE":
-      Add((35 * scale).ToString("0.#",CultureInfo.InvariantCulture) + "%", isSecondary ? " из полного 35% фактического урона сетевого импульса" : " фактического урона сетевого импульса", (35 * scale).ToString("0.#",CultureInfo.InvariantCulture) + "%", isSecondary ? " of the full 35% actual-damage network pulse" : " actual damage of the network pulse");
-      Add("каждый 3-й удар", isSecondary ? " сферы создаёт импульс" : " сферы создаёт импульс · радиус 88", "every 3rd hit", isSecondary ? " creates the partial pulse" : " creates the pulse · radius 88");
-      Add(isSecondary ? "50%" : "100%", isSecondary ? " эффективности вторичного слоя" : " эффективности доминирующего слоя", isSecondary ? "50%" : "100%", isSecondary ? " secondary-layer effectiveness" : " dominant-layer effectiveness");
+      Add((35 * scale).ToString("0.#",CultureInfo.InvariantCulture) + "%", isSecondary ? " урона попадания (основная формация: 35%)" : " урона попадания наносит импульс", (35 * scale).ToString("0.#",CultureInfo.InvariantCulture) + "%", isSecondary ? " of hit damage (main formation: 35%)" : " of hit damage as a pulse");
+      Add("каждый 3-й удар", isSecondary ? " сферы создаёт импульс" : " сферы создаёт импульс · радиус 88", "every 3rd hit", isSecondary ? " creates a weaker pulse" : " creates the pulse · radius 88");
+      Add(isSecondary ? "50%" : "100%", isSecondary ? " силы дополнительной формации" : " силы основной формации", isSecondary ? "50%" : "100%", isSecondary ? " secondary formation strength" : " main formation strength");
       if (activeTypes.Contains("pulse") || activeTypes.Contains("prism")) Add(isSecondary ? "50%" : "100%", " сетевого вклада в Резонанс через Треугольник", isSecondary ? "50%" : "100%", " network Resonance contribution through Triangle");
       break;
     case "CLUSTER":

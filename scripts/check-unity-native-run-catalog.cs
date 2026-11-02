@@ -1,8 +1,18 @@
+// Presentation text includes approved player-copy revisions; gameplay IDs/order/rarity remain source-exact.
 var assembly=typeof(EchoSphere.Runtime.EchoSphereRuntime).Assembly;
 EchoSphere.Presentation.V Scope(string name)=>(EchoSphere.Presentation.V)assembly.GetType("EchoSphere.Presentation.Visual_"+name,true).GetField("Scope").GetValue(null);
 var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static;var runtime=typeof(EchoSphere.Runtime.EchoSphereRuntime);var catalog=EchoSphere.Presentation.NativeRunCatalog.Instance;var original=Scope("sphereProgression");int checks=0;
-void Equal(string actual,string expected,string context){if(actual!=expected)throw new System.Exception(context+": "+actual+" != "+expected);checks++;}
-foreach(var ability in catalog.Abilities)foreach(bool ru in new[]{true,false})foreach(int level in new[]{0,1,2,3,4,5,6,7}){
+bool languageRussian=true;
+void Equal(string actual,string expected,string context){
+ if(context.StartsWith("name/")){
+  var parts=expected.Split(new[]{" · "},System.StringSplitOptions.None);
+  for(int i=0;i<parts.Length;i++)parts[i]=EchoSphere.Presentation.NativePlayerCopy.Text(parts[i],languageRussian);
+  if(context=="name/crit")parts[0]=languageRussian?"Шанс критического удара":"Critical Chance";
+  expected=string.Join(" · ",parts);
+ }else if(context.StartsWith("desc/")||context.StartsWith("base/")||context=="artifact name"||context=="artifact desc")expected=EchoSphere.Presentation.NativePlayerCopy.Text(expected,languageRussian);
+ if(actual!=expected)throw new System.Exception(context+": "+actual+" != "+expected);checks++;
+}
+foreach(var ability in catalog.Abilities)foreach(bool ru in new[]{true,false})foreach(int level in new[]{0,1,2,3,4,5,6,7}){languageRussian=ru;
  var markers=new System.Collections.Generic.List<string[]> {new string[0],new[]{"ability:"+ability.Id+":4:invalid"}};
  foreach(var branch in ability.Branches){markers.Add(new[]{"ability:"+ability.Id+":4:"+branch.Id});foreach(var final in branch.HasFinalPool?branch.Finals:ability.FallbackFinals)markers.Add(new[]{"ability:"+ability.Id+":4:"+branch.Id,"ability:"+ability.Id+":7:"+final.Id});}
  foreach(var selection in markers){var scene=EchoSphere.Presentation.VisualJs.Obj("player",EchoSphere.Presentation.VisualJs.Obj("abilities",EchoSphere.Presentation.VisualJs.Obj(ability.Id,level),"evolutions",EchoSphere.Presentation.VisualJs.Arr(System.Linq.Enumerable.Select(selection,id=>new EchoSphere.Presentation.V(id)).ToArray())));string lang=ru?"ru":"en";
@@ -12,7 +22,7 @@ foreach(var ability in catalog.Abilities)foreach(bool ru in new[]{true,false})fo
  Equal((string)runtime.GetMethod("NativeBaseAbilityDescription",flags).Invoke(null,new object[]{ability,(double)level,ru}),Scope("gameData")["ABILITIES"][ability.Id]["desc"][ru?"ru":"en"].Call(level).Text,"base/"+ability.Id);
 }
 var artifactsSource=Scope("artifactSystem");
-foreach(var set in catalog.Sets)foreach(bool ru in new[]{true,false})foreach(bool complete in new[]{false,true}){
+foreach(var set in catalog.Sets)foreach(bool ru in new[]{true,false})foreach(bool complete in new[]{false,true}){languageRussian=ru;
  var ids=complete?set.ArtifactIds:new System.Collections.Generic.List<string>();
  var values=System.Linq.Enumerable.Select(ids,id=>new EchoSphere.Presentation.V(id)).ToArray();
  var scene=EchoSphere.Presentation.VisualJs.Obj("player",EchoSphere.Presentation.VisualJs.Obj("artifacts",EchoSphere.Presentation.VisualJs.Arr(values)));
