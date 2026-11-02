@@ -20,7 +20,7 @@ namespace EchoSphere.Presentation
         {
             _buy=buy;_root=new VisualElement {name="native-merchant"};_root.style.position=Position.Absolute;
             _root.style.left=0;_root.style.right=0;_root.style.top=0;_root.style.bottom=0;_root.pickingMode=PickingMode.Ignore;parent.Add(_root);
-            _wallet=new Button(open);_wallet.style.position=Position.Absolute;_wallet.style.bottom=14;_wallet.style.width=155;_wallet.style.height=44;StyleButton(_wallet);_root.Add(_wallet);
+            _wallet=new Button(open){name="merchant-open-button"};_wallet.style.position=Position.Absolute;_wallet.style.bottom=14;_wallet.style.width=155;_wallet.style.height=44;StyleButton(_wallet);_root.Add(_wallet);
             _overlay=new VisualElement {name="merchant-overlay"};_overlay.style.position=Position.Absolute;
             _overlay.style.left=0;_overlay.style.right=0;_overlay.style.top=0;_overlay.style.bottom=0;
             _overlay.style.backgroundColor=new Color(0,.01f,.03f,.92f);_overlay.style.alignItems=Align.Center;_overlay.style.justifyContent=Justify.Center;
@@ -43,7 +43,8 @@ namespace EchoSphere.Presentation
         {
             _root.style.display=visible&&state!=null?DisplayStyle.Flex:DisplayStyle.None;if(!visible||state==null)return;
             _root.BringToFront();if(leftHanded){_wallet.style.left=12;_wallet.style.right=StyleKeyword.Auto;}else{_wallet.style.right=12;_wallet.style.left=StyleKeyword.Auto;}
-            _wallet.text=(ru?"Эхо: ":"Echo: ")+state.Echo+(state.Pending?"\n"+(ru?"Торговец":"Merchant")+" · "+Math.Max(0,(int)Math.Ceiling(state.ArrivedAt+40-time))+(ru?"с":"s"):"");
+            _wallet.style.display=state.Pending&&!state.Open?DisplayStyle.Flex:DisplayStyle.None;
+            if(state.Pending&&!state.Open)_wallet.text=(ru?"Торговец":"Merchant")+" · "+Math.Max(0,(int)Math.Ceiling(state.ArrivedAt+40-time))+(ru?" с":" s");
             _wallet.SetEnabled(canOpen);_overlay.style.display=state.Open?DisplayStyle.Flex:DisplayStyle.None;if(!state.Open)return;
             _title.text=ru?"ТОРГОВЕЦ ЭХА":"ECHO MERCHANT";_balance.text=(ru?"Доступно: ":"Available: ")+state.Echo+(ru?" Эхо":" Echo");_close.text=ru?"Завершить торговлю":"Finish trading";
             var key=new StringBuilder().Append(ru).Append('|').Append(state.NextMerchant).Append('|').Append(state.Echo);

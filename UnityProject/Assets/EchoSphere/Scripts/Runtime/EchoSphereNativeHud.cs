@@ -37,6 +37,7 @@ namespace EchoSphere.Runtime
             // field/mobile controls below HUD, combo/modal/tutorial layers above.
             _nativeHudIsland.Root.PlaceInFront(rightBox);
             if(_nativeHudBoundVersion!=anchors.Version){_nativeHudIsland.Bind(ReadNativeHudState());_nativeHudBoundVersion=anchors.Version;}
+            _nativeHudIsland.SetRunCurrency(_runEconomy!=null&&_tutorialStep<0?(int?)_runEconomy.Echo:null,IsRussianUi);
             _nativeHudIsland.SetInterfaceScale((float)NativeInterfaceScale);
             var dpr=SourceDevicePixelRatio;var safe=Screen.safeArea;
             _nativeHudIsland.SetSafeArea(safe.xMin/dpr,(Screen.width-safe.xMax)/dpr,(Screen.height-safe.yMax)/dpr);
@@ -63,7 +64,7 @@ namespace EchoSphere.Runtime
             var config=NativeRunCatalog.Instance.GetRegion(RegionSourceId(ActiveCampaignRegion));var pocket=config.Pockets[0];foreach(var item in config.Pockets)if(item.Id==_regionHudPocketId){pocket=item;break;}
             string mode=_regionEndlessMode?(ru?"БЕСКОНЕЧНЫЙ":"ENDLESS"):(ru?"СТАБИЛИЗАЦИЯ":"STABILIZATION");
             return new NativeHudView.State {
-                Russian=ru,Level=T("level")+" "+N(_level),Hp=N(Math.Ceiling(_playerCore.CurrentHp))+"/"+N(Math.Ceiling(_playerCore.MaxHp)),
+                Russian=ru,RunCurrency=_runEconomy!=null&&_tutorialStep<0?(int?)_runEconomy.Echo:null,Level=T("level")+" "+N(_level),Hp=N(Math.Ceiling(_playerCore.CurrentHp))+"/"+N(Math.Ceiling(_playerCore.MaxHp)),
                 XpPercent=Percent((double)_xp/_xpRequired*100),HpPercent=Percent((double)_playerCore.CurrentHp/_playerCore.MaxHp*100),
                 ResonancePercent=Percent(_resonanceCharge),ResonanceReady=_resonanceCharge>=100,Resonance=N(Math.Floor(_resonanceCharge))+"/100",
                 Spheres=T("spheres").ToUpperInvariant()+" <color=#cde8f6><b>"+N(spheres)+"/"+N(maxSpheres)+"</b></color>",Wave=T("wave").ToUpperInvariant()+" <color=#cde8f6><b>"+N(_wave)+"</b></color>",Links=N(network==null?0:network.Links.Count),

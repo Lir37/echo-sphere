@@ -16,6 +16,7 @@ namespace EchoSphere.Presentation
         public sealed class State
         {
             public bool Russian,HasRegion,Boss;
+            public int? RunCurrency;
             public string Level,Hp,Resonance,Spheres,Wave,Links,Timer,Region,Phase,Pocket,BossLabel;
             public float XpPercent,HpPercent,ResonancePercent;
             public bool ResonanceReady;
@@ -34,9 +35,11 @@ namespace EchoSphere.Presentation
             public string Title,Effectiveness;public bool Secondary,Inactive;
             public IReadOnlyList<TooltipLine> Lines=Array.Empty<TooltipLine>();
         }
+        private int? _lastRunCurrency;
+        private bool _lastRunCurrencyRussian;
         private const string Family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif";
         private readonly VisualElement _parent,_root,_left,_right,_rightClip,_region,_formationRow,_tooltip,_tooltipLines,_tooltipHeading;
-        private readonly Label _level,_hp,_resonanceTitle,_resonance,_spheres,_wave,_linksTitle,_links,_noFormation,_timer,_regionTitle,_phase,_pocket,_boss,_plus,_tooltipTitle,_tooltipEffect;
+        private readonly Label _runCurrency,_level,_hp,_resonanceTitle,_resonance,_spheres,_wave,_linksTitle,_links,_noFormation,_timer,_regionTitle,_phase,_pocket,_boss,_plus,_tooltipTitle,_tooltipEffect;
         private readonly VisualElement _xpFill,_hpFill,_resonanceFill;
         private readonly Button[] _formationButtons=new Button[2];
         private readonly Label[] _formationNames=new Label[2];
@@ -146,7 +149,11 @@ namespace EchoSphere.Presentation
             var tipHeading=Box(_tooltip,"hud-tooltip-heading",true);_tooltipHeading=tipHeading;tipHeading.style.justifyContent=Justify.SpaceBetween;tipHeading.style.paddingBottom=4;tipHeading.style.marginBottom=5;tipHeading.style.borderBottomWidth=1;tipHeading.style.borderBottomColor=A(143,223,255,.12f);
             _tooltipTitle=Text(tipHeading,"hud-tooltip-title",8,"#ffcf7a","900",spacing:1.12f);_tooltipEffect=Text(tipHeading,"hud-tooltip-effect",7,"#ffcf7a","900",spacing:.56f);_tooltipEffect.style.opacity=.72f;_tooltipLines=Box(_tooltip,"hud-tooltip-lines");
             _tooltip.RegisterCallback<PointerDownEvent>(evt=>HideTooltip());_tooltip.RegisterCallback<KeyDownEvent>(evt=>{if(evt.keyCode==KeyCode.Return||evt.keyCode==KeyCode.KeypadEnter||evt.keyCode==KeyCode.Space)HideTooltip();});HideTooltip();
-            var radarRow=Box(_rightClip,"hud-radar-row",true);radarRow.style.justifyContent=Justify.FlexEnd;Radar=new NativeHudRadarView(radarRow);
+            var radarRow=Box(_rightClip,"hud-radar-row",true);radarRow.style.justifyContent=Justify.FlexEnd;radarRow.style.alignItems=Align.FlexStart;
+            _runCurrency=Text(radarRow,"hud-run-currency",8,"#8edce9","600");_runCurrency.pickingMode=PickingMode.Ignore;
+            _runCurrency.style.flexGrow=1;_runCurrency.style.flexShrink=1;_runCurrency.style.minWidth=0;_runCurrency.style.marginRight=6;
+            _runCurrency.style.whiteSpace=WhiteSpace.Normal;_runCurrency.style.unityTextAlign=TextAnchor.UpperLeft;_runCurrency.style.display=DisplayStyle.None;
+            Radar=new NativeHudRadarView(radarRow);
             var timerRow=Box(_rightClip,"hud-timer-row",true);timerRow.style.marginTop=2;timerRow.style.justifyContent=Justify.FlexEnd;
             var timer=Box(timerRow,"hud-timer",true);timer.style.alignItems=Align.Center;
             for(int i=0;i<3;i++)if(i==1){_timer=Text(timer,"hud-time",11,"#eaf7ff","500",spacing:1.1f);_timer.style.marginLeft=_timer.style.marginRight=5;}else{var dot=Box(timer,"hud-timer-dot-"+i);dot.style.width=dot.style.height=3;Surface(dot,new NativeMenuBrush.Paint {Ellipse=true,Fill=C("#6be9ff"),OuterA=new NativeMenuBrush.Shadow(8,Vector2.zero,A(107,233,255,.65f))});}
@@ -180,10 +187,18 @@ namespace EchoSphere.Presentation
         }
         public void SetSafeArea(float left,float right,float top){if(left==_safeLeft&&right==_safeRight&&top==_safeTop)return;_safeLeft=left;_safeRight=right;_safeTop=top;Layout(_parent.contentRect.width);}
         private static void Set(Label label,string text){if(label.text!=text)label.text=text??"";}
+        // The wallet can change without rebuilding the complete HUD/radar state.
+        public void SetRunCurrency(int? amount,bool russian)
+        {
+            if(_lastRunCurrency==amount&&_lastRunCurrencyRussian==russian)return;
+            _lastRunCurrency=amount;_lastRunCurrencyRussian=russian;
+            Set(_runCurrency,amount.HasValue?(russian?"Эхо: ":"Echo: ")+amount.Value.ToString(System.Globalization.CultureInfo.InvariantCulture):"");
+            _runCurrency.style.display=amount.HasValue?DisplayStyle.Flex:DisplayStyle.None;
+        }
         public void Bind(State state)
         {
             if(_disposed)throw new ObjectDisposedException(nameof(NativeHudView));
-            _bound=true;
+            _bound=true;SetRunCurrency(state.RunCurrency,state.Russian);
             Set(_level,state.Level?.ToUpperInvariant());Set(_hp,state.Hp);Set(_resonanceTitle,state.Russian?"РЕЗОНАНС":"RESONANCE");Set(_resonance,state.Resonance);Set(_spheres,state.Spheres);Set(_wave,state.Wave);Set(_linksTitle,state.Russian?"АКТИВНЫЕ СВЯЗИ":"ACTIVE LINKS");Set(_links,state.Links);Set(_noFormation,state.Russian?"ФОРМАЦИЯ НЕ АКТИВНА":"NO FORMATION");Set(_timer,state.Timer);Set(_regionTitle,state.Region);Set(_phase,state.Phase);Set(_pocket,state.Pocket);Set(_boss,state.BossLabel);
             _xpFill.style.width=Length.Percent(state.XpPercent);_hpFill.style.width=Length.Percent(state.HpPercent);_resonanceFill.style.width=Length.Percent(state.ResonancePercent);_resonance.style.color=state.ResonanceReady?C("#ffb84d"):C("#dcecff");_resonanceSurface.SetPaint(state.ResonanceReady?_resonanceReady:_resonanceNormal);
             int count=0;for(int slot=0;slot<2;slot++){
