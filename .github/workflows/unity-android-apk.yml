@@ -1,4 +1,4 @@
-name: Unity Checks (No APK)
+name: Unity Android APK
 
 on:
   workflow_dispatch:
@@ -6,26 +6,80 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: unity-apk-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   core-contracts:
-    name: Check gameplay contracts and Unity project structure
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
-
-      - name: Run pure C# gameplay contract checks
-        run: dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
+      - run: dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
+      - run: node scripts/check-unity-project.mjs
 
-      - name: Validate Unity project structure and runtime boundaries
-        run: node scripts/check-unity-project.mjs
+  build-apk:
+    needs: core-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check Unity activation configuration
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          test -n "$UNITY_LICENSE" || { echo 'Missing UNITY_LICENSE'; exit 1; }
+          test -n "$UNITY_EMAIL" || { echo 'Missing UNITY_EMAIL'; exit 1; }
+          test -n "$UNITY_PASSWORD" || { echo 'Missing UNITY_PASSWORD'; exit 1; }
+      - name: Make room for the Unity Android editor on the disposable runner
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+          df -h /
+      - name: Build native Unity APK
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: UnityProject
+          unityVersion: auto
+          targetPlatform: Android
+          androidExportType: androidPackage
+          buildMethod: EchoSphereCiBuild.BuildAndroidApk
+          versioning: None
+          dockerShmSize: 2g
+      - name: Verify and identify the APK
+        run: |
+          test -s UnityProject/Builds/Android/ECHO-SPHERE.apk
+          printf '%s\n' "$GITHUB_SHA" > UnityProject/Builds/Android/commit.txt
+          cd UnityProject/Builds/Android
+          sha256sum ECHO-SPHERE.apk > ECHO-SPHERE.apk.sha256
+      - name: Upload native Unity APK
+        uses: actions/upload-artifact@v5
+        with:
+          name: echo-sphere-unity-apk-${{ github.sha }}
+          path: |
+            UnityProject/Builds/Android/ECHO-SPHERE.apk
+            UnityProject/Builds/Android/ECHO-SPHERE.apk.sha256
+            UnityProject/Builds/Android/commit.txt
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload Unity build logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: unity-android-logs-${{ github.run_id }}
+          path: |
+            artifacts/
+            UnityProject/Logs/
+          if-no-files-found: ignore
+          retention-days: 7

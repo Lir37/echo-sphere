@@ -15,6 +15,13 @@ public static class EchoSphereCiBuild
     private const string OutputRelativePath = "Builds/Android/ECHO-SPHERE-debug.apk";
 
     public static void BuildAndroidDevelopmentApk()
+        => BuildAndroid(BuildOptions.Development | BuildOptions.AllowDebugging, OutputRelativePath);
+
+    // Manual repository builds use ordinary IL2CPP settings for phone testing.
+    public static void BuildAndroidApk()
+        => BuildAndroid(BuildOptions.None, "Builds/Android/ECHO-SPHERE.apk");
+
+    private static void BuildAndroid(BuildOptions buildOptions, string relativePath)
     {
         EchoSphereProjectBootstrap.EnsureNativeScene();
         AssetDatabase.SaveAssets();
@@ -49,7 +56,7 @@ public static class EchoSphereCiBuild
             throw new InvalidOperationException("[ECHO SPHERE CI] Could not resolve the Unity project root.");
         }
 
-        var outputPath = Path.Combine(projectRoot, OutputRelativePath);
+        var outputPath = Path.Combine(projectRoot, relativePath);
         Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
 
         var options = new BuildPlayerOptions
@@ -57,10 +64,10 @@ public static class EchoSphereCiBuild
             scenes = scenes,
             locationPathName = outputPath,
             target = BuildTarget.Android,
-            options = BuildOptions.Development | BuildOptions.AllowDebugging
+            options = buildOptions
         };
 
-        Debug.Log("[ECHO SPHERE CI] Building Android debug APK: " + outputPath);
+        Debug.Log("[ECHO SPHERE CI] Building Android APK: " + outputPath);
         var report = BuildPipeline.BuildPlayer(options);
         if (report.summary.result != BuildResult.Succeeded)
         {

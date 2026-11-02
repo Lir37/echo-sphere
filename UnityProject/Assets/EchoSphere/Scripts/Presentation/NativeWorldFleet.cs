@@ -11,7 +11,7 @@ namespace EchoSphere.Presentation
             double r=e.Radius;var color=e.Freeze?C(105,214,255):e.Color;
             string role=e.Boss?e.Variant:e.Role;
             int hull=role=="sniper"||role=="charger"?1:role=="tank_guard"||role=="architect"||role=="anchor"?2:role=="healer"||role=="aura"||role=="conductor"?3:role=="splitter"||role=="summoner"?4:role=="phase"||role=="null"?5:role=="bomber"||role=="stella_warden"?6:0;
-            var dark=C(4,11,20,.99);double stroke=Math.Max(.8,r*.055);
+            var dark=RegionalInk(color,.17);var armor=RegionalInk(color,.43);var trim=Color.Lerp(color,Color.white,.38f);double stroke=Math.Max(.8,r*.055);
             Art Shape(int id,Func<Unity.VectorGraphics.BezierContour> make,double w=0)=>Get(2100+id,r,0,w,make);
             var body=Shape(hull,()=>hull==1?Poly(P(1.05*r,0),P(-.8*r,-.27*r),P(-.56*r,0),P(-.8*r,.27*r)):
                 hull==2?Poly(P(.83*r,-.32*r),P(.83*r,.32*r),P(-.36*r,.72*r),P(-.83*r,.43*r),P(-.83*r,-.43*r),P(-.36*r,-.72*r)):
@@ -21,6 +21,14 @@ namespace EchoSphere.Presentation
                 hull==6?Poly(P(.55*r,-.5*r),P(.85*r,0),P(.55*r,.5*r),P(-.65*r,.72*r),P(-.83*r,0),P(-.65*r,-.72*r)):
                 Poly(P(.95*r,0),P(-.72*r,.62*r),P(-.36*r,0),P(-.72*r,-.62*r)),stroke);
             Paint(body,root,dark,color);
+            // Flat inset deck and separate armor modules make the hull legible
+            // at phone size without shaded extrusion or per-frame tessellation.
+            Paint(body,root*T(sx:.78,sy:.70),armor,A(color,.65));
+            var deck=Shape(25,()=>Poly(P(.56*r,-.10*r),P(.32*r,-.28*r),P(-.38*r,-.26*r),P(-.56*r,-.08*r),P(-.38*r,.26*r),P(.32*r,.28*r),P(.56*r,.10*r)),stroke*.6);
+            Paint(deck,root,RegionalInk(color,.25),A(trim,.65));
+            var hatch=Shape(26,()=>Poly(P(.12*r,-.10*r),P(-.12*r,-.10*r),P(-.18*r,0),P(-.12*r,.10*r),P(.12*r,.10*r),P(.18*r,0)),stroke*.55);
+            var seam=Shape(27,()=>Open(P(-.55*r,-.17*r),P(-.28*r,-.17*r),P(-.16*r,0),P(-.28*r,.17*r),P(-.55*r,.17*r)),stroke*.6);
+            Paint(hatch,root*T(-.24*r),RegionalInk(color,.62),trim);Paint(seam,root,null,A(color,.7));
             var spine=Shape(10,()=>Poly(P(.68*r,0),P(-.22*r,.12*r),P(-.43*r,0),P(-.22*r,-.12*r)),stroke*.7);
             Paint(spine,root,A(color,.22),C(220,250,255,.82));
             var wing=Shape(11,()=>Poly(P(.30*r,0),P(-.4*r,.5*r),P(-.8*r,.54*r),P(-.34*r,.14*r)),stroke);
@@ -33,15 +41,15 @@ namespace EchoSphere.Presentation
             double thrust=.28+.26*_gaitBlend+.10*Math.Sin(time*23+e.X*.02),spread=hull==1?.3:hull==2?.55:.65;
             for(int side=-1;side<=1;side+=2){
                 var part=root*T(0,side*r*spread,sx:1,sy:side);
-                Paint(wing,part*T(angle:.04*idle+attack*.10),dark,A(color,.78));
-                Paint(engine,part*T(x:attack*r*.07),dark,color);
+                Paint(wing,part*T(angle:.04*idle+attack*.10),armor,A(color,.78));
+                Paint(engine,part*T(x:attack*r*.07),RegionalInk(color,.30),color);
                 Paint(vane,part*T(-.45*r,r*.10,.12+.10*idle+attack*.20),dark,color);
                 for(int v=0;v<2;v++)Paint(vent,part*T(-.05*r-v*.18*r,0,idle*.08+attack*.22),null,A(color,.65));Paint(plume,part*T(-.68*r,0,sx:thrust),A(color,.50),null,additive:true);
                 var slit=Shape(14,()=>Straight(P(-.36*r,0),P(-.58*r,0)),stroke*1.5);Paint(slit,part,null,C(235,255,255,.85));
             }
             if(hull==2||e.Elite||e.Boss){
                 var plate=Shape(15,()=>Poly(P(.4*r,0),P(-.15*r,.14*r),P(-.52*r,0),P(-.15*r,-.14*r)),stroke);
-                for(int side=-1;side<=1;side+=2)Paint(plate,root*T(-.1*r,side*r*.42),dark,color);
+                for(int side=-1;side<=1;side+=2)Paint(plate,root*T(-.1*r,side*r*.42),armor,color);
             }
             if(hull==3){
                 var aerial=Shape(16,()=>Straight(P(-.2*r,0),P(.45*r,0)),stroke);
@@ -49,11 +57,11 @@ namespace EchoSphere.Presentation
             }
             if(hull==4||hull==6){
                 var pod=Shape(17,()=>Poly(P(.38*r,0),P(.1*r,.16*r),P(-.4*r,.16*r),P(-.5*r,0),P(-.4*r,-.16*r),P(.1*r,-.16*r)),stroke);
-                for(int side=-1;side<=1;side+=2)Paint(pod,root*T(-.1*r,side*r*.95),dark,color);
+                for(int side=-1;side<=1;side+=2)Paint(pod,root*T(-.1*r,side*r*.95),armor,color);
             }
             if(role=="ranged"||role=="shooter"||role=="sniper"){
                 var rail=Shape(19,()=>Poly(P(-.2*r,-.045*r),P(.95*r,-.045*r),P(1.1*r,0),P(.95*r,.045*r),P(-.2*r,.045*r)),stroke*.7);
-                for(int side=-1;side<=1;side+=2)Paint(rail,root*T((.05-attack*.20)*r,side*r*((role=="sniper"?.19:.38)+attack*.08)),dark,color);
+                for(int side=-1;side<=1;side+=2)Paint(rail,root*T((.05-attack*.20)*r,side*r*((role=="sniper"?.19:.38)+attack*.08)),armor,color);
             }
             if(role=="leech"||role=="scavenger"||role=="corruptor"){
                 var claw=Shape(20,()=>Poly(P(.1*r,0),P(.6*r,.12*r),P(.95*r,.38*r),P(.45*r,.25*r)),stroke);

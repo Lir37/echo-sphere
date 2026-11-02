@@ -856,35 +856,19 @@ assert.ok(menuRuntime.includes('SpawnEngineerRelayLightning(from, to, 0.28f)') &
   engineerRelayVfxSource.includes('Math.Min(26,len*.08)') && engineerRelayVfxSource.includes('.28*alpha') &&
   engineerRelayVfxSource.includes('.9*alpha'), 'active Engineer bolt must retain source wobble and alpha layers');
 
-// CI-only workflow guards. The Unity Editor/APK cloud build is intentionally
-// disabled; this workflow must keep validating contracts and project structure
-// without requiring Unity license secrets or invoking GameCI.
-const ciBuildPath = 'Assets/Editor/EchoSphereCiBuild.cs';
-const ciBuild = readFileSync(join(root, ciBuildPath), 'utf8');
-assert.ok(ciBuild.includes('BuildAndroidDevelopmentApk'), 'Unity Android build entry point should remain available for a future explicitly approved build');
-assert.ok(ciBuild.includes('EchoSphereProjectBootstrap.EnsureNativeScene()'), 'future Android build must register the authored native entry');
-assert.ok(ciBuild.includes('BuildPipeline.BuildPlayer') && ciBuild.includes('BuildTarget.Android'), 'future Android build entry point must use Unity BuildPipeline');
-
-const ciWorkflowPath = join(root, '..', '.github', 'workflows', 'unity-android-apk.yml');
-assert.ok(existsSync(ciWorkflowPath), 'Unity checks workflow is missing');
-const ciWorkflow = readFileSync(ciWorkflowPath, 'utf8');
-for (const token of [
-  'workflow_dispatch:',
-  'dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release',
-  'node scripts/check-unity-project.mjs',
-]) {
-  assert.ok(ciWorkflow.includes(token), `Unity CI-only workflow missing expected check: ${token}`);
+// Manual native APK builds were explicitly enabled by the user on 2026-11-02.
+// Ordinary push CI remains separate and cannot silently build the WebView app.
+const ciBuild = readFileSync(join(root, 'Assets/Editor/EchoSphereCiBuild.cs'), 'utf8');
+for (const token of ['BuildAndroidDevelopmentApk', 'BuildAndroidApk', 'BuildOptions.None', 'EchoSphereProjectBootstrap.EnsureNativeScene()', 'BuildPipeline.BuildPlayer', 'BuildTarget.Android']) {
+  assert.ok(ciBuild.includes(token), `Native Android build entry missing: ${token}`);
 }
-for (const forbidden of [
-  'game-ci/unity-builder@v4',
-  'UNITY_LICENSE',
-  'UNITY_EMAIL',
-  'UNITY_PASSWORD',
-  'echo-sphere-unity-debug-apk',
-]) {
-  assert.ok(!ciWorkflow.includes(forbidden), `APK build must remain disabled in the CI-only workflow: ${forbidden}`);
+const ciWorkflow = readFileSync(join(root, '..', '.github/workflows/unity-android-apk.yml'), 'utf8');
+for (const token of ['workflow_dispatch:', 'game-ci/unity-builder@v4', 'projectPath: UnityProject', 'unityVersion: auto', 'buildMethod: EchoSphereCiBuild.BuildAndroidApk', 'UNITY_LICENSE', 'if-no-files-found: error', 'ECHO-SPHERE.apk.sha256', 'dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release', 'node scripts/check-unity-project.mjs']) {
+  assert.ok(ciWorkflow.includes(token), `Native APK workflow missing: ${token}`);
 }
-
+for (const forbidden of ['npx cap', 'npm run build', 'assembleDebug', 'push:']) {
+  assert.ok(!ciWorkflow.includes(forbidden), `Manual Unity APK workflow contains unexpected path: ${forbidden}`);
+}
 
 // Source-mapped Level-Up Lock/Reroll and Oracle Forecast behavior.
 const levelUpChoiceRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/LevelUpChoiceRules.cs'), 'utf8');

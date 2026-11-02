@@ -1,0 +1,24 @@
+{
+  "result": "PASS",
+  "checks": 102,
+  "regions": "2-6",
+  "samples": 30,
+  "frames": 12,
+  "visualScale": 0.66666666666666663,
+  "retainedMeshes": 96,
+  "idleMovingDetailMeshes": [
+    5,
+    3,
+    3,
+    4,
+    4
+  ],
+  "attackMovingDetailMeshes": [
+    3,
+    3,
+    3,
+    4,
+    4
+  ],
+  "scope": "Actual Unity GPU geometry and rigid-detail transforms; model radii/AI untouched; no Android FPS claim"
+}
