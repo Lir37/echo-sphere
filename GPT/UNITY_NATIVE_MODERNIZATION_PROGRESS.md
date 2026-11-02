@@ -2685,3 +2685,8 @@ Node272/272 и preflight PASS; groundTruth Console0/0.
 с этим HUD и extraScriptingDefines ECHO_REGION_TEST_ACCESS. Флаг открывает
 6регионов только в этой сборке и не меняет сохранённые флаги прохождения.
 После сборки установить через adb install -r без очистки данных и проверить запуск.
+
+Локальный APK кодаe02fb82f теперь собран и установлен через adb install -r
+на Xiaomi11T; SHA256 установленного base.apk совпал, данные сохранены.
+Меню открыто, прежний забег1:51 виден. Все6регионов открыты только build-флагом.
+CI#964 SUCCESS. Отчёт: UNITY_ANDROID_LOCAL_HUD_2026-11-02.md.
