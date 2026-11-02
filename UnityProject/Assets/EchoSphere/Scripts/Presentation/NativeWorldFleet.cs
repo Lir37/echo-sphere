@@ -26,11 +26,17 @@ namespace EchoSphere.Presentation
             var wing=Shape(11,()=>Poly(P(.30*r,0),P(-.4*r,.5*r),P(-.8*r,.54*r),P(-.34*r,.14*r)),stroke);
             var engine=Shape(12,()=>Poly(P(-.35*r,-.10*r),P(-.65*r,-.12*r),P(-.72*r,.12*r),P(-.35*r,.10*r)),stroke);
             var plume=Shape(13,()=>Poly(P(0,-.085*r),P(-.75*r,0),P(0,.085*r)));
+            double attack=Clamp(e.AttackPose),idle=Math.Sin(time*3.2);
+            var vane=Shape(22,()=>Poly(P(-.10*r,0),P(-.36*r,-.10*r),P(-.56*r,0),P(-.36*r,.07*r)),stroke*.65);
+            var vent=Shape(23,()=>Straight(P(-.12*r,-.07*r),P(.12*r,.07*r)),stroke*.7);
+            var sensor=Shape(24,()=>Poly(P(.15*r,0),P(0,-.10*r),P(-.15*r,0),P(0,.10*r)),stroke*.6);
             double thrust=.28+.26*_gaitBlend+.10*Math.Sin(time*23+e.X*.02),spread=hull==1?.3:hull==2?.55:.65;
             for(int side=-1;side<=1;side+=2){
                 var part=root*T(0,side*r*spread,sx:1,sy:side);
-                Paint(wing,part*T(angle:.025*Math.Sin(time*2)),dark,A(color,.78));
-                Paint(engine,part,dark,color);Paint(plume,part*T(-.68*r,0,sx:thrust),A(color,.50),null,additive:true);
+                Paint(wing,part*T(angle:.04*idle+attack*.10),dark,A(color,.78));
+                Paint(engine,part*T(x:attack*r*.07),dark,color);
+                Paint(vane,part*T(-.45*r,r*.10,.12+.10*idle+attack*.20),dark,color);
+                for(int v=0;v<2;v++)Paint(vent,part*T(-.05*r-v*.18*r,0,idle*.08+attack*.22),null,A(color,.65));Paint(plume,part*T(-.68*r,0,sx:thrust),A(color,.50),null,additive:true);
                 var slit=Shape(14,()=>Straight(P(-.36*r,0),P(-.58*r,0)),stroke*1.5);Paint(slit,part,null,C(235,255,255,.85));
             }
             if(hull==2||e.Elite||e.Boss){
@@ -47,16 +53,17 @@ namespace EchoSphere.Presentation
             }
             if(role=="ranged"||role=="shooter"||role=="sniper"){
                 var rail=Shape(19,()=>Poly(P(-.2*r,-.045*r),P(.95*r,-.045*r),P(1.1*r,0),P(.95*r,.045*r),P(-.2*r,.045*r)),stroke*.7);
-                for(int side=-1;side<=1;side+=2)Paint(rail,root*T(.05*r,side*r*(role=="sniper"?.19:.38)),dark,color);
+                for(int side=-1;side<=1;side+=2)Paint(rail,root*T((.05-attack*.20)*r,side*r*((role=="sniper"?.19:.38)+attack*.08)),dark,color);
             }
             if(role=="leech"||role=="scavenger"||role=="corruptor"){
                 var claw=Shape(20,()=>Poly(P(.1*r,0),P(.6*r,.12*r),P(.95*r,.38*r),P(.45*r,.25*r)),stroke);
-                for(int side=-1;side<=1;side+=2)Paint(claw,root*T(.1*r,side*r*.28,sy:side),dark,color);
+                for(int side=-1;side<=1;side+=2)Paint(claw,root*T(.1*r,side*r*.28,angle:side*(.06*idle-attack*.30),sy:side),dark,color);
             }
             if(role=="anchor"){
                 var outrigger=Shape(21,()=>Poly(P(-.18*r,0),P(.18*r,0),P(.26*r,.25*r),P(0,.4*r),P(-.26*r,.25*r)),stroke);
                 for(int side=-1;side<=1;side+=2)Paint(outrigger,root*T(-.1*r,side*r*.85,sy:side),dark,color);
             }
+            Paint(sensor,root*T(.30*r,0,angle:Math.Sin(time*2.2)*.16),A(color,.20),C(225,250,255,.85));
             if(e.Boss){
                 var bridge=Shape(18,()=>Poly(P(.15*r,-.25*r),P(.5*r,0),P(.15*r,.25*r),P(-.3*r,.25*r),P(-.45*r,0),P(-.3*r,-.25*r)),stroke);
                 Paint(bridge,root,A(color,.13),C(225,250,255,.9));
