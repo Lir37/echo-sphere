@@ -1,3 +1,4 @@
+#if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -116,3 +117,5 @@ namespace EchoSphere.Presentation
         public void Dispose(){ReleaseTargets();foreach(var mesh in _meshes)UnityEngine.Object.Destroy(mesh);UnityEngine.Object.Destroy(_material);_commands.Dispose();}
     }
 }
+
+#endif

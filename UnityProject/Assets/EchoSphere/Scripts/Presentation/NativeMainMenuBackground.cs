@@ -5,14 +5,17 @@ using UnityEngine.UIElements;
 
 namespace EchoSphere.Presentation
 {
-    // Owned static native GPU layer. Repaints only for a logical viewport/DPR
-    // change. No DOM/CSS interpretation, CPU rasterizer or frame update loop.
+    // Owned native GPU layer. Static backgrounds repaint for viewport/DPR;
+    // artwork can animate into the same target without reallocating it.
+    // No DOM/CSS interpretation, CPU rasterizer or internal frame update loop.
     // The owner calls SetViewport before UI rendering, never from paint/filter callbacks.
     public sealed class NativeMainMenuBackground : IDisposable
     {
         private static readonly ProfilerMarker PaintMarker=new ProfilerMarker("EchoSphere.NativeMenu.BackgroundPaint");
         private static readonly int SizeId=Shader.PropertyToID("_LogicalSize");
         private static readonly int BackingId=Shader.PropertyToID("_BackingSize");
+        private static readonly int AnimationId=Shader.PropertyToID("_AnimationTime");
+        private static readonly ProfilerMarker AnimationMarker=new ProfilerMarker("EchoSphere.NativeMenu.CoreAnimation");
         private readonly Image _image;
         private readonly Material _material;
         private RenderTexture _target;
@@ -52,10 +55,23 @@ namespace EchoSphere.Presentation
             _image.style.width=pixelsX/dpr;_image.style.height=pixelsY/dpr;
             _material.SetVector(SizeId,new Vector4(width,height,pixelsX/dpr,pixelsY/dpr));
             _material.SetVector(BackingId,new Vector4(pixelsX,pixelsY,dpr,0));
+            Paint();_width=width;_height=height;_dpr=dpr;PaintCount++;
+        }
+        // Animated artwork reuses its owned target. The structural paint count
+        // stays stable so unrelated glass surfaces are not rebuilt each frame.
+        internal void Animate(float time)
+        {
+            if(_disposed)throw new ObjectDisposedException(nameof(NativeMainMenuBackground));
+            if(_target==null)return;
+            using var sample=AnimationMarker.Auto();
+            _material.SetFloat(AnimationId,time);Paint();
+        }
+        private void Paint()
+        {
             var previous=RenderTexture.active;var gamma=GL.sRGBWrite;
             try{GL.sRGBWrite=false;Graphics.Blit(Texture2D.whiteTexture,_target,_material);}
             finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
-            _image.MarkDirtyRepaint();_width=width;_height=height;_dpr=dpr;PaintCount++;
+            _image.MarkDirtyRepaint();
         }
         private void ReleaseTarget()
         {if(_target!=null){_image.image=null;_target.Release();DestroyOwned(_target);_target=null;}}

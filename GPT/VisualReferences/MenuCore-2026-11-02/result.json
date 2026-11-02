@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "actions": 0,
+  "results": [
+    {
+      "width": 540,
+      "height": 960,
+      "core": "(x:165.00, y:229.00, width:210.00, height:210.00)",
+      "corePaints": 1,
+      "compositionPrepares": 2,
+      "animationFrames": 268,
+      "cachedPrepares": 120,
+      "recordedFrames": 60
+    },
+    {
+      "width": 960,
+      "height": 540,
+      "core": "(x:403.00, y:103.00, width:155.00, height:155.00)",
+      "corePaints": 1,
+      "compositionPrepares": 2,
+      "animationFrames": 7,
+      "cachedPrepares": 120,
+      "recordedFrames": 0
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "scope": "Actual Unity 6000.6.1f1 UI Toolkit offscreen menu renders; GIF encodes 60 unmodified GPU-readback crops at 15 fps. This is a preview of native code, not AI artwork or Android performance acceptance.",
+  "files": {
+    "core-animation.gif": "ff49dc94e4bd94419c734f6b4241e8cff72ddfab2e3a2c850485718c3fb7f94d",
+    "landscape.png": "868810f97e6245ca6fd8b203d6b1d9f1bee9d1a95f177f75b5bd176d9b894a13",
+    "portrait.png": "e51dd6e8f638fe0e48036a68314b35411288054249168d742881d31e60c12807",
+    "result.json": "ac4a483dd9b71eb30ed245b994fbf78bc7aca87c21799344b93e849c2dec3ac8"
+  }
+}
