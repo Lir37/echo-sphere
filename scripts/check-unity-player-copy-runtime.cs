@@ -10,8 +10,16 @@ public static class PlayerCopyRuntimeCheck {
    try{
     var go=new GameObject("Player copy fixture");go.SetActive(false);var runtime=go.AddComponent<EchoSphereRuntime>();runtime.enabled=false;go.SetActive(true);
     Call(runtime,"CreatePlayer");Call(runtime,"CreateSpheres");Call(runtime,"RefreshNetworkState");
+    var surfaceType=R.Assembly.GetType("EchoSphere.Presentation.NativeWorldSurface",true);
+    Set(runtime,"_worldSurface",go.AddComponent(surfaceType));
     foreach(bool ru in new[]{true,false}){
      prefs.GetMethod("SetString",F).Invoke(null,new object[]{"echosphere_lang",ru?"ru":"en"});
+     string banner="Move closer to the Sphere formation first.";
+     Call(runtime,"PrepareNativeFrameBanner",banner,260d,12d);
+     string cached=(string)R.GetField("_nativeBannerMessage",F).GetValue(runtime);
+     if(cached!=EchoSphere.Presentation.NativeLocalizationCatalog.Instance.CanvasText(banner,ru))throw new Exception("Banner wrapped before localization");
+     var lines=(IEnumerable<string>)R.GetField("_nativeBannerLines",F).GetValue(runtime);
+     if(ru&&lines.Any(line=>System.Text.RegularExpressions.Regex.IsMatch(line,"[a-zA-Z]")))throw new Exception("Untranslated wrapped banner");
      foreach(string method in new[]{"ReadNativeMainMenuState","ReadNativeCharacterState","ReadNativePauseStatsState","ReadNativePauseAbilitiesState","ReadNativePauseArtifactsState","ReadNativePauseSynergiesState","ReadNativePauseChromeState"}){
       var m=R.GetMethods(F).Single(x=>x.Name==method&&x.GetParameters().Length==0);states.Add(new{language=ru?"ru":"en",screen=method,state=m.Invoke(runtime,null)});
      }

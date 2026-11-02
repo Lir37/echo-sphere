@@ -90,10 +90,12 @@ namespace EchoSphere.Runtime
             _worldSurface.Save();double fontSize=Math.Max(10,Math.Min(12,w*.032));PrepareNativeFrameBanner(frame.Message,w,fontSize);var lines=_nativeBannerLines;
             double gap=fontSize+2,boxHeight=_nativeBannerBoxHeight,boxWidth=_nativeBannerBoxWidth,bannerY=Math.Max(142,Math.Min(h*.205,178)),top=bannerY-boxHeight+3;
             _worldSurface.SetOpacity(Math.Min(1,Math.Max(0,frame.MessageLife/.82)));_nativeWorldFeedback.Rectangle(w/2-boxWidth/2,top,boxWidth,boxHeight,0,NativeMutationColor("rgba(2,7,13,.92)"));_nativeWorldFeedback.Rectangle(w/2-boxWidth/2,top,boxWidth,boxHeight,1,NativeMutationColor(frame.Color));
-            for(int i=0;i<lines.Count;i++)_nativeWorldFeedback.Text(NativeCharacterCanvasText(lines[i]),w/2,top+12+i*gap,NativeMutationColor(frame.Color),(float)fontSize);_worldSurface.Restore();
+            for(int i=0;i<lines.Count;i++)_nativeWorldFeedback.Text(lines[i],w/2,top+12+i*gap,NativeMutationColor(frame.Color),(float)fontSize);_worldSurface.Restore();
         }
         private void PrepareNativeFrameBanner(string message,double width,double fontSize)
         {
+            // Translate the complete message before measuring and wrapping it.
+            message=NativeCharacterCanvasText(message);
             if(message==_nativeBannerMessage&&width==_nativeBannerWidth&&fontSize==_nativeBannerFontSize)return;
             var lines=_nativeBannerLines;lines.Clear();double maxWidth=Math.Min(width-44,224);string current="";
             foreach(string word in Regex.Split(message,@"\s+")){string next=current.Length>0?current+" "+word:word;if(_nativeWorldFeedback.Measure(next,(float)fontSize)<=maxWidth||current.Length==0)current=next;else{lines.Add(current);current=word;}}if(current.Length>0)lines.Add(current);
