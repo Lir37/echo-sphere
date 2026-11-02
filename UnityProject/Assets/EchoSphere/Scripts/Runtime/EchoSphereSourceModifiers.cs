@@ -32,6 +32,7 @@ namespace EchoSphere.Runtime
             damage *= Mathf.Max(.25f, 1f + GetRunArtifactEffectTotal("sphereDamage"));
             damage *= GetArtifactSphereDamageMultiplier(sphere) * GetArtifactSphereSynergyDamageMultiplier(sphere) * modifiers.damage * GetSphereCopyOutputMultiplier(sphere);
             if(_runEconomy!=null&&_timeSplitterBuffTimer>0f&&_ownedArtifacts.Contains("time_splitter"))damage*=1.15f;
+            if (UsesCampaignCombat) damage *= CampaignCombatTuningRules.SphereDamageMultiplier(type, sphere.ProgressionLevel);
             return damage * SphereCombatRules.GetProfile(type).DamageMultiplier;
         }
         public SourceSphereModifiers GetSourceSphereModifiers(SphereId type, int level = -1)

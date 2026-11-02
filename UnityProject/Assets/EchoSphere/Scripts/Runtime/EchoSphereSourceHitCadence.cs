@@ -12,6 +12,7 @@ namespace EchoSphere.Runtime
     }
     public sealed partial class EchoSphereRuntime
     {
+        private bool _sourceTrianglePulseActive;
         public float GetSourceCharacterDamageMultiplier(SphereAttackAgent owner) => GetCharacterGlobalSphereDamageMultiplier() + GetCharacterNetworkDamageMultiplier(owner) - 1f;
         public float GetSourceTimeStopHitMultiplier() => _timeStopTimer > 0f && GetAbilityBranch(RunUpgradeKind.TimeStop) == "timestop_echo_phase" ? 1.18f : 1f;
         public void ApplySourceTimeStopFreeze(EnemyAgent2D enemy)
@@ -40,15 +41,24 @@ namespace EchoSphere.Runtime
         public void ApplySourceAfterHitGeometry(SphereAttackAgent owner, EnemyAgent2D target, float damage)
         {
             var triangle = GetFormationBonus(SphereNetworkFormation.Triangle, GetSphereIndex(owner));
-            if (triangle > 0f)
+            // A campaign Triangle pulse is a secondary hit, not another source
+            // of Triangle pulses. Dense living targets otherwise branch forever
+            // even after the recursively multiplied damage underflows to zero.
+            if (triangle > 0f && (!UsesCampaignCombat || !_sourceTrianglePulseActive))
             {
                 var grid = ArtifactSetRules.HasCompletedResonanceGrid(ArtifactSynergyRules.HasFortressNetworkSynergy(_ownedArtifacts), ArtifactSynergyRules.HasPerfectNetworkSynergy(_ownedArtifacts));
                 if (owner.CountSourceTriangleHit() % (grid ? 2 : 3) == 0)
                 {
                     owner.TriggerResonancePulse(.45f);
-                    foreach (var enemy in _enemies)
-                        if (enemy != null && enemy != target && enemy.IsAlive && Vector2.Distance(enemy.transform.position, target.transform.position) <= 88f * SpherePlacementRules.SourcePixelsToWorld)
-                            enemy.ReceiveSphereDamage(owner.Type, damage * .35f * triangle, false, false, owner);
+                    var previousPulse = _sourceTrianglePulseActive;
+                    _sourceTrianglePulseActive = true;
+                    try
+                    {
+                        foreach (var enemy in _enemies)
+                            if (enemy != null && enemy != target && enemy.IsAlive && Vector2.Distance(enemy.transform.position, target.transform.position) <= 88f * SpherePlacementRules.SourcePixelsToWorld)
+                                enemy.ReceiveSphereDamage(owner.Type, damage * .35f * triangle, false, false, owner);
+                    }
+                    finally { _sourceTrianglePulseActive = previousPulse; }
                     SpawnCombatArc(owner.transform.position, target.transform.position, owner.Type, GetSphereBranch(owner.Type), GetSphereFinal(owner.Type), SphereColor(owner.Type), .24f);
                     AddSourceScreenShake(.025f, .16f);
                 }

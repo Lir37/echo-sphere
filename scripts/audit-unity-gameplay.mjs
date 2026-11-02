@@ -15,7 +15,8 @@ const evidence=JSON.parse(await fs.readFile(path.join(root,'GPT/VisualReferences
 if(evidence.result!=='PASS'||evidence.checks!==95)throw new Error('Artifact consumer evidence is not passing');
 const reviewedIds=evidence.reviewed;
 const specialReview=JSON.parse(await fs.readFile(path.join(root,'GPT/UNITY_SPECIAL_ARTIFACT_REVIEW_2026-11-01.json'),'utf8'));
-for(const [file,expected] of Object.entries(specialReview.fileSha256)){const actual=crypto.createHash('sha256').update(await fs.readFile(path.join(root,file))).digest('hex');if(actual!==expected)throw new Error('Special artifact source review stale: '+file);}
+if(specialReview.fileHashFormat!=='sha256-utf8-lf-v1')throw new Error('Unsupported special artifact source hash format');
+for(const [file,expected] of Object.entries(specialReview.fileSha256)){const source=(await fs.readFile(path.join(root,file),'utf8')).replace(/\r\n/g,'\n');const actual=crypto.createHash('sha256').update(source,'utf8').digest('hex');if(actual!==expected)throw new Error('Special artifact source review stale: '+file);}
 const specialIds=specialReview.reviewed.map(row=>row.id);
 const definitions=rules.split(/\r?\n/).filter(line=>line.includes('new ArtifactRewardDefinition('));
 const artifacts=definitions.map(line=>{

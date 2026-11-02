@@ -99,8 +99,12 @@ namespace EchoSphere.Runtime
                     {
                         var target = guided != null && i < guided.Count ? guided[i] : null;
                         var angle = target != null ? Mathf.Atan2(target.transform.position.y - center.y, target.transform.position.x - center.x) : -i * Mathf.PI * 2f / count - _runtime.SourceCombatRandom() * .18f;
-                        _runtime.SpawnProjectile(center, new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)), actual * (mode == 1 ? .22f : mode == 2 ? .19f : .16f),
+                        var shard = _runtime.SpawnProjectile(center, new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)), actual * (mode == 1 ? .22f : mode == 2 ? .19f : .16f),
                             new Color32(240, 179, 90, 255), 300f * unit, mode == 2 ? 1 : 0, 0f, this, 0, .45f, false, false, false, 5f);
+                        // Campaign balance: scatter from the struck target rather
+                        // than immediately landing the whole fragment burst on it.
+                        // Keep the legacy source behavior and all RNG draws intact.
+                        if (_runtime.UsesCampaignCombat) shard.IgnoreEnemy(enemy);
                     }
                     var radius = mode == 1 ? 65f : mode < 0 ? _progressionLevel >= 6 ? 60f : _progressionLevel >= 5 ? 52f : 45f : 45f;
                     foreach (var other in _runtime.SourceRadarEnemies)
