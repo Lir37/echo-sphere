@@ -20,11 +20,16 @@ namespace EchoSphere.Presentation
         }
         private sealed class Art : IDisposable
         {
-            internal Mesh Mesh;internal readonly BezierContour[] Paths=new BezierContour[1];
-            public void Dispose(){if(Mesh!=null)UnityEngine.Object.Destroy(Mesh);}
+            internal readonly List<Vector3> Vertices=new List<Vector3>(128);internal readonly List<int> Indices=new List<int>(384);
+            internal Mesh Mesh,RibbonMesh;internal readonly BezierContour[] Paths=new BezierContour[1];
+            public void Dispose(){if(Mesh!=null)UnityEngine.Object.Destroy(Mesh);if(RibbonMesh!=null)UnityEngine.Object.Destroy(RibbonMesh);}
         }
         private readonly Material _material=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native sphere network",hideFlags=HideFlags.DontSave};
         private readonly List<Art> _art=new List<Art>();private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();
+        private readonly Vector2[] _wavePoints=new Vector2[25];
+#if UNITY_EDITOR
+        internal bool UseVectorNetworkForValidation;
+#endif
         private int _artUsed,_propertyUsed;private NativeWorldSurface _surface;
         internal void BeginFrame(){_artUsed=0;_propertyUsed=0;}
         private void Begin(NativeWorldSurface s){_surface=s;}
@@ -57,15 +62,27 @@ namespace EchoSphere.Presentation
             double dx=to.X-from.X,dy=to.Y-from.Y,len=Math.Sqrt(dx*dx+dy*dy);if(len==0)len=1;
             double nx=-dy/len,ny=dx/len,amp=Math.Min(6.2,2.2+len*.008),phase=time*(active?1.9:1.35)+seed;
             Node At(double p){double q=Math.Max(0,Math.Min(1,p)),wave=Math.Sin(phase+q*Math.PI*4.2)*amp*Math.Sin(Math.PI*q);return new Node {X=from.X+dx*q+nx*wave,Y=from.Y+dy*q+ny*wave};}
-            var points=new Vector2[25];for(int i=0;i<=24;i++){var n=At(i/24.0);points[i]=P(n.X,n.Y);}var path=PolylineContour(false,points);
-            Paint(path,active?5.8:3.6,color,alpha*(active?.22:.12),Matrix4x4.identity,round:true);
-            Paint(path,active?2.55:1.95,color,alpha*(active?.82:.64),Matrix4x4.identity,round:true);
-            Paint(path,active?.92:.70,color,alpha*(active?.72:.58),Matrix4x4.identity,round:true);
+            var points=_wavePoints;for(int i=0;i<=24;i++){var n=At(i/24.0);points[i]=P(n.X,n.Y);}
+            Ribbon(points,active?5.8:3.6,color,alpha*(active?.22:.12));
+            Ribbon(points,active?2.55:1.95,color,alpha*(active?.82:.64));
+            Ribbon(points,active?.92:.70,color,alpha*(active?.72:.58));
             for(int packet=0;packet<3;packet++){
                 double raw=((time*(active?.34:.27)+seed*.027+packet/3.0)%1+1)%1,p=packet%2==0?raw:1-raw;var head=At(p);var tail=At(Math.Max(0,p-(active?.075:.06)));var root=T(head.X,head.Y,angle:Math.Atan2(head.Y-tail.Y,head.X-tail.X));
                 Paint(PolylineContour(true,P(7.5,0),P(-2,-3),P(-5.2,0),P(-2,3)),0,C(248,255,255),(active?.86:.62)*alpha,root);
                 Paint(PolylineContour(true,P(-1.5,0),P(-10.5,-1.7),P(-15,0),P(-10.5,1.7)),0,color,(active?.48:.34)*alpha,root);
             }
+        }
+        private void Ribbon(Vector2[] points,double width,Color color,double alpha){
+#if UNITY_EDITOR
+            if(UseVectorNetworkForValidation){Paint(PolylineContour(false,points),width,color,alpha,Matrix4x4.identity,round:true);return;}
+#endif
+            if(_artUsed==_art.Count)_art.Add(new Art());var art=_art[_artUsed++];var v=art.Vertices;var ids=art.Indices;v.Clear();ids.Clear();float half=(float)width*.5f;
+            for(int i=0;i<points.Length;i++){var before=(points[i]-points[Math.Max(0,i-1)]).normalized;var after=(points[Math.Min(points.Length-1,i+1)]-points[i]).normalized;if(i==0)before=after;if(i==points.Length-1)after=before;var n0=new Vector2(-before.y,before.x);var n1=new Vector2(-after.y,after.x);var join=(n0+n1).normalized;float denom=Vector2.Dot(join,n1);var offset=join*(half/Mathf.Max(.1f,denom));v.Add(points[i]+offset);v.Add(points[i]-offset);if(i>0){int k=i*2;ids.Add(k-2);ids.Add(k-1);ids.Add(k);ids.Add(k);ids.Add(k-1);ids.Add(k+1);}}
+            // Smooth sine links have tiny bend angles: joined strips preserve
+            // width without overlapping alpha. Exact round end caps stay visible.
+            for(int end=0;end<2;end++){int ix=end==0?0:points.Length-1;var direction=(points[ix]-points[end==0?1:ix-1]).normalized;float angle=Mathf.Atan2(direction.y,direction.x)-Mathf.PI*.5f;int center=v.Count;v.Add(points[ix]);for(int j=0;j<=32;j++){float q=angle+j*Mathf.PI/32;v.Add(points[ix]+new Vector2(Mathf.Cos(q),Mathf.Sin(q))*half);if(j>0){ids.Add(center);ids.Add(center+j);ids.Add(center+j+1);}}}
+            if(art.RibbonMesh==null){art.RibbonMesh=new Mesh{name="Retained sphere network ribbon"};art.RibbonMesh.MarkDynamic();}art.RibbonMesh.Clear();art.RibbonMesh.SetVertices(v);art.RibbonMesh.SetTriangles(ids,0);art.RibbonMesh.RecalculateBounds();
+            if(_propertyUsed==_properties.Count)_properties.Add(new MaterialPropertyBlock());var props=_properties[_propertyUsed++];props.SetVector("_NativeColor",new Vector4(color.r,color.g,color.b,color.a));_surface.DrawNativeMesh(art.RibbonMesh,_material,props,Matrix4x4.identity,inheritBlend:true,opacity:(float)alpha,inheritShadow:true);
         }
         private static bool Has(Formation f,int index)=>f!=null&&Array.IndexOf(f.Nodes,index)>=0;
         private static Node Center(Formation f,Node[] nodes){double x=0,y=0;foreach(int i in f.Nodes){x+=nodes[i].X;y+=nodes[i].Y;}return new Node {X=x/f.Nodes.Length,Y=y/f.Nodes.Length};}

@@ -22,3 +22,10 @@ Validation:
 - adb install -r: Success. Device profile freshly backed up privately before interaction. New APK gameplay/performance acceptance pending screen unlock. No FPS claim for this correction yet.
 
 Remaining: confirm fleet shooting and traps in natural phone combat; measure sphere-placement cost in matched scene; confirm removal of requested glow and pause/HUD re-entry. Do not replace future player progress using an older profile backup.
+
+## Follow-up — network cost confirmed after device check
+The first Release correction still measured 27.599 FPS in a short region-one combat sample with five placed spheres (7.826 s, p95 49.722 ms, p99 65.318 ms). This is not a final performance pass.
+
+Code inspection found three complete VectorGraphics tessellations of each 25-point animated network link per frame. The sine, 25 samples, three stroke widths, colors, opacity and travelling packets remain unchanged. Retained dynamic ribbons now update vertices directly, with joined nonoverlapping strips and 32-step round end caps. Generic formation contours retain their existing renderer. Ribbon and generic vector meshes have separate ownership to avoid stale tessellation-cache inputs.
+
+Actual Editor comparison of six animated active/inactive link states: worst full-image RGB mean difference 0.000428/255. Warm 200-call CPU sample per link, same Editor fixture: 3.497986 ms vector versus 0.043893 ms ribbon. These are Editor submission costs, not phone frame times. New Release build/device validation follows.
