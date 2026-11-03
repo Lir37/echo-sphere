@@ -16,19 +16,23 @@ namespace EchoSphere.Presentation
         }
         private sealed class Art : IDisposable
         {
-            internal Mesh Fill,Stroke;internal BezierContour[] Paths;
+            internal Mesh Fill,Stroke;internal BezierContour[] Paths;internal List<Vector3> SweepVertices;internal List<int> SweepIndices;
             internal void Build(BezierContour[] paths,float width,bool fill,PathEnding cap,PathCorner corner,float miter,float[] dash=null,float offset=0)
             {Paths=paths;if(fill)Fill=Tessellate(paths[0],0,Fill,contours:paths);if(width>0)Stroke=Tessellate(paths[0],width,Stroke,cap:cap,corners:corner,miter:miter,contours:paths,dash:dash,dashOffset:offset);}
             public void Dispose(){Destroy(Fill);Destroy(Stroke);}
         }
         private readonly Dictionary<(int,double,double,double,PathEnding,PathCorner,float),Art> _art=new Dictionary<(int,double,double,double,PathEnding,PathCorner,float),Art>();
         private readonly Dictionary<Color,Matrix4x4> _glowSpaces=new Dictionary<Color,Matrix4x4>();
+        private readonly List<Art> _sweeps=new List<Art>();private int _sweepUsed;private readonly Vector2[] _sweepPoints=new Vector2[43];
+#if UNITY_EDITOR
+        internal bool UseVectorAuraForValidation=false;
+#endif
         private readonly List<Art> _dynamic=new List<Art>();private int _dynamicUsed,_used;
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();
         private readonly Material _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native sphere family art",hideFlags=HideFlags.DontSave};
         private readonly Material _glow=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldFamilyGlow")){name="Native sphere family glow",hideFlags=HideFlags.DontSave};
         private NativeWorldSurface _surface;
-        internal void BeginFrame(){_used=0;_dynamicUsed=0;_ownedOrbitalWeapons?.BeginFrame();}
+        internal void BeginFrame(){_used=0;_dynamicUsed=0;_sweepUsed=0;_ownedOrbitalWeapons?.BeginFrame();}
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Matrix4x4 T(double x=0,double y=0,double angle=0,double scale=1)=>Matrix4x4.TRS(new Vector3((float)x,(float)y,0),Quaternion.Euler(0,0,(float)angle*Mathf.Rad2Deg),new Vector3((float)scale,(float)scale,1));
         private static Color C(int r,int g,int b,double a=1)=>new Color(r/255f,g/255f,b/255f,(float)a);
@@ -55,6 +59,13 @@ namespace EchoSphere.Presentation
         {if(!disabled)return;_surface=surface;var art=Get(1,radius,0,1.7,()=>new[]{EllipseContour(Vector2.zero,(float)(radius*1.18),(float)(radius*1.18),Mathf.PI*.20f,Mathf.PI*.80f)});Paint(art,parent??Matrix4x4.identity,null,color,.42,inheritBlend:true);}
         private static BezierContour Trace(double rx,double ry,double start,double end,double wobble=0)
         {var points=new Vector2[43];for(int i=0;i<=42;i++){double a=start+(end-start)*i/42,n=wobble!=0?Math.Sin(a*7+.35)*wobble:0;points[i]=P(Math.Cos(a)*(rx+n),Math.Sin(a)*(ry+n*.34));}return PolylineContour(false,points);}
+        private Art Sweep(double rx,double ry,double start,double end,double width){
+            var points=_sweepPoints;for(int i=0;i<points.Length;i++){double angle=start+(end-start)*i/(points.Length-1);points[i]=P(Math.Cos(angle)*rx,Math.Sin(angle)*ry);}
+            if(_sweepUsed==_sweeps.Count){var mesh=new Mesh{name="Retained aura sweep"};mesh.MarkDynamic();_sweeps.Add(new Art{Stroke=mesh,SweepVertices=new List<Vector3>(160),SweepIndices=new List<int>(480)});}var art=_sweeps[_sweepUsed++];var v=art.SweepVertices;var ids=art.SweepIndices;v.Clear();ids.Clear();float half=(float)width*.5f;
+            for(int i=0;i<points.Length;i++){var before=(points[i]-points[Math.Max(0,i-1)]).normalized;var after=(points[Math.Min(points.Length-1,i+1)]-points[i]).normalized;if(i==0)before=after;if(i==points.Length-1)after=before;var n0=new Vector2(-before.y,before.x);var n1=new Vector2(-after.y,after.x);var join=(n0+n1).normalized;var offset=join*(half/Mathf.Max(.1f,Vector2.Dot(join,n1)));v.Add(points[i]+offset);v.Add(points[i]-offset);if(i>0){int k=i*2;ids.Add(k-2);ids.Add(k-1);ids.Add(k);ids.Add(k);ids.Add(k-1);ids.Add(k+1);}}
+            for(int cap=0;cap<2;cap++){int i=cap==0?0:points.Length-1;var direction=(points[i]-points[cap==0?1:i-1]).normalized;float angle=Mathf.Atan2(direction.y,direction.x)-Mathf.PI*.5f;int center=v.Count;v.Add(points[i]);for(int j=0;j<=32;j++){float q=angle+j*Mathf.PI/32;v.Add(points[i]+new Vector2(Mathf.Cos(q),Mathf.Sin(q))*half);if(j>0){ids.Add(center);ids.Add(center+j);ids.Add(center+j+1);}}}
+            art.Stroke.Clear();art.Stroke.SetVertices(v);art.Stroke.SetTriangles(ids,0);art.Stroke.RecalculateBounds();return art;
+        }
         internal void DrawOrbit(NativeWorldSurface surface,double radius,Color color,double rotation,double opacity,string mode,double pulse,Matrix4x4? parent=null,bool lightningAdditive=false)
         {
             _surface=surface;double rx=radius*1.16,ry=radius*.34;var root=(parent??Matrix4x4.identity)*T(angle:rotation);bool lightning=mode=="lightning";
@@ -70,7 +81,11 @@ namespace EchoSphere.Presentation
             switch(mode){
                 case "sniper":for(int i=0;i<5;i++){double a=-.56+i*.28,x=Math.Cos(a)*rx,y=Math.Sin(a)*ry,nx=Math.Cos(a),ny=Math.Sin(a);Stroke(Get(30+i,radius,0,Math.Max(.6,radius*.020),()=>new[]{Line(x-nx*radius*.045,y-ny*radius*.045,x+nx*radius*.075,y+ny*radius*.075)},cap:PathEnding.Round),opacity*.68);}break;
                 case "shotgun":for(int i=0;i<3;i++){double a=-.44+i*.44;var p=P(Math.Cos(a)*rx,Math.Sin(a)*ry);Stroke(Get(40+i,radius,0,Math.Max(.7,radius*.024),()=>new[]{EllipseContour(p,(float)(radius*.065),(float)(radius*.065))},cap:PathEnding.Round),opacity*.72);}break;
-                case "aura":for(int i=0;i<6;i++){double a=i*Math.PI/3+pulse*.10;Stroke(Dynamic(new[]{Trace(rx*.96,ry*.96,a-.26,a+.26)},Math.Max(.6,radius*.018),cap:PathEnding.Round),opacity*.64);}break;
+                case "aura":for(int i=0;i<6;i++){double a=i*Math.PI/3+pulse*.10;
+#if UNITY_EDITOR
+                    if(UseVectorAuraForValidation){Stroke(Dynamic(new[]{Trace(rx*.96,ry*.96,a-.26,a+.26)},Math.Max(.6,radius*.018),cap:PathEnding.Round),opacity*.64);continue;}
+#endif
+                    Stroke(Sweep(rx*.96,ry*.96,a-.26,a+.26,Math.Max(.6,radius*.018)),opacity*.64);}break;
                 case "prism":Stroke(Dynamic(new[]{Trace(rx*1.01,ry*1.02,.08,Math.PI*1.95)},Math.Max(.75,radius*.024),cap:PathEnding.Round,dash:new[]{(float)(radius*.15),(float)(radius*.07)}),opacity*.74);break;
                 case "gravity":Stroke(Get(50,radius,0,Math.Max(.7,radius*.026),()=>new[]{Trace(rx*.88,ry*.78,.25,Math.PI*1.78)},cap:PathEnding.Round),opacity*.56);Stroke(Get(51,radius,0,Math.Max(.7,radius*.026),()=>new[]{Trace(rx*1.05,ry*.86,Math.PI*1.08,Math.PI*2.64)},cap:PathEnding.Round),opacity*.56);break;
                 case "orbital":Stroke(Get(52,radius,0,Math.Max(.65,radius*.022),()=>new[]{Trace(rx*.92,ry*.84,Math.PI*.12,Math.PI*1.86)},cap:PathEnding.Round),opacity*.52);break;
@@ -78,6 +93,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){_ownedOrbitalWeapons?.Dispose();_ownedOrbitalWeapons=null;foreach(var art in _art.Values)art.Dispose();foreach(var art in _dynamic)art.Dispose();_art.Clear();_dynamic.Clear();_glowSpaces.Clear();Destroy(_solid);Destroy(_glow);Destroy(_mutationGlow);}
+        public void Dispose(){_ownedOrbitalWeapons?.Dispose();_ownedOrbitalWeapons=null;foreach(var art in _art.Values)art.Dispose();foreach(var art in _dynamic)art.Dispose();foreach(var art in _sweeps)art.Dispose();_sweeps.Clear();_art.Clear();_dynamic.Clear();_glowSpaces.Clear();Destroy(_solid);Destroy(_glow);Destroy(_mutationGlow);}
     }
 }

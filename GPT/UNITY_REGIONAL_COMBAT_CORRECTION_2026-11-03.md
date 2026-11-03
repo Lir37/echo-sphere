@@ -45,3 +45,12 @@ The later resumed device session had a different current profile (saved at0:41, 
 Release with hierarchy guards installed successfully: APK57242162 bytes, SHA25666aa15c46a71c42e27f5bb98f5e6b932aa75ae5e71b63d288cac46bcd8a20714. Short natural combat on the newer four-sphere state:26.737 FPS over10.024s, p95 49.716ms, p99 66.205ms. It is a different saved state; no matched before/after FPS improvement is claimed. More attribution is needed.
 
 Added five presentation-scope ProfilerMarker groups under UNITY_INCLUDE_INSTRUMENTATION only (standard/family/enemy/player/network). They are excluded from normal Release. A temporary ARM64 diagnostic build restores the user's target architectures in finally; normal Release remains dual-ABI. The remaining upgrade-modal order guard uses the same already checked helper.
+
+## Aura bottleneck confirmed and corrected
+Actual new diagnostic phone sample (48 active frames, no loading): FamilyRig60.727ms/frame; world tessellation59.854ms/frame; NetworkRig1.259ms/frame; EnemyRig0.608ms/frame. This Development capture is for attribution, not Release acceptance. The current run contains Standard, Aura and two Pulse spheres.
+
+Isolated warmed Editor200-call submission fixture: Aura11.842ms, Chain1.938ms, Pulse0.00756ms, Sniper0.01070ms, Shotgun0.00906ms. Aura's six animated43-point sweeps unnecessarily re-entered VectorGraphics tessellation every frame.
+
+Aura now retains six owned dynamic meshes, updates the identical43 sample points directly, and preserves stroke width, phase, colors, transparency, ordering and round caps. No animation cadence or effect is removed. Separate sweep mesh pools cannot corrupt the existing generic tessellation cache. Six-state GPU comparison with the former vector path: worst full-image RGB mean difference0.000237/255. Same Editor orbit fixture:12.33054 ->0.09927ms; complete Aura family0.09512ms. Other family implementations unchanged. Await final Release phone measurement.
+
+Editor Console also exposed one Unity Editor Profiler ScreenshotsChartTimelineViewController hierarchy exception. Its stack is editor-internal, not game presentation code; do not label that session globally error-free. Saved raw Profiler captures remain private under Library.
