@@ -80,4 +80,8 @@ Full30minute, larger build diversity, dense rendered/mobile stress, every cancel
 
 ## Final input edge acceptance
 Native dash now respects arrangement pause before consuming cooldown. Native pointer release cancels after entering main menu/death or losing its captured sphere; it cannot remove a neighboring sphere. Actual state fixture23checks PASS and attached UIDocument routed-pointer fixture13checks PASS, including menu change before PointerUp. Actual Unity compile PASS. Main implementation CI4d112720: SUCCESS (run41725198945).
+## Delivery receipt
+Source commit8db541d045d1ebe1c149801bdba3543fc50f9633: CI SUCCESS, https://github.com/Lir37/echo-sphere/actions/runs/41727240265 (core-contracts, unity-typecheck, source-typecheck).
+Actual local Unity Android BuildPipeline Succeeded, Release BuildOptions.None, IL2CPP ARMv7+ARM64, ECHO_REGION_TEST_ACCESS retained. APK: UnityProject/Builds/Android/ECHO-SPHERE-enemy-dynamics-regions-test.apk;57305378bytes; SHA25625f3292248f2ac4267654cf4709819e02d259cf8c0c4decc84c8cd55cb6e1982. This receipt-only commit does not change packaged source. APK was not installed; no device or device save accessed.
 
+Remaining acceptance: complete30minute production progression, broader actual builds/abilities, dense rendered stress and long-run resource trends, physical Android gestures/performance and designer visual acceptance. Controlled arenas are evidence of implementation and comparative threat, not proof of final balance. Real geometry-changing behavior for Geometry Shifter remains undefined; existing Resonance drain is preserved. Menu hot-reload Composition lifecycle remains a separate unresolved Editor issue.
