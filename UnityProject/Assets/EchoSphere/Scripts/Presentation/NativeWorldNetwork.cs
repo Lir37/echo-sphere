@@ -28,7 +28,7 @@ namespace EchoSphere.Presentation
         private readonly List<Art> _art=new List<Art>();private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();
         private readonly Vector2[] _wavePoints=new Vector2[25];
 #if UNITY_EDITOR
-        internal bool UseVectorNetworkForValidation;
+        internal bool UseVectorNetworkForValidation=false;
 #endif
         private int _artUsed,_propertyUsed;private NativeWorldSurface _surface;
         internal void BeginFrame(){_artUsed=0;_propertyUsed=0;}
