@@ -40,7 +40,7 @@ namespace EchoSphere.Presentation
             if(_disposed)throw new ObjectDisposedException(nameof(NativeMainMenuBackground));
             if(!float.IsFinite(width)||!float.IsFinite(height)||!float.IsFinite(dpr)||width<=0||height<=0||dpr<=0)
                 throw new ArgumentOutOfRangeException(nameof(width),"Finite positive CSS viewport and density required");
-            if(_target!=null&&width==_width&&height==_height&&dpr==_dpr)return;
+            if(_target!=null&&width==_width&&height==_height&&dpr==_dpr&&_target.IsCreated())return;
             var pixelsX=Mathf.CeilToInt(width*dpr);var pixelsY=Mathf.CeilToInt(height*dpr);
             if(pixelsX>SystemInfo.maxTextureSize||pixelsY>SystemInfo.maxTextureSize)
                 throw new ArgumentOutOfRangeException(nameof(width),"Native menu viewport exceeds GPU texture limits");
@@ -50,6 +50,7 @@ namespace EchoSphere.Presentation
                 _target=new RenderTexture(pixelsX,pixelsY,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native menu background",hideFlags=HideFlags.DontSave,filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
                 _target.Create();_image.image=_target;
             }
+            if(!_target.IsCreated()){_target.Create();_image.image=null;_image.image=_target;}
             // Match the full source brush texel extent, including a fractional
             // final CSS pixel, instead of stretching the last row/column inward.
             _image.style.width=pixelsX/dpr;_image.style.height=pixelsY/dpr;

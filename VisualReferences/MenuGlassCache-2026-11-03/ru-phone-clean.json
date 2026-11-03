@@ -1,0 +1,177 @@
+{
+  "result": "PASS",
+  "frame": 140,
+  "actions": 0,
+  "errors": 0,
+  "firstError": null,
+  "bakes": 13,
+  "restoredBakes": 14,
+  "fallbackCount": 0,
+  "config": {
+    "width": 1080,
+    "height": 2400,
+    "density": 2.75,
+    "russian": true,
+    "saved": true,
+    "id": "ru-phone-clean"
+  },
+  "rows": [
+    {
+      "frame": 30,
+      "name": "open-character",
+      "mean": 0.0036249412080897668,
+      "max": 1
+    },
+    {
+      "frame": 30,
+      "name": "difficulty-easy",
+      "mean": 0.059412590828601085,
+      "max": 1
+    },
+    {
+      "frame": 30,
+      "name": "difficulty-normal",
+      "mean": 0.047943086916176929,
+      "max": 1
+    },
+    {
+      "frame": 30,
+      "name": "difficulty-hard",
+      "mean": 0.00041241365089184453,
+      "max": 1
+    },
+    {
+      "frame": 30,
+      "name": "difficulty-nightmare",
+      "mean": 0.00974007903378416,
+      "max": 1
+    },
+    {
+      "frame": 30,
+      "name": "continue-run",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "menu-navigation",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-0",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-1",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-2",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-3",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-4",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-5",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "open-character",
+      "mean": 0.0036249412080897668,
+      "max": 1
+    },
+    {
+      "frame": 110,
+      "name": "difficulty-easy",
+      "mean": 0.059412590828601085,
+      "max": 1
+    },
+    {
+      "frame": 110,
+      "name": "difficulty-normal",
+      "mean": 0.00726879059696876,
+      "max": 1
+    },
+    {
+      "frame": 110,
+      "name": "difficulty-hard",
+      "mean": 0.0639241158882359,
+      "max": 1
+    },
+    {
+      "frame": 110,
+      "name": "difficulty-nightmare",
+      "mean": 0.00974007903378416,
+      "max": 1
+    },
+    {
+      "frame": 110,
+      "name": "continue-run",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "menu-navigation",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-0",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-1",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-2",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-3",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-4",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-5",
+      "mean": 0.0,
+      "max": 0
+    }
+  ],
+  "scope": "Actual native UI live/cache pixels, animated core with stable cache, real model rebind, GPU target loss/recreation, overlap fallback; no gameplay or preferences writes"
+}

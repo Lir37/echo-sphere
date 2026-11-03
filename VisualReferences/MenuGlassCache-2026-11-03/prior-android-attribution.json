@@ -1,0 +1,45 @@
+{
+  "release-menu-present": {
+    "scenario": "fd2bed48 Release warmed main menu, no gameplay inputs",
+    "durationSeconds": 20.28099999999995,
+    "frames": 418,
+    "presentSpanSeconds": 19.390613231,
+    "fps": 21.505250763979824,
+    "p50ms": 49.591384,
+    "p95ms": 50.730077,
+    "p99ms": 66.143154,
+    "maxMs": 82.836,
+    "stallsOver100ms": 0,
+    "method": "SurfaceFlinger app BLAST actualPresentTime, rolling buffers deduplicated",
+    "scope": "Presented intervals only; caller keeps a stable foreground scenario; no video, CPU/GPU attribution or GC bytes"
+  },
+  "diagnostic-menu-on": {
+    "scenario": "fd2bed48 diagnostic main menu before attribution",
+    "durationSeconds": 12.141000000000531,
+    "frames": 321,
+    "presentSpanSeconds": 11.267866847,
+    "fps": 28.399341627399334,
+    "p50ms": 33.117538,
+    "p95ms": 49.679,
+    "p99ms": 49.807462,
+    "maxMs": 50.239307,
+    "stallsOver100ms": 0,
+    "method": "SurfaceFlinger app BLAST actualPresentTime, rolling buffers deduplicated",
+    "scope": "Presented intervals only; caller keeps a stable foreground scenario; no video, CPU/GPU attribution or GC bytes"
+  },
+  "diagnostic-menu-filters-off": {
+    "scenario": "fd2bed48 diagnostic main menu filters disabled attribution only",
+    "durationSeconds": 12.625,
+    "frames": 707,
+    "presentSpanSeconds": 11.763409154,
+    "fps": 60.016615145953125,
+    "p50ms": 16.549847,
+    "p95ms": 17.286154,
+    "p99ms": 17.784693,
+    "maxMs": 33.103385,
+    "stallsOver100ms": 0,
+    "method": "SurfaceFlinger app BLAST actualPresentTime, rolling buffers deduplicated",
+    "scope": "Presented intervals only; caller keeps a stable foreground scenario; no video, CPU/GPU attribution or GC bytes"
+  },
+  "notice": "Filters-off is attribution only, not the optimized implementation. No post-cache Android measurement."
+}

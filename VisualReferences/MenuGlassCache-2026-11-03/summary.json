@@ -1,0 +1,10 @@
+{
+  "result": "EDITOR_PASS_ANDROID_PENDING",
+  "cases": 5,
+  "framesPerCase": 140,
+  "surfaceComparisons": 126,
+  "maxMeanRgb255": 0.11183732752360204,
+  "maxChannel255": 2,
+  "newConsoleErrors": 0,
+  "androidAfterOptimizationMeasured": false
+}

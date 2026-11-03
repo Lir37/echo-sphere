@@ -1,0 +1,18 @@
+{
+  "result": "BUILD_SUCCEEDED_NOT_DEVICE_TESTED",
+  "path": "UnityProject/Builds/Android/ECHO-SPHERE-menu-cache-regions-test.apk",
+  "bytes": 57239520,
+  "sha256": "31e321deb8ace477fe79dacc07e26bae661b66809d097376b8f7df4a796c5bc6",
+  "abis": [
+    "arm64-v8a",
+    "armeabi-v7a"
+  ],
+  "buildOptions": "None",
+  "extraScriptingDefines": [
+    "ECHO_REGION_TEST_ACCESS"
+  ],
+  "cacheTypeInMetadata": true,
+  "diagnosticProbeInMetadata": false,
+  "sourceManifestVerified": true,
+  "installedAfterUserRequestedNoPhone": false
+}

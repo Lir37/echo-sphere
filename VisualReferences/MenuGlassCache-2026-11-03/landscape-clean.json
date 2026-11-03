@@ -1,0 +1,165 @@
+{
+  "result": "PASS",
+  "frame": 140,
+  "actions": 0,
+  "errors": 0,
+  "firstError": null,
+  "bakes": 12,
+  "restoredBakes": 13,
+  "fallbackCount": 0,
+  "config": {
+    "width": 960,
+    "height": 540,
+    "density": 1.0,
+    "russian": false,
+    "saved": true,
+    "id": "landscape-clean"
+  },
+  "rows": [
+    {
+      "frame": 30,
+      "name": "difficulty-easy",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "difficulty-normal",
+      "mean": 0.095732410611303345,
+      "max": 1
+    },
+    {
+      "frame": 30,
+      "name": "difficulty-hard",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "difficulty-nightmare",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "continue-run",
+      "mean": 0.004765519568151147,
+      "max": 1
+    },
+    {
+      "frame": 30,
+      "name": "menu-navigation",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-0",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-1",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-2",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-3",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-4",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 30,
+      "name": "nav-5",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "difficulty-easy",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "difficulty-normal",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "difficulty-hard",
+      "mean": 0.11183732752360204,
+      "max": 1
+    },
+    {
+      "frame": 110,
+      "name": "difficulty-nightmare",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "continue-run",
+      "mean": 0.004765519568151147,
+      "max": 1
+    },
+    {
+      "frame": 110,
+      "name": "menu-navigation",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-0",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-1",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-2",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-3",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-4",
+      "mean": 0.0,
+      "max": 0
+    },
+    {
+      "frame": 110,
+      "name": "nav-5",
+      "mean": 0.0,
+      "max": 0
+    }
+  ],
+  "scope": "Actual native UI live/cache pixels, animated core with stable cache, real model rebind, GPU target loss/recreation, overlap fallback; no gameplay or preferences writes"
+}

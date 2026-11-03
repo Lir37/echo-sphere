@@ -29,6 +29,11 @@ namespace EchoSphere.Presentation
         private int _dirtyFrames=2;
         private int _geometryFrame=-10;
         private bool _disposed;
+        private bool _staticGlassEnabled=true;
+        private readonly List<NativeStaticMenuGlass.Layer> _glassLayers=new List<NativeStaticMenuGlass.Layer>();
+        public int RetainedGlassCount{get{int count=0;foreach(var item in _surfaces)if(item.StaticActive)count++;return count;}}
+        public int RetainedGlassBakes{get{int count=0;foreach(var item in _surfaces)count+=item.StaticGlass?.BakeCount??0;return count;}}
+        public void SetStaticGlassPilot(bool enabled){_staticGlassEnabled=enabled;Invalidate();}
         public int PrepareCount {get;private set;}
         public NativeMenuArtwork Artwork=>_artwork;
         public NativeMainMenuBackground Background=>_background;
@@ -41,6 +46,7 @@ namespace EchoSphere.Presentation
             internal bool Hover,Selected,Painted;
             internal readonly NativeMenuBrush Brush=new NativeMenuBrush();
             internal NativeMenuGlass Glass;
+            internal NativeStaticMenuGlass StaticGlass;internal bool StaticActive;
             internal Image Image;
         }
         public NativeMainMenuComposition(NativeMainMenuView view)
@@ -108,7 +114,7 @@ namespace EchoSphere.Presentation
             using var sample=PrepareMarker.Auto();
             int backgroundCount=_background.PaintCount,artCount=_artwork.PaintCount;
             _background.SetViewport(size.width,size.height,scale);if(!_artwork.Prepare(scale))return false;
-            if(backgroundCount!=_background.PaintCount||artCount!=_artwork.PaintCount||_scale!=scale)Invalidate();
+            if(backgroundCount!=_background.PaintCount||artCount!=_artwork.PaintCount||_scale!=scale){Invalidate();}
             if(!_hasPortrait&&(_avatar==null||_avatarWidth!=avatar.width||_avatarHeight!=avatar.height||_scale!=scale||_characterColor!=characterColor)){
                 _avatar??=new NativeMenuBrush();
                 _avatar.Render(avatar.width,avatar.height,scale,NativeMenuArtwork.AvatarPaint(characterColor));
@@ -118,6 +124,7 @@ namespace EchoSphere.Presentation
             _scale=scale;
             foreach(var surface in _surfaces){
                 var box=surface.Element.layout;if(!float.IsFinite(box.width+box.height)||box.width<=0||box.height<=0||surface.Element.resolvedStyle.display==DisplayStyle.None)continue;
+                if(surface.Painted){int paints=surface.Brush.PaintCount;surface.Brush.RestoreIfLost();if(paints!=surface.Brush.PaintCount){surface.Image.image=null;surface.Image.image=surface.Brush.Texture;surface.Image.MarkDirtyRepaint();Invalidate();}}
                 bool hover=surface.Element.hasHoverPseudoState,selected=surface.Element.ClassListContains("is-active");
                 if(!surface.Painted||surface.Width!=box.width||surface.Height!=box.height||surface.Scale!=scale||surface.Hover!=hover||surface.Selected!=selected){
                     surface.Brush.Render(box.width,box.height,scale,Paint(surface.Kind,hover,selected));
@@ -125,14 +132,43 @@ namespace EchoSphere.Presentation
                     if(surface.Image!=null){var r=surface.Brush.Bounds;var border=surface.Element.resolvedStyle;surface.Image.image=surface.Brush.Texture;surface.Image.style.left=r.x-border.borderLeftWidth;surface.Image.style.top=r.y-border.borderTopWidth;surface.Image.style.width=r.width;surface.Image.style.height=r.height;}
                 }
             }
+            foreach(var surface in _surfaces)if(surface.StaticActive&&!(surface.StaticGlass?.Ready??false))Invalidate();
             if(_dirtyFrames<=0)return true;
             _dirtyFrames--;PrepareCount++;
             foreach(var surface in _surfaces)if(surface.Glass!=null&&surface.Painted){
                 surface.Glass.Prepare(surface.Root,surface.Sigma,scale);
             }
+            PrepareStaticGlass(scale);
             return true;
         }
-        public void SetVisible(bool visible){foreach(var surface in _surfaces)surface.Glass?.Visible(visible);if(visible)Invalidate();}
+        private bool CanRetainGlass(Surface surface){
+            if(!_staticGlassEnabled||QualitySettings.activeColorSpace!=ColorSpace.Gamma)return false;
+#if UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS
+            if(NativeBackdropValidation.UseLegacy)return false;
+#endif
+            var bounds=surface.Element.worldBound;var viewport=_view.Root.worldBound;var matrix=surface.Element.worldTransform;
+            if(bounds.width<=0||bounds.height<=0||!float.IsFinite(bounds.x+bounds.y+bounds.width+bounds.height)||bounds.xMin<viewport.xMin||bounds.xMax>viewport.xMax+.01f||bounds.yMin<viewport.yMin||bounds.yMax>viewport.yMax+.01f)return false;
+            if(Mathf.Abs(matrix.m00-1)+Mathf.Abs(matrix.m11-1)+Mathf.Abs(matrix.m01)+Mathf.Abs(matrix.m10)>1e-5f||bounds.Overlaps(_view.Artwork.worldBound))return false;
+            foreach(var prior in _surfaces){if(prior==surface)break;if(prior.Sigma>0&&prior.Element.Contains(surface.Element)&&!prior.StaticActive)return false;}
+            // Only the typed background/paint layers may lie under this glass.
+            // Text/portraits or artwork from another element require a live capture.
+            foreach(var node in _observed){if(node==surface.Element||surface.Element.Contains(node))continue;
+                bool foreground=node is TextElement text&&!string.IsNullOrEmpty(text.text)||node is Image image&&(image.image!=null||image.sprite!=null||image.vectorImage!=null);
+                if(!foreground||!NativeHudSurface.InViewport(node,0))continue;var rect=node.worldBound;var shadow=node.resolvedStyle.textShadow;float margin=shadow.blurRadius*2+Mathf.Max(Mathf.Abs(shadow.offset.x),Mathf.Abs(shadow.offset.y));rect.xMin-=margin;rect.yMin-=margin;rect.xMax+=margin;rect.yMax+=margin;if(rect.Overlaps(bounds))return false;
+            }
+            return true;
+        }
+        private void PrepareStaticGlass(float scale){
+            _glassLayers.Clear();var viewport=_view.Root.worldBound;
+            foreach(var surface in _surfaces){
+                bool retain=surface.Glass!=null&&surface.Painted&&CanRetainGlass(surface);
+                if(retain){surface.StaticGlass??=new NativeStaticMenuGlass(surface.Element);var style=surface.Element.resolvedStyle;float radius=Mathf.Max(Mathf.Max(style.borderTopLeftRadius,style.borderTopRightRadius),Mathf.Max(style.borderBottomLeftRadius,style.borderBottomRightRadius));surface.StaticGlass.Bake(_background.Texture,viewport,surface.Element.worldBound,scale,surface.Sigma,radius,_background.PaintCount,_glassLayers);retain=surface.StaticGlass.Ready;}
+                surface.StaticActive=retain;surface.StaticGlass?.Show(retain);surface.Glass?.Visible(!retain);
+                if(retain)_glassLayers.Add(new NativeStaticMenuGlass.Layer(surface.StaticGlass.Texture,surface.Element.worldBound,surface.Element.resolvedStyle.borderTopLeftRadius,surface.StaticGlass.BakeCount));
+                if(surface.Painted){var r=surface.Brush.Bounds;var bounds=surface.Element.worldBound;r.position+=bounds.position;_glassLayers.Add(new NativeStaticMenuGlass.Layer(surface.Brush.Texture,r,version:surface.Brush.PaintCount));}
+            }
+        }
+        public void SetVisible(bool visible){foreach(var surface in _surfaces){surface.Glass?.Visible(visible&&!surface.StaticActive);surface.StaticGlass?.Show(visible&&surface.StaticActive);}if(visible)Invalidate();}
         private static Color R(float r,float g,float b,float a=1)=>new Color(r/255,g/255,b/255,a);
         private static NativeMenuBrush.Shadow Shadow(float blur,float x,float y,Color color)=>new NativeMenuBrush.Shadow(blur,new Vector2(x,y),color);
         private static NativeMenuBrush.Paint Paint(Kind kind,bool hover,bool selected)
@@ -165,7 +201,7 @@ namespace EchoSphere.Presentation
         {
             if(_disposed)return;_disposed=true;
             foreach(var node in _observed){node.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);if(node is Button){node.UnregisterCallback<PointerEnterEvent>(PointerChanged);node.UnregisterCallback<PointerLeaveEvent>(PointerChanged);}}
-            foreach(var surface in _surfaces){surface.Glass?.Dispose();surface.Image?.RemoveFromHierarchy();surface.Brush.Dispose();}
+            foreach(var surface in _surfaces){surface.Glass?.Dispose();surface.StaticGlass?.Dispose();surface.Image?.RemoveFromHierarchy();surface.Brush.Dispose();}
             _avatarImage.RemoveFromHierarchy();_avatarGlyph.RemoveFromHierarchy();_characterPortrait.sprite=null;_characterPortrait.RemoveFromHierarchy();_portraitLease.Dispose();_avatar?.Dispose();_artwork.Dispose();_background.Dispose();
         }
     }
