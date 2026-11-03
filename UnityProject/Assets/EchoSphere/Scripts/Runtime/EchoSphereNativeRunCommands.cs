@@ -20,7 +20,7 @@ namespace EchoSphere.Runtime
         private void NativeActivateHotkey(string key)
         {foreach(var binding in _activeAbilityHotkeys)if(binding.Value.ToString().Replace("Alpha","").ToLowerInvariant()==key)ActivateActiveAbility(binding.Key);RefreshNativeCommandModels();}
         private void NativeActivateDash()
-        {if(_playerCore.TryDash(NativeMobileMovement))SourceAudio2D.Play("dash");RefreshNativeCommandModels();}
+        {if(IsSphereArrangementPaused||!NativeMobileAllowed)return;if(_playerCore.TryDash(NativeMobileMovement))SourceAudio2D.Play("dash");RefreshNativeCommandModels();}
         private void NativeSelectSphere(string id)
         {if(Enum.TryParse<SphereId>(id,true,out var type)){_selectedSphereType=type;SourceAudio2D.Play("place");}RefreshNativeCommandModels();}
         private void NativePlaceOrRemoveSphere(double x,double y)

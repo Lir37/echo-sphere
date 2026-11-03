@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
             _nativeMobilePointers.Clear();_nativeMobileJoystickId=null;_nativeMobileDx=_nativeMobileDy=0;_nativeMobileJoystickActive=false;
             if(unmount){_nativeMobileGhost=null;_nativeMobileMemory=null;_nativeMobilePlacementColor=null;_nativeMobileMounted=false;_nativeMobileLastX=0;_nativeMobileLastY=-1;}
         }
-        private bool NativeMobileAllowed=>_playerCore!=null&&!_gameOver&&(!_paused||_tutorialStep==1||_tutorialStep==2);
+        private bool NativeMobileAllowed=>!_mainMenu&&_playerCore!=null&&!_playerCore.IsDead&&!_gameOver&&(!_paused||_tutorialStep==1||_tutorialStep==2);
         private bool NativeMobileWorld(double x,double y,out double wx,out double wy)
         {
             wx=wy=0;if(_nativeRunField==null)return false;var rect=_nativeRunField.worldBound;if(rect.width<=0||rect.height<=0)return false;
@@ -149,6 +149,7 @@ namespace EchoSphere.Runtime
         {
             _nativeMobilePointers.TryGetValue(id,out var p);_nativeMobilePointers.Remove(id);
             if(p!=null&&p.Sphere!=null){
+                if(p.Sphere.Agent==null||!p.Sphere.Agent.gameObject.activeInHierarchy||!_spheres.Contains(p.Sphere.Agent)){_nativeMobileGhost=null;return;}
                 if(!p.Moved){NativePlaceOrRemoveSphere(p.Sphere.X,p.Sphere.Y);_nativeMobileGhost=null;}
                 else if(p.Repositioned){var old=NativeMobileNetwork();if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanMove(p.Sphere,wx,wy)){NativeRepositionSphere(p.Sphere.Agent,wx,wy);NativeMobileRememberChange(old);NativeMobileFlash("Сфера перемещена","Sphere moved",.8,NativeRunCatalog.Instance.GetSphere(p.Sphere.Family).Color);}_nativeMobileGhost=null;}
                 else {NativeMobileFlash("Недоступная позиция","Invalid position",.65,"#ff4d5d");_nativeMobileGhost=null;}return;

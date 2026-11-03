@@ -77,3 +77,7 @@ Common cases that fired in both runs fired earlier by about1.4..3.0s. Full per-r
 Pack-only cosmetic acceleration reuses the existing tool policy; its production-HP/position/RNG/timer equivalence was rerun for all10sphere families (10checks PASS). It never ships as reduced graphics quality.
 
 Full30minute, larger build diversity, dense rendered/mobile stress, every cancel/input platform combination, long-run resource trends and designer/Android acceptance remain OPEN. Build/CI receipts follow. No phone operations are authorized by this brief.
+
+## Final input edge acceptance
+Native dash now respects arrangement pause before consuming cooldown. Native pointer release cancels after entering main menu/death or losing its captured sphere; it cannot remove a neighboring sphere. Actual state fixture23checks PASS and attached UIDocument routed-pointer fixture13checks PASS, including menu change before PointerUp. Actual Unity compile PASS. Main implementation CI4d112720: SUCCESS (run41725198945).
+
