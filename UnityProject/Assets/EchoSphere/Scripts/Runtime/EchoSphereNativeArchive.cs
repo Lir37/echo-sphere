@@ -59,6 +59,7 @@ namespace EchoSphere.Runtime
                 string id="artifact:"+item.Id;
                 cards.Add(new NativeArchiveScreen.Card{Id=id,Group="",Title=name,Description=NativePlayerCopy.Text(ru?item.DescriptionRussian:item.DescriptionEnglish,ru),Details="",Open=_knownKnowledgeIds.Contains(id),BasicIndex=-1});
             }
+            if(_knowledgeSection=="bosses")foreach(string type in CampaignBossRules.AdditionalTypes){string name=CampaignBossRules.Name(type,ru),description=CampaignBossRules.Description(type,ru);if(query.Length>0&&!name.ToLowerInvariant().Contains(query)&&!description.ToLowerInvariant().Contains(query))continue;cards.Add(new NativeArchiveScreen.Card{Id="boss:"+type,Group="",Title=name,Description=description,Details=ru?"Уклоняйтесь от подготовленных атак и не позволяйте выводку окружить ядро.":"Dodge prepared attacks and keep the brood from surrounding the core.",Open=_knownKnowledgeIds.Contains("boss:"+type),BasicIndex=-1});}
             if(_knowledgeSection=="regions")foreach(var lore in CampaignRegionLore.All)
             {
                 string title=NativeRunCatalog.Instance.GetRegion(RegionSourceId(lore.Region)).Name(ru)+" · "+(lore.Index+1)+"/5";

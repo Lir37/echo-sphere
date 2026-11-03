@@ -73,7 +73,7 @@ namespace EchoSphere.Presentation
                     {
                         var marker=Get(93,0,0,1.5,()=>Oval(7,7),false);
                         double a=Math.Atan2(e.AimY,e.AimX);
-                        for(int i=0;i<e.Count;i++){double at=a+i*Math.PI*2/e.Count;Paint(marker,root*T(Math.Cos(at)*60,Math.Sin(at)*60),null,color,forceOver:true);}
+                        for(int i=0;i<e.Count;i++){double at=a+i*Math.PI*2/e.Count;Paint(marker,root*T(Math.Cos(at)*e.Range,Math.Sin(at)*e.Range),null,color,forceOver:true);}
                     }
                 }
                 return;

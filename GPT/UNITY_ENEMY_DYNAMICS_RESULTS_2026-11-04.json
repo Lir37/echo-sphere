@@ -1,0 +1,401 @@
+{
+  "scope": "Matched actual C# isolated 20-second spawn-versus-Standard arenas. Not full runs, all builds or human acceptance. Dead-time statistics exclude survivors at20s.",
+  "casesBefore": 1080,
+  "casesAfter": 1080,
+  "hashes": {
+    "before.json": "66a642177cb956afc8e67c4477da8e64343f3ab09eed87bf0cf1fe7e396cc023",
+    "after.json": "5a0b0fbc0706d46e5ecf711674f41cf8fa1374890471ae2c54d06a5019d687aa"
+  },
+  "regions": [
+    {
+      "region": 0,
+      "matchedExistingShooters": {
+        "before": {
+          "cases": 108,
+          "fired": 91,
+          "deadBeforeFirstShot": 17,
+          "meanFirstShotSeconds": 7.326190932087912,
+          "meanKilledSeconds": 13.915152211363637,
+          "killedCases": 44,
+          "meanDamage": 33.2855902962963,
+          "meanSpeed": 108.29612901481481,
+          "meanPreparedExecutions": 3.0462962962962963
+        },
+        "after": {
+          "cases": 108,
+          "fired": 105,
+          "deadBeforeFirstShot": 3,
+          "meanFirstShotSeconds": 5.767936834857143,
+          "meanKilledSeconds": 11.017857855714286,
+          "killedCases": 14,
+          "meanDamage": 27.27777777777778,
+          "meanSpeed": 126.22205253703704,
+          "meanPreparedExecutions": 4.564814814814815
+        }
+      },
+      "commonFiredCases": 91,
+      "meanFirstShotChangeSeconds": -1.9258243103296704
+    },
+    {
+      "region": 1,
+      "matchedExistingShooters": {
+        "before": {
+          "cases": 180,
+          "fired": 159,
+          "deadBeforeFirstShot": 21,
+          "meanFirstShotSeconds": 6.151677496100629,
+          "meanKilledSeconds": 11.17731530236111,
+          "killedCases": 72,
+          "meanDamage": 36.454036475,
+          "meanSpeed": 150.2477159977778,
+          "meanPreparedExecutions": 3.727777777777778
+        },
+        "after": {
+          "cases": 180,
+          "fired": 180,
+          "deadBeforeFirstShot": 0,
+          "meanFirstShotSeconds": 5.008703992666667,
+          "meanKilledSeconds": 10.91489419638298,
+          "killedCases": 47,
+          "meanDamage": 30.032725694444444,
+          "meanSpeed": 164.06796995555555,
+          "meanPreparedExecutions": 5.127777777777778
+        }
+      },
+      "commonFiredCases": 159,
+      "meanFirstShotChangeSeconds": -1.4057652734591195
+    },
+    {
+      "region": 2,
+      "matchedExistingShooters": {
+        "before": {
+          "cases": 72,
+          "fired": 60,
+          "deadBeforeFirstShot": 12,
+          "meanFirstShotSeconds": 6.046666979333334,
+          "meanKilledSeconds": 12.137963487222223,
+          "killedCases": 36,
+          "meanDamage": 24.198350722222223,
+          "meanSpeed": 138.53333383333333,
+          "meanPreparedExecutions": 2.4722222222222223
+        },
+        "after": {
+          "cases": 72,
+          "fired": 66,
+          "deadBeforeFirstShot": 6,
+          "meanFirstShotSeconds": 4.78383867030303,
+          "meanKilledSeconds": 11.039744245384615,
+          "killedCases": 26,
+          "meanDamage": 12.59396701388889,
+          "meanSpeed": 156.83333383333334,
+          "meanPreparedExecutions": 3.638888888888889
+        }
+      },
+      "commonFiredCases": 60,
+      "meanFirstShotChangeSeconds": -1.4811111420000003
+    },
+    {
+      "region": 3,
+      "matchedExistingShooters": {
+        "before": {
+          "cases": 72,
+          "fired": 66,
+          "deadBeforeFirstShot": 6,
+          "meanFirstShotSeconds": 7.4702023815151515,
+          "meanKilledSeconds": 13.29416734,
+          "killedCases": 20,
+          "meanDamage": 31.16623265277778,
+          "meanSpeed": 109.6907018888889,
+          "meanPreparedExecutions": 3.5277777777777777
+        },
+        "after": {
+          "cases": 72,
+          "fired": 71,
+          "deadBeforeFirstShot": 1,
+          "meanFirstShotSeconds": 5.510328891830986,
+          "meanKilledSeconds": 11.047619485714286,
+          "killedCases": 7,
+          "meanDamage": 31.74001736111111,
+          "meanSpeed": 128.5929470111111,
+          "meanPreparedExecutions": 4.986111111111111
+        }
+      },
+      "commonFiredCases": 66,
+      "meanFirstShotChangeSeconds": -2.0954546572727275
+    },
+    {
+      "region": 4,
+      "matchedExistingShooters": {
+        "before": {
+          "cases": 36,
+          "fired": 35,
+          "deadBeforeFirstShot": 1,
+          "meanFirstShotSeconds": 9.840476646285714,
+          "meanKilledSeconds": 16.618056358333334,
+          "killedCases": 12,
+          "meanDamage": 25.72808159722222,
+          "meanSpeed": 85.7798474,
+          "meanPreparedExecutions": 3.6666666666666665
+        },
+        "after": {
+          "cases": 36,
+          "fired": 36,
+          "deadBeforeFirstShot": 0,
+          "meanFirstShotSeconds": 6.899074314444444,
+          "meanKilledSeconds": 14.650001233333333,
+          "killedCases": 3,
+          "meanDamage": 37.119140625,
+          "meanSpeed": 107.56666042222223,
+          "meanPreparedExecutions": 5.361111111111111
+        }
+      },
+      "commonFiredCases": 35,
+      "meanFirstShotChangeSeconds": -3.0352383057142855
+    },
+    {
+      "region": 5,
+      "matchedExistingShooters": {
+        "before": {
+          "cases": 36,
+          "fired": 34,
+          "deadBeforeFirstShot": 2,
+          "meanFirstShotSeconds": 7.817647592352941,
+          "meanKilledSeconds": 14.37333394,
+          "killedCases": 15,
+          "meanDamage": 22.389322916666668,
+          "meanSpeed": 109.71841441111111,
+          "meanPreparedExecutions": 3.2777777777777777
+        },
+        "after": {
+          "cases": 36,
+          "fired": 36,
+          "deadBeforeFirstShot": 0,
+          "meanFirstShotSeconds": 5.861111295,
+          "meanKilledSeconds": 15.639584025000001,
+          "killedCases": 8,
+          "meanDamage": 30.245225694444443,
+          "meanSpeed": 126.91968616666666,
+          "meanPreparedExecutions": 4.638888888888889
+        }
+      },
+      "commonFiredCases": 34,
+      "meanFirstShotChangeSeconds": -2.103921927058823
+    }
+  ],
+  "roleBuckets": [
+    {
+      "label": "fast_roles",
+      "before": {
+        "cases": 144,
+        "fired": 93,
+        "deadBeforeFirstShot": 15,
+        "meanFirstShotSeconds": 4.650358704516129,
+        "meanKilledSeconds": 9.696825812698412,
+        "killedCases": 63,
+        "meanDamage": 161.3975144722222,
+        "meanSpeed": 186.2996312777778,
+        "meanPreparedExecutions": 3.0625
+      },
+      "after": {
+        "cases": 144,
+        "fired": 108,
+        "deadBeforeFirstShot": 0,
+        "meanFirstShotSeconds": 4.337345882592593,
+        "meanKilledSeconds": 10.333019413962264,
+        "killedCases": 53,
+        "meanDamage": 151.57356662499998,
+        "meanSpeed": 195.65304922222222,
+        "meanPreparedExecutions": 3.9375
+      }
+    },
+    {
+      "label": "heavy_roles",
+      "before": {
+        "cases": 144,
+        "fired": 0,
+        "deadBeforeFirstShot": 0,
+        "meanFirstShotSeconds": null,
+        "meanKilledSeconds": 18.88333435,
+        "killedCases": 16,
+        "meanDamage": 349.7304691041667,
+        "meanSpeed": 87.25522312638888,
+        "meanPreparedExecutions": 0
+      },
+      "after": {
+        "cases": 144,
+        "fired": 36,
+        "deadBeforeFirstShot": 0,
+        "meanFirstShotSeconds": 6.316666871666667,
+        "meanKilledSeconds": 14.850000846153845,
+        "killedCases": 39,
+        "meanDamage": 228.8218864548611,
+        "meanSpeed": 107.36339093611112,
+        "meanPreparedExecutions": 1.7986111111111112
+      }
+    },
+    {
+      "label": "other_roles",
+      "before": {
+        "cases": 756,
+        "fired": 352,
+        "deadBeforeFirstShot": 44,
+        "meanFirstShotSeconds": 7.608996630340909,
+        "meanKilledSeconds": 13.60114650525,
+        "killedCases": 320,
+        "meanDamage": 257.3304303452381,
+        "meanSpeed": 122.55714577354497,
+        "meanPreparedExecutions": 1.6415343915343916
+      },
+      "after": {
+        "cases": 756,
+        "fired": 386,
+        "deadBeforeFirstShot": 10,
+        "meanFirstShotSeconds": 5.7126946023834195,
+        "meanKilledSeconds": 11.838021452901785,
+        "killedCases": 224,
+        "meanDamage": 221.86575072023808,
+        "meanSpeed": 141.03784097037038,
+        "meanPreparedExecutions": 2.884920634920635
+      }
+    }
+  ],
+  "eliteCases": {
+    "before": {
+      "cases": 116,
+      "fired": 56,
+      "deadBeforeFirstShot": 0,
+      "meanFirstShotSeconds": 3.2023811339285713,
+      "meanKilledSeconds": 17.233333783333332,
+      "killedCases": 6,
+      "meanDamage": 746.2694645,
+      "meanSpeed": 258.74225137931035,
+      "meanPreparedExecutions": 2.5948275862068964
+    },
+    "after": {
+      "cases": 116,
+      "fired": 60,
+      "deadBeforeFirstShot": 0,
+      "meanFirstShotSeconds": 2.882777915,
+      "meanKilledSeconds": 15.9583336,
+      "killedCases": 2,
+      "meanDamage": 485.6216995948276,
+      "meanSpeed": 260.5505923448276,
+      "meanPreparedExecutions": 3.7241379310344827
+    }
+  },
+  "packs": {
+    "cases": 216,
+    "scope": "Six actual spawns vs three legal Standard/Chain/Aura nodes with actual network,100HP,20s, scripted movement or stationary; no waves/terrain/acquisition budget. Fast cosmetics use existing arena policy, not a production quality setting.",
+    "sha256": "0630198c8399d7f753e5dc7dc3887e3ac6ee59934064a902e6780cc7535661b7",
+    "regions": [
+      {
+        "region": 0,
+        "strong": false,
+        "cases": 18,
+        "survived": 6,
+        "meanDamage": 73.93578004444444,
+        "meanInitialKills": 2,
+        "peakSummons": 0
+      },
+      {
+        "region": 0,
+        "strong": true,
+        "cases": 18,
+        "survived": 9,
+        "meanDamage": 65.71022337777778,
+        "meanInitialKills": 3.2777777777777777,
+        "peakSummons": 0
+      },
+      {
+        "region": 1,
+        "strong": false,
+        "cases": 18,
+        "survived": 16,
+        "meanDamage": 44.475702327777775,
+        "meanInitialKills": 2.6666666666666665,
+        "peakSummons": 0
+      },
+      {
+        "region": 1,
+        "strong": true,
+        "cases": 18,
+        "survived": 17,
+        "meanDamage": 35.93777795,
+        "meanInitialKills": 5.111111111111111,
+        "peakSummons": 0
+      },
+      {
+        "region": 2,
+        "strong": false,
+        "cases": 18,
+        "survived": 6,
+        "meanDamage": 70.40513527777777,
+        "meanInitialKills": 2,
+        "peakSummons": 0
+      },
+      {
+        "region": 2,
+        "strong": true,
+        "cases": 18,
+        "survived": 10,
+        "meanDamage": 59.475578911111114,
+        "meanInitialKills": 3.6666666666666665,
+        "peakSummons": 0
+      },
+      {
+        "region": 3,
+        "strong": false,
+        "cases": 18,
+        "survived": 6,
+        "meanDamage": 77.04957296333333,
+        "meanInitialKills": 1.8888888888888888,
+        "peakSummons": 0
+      },
+      {
+        "region": 3,
+        "strong": true,
+        "cases": 18,
+        "survived": 11,
+        "meanDamage": 65.5280293,
+        "meanInitialKills": 4.055555555555555,
+        "peakSummons": 0
+      },
+      {
+        "region": 4,
+        "strong": false,
+        "cases": 18,
+        "survived": 6,
+        "meanDamage": 72.95697572222223,
+        "meanInitialKills": 2,
+        "peakSummons": 0
+      },
+      {
+        "region": 4,
+        "strong": true,
+        "cases": 18,
+        "survived": 8,
+        "meanDamage": 70.58761542388889,
+        "meanInitialKills": 3.611111111111111,
+        "peakSummons": 0
+      },
+      {
+        "region": 5,
+        "strong": false,
+        "cases": 18,
+        "survived": 9,
+        "meanDamage": 64.00958001111111,
+        "meanInitialKills": 2,
+        "peakSummons": 0
+      },
+      {
+        "region": 5,
+        "strong": true,
+        "cases": 18,
+        "survived": 16,
+        "meanDamage": 43.746166807222224,
+        "meanInitialKills": 5.611111111111111,
+        "peakSummons": 0
+      }
+    ]
+  }
+}

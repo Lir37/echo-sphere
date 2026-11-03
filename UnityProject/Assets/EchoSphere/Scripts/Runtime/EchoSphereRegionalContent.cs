@@ -66,6 +66,7 @@ namespace EchoSphere.Runtime
   }
   private string CampaignSpawnRole(EchoRegionId region,float roll)
   {
+   if(HasActiveBoss()){if(roll<.22f)return CampaignRegionContent.SelectSupport(region,roll/.22f,_runTime);roll=(roll-.22f)/.78f;}
    bool pressure=_regionEndlessMode||_convergenceRun||HasCampaignContract(RegionContractRule.Mixed);
    float share=pressure?Mathf.Min(.5f,.2f+Mathf.Floor(_runTime/600f)*.05f):0;
    if(roll<share)return CampaignRegionContent.SelectSupport(region,roll/Mathf.Max(.01f,share),_runTime);

@@ -160,8 +160,8 @@ namespace EchoSphere.Runtime
             }
             if(_nativeMobileJoystickId==id){_nativeMobileJoystickId=null;NativeMobileClearKeys();if(p!=null&&!p.Moved)NativeMobileTap(x,y);}else if(p!=null&&!p.Moved)NativeMobileTap(x,y);
         }
-        private void NativeMobileUp(PointerUpEvent e){if(!NativeMobileAllowed){NativeMobileAbort(e.pointerId);return;}NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
-        private void NativeMobileCancel(PointerCancelEvent e){NativeMobileAbort(e.pointerId);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
+        private void NativeMobileUp(PointerUpEvent e){if(!NativeMobileAllowed){NativeMobileAbort(e.pointerId);_nativeMobileGestureRoot?.ReleasePointer(e.pointerId);NativeMobileEventCompleted();return;}NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot?.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
+        private void NativeMobileCancel(PointerCancelEvent e){NativeMobileAbort(e.pointerId);_nativeMobileGestureRoot?.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
         private void NativeMobileCaptureOut(PointerCaptureOutEvent e){if(_nativeMobilePointers.ContainsKey(e.pointerId)){NativeMobileAbort(e.pointerId);NativeMobileEventCompleted();}}
         private void NativeMobileAbort(int id){if(!_nativeMobilePointers.TryGetValue(id,out var p))return;_nativeMobilePointers.Remove(id);if(p.Sphere!=null||p.Placing)_nativeMobileGhost=null;if(_nativeMobileJoystickId==id){_nativeMobileJoystickId=null;NativeMobileClearKeys();_nativeMobileJoystickActive=false;}}
         private void NativeMobileEventCompleted(){if(_sourceUi!=null)_sourceUi.Dirty=true;}

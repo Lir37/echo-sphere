@@ -2,10 +2,10 @@ using EchoSphere.Core;
 using UnityEngine;
 namespace EchoSphere.Runtime {
  public sealed partial class EnemyAgent2D {
-  private float _regionalCooldown=1.2f,_regionalWindup,_regionalRecovery,_regionalClock;
+  private float _regionalCooldown=RegionalCombatTuning.FirstAttackDelay,_regionalWindup,_regionalRecovery,_regionalClock;
   private Vector2 _regionalAim;
   internal float RegionalAttackPose=>_regionalWindup>0?RegionalEnemyRules.Telegraph(_regionalWindup,RegionalEnemyRules.Get(_campaignRegionStyle,_role).Windup):_regionalRecovery/.28f;
-  internal bool RegionalRanged=>_campaignRegionStyle>=0&&RegionalEnemyRules.Get(_campaignRegionStyle,_role).Range>0;
+  internal bool RegionalRanged=>_campaignRegionStyle>=0&&RegionalEnemyRules.Get(_campaignRegionStyle,_role).Speed>0;
   internal float RegionalWindup=>_regionalWindup;
   internal Vector2 RegionalAim=>_regionalAim;
   private Vector2 RegionalMovement(float dt,Vector2 toward,float distance){
@@ -25,13 +25,16 @@ namespace EchoSphere.Runtime {
    if(distance>p.Range*1.7f)orbit*=.3f;
    return Vector2.ClampMagnitude(toward*radial+tangent*orbit,1);
   }
-  private void RegionalActionFeedback(){if(_campaignRegionStyle>0){_regionalRecovery=.28f;if(_player!=null)_regionalAim=_player.position;}}
+  private void RegionalActionFeedback(){if(_campaignRegionStyle>=0){_regionalRecovery=.28f;if(_player!=null&&_regionalWindup<=0)_regionalAim=_player.position;}}
   private void TickRegionalAttack(float dt,Vector2 target,float distance){
    var p=RegionalEnemyRules.Get(_campaignRegionStyle,_role);
+   TickRegionalSpecials(dt);
    _regionalRecovery=Mathf.Max(0,_regionalRecovery-dt);
    if(p.Interval<=0)return;
-   if(_regionalWindup>0){_regionalWindup=Mathf.Max(0,_regionalWindup-dt);if(_regionalWindup>0)return;
-    _regionalRecovery=.28f;_regionalCooldown=p.Interval;
+   if(_regionalWindup>0){if(_fleetCommanderId!=0&&!_runtime.RegionalIdentityAlive(_fleetCommanderId)){_fleetCommanderId=0;_regionalWindup=0;_regionalCooldown=p.Interval;return;}_regionalWindup=Mathf.Max(0,_regionalWindup-dt);if(_regionalWindup>0)return;
+    _regionalRecovery=.28f;_regionalCooldown=p.Interval;_fleetCommanderId=0;if(_campaignRegionStyle==3)_crystalOpenTimer=RegionalCombatTuning.CrystalOpenSeconds;
+    if(p.Shot=="brood"){_runtime.ReleaseRegionalBrood(this,1,RegionalCombatTuning.OrdinaryBroodCap);return;}
+    if(p.Shot=="shadow"){_runtime.SpawnImpact(_regionalAim,new Color(.65f,.3f,1));if(Vector2.Distance(target,_regionalAim)<=RegionalCombatTuning.ShadowRadius*SpherePlacementRules.SourcePixelsToWorld)_runtime.TryDamagePlayer(_damage);return;}
     if(p.Range>0){
      var direction=(_regionalAim-(Vector2)transform.position).normalized;if(direction.sqrMagnitude<.01f)direction=Vector2.right;
      for(int i=0;i<p.Pellets;i++){float angle=(i-(p.Pellets-1)*.5f)*.16f;var shot=new Vector2(direction.x*Mathf.Cos(angle)-direction.y*Mathf.Sin(angle),direction.x*Mathf.Sin(angle)+direction.y*Mathf.Cos(angle));
@@ -43,8 +46,8 @@ namespace EchoSphere.Runtime {
     }return;
    }
    _regionalCooldown-=dt;
-   float limit=(p.Range>0?p.Range:145)*SpherePlacementRules.SourcePixelsToWorld;
-   if(_regionalCooldown<=0&&distance<limit){_regionalAim=target;_regionalWindup=p.Windup;}
+   float limit=(p.Range>0?p.Range:p.Shot=="tentacle"?SourceRadius*3.2f+12:RegionalCombatTuning.MeleeWindupRange)*SpherePlacementRules.SourcePixelsToWorld;
+   if(_regionalCooldown<=0&&distance<limit){_regionalAim=target;_regionalWindup=p.Windup;if(_campaignRegionStyle==1&&_role=="disruptor")_runtime.PrepareRegionalFleetVolley(this);}
   }
  }
 }

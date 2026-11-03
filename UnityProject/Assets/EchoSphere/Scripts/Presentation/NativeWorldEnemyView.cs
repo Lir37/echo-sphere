@@ -11,7 +11,8 @@ namespace EchoSphere.Presentation
         internal struct EnemyView
         {
             internal object Identity;
-            internal double AttackPose,AttackWindup,AimAngle;
+            internal double AttackPose,AttackWindup,AimAngle,CrystalOpen,EnergyX,EnergyY,EnergyWarning,EnergyFlash,GroundX,GroundY,HatchPose;
+            internal bool CrystalShield,EnergyLink,GroundMark;
             internal double X,Y,Radius,Rotation,HitFlash,Tier,Hp,MaxHp,LinkTimer,LinkX,LinkY,LinkWindow;
             internal bool FaceTarget,HasRotation,Boss,Elite,Fire,Poison,Freeze,LinkTarget,Fleet;
             internal string Variant,BossName,Role;
@@ -84,7 +85,7 @@ namespace EchoSphere.Presentation
             if(DisableEarlyBodyCullingForValidation)bodyVisible=true;
 #endif
             if(bodyVisible)DrawOuterGlow(surface,e.Radius*(e.Boss?1.65:1.15),statusColor,e.Boss?.21:.10,root);
-            if(e.Boss){DrawBossSignal(surface,e.Signal,t,e.Signal.Campaign?T(e.X,e.Y):signalRoot);if(bodyVisible){if(e.RegionStyle>=2)DrawRegionalCreature(e,poseTime,root);else if(e.Fleet)DrawFleet(e,poseTime,root);else Draw(surface,e.Radius,e.Color,poseTime,e.Variant,true,root);}}
+            if(e.Boss){DrawBossSignal(surface,e.Signal,t,e.Signal.Campaign?T(e.X,e.Y):signalRoot);if(bodyVisible){if(e.RegionStyle>=2)DrawRegionalCreature(e,poseTime,root);else if(e.Fleet)DrawFleet(e,poseTime,root);else Draw(surface,e.Radius,e.Color,poseTime,e.Variant,true,root);DrawSummonerHatches(e,root);}}
             else if(bodyVisible){
                 if(e.RegionStyle>=2)DrawRegionalCreature(e,poseTime,root);else if(e.Fleet)DrawFleet(e,poseTime,root);else Draw(surface,e.Radius,e.Color,poseTime,e.Variant,false,root);if(e.Elite)DrawElite(surface,e.Radius,e.Color,t,root);
                 if(e.Tier>0){double n=Math.Min(3,e.Tier);var local=root*T(0,-e.Radius*1.55,t*.35);var ray=Get(44,e.Radius,0,1.2,()=>Straight(P(e.Radius*.10,0),P(e.Radius*.38,0)),false);for(int i=0;i<n;i++)Paint(ray,local*T(angle:i*Math.PI*2/n),null,A(statusColor,.46));}
@@ -95,6 +96,7 @@ namespace EchoSphere.Presentation
             else LinkBreaker(signalRoot,e,t);
             if(!bodyVisible){CulledBodyCount++;_gaitActive=false;}
 
+            DrawRegionalMechanicSignals(e,root);
             if(e.Boss){double w=Math.Max(110,e.Radius*1.55),ratio=Clamp(e.Hp/Math.Max(1,e.MaxHp)),x=e.X-w/2,y=e.Y-e.Radius*bodyScale-30;var bar=Get(46,w,6,1,()=>Poly(Vector2.zero,P(w,0),P(w,6),P(0,6)));Paint(bar,T(x,y),C(2,7,18,.88),null,shadow:statusColor);Paint(bar,T(x,y,sx:ratio),statusColor,null,shadow:statusColor);Paint(bar,T(x,y),null,C(220,250,255,.68),shadow:statusColor);
                 if(_activeView.LabelUsed==_activeView.Labels.Count)_activeView.Labels.Add(new NativeWorldLabel());_activeView.Labels[_activeView.LabelUsed++].Draw(surface,e.BossName,P(e.X,y-4),C(230,250,255,.78),statusColor,true);}
 

@@ -17,7 +17,7 @@ namespace EchoSphere.Runtime
         private string _visualVariant = "wisp";
         private int _campaignRegionStyle=-1;
         public int CampaignRegionStyle=>_campaignRegionStyle;
-        public void SetCampaignRegion(EchoRegionId region)=>_campaignRegionStyle=(int)region;
+        public void SetCampaignRegion(EchoRegionId region){_campaignRegionStyle=(int)region;EnsureRegionalIdentity();}
         internal string SourceVisualVariant => _visualVariant;
         internal BossCombatAgent2D SourceProjectionBossCombat => _bossCombat;
         private EchoSphereRuntime _runtime;
@@ -136,6 +136,7 @@ namespace EchoSphere.Runtime
             if (source == SphereId.Void) actual = _runtime.ResolveSourceVoidHit(this, actual, owner);
             if (owner != null && allowAuthoredProcs) actual = owner.ApplySourceBranchHit(this, actual, wasCritical);
             actual *= _runtime == null ? 1f : _runtime.SourceBuffDamageMultiplier;
+            actual*=RegionalIncomingMultiplier;
             _hp -= Mathf.Max(0f, actual);
             RefreshReceivedDamageVisuals();
             if (_eliteVariant == "mirror_warden" && actual > 0f && _runtime != null)
@@ -420,6 +421,7 @@ namespace EchoSphere.Runtime
                     if (_fireTickTimer <= 0f) { _fireTickTimer = _fireTickInterval; damage = _fireDps * _fireTickInterval; }
                 }
                 else damage = _fireDps * dt;
+                damage*=RegionalIncomingMultiplier;
                 TickStatusFeedback(damage, true, _fireTimer, _fireTickInterval, ref _fireDamageNumberTimer, ref _fireDamageNumberAccumulator);
                 ApplyStatusDamage(damage);
                 if (_dead) return;
@@ -437,6 +439,7 @@ namespace EchoSphere.Runtime
                     if (_poisonTickTimer <= 0f) { _poisonTickTimer = _poisonTickInterval; damage = _poisonDps * _poisonTickInterval; }
                 }
                 else damage = _poisonDps * dt;
+                damage*=RegionalIncomingMultiplier;
                 TickStatusFeedback(damage, false, _poisonTimer, _poisonTickInterval, ref _poisonDamageNumberTimer, ref _poisonDamageNumberAccumulator);
                 ApplyStatusDamage(damage);
                 if (_dead) return;
@@ -581,6 +584,7 @@ namespace EchoSphere.Runtime
             if (_dead) return;
             _runtime?.ApplySourceTimeStopFreeze(this);
             damage *= _runtime == null ? 1f : _runtime.SourceBuffDamageMultiplier;
+            damage*=RegionalIncomingMultiplier;
             _hp -= Mathf.Max(0f, damage);
             RefreshReceivedDamageVisuals();
             if (emitFeedback) _runtime.EmitSourceHitFeedback(this, damage, false, false, false, sourceSphere);
@@ -592,7 +596,7 @@ namespace EchoSphere.Runtime
         public void ReceiveArtifactProtocolDamage(float damage,SphereAttackAgent owner)
         {
             if(_dead||damage<=0f||owner==null)return;
-            _hp-=Mathf.Max(0f,damage);RefreshReceivedDamageVisuals();
+            damage*=RegionalIncomingMultiplier;_hp-=Mathf.Max(0f,damage);RefreshReceivedDamageVisuals();
             _runtime?.EmitSourceHitFeedback(this,damage,false,false,false,owner.Type);
             FinishReceivedDamage(owner.Type,owner,damage);
         }

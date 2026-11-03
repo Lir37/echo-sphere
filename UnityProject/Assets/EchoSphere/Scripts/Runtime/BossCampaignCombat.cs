@@ -5,12 +5,14 @@ namespace EchoSphere.Runtime
     public sealed partial class BossCombatAgent2D
     {
         private CampaignBossState _campaign;
-        private float _campaignDashRemaining, _campaignDashSpeed;
+        private float _campaignDashRemaining, _campaignDashSpeed,_campaignEmission;
+        internal float CampaignEmission=>_campaignEmission;
         public CampaignBossState CampaignState => _runtime != null && _runtime.UsesCampaignCombat ? _campaign : null;
         public CampaignBossPattern CampaignPattern => CampaignBossRules.Pattern(_bossType,_campaign?.AttackIndex??0,_campaign==null?0:_campaign.Telegraphing?_campaign.AttackPhase:_campaign.Phase);
 
         private void TickCampaignBoss(float dt)
         {
+            _campaignEmission=Mathf.Max(0,_campaignEmission-dt);
             if(_campaign==null)_campaign=new CampaignBossState();
             var player=(Vector2)_player.position;
             var oldPhase=_campaign.Phase;
@@ -34,7 +36,7 @@ namespace EchoSphere.Runtime
                 _campaignDashRemaining=Mathf.Max(0,_campaignDashRemaining-dt);
             }
             else if(!_campaign.Telegraphing && signal!=CampaignBossEvent.Execute)
-                transform.position=Vector2.MoveTowards(transform.position,player,_moveSpeed*_agent.MovementSlowMultiplier*(_campaign.Phase>0?1.12f:1f)*dt);
+                {if(_bossType!="fleet_carrier"||Vector2.Distance(transform.position,player)>180*SpherePlacementRules.SourcePixelsToWorld)transform.position=Vector2.MoveTowards(transform.position,player,_moveSpeed*_agent.MovementSlowMultiplier*(_campaign.Phase>0?1.12f:1f)*dt);}
             _runtime.RefreshEnemyQuery(_agent);
             if(Vector2.Distance(transform.position,player)<_agent.SourceRadius*SpherePlacementRules.SourcePixelsToWorld+BossCombatRules.PlayerRadiusWorld)
                 _runtime.TryDamagePlayer(_damage*(_campaignDashRemaining>0?1.5f:1f));
@@ -59,6 +61,7 @@ namespace EchoSphere.Runtime
                     }
                     break;
                 case CampaignBossAttack.Summon:
+                    if(_bossType=="brood_queen"||_bossType=="fleet_carrier"){_runtime.ReleaseRegionalBrood(_agent,p.Count,_campaign.AttackPhase>0?RegionalCombatTuning.BossBroodPhaseTwoCap:RegionalCombatTuning.BossBroodCap);_campaignEmission=.35f;break;}
                     for(int i=0;i<p.Count;i++)
                     {
                         float a=angle+i*Mathf.PI*2/p.Count;

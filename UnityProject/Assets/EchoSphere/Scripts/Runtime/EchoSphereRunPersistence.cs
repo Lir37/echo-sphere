@@ -252,7 +252,7 @@ namespace EchoSphere.Runtime
                 enemy.SetSourceAppearance(baseColor);
                 // JsonUtility restores a null inline SnapshotValue as an empty object.
                 // The model boss type, not that object, owns controller eligibility.
-                if (BossCombatRules.IsKnownBossType(bossType))
+                if (CampaignBossRules.IsKnown(bossType))
                 {
                     var boss = go.AddComponent<BossCombatAgent2D>();
                     boss.Initialize(this, _player, enemy, bossType, _wave, enemy.SourceSpeed * SpherePlacementRules.SourcePixelsToWorld, enemy.ContactDamage, baseColor);

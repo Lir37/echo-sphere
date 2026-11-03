@@ -1413,6 +1413,7 @@ namespace EchoSphere.Runtime
                 difficulty.EnemyHpMultiplier * pocket.Hp * challengeHp * roleHp;
             var speed = BossCombatRules.ToWorldUnits(profile.SpeedBase + _wave * profile.SpeedPerWave) *
                 difficulty.EnemySpeedMultiplier * pocket.Speed * challengeSpeed * roleSpeed;
+            if(UsesCampaignCombat)speed*=RegionalCombatTuning.SpeedMultiplier(speed/SpherePlacementRules.SourcePixelsToWorld,role);
             // Source stores the fully modified damage on the enemy at spawn time.
             var damage = (profile.DamageBase + _wave * profile.DamagePerWave) *
                 difficulty.EnemyDamageMultiplier * GetRegionEnemyDamageMultiplier() * roleDamage;
@@ -1426,7 +1427,8 @@ namespace EchoSphere.Runtime
                 hp *= 3f;
                 damage *= 1.5f;
                 xpReward *= 5f;
-                visualVariant = SelectEliteVariant(out eliteVariant);
+                if(UsesCampaignCombat){int index=RegionalCombatTuning.EliteIndex((int)ecologyRegion,_rng.NextFloat(),_regionEndlessMode||_convergenceRun);eliteVariant=EliteVariantIds[index];visualVariant=EliteVariantVisuals[index];}
+                else visualVariant = SelectEliteVariant(out eliteVariant);
             }
 
             // Source radius is 19/15/26 pixels for normal/fast/tank; elite adds 4.
@@ -1551,13 +1553,14 @@ namespace EchoSphere.Runtime
             var type = string.IsNullOrEmpty(forcedBossType)
                 ? BossCombatRules.GetTypeForDefeatedCount(_bossesDefeated)
                 : forcedBossType;
-            if (!BossCombatRules.IsKnownBossType(type)) return null;
+            if(UsesCampaignCombat){type=_convergenceRun&&_convergenceState!=null&&_convergenceState.EscalationBosses>0?CampaignBossRules.RepeatType(_convergenceState.EscalationBosses-1):CampaignBossRules.ForRegion(type,ActiveCampaignRegion);}
+            if (!(UsesCampaignCombat?CampaignBossRules.IsKnown(type):BossCombatRules.IsKnownBossType(type))) return null;
 
             var angle = _rng.NextFloat() * Mathf.PI * 2f;
             var position = (Vector2)_player.position +
                 new Vector2(Mathf.Cos(angle), -Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
             var tint = Color.white;
-            ColorUtility.TryParseHtmlString(BossCombatRules.GetColorHex(type), out tint);
+            ColorUtility.TryParseHtmlString(type=="brood_queen"?"#b9cf69":type=="fleet_carrier"?"#72dbff":BossCombatRules.GetColorHex(type), out tint);
             var difficulty = CurrentDifficulty;
             var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier;
             var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier;
@@ -1570,7 +1573,7 @@ namespace EchoSphere.Runtime
             var combat = root.AddComponent<BossCombatAgent2D>();
             combat.Initialize(this, _player, agent, type, wave, speed, damage, tint);
             agent.SetBossCombat(combat);
-            if(UsesCampaignCombat){agent.SetCampaignRegion(ActiveCampaignRegion);DiscoverCampaignLore(ActiveCampaignRegion,4);}
+            if(UsesCampaignCombat){agent.SetCampaignRegion(type=="brood_queen"?EchoRegionId.FracturedBastion:type=="fleet_carrier"?EchoRegionId.SpectralRift:ActiveCampaignRegion);if(type=="brood_queen"||type=="fleet_carrier")agent.SetSourceRadius(type=="brood_queen"?52:48);DiscoverCampaignLore(ActiveCampaignRegion,4);}
             return agent;
         }
 

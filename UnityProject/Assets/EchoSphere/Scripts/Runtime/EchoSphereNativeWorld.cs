@@ -57,6 +57,10 @@ namespace EchoSphere.Runtime
         private void DrawNativeEnemyWorld(EnemyAgent2D enemy)
         {
             var view=ProjectNativeEnemyView(enemy,PlayerPosition,_worldSurface.LocalizeCanvasText,IsRussianUi);view.RegionStyle=enemy.CampaignRegionStyle>=0?enemy.CampaignRegionStyle:(int)_selectedRegion;view.Fleet=view.RegionStyle==1;view.Role=enemy.Role;view.FaceTarget=enemy.RegionalRanged;view.AttackPose=enemy.RegionalAttackPose;view.AttackWindup=enemy.RegionalWindup;var aim=enemy.RegionalAttackPose>0?enemy.RegionalAim:PlayerPosition;view.AimAngle=System.Math.Atan2(-(aim.y-enemy.transform.position.y),aim.x-enemy.transform.position.x);
+            view.HatchPose=view.AttackPose;view.CrystalShield=enemy.CrystalClosed;view.CrystalOpen=enemy.CrystalOpen;
+            var partner=FindRegionalIdentity(enemy.EnergyTargetId);view.EnergyLink=partner!=null&&(enemy.EnergyWarning>0||enemy.EnergyFlash>0);if(view.EnergyLink){var ep=NativeSourcePixels(partner.transform.position);view.EnergyX=ep.x;view.EnergyY=ep.y;}view.EnergyWarning=enemy.EnergyWarning;view.EnergyFlash=enemy.EnergyFlash;
+            view.GroundMark=enemy.RegionalWindup>0&&EchoSphere.Core.RegionalEnemyRules.Get(enemy.CampaignRegionStyle,enemy.Role).Shot=="shadow";if(view.GroundMark){var mark=NativeSourcePixels(enemy.RegionalAim);view.GroundX=mark.x;view.GroundY=mark.y;}
+            if(enemy.BossType=="brood_queen"||enemy.BossType=="fleet_carrier"){view.Role=enemy.BossType=="brood_queen"?"anchor":"tank_guard";var bc=enemy.SourceProjectionBossCombat;view.HatchPose=bc?.CampaignState!=null&&bc.CampaignState.Telegraphing&&bc.CampaignPattern.Attack==EchoSphere.Core.CampaignBossAttack.Summon?1-bc.CampaignState.Remaining/bc.CampaignPattern.Windup:(bc?.CampaignEmission??0)/.35f;}
             _nativeWorldCreatures.DrawEnemy(_worldSurface,view,_runTime);
         }
         internal static NativeWorldCreatures.EnemyView ProjectNativeEnemyView(EnemyAgent2D enemy,Vector2 playerPosition,bool localize,bool ru)
