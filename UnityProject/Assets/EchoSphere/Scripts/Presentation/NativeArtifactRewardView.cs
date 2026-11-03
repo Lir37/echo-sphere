@@ -54,7 +54,7 @@ namespace EchoSphere.Presentation
         }
         public void Prepare(float scale,float viewportWidth)
         {
-            if(_disposed)throw new ObjectDisposedException(nameof(NativeArtifactRewardView));Root.BringToFront();bool columns=viewportWidth>=640;_grid.style.flexDirection=columns?FlexDirection.Row:FlexDirection.Column;
+            if(_disposed)throw new ObjectDisposedException(nameof(NativeArtifactRewardView));NativeUiOrder.Last(Root);bool columns=viewportWidth>=640;_grid.style.flexDirection=columns?FlexDirection.Row:FlexDirection.Column;
             for(int i=0;i<_cards.Count;i++){var card=_cards[i];card.style.flexBasis=columns?0:StyleKeyword.Auto;card.style.flexGrow=columns?1:0;card.style.flexShrink=1;card.style.marginRight=columns&&i<_cards.Count-1?16:0;card.style.marginBottom=!columns&&i<_cards.Count-1?16:0;}
             if(_content.layout.width<=0||Time.frameCount-_geometryFrame<2)return;foreach(var paint in _paint)paint.Prepare(scale);foreach(var glyph in _glyphs)glyph.Prepare(scale);Ready=true;Root.style.opacity=1;
         }

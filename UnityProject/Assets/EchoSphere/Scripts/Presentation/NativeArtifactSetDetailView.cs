@@ -46,7 +46,7 @@ namespace EchoSphere.Presentation
         }
         public void Prepare(float scale,float viewportWidth,float viewportHeight)
         {
-            if(_disposed)throw new ObjectDisposedException(nameof(NativeArtifactSetDetailView));Root.BringToFront();_shell.style.width=Mathf.Min(1040,viewportWidth-28);_shell.style.maxHeight=Mathf.Min(viewportHeight*.92f,780);
+            if(_disposed)throw new ObjectDisposedException(nameof(NativeArtifactSetDetailView));NativeUiOrder.Last(Root);_shell.style.width=Mathf.Min(1040,viewportWidth-28);_shell.style.maxHeight=Mathf.Min(viewportHeight*.92f,780);
             if(_shell.layout.width<=0||Time.frameCount-_createdFrame<2)return;foreach(var paint in _paint)paint.Prepare(scale);foreach(var glyph in _glyphs)glyph.Prepare(scale);Ready=true;Root.style.opacity=1;
         }
         private void Paint(VisualElement e,NativeMenuBrush.Paint paint)=>_paint.Add(new NativeHudSurface(e,paint));

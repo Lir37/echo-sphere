@@ -42,7 +42,7 @@ namespace EchoSphere.Presentation
         internal void Bind(RunEconomyState state,IList<string> owned,bool ru,double time,bool visible,bool canOpen,bool leftHanded)
         {
             _root.style.display=visible&&state!=null?DisplayStyle.Flex:DisplayStyle.None;if(!visible||state==null)return;
-            _root.BringToFront();if(leftHanded){_wallet.style.left=12;_wallet.style.right=StyleKeyword.Auto;}else{_wallet.style.right=12;_wallet.style.left=StyleKeyword.Auto;}
+            NativeUiOrder.Last(_root);if(leftHanded){_wallet.style.left=12;_wallet.style.right=StyleKeyword.Auto;}else{_wallet.style.right=12;_wallet.style.left=StyleKeyword.Auto;}
             _wallet.style.display=state.Pending&&!state.Open?DisplayStyle.Flex:DisplayStyle.None;
             if(state.Pending&&!state.Open)_wallet.text=(ru?"Торговец":"Merchant")+" · "+Math.Max(0,(int)Math.Ceiling(state.ArrivedAt+40-time))+(ru?" с":" s");
             _wallet.SetEnabled(canOpen);_overlay.style.display=state.Open?DisplayStyle.Flex:DisplayStyle.None;if(!state.Open)return;

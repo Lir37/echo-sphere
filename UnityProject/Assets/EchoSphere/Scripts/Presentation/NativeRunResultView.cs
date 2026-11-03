@@ -55,7 +55,7 @@ namespace EchoSphere.Presentation
         public void Prepare(float scale)
         {
             if(_disposed)throw new ObjectDisposedException(nameof(NativeRunResultView));
-            Root.BringToFront();
+            NativeUiOrder.Last(Root);
             if(Root.layout.width<=0||Root.layout.height<=0||_panel.layout.width<=0||Time.frameCount-_createdFrame<2)return;
             foreach(var surface in _surfaces)surface.Prepare(scale);
             if(_record!=null){float phase=Mathf.Repeat(Time.unscaledTime-_start,2);_record.style.opacity=phase<1?Mathf.Lerp(1,.5f,_ease.Evaluate(phase)):Mathf.Lerp(.5f,1,_ease.Evaluate(phase-1));}

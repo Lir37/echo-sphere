@@ -100,7 +100,7 @@ namespace EchoSphere.Presentation
 #endif
         }
         internal void OrderPauseContent(VisualElement content)
-        {if(content.parent==_shell)content.PlaceInFront(_highlight);}
+        {if(content.parent==_shell)NativeUiOrder.InFront(content,_highlight);}
         internal void Hide()
         {
             if(!_visible)return;_visible=false;

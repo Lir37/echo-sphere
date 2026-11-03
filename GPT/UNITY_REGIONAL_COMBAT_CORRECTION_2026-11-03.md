@@ -29,3 +29,12 @@ The first Release correction still measured 27.599 FPS in a short region-one com
 Code inspection found three complete VectorGraphics tessellations of each 25-point animated network link per frame. The sine, 25 samples, three stroke widths, colors, opacity and travelling packets remain unchanged. Retained dynamic ribbons now update vertices directly, with joined nonoverlapping strips and 32-step round end caps. Generic formation contours retain their existing renderer. Ribbon and generic vector meshes have separate ownership to avoid stale tessellation-cache inputs.
 
 Actual Editor comparison of six animated active/inactive link states: worst full-image RGB mean difference 0.000428/255. Warm 200-call CPU sample per link, same Editor fixture: 3.497986 ms vector versus 0.043893 ms ribbon. These are Editor submission costs, not phone frame times. New Release build/device validation follows.
+
+## Device Profiler — retained UI hierarchy invalidated every frame
+Actual Xiaomi Development player connected through adb-forwarded Unity Profiler. A warmed active-combat subset (48 frames, excluding loading frames) showed UIElementsRepaintPanels 44.418 ms/frame, Native run panel PrepareRepaint 43.936 ms/frame, RenderTree.UpdateVisuals 25.821 ms/frame. Development/profiling overhead is substantial; these numbers must not be compared directly with Release FPS.
+
+A concrete cause was verified in the installed Unity 6000.6.1f1 implementation: VisualElement.PlaceInFront delegates to Hierarchy.MoveChildElement without checking whether the requested order already holds. MoveChildElement removes/reinserts the child and increments the hierarchy version unconditionally. Runtime called this every frame for the mobile layout and HUD, and repeatedly for pause/modal content. This invalidated retained UI rendering across broad subtrees despite unchanged layout.
+
+NativeUiOrder now checks the actual sibling index before reordering; repeated BringToFront on bound modal views is similarly guarded. Semantics checked for all 30 distinct pairs among six siblings. Attached runtime-panel test: 100 repeated old calls increment hierarchyVersion 100 times; 100 guarded calls increment it zero times. All 31 checks PASS. No layouts, visual layers, filters or interaction targets are removed. New Release/device verification follows.
+
+The earlier ribbon Release alone did not improve phone frame times (short five-sphere continuation 26.847 FPS, p95 49.836 ms). Performance completion remains open until the hierarchy fix is measured.

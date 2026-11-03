@@ -35,7 +35,7 @@ namespace EchoSphere.Runtime
             if(_nativeHudIsland==null||_nativeHudIsland.Root.parent!=parent){DisposeNativeHudIsland();_nativeHudIsland=CreateNativeHudCandidate(parent);}
             // The native island shares the original pane and paint-prefix order:
             // field/mobile controls below HUD, combo/modal/tutorial layers above.
-            _nativeHudIsland.Root.PlaceInFront(rightBox);
+            NativeUiOrder.InFront(_nativeHudIsland.Root,rightBox);
             if(_nativeHudBoundVersion!=anchors.Version){_nativeHudIsland.Bind(ReadNativeHudState());_nativeHudBoundVersion=anchors.Version;}
             _nativeHudIsland.SetRunCurrency(_runEconomy!=null&&_tutorialStep<0?(int?)_runEconomy.Echo:null,IsRussianUi);
             _nativeHudIsland.SetInterfaceScale((float)NativeInterfaceScale);
