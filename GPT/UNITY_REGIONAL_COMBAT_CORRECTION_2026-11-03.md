@@ -38,3 +38,10 @@ A concrete cause was verified in the installed Unity 6000.6.1f1 implementation: 
 NativeUiOrder now checks the actual sibling index before reordering; repeated BringToFront on bound modal views is similarly guarded. Semantics checked for all 30 distinct pairs among six siblings. Attached runtime-panel test: 100 repeated old calls increment hierarchyVersion 100 times; 100 guarded calls increment it zero times. All 31 checks PASS. No layouts, visual layers, filters or interaction targets are removed. New Release/device verification follows.
 
 The earlier ribbon Release alone did not improve phone frame times (short five-sphere continuation 26.847 FPS, p95 49.836 ms). Performance completion remains open until the hierarchy fix is measured.
+
+## Resumed phone session
+The later resumed device session had a different current profile (saved at0:41, four placed spheres). A fresh private backup was made before testing. Never restore the earlier0:24 or0:53 archives over this newer player state.
+
+Release with hierarchy guards installed successfully: APK57242162 bytes, SHA25666aa15c46a71c42e27f5bb98f5e6b932aa75ae5e71b63d288cac46bcd8a20714. Short natural combat on the newer four-sphere state:26.737 FPS over10.024s, p95 49.716ms, p99 66.205ms. It is a different saved state; no matched before/after FPS improvement is claimed. More attribution is needed.
+
+Added five presentation-scope ProfilerMarker groups under UNITY_INCLUDE_INSTRUMENTATION only (standard/family/enemy/player/network). They are excluded from normal Release. A temporary ARM64 diagnostic build restores the user's target architectures in finally; normal Release remains dual-ABI. The remaining upgrade-modal order guard uses the same already checked helper.

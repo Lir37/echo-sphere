@@ -58,6 +58,10 @@ namespace EchoSphere.Presentation
         }
         internal bool DrawAssembly(NativeWorldSurface s,double x,double y,double r,double tier,double time,bool target,NativeWorldSprites sprites,Func<string,INativeWorldSprite> resolve)
         {
+#if UNITY_INCLUDE_INSTRUMENTATION
+            using var diagnosticScope=NativeWorldDiagnostics.Standard.Auto();
+#endif
+
             double breathe=Math.Sin(time*2.2+x*.013)*.028,energy=.5+.5*Math.Sin(time*4.6+y*.009),targetPulse=target?.5+.5*Math.Sin(time*11):0,attackScale=1+targetPulse*.025;
             var root=Transform(x,y)*Matrix4x4.Scale(new Vector3((float)(attackScale+breathe*.18),(float)(attackScale-breathe*.12),1));
             DrawCore(s,r,energy,root);DrawRing(s,r*1.18,time*(.22+tier*.018),.72+targetPulse*.20,root);

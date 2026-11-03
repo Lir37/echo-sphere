@@ -60,6 +60,10 @@ namespace EchoSphere.Presentation
         }
         internal void DrawEnemy(NativeWorldSurface surface,EnemyView e,double t)
         {
+#if UNITY_INCLUDE_INSTRUMENTATION
+            using var diagnosticScope=NativeWorldDiagnostics.Enemy.Auto();
+#endif
+
             var previous=_activeView;_activeView=EntityView(e.Identity);
             try{DrawOwnedEnemy(surface,e,t);}finally{_activeView=previous;}
         }

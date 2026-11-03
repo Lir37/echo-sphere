@@ -8,6 +8,10 @@ namespace EchoSphere.Presentation
     {
         internal void DrawFamily(NativeWorldSurface surface,NativeWorldStandardSphere cores,State s,bool includeCombatParts=true)
         {
+#if UNITY_INCLUDE_INSTRUMENTATION
+            using var diagnosticScope=NativeWorldDiagnostics.Family.Auto();
+#endif
+
             _surface=surface;double r=24*s.Scale,t=s.Time,pulse=s.Disabled?.5:.5+.5*Math.Sin(t*3.4+s.X*.008+s.Y*.006);Color color;
             switch(s.Family){case "sniper":color=C(232,108,255);break;case "shotgun":color=C(255,143,61);break;case "chain":color=C(255,226,91);break;case "aura":color=C(87,230,180);break;case "prism":color=C(255,141,225);break;case "gravity":color=C(165,140,255);break;case "pulse":color=C(255,211,90);break;default:color=C(194,140,255);break;}
             if(s.Disabled)color=C(255,77,112);else if(s.Resonance)color=C(255,209,102);

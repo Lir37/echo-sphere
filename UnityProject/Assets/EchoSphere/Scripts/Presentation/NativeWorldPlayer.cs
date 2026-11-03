@@ -56,6 +56,10 @@ namespace EchoSphere.Presentation
 
         internal void Draw(NativeWorldSurface surface,State p,NativeWorldCreatures shadows)
         {
+#if UNITY_INCLUDE_INSTRUMENTATION
+            using var diagnosticScope=NativeWorldDiagnostics.Player.Auto();
+#endif
+
             // Live art never resolves the old portrait/side sprite.
             // Menus bake this same contour rig.
             _surface=surface;double r=p.Radius,t=p.Time,pulse=1+Math.Sin(t*5.5)*.025;

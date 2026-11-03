@@ -89,6 +89,10 @@ namespace EchoSphere.Presentation
         private static double Radius(Formation f,Node[] nodes,Node center){double r=0;foreach(int i in f.Nodes){double dx=nodes[i].X-center.X,dy=nodes[i].Y-center.Y;r=Math.Max(r,Math.Sqrt(dx*dx+dy*dy));}return r;}
         internal void Draw(NativeWorldSurface surface,Network n,Node?[] runtimeNodes,Link[] external,double t)
         {
+#if UNITY_INCLUDE_INSTRUMENTATION
+            using var diagnosticScope=NativeWorldDiagnostics.Network.Auto();
+#endif
+
             if(n.NodeCount<2&&external.Length==0)return;Begin(surface);
             foreach(var l in external){if(l.A<0||l.B<0||l.A>=runtimeNodes.Length||l.B>=runtimeNodes.Length||!runtimeNodes[l.A].HasValue||!runtimeNodes[l.B].HasValue)continue;Wavy(runtimeNodes[l.A].Value,runtimeNodes[l.B].Value,C(99,185,255),.24,t,l.A*17.13+l.B*29.71,false);}
             double pulse=.82+Math.Sin(t*4.2)*.10;
