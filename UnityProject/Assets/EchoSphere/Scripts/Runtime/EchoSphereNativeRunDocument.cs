@@ -34,7 +34,7 @@ namespace EchoSphere.Runtime
                     _nativeJoystickState==null?(Vector2?)null:new Vector2((float)_nativeMobileJoystickX,(float)_nativeMobileJoystickY),_nativePlacementState==null?(Vector2?)null:_nativeMobilePlacement,
                     _nativeGhostNetworkState!=null,_nativeFormationMemoryState!=null,SourceDevicePixelRatio);
             }else{DetachNativeMobileGestures();_nativeMobileLayout?.Dispose();_nativeMobileLayout=null;}
-            PrepareNativeRunPresenters(anchors);_nativeRunDocument.End(SourceDevicePixelRatio);
+            PrepareNativeRunPresenters(anchors);_nativeRunDocument.SetPauseSnapshotKey(System.HashCode.Combine(_runTime,PlayerPosition,_camera.transform.position,NativeInterfaceScale,IsLeftHanded,_selectedSphereType,Screen.safeArea));_nativeRunDocument.End(SourceDevicePixelRatio);
         }
         private Rect? ReadNativeRunTutorialTarget(string key)
         {

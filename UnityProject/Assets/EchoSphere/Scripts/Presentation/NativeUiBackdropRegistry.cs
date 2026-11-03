@@ -40,6 +40,7 @@ namespace EchoSphere.Presentation
 #endif
             return binding;
         }
+        internal void SetRequested(VisualElement element,bool visible){if(_bindings.TryGetValue(element,out var binding))binding.Effect.SetVisible(visible);}
         internal int LayoutPrepareCount=>0;
         internal int DynamicRepaintCount=>0;
         internal int CapturePrepareCount=>0;

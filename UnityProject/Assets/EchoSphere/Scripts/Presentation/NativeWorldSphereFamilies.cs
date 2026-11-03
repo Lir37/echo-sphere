@@ -23,9 +23,9 @@ namespace EchoSphere.Presentation
         }
         private readonly Dictionary<(int,double,double,double,PathEnding,PathCorner,float),Art> _art=new Dictionary<(int,double,double,double,PathEnding,PathCorner,float),Art>();
         private readonly Dictionary<Color,Matrix4x4> _glowSpaces=new Dictionary<Color,Matrix4x4>();
-        private readonly List<Art> _sweeps=new List<Art>();private int _sweepUsed;private readonly Vector2[] _sweepPoints=new Vector2[43];
+        private readonly List<Art> _sweeps=new List<Art>();private int _sweepUsed;private readonly Vector2[] _sweepPoints=new Vector2[43],_lightningPoints=new Vector2[21];
 #if UNITY_EDITOR
-        internal bool UseVectorAuraForValidation=false;
+        internal bool UseVectorAuraForValidation=false,UseVectorLightningForValidation=false;
 #endif
         private readonly List<Art> _dynamic=new List<Art>();private int _dynamicUsed,_used;
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();
@@ -61,16 +61,23 @@ namespace EchoSphere.Presentation
         {var points=new Vector2[43];for(int i=0;i<=42;i++){double a=start+(end-start)*i/42,n=wobble!=0?Math.Sin(a*7+.35)*wobble:0;points[i]=P(Math.Cos(a)*(rx+n),Math.Sin(a)*(ry+n*.34));}return PolylineContour(false,points);}
         private Art Sweep(double rx,double ry,double start,double end,double width){
             var points=_sweepPoints;for(int i=0;i<points.Length;i++){double angle=start+(end-start)*i/(points.Length-1);points[i]=P(Math.Cos(angle)*rx,Math.Sin(angle)*ry);}
+            return UploadSweep(points,width,true);
+        }
+        private Art UploadSweep(Vector2[] points,double width,bool roundCaps){
             if(_sweepUsed==_sweeps.Count){var mesh=new Mesh{name="Retained aura sweep"};mesh.MarkDynamic();_sweeps.Add(new Art{Stroke=mesh,SweepVertices=new List<Vector3>(160),SweepIndices=new List<int>(480)});}var art=_sweeps[_sweepUsed++];var v=art.SweepVertices;var ids=art.SweepIndices;v.Clear();ids.Clear();float half=(float)width*.5f;
             for(int i=0;i<points.Length;i++){var before=(points[i]-points[Math.Max(0,i-1)]).normalized;var after=(points[Math.Min(points.Length-1,i+1)]-points[i]).normalized;if(i==0)before=after;if(i==points.Length-1)after=before;var n0=new Vector2(-before.y,before.x);var n1=new Vector2(-after.y,after.x);var join=(n0+n1).normalized;var offset=join*(half/Mathf.Max(.1f,Vector2.Dot(join,n1)));v.Add(points[i]+offset);v.Add(points[i]-offset);if(i>0){int k=i*2;ids.Add(k-2);ids.Add(k-1);ids.Add(k);ids.Add(k);ids.Add(k-1);ids.Add(k+1);}}
-            for(int cap=0;cap<2;cap++){int i=cap==0?0:points.Length-1;var direction=(points[i]-points[cap==0?1:i-1]).normalized;float angle=Mathf.Atan2(direction.y,direction.x)-Mathf.PI*.5f;int center=v.Count;v.Add(points[i]);for(int j=0;j<=32;j++){float q=angle+j*Mathf.PI/32;v.Add(points[i]+new Vector2(Mathf.Cos(q),Mathf.Sin(q))*half);if(j>0){ids.Add(center);ids.Add(center+j);ids.Add(center+j+1);}}}
+            if(roundCaps)for(int cap=0;cap<2;cap++){int i=cap==0?0:points.Length-1;var direction=(points[i]-points[cap==0?1:i-1]).normalized;float angle=Mathf.Atan2(direction.y,direction.x)-Mathf.PI*.5f;int center=v.Count;v.Add(points[i]);for(int j=0;j<=32;j++){float q=angle+j*Mathf.PI/32;v.Add(points[i]+new Vector2(Mathf.Cos(q),Mathf.Sin(q))*half);if(j>0){ids.Add(center);ids.Add(center+j);ids.Add(center+j+1);}}}
             art.Stroke.Clear();art.Stroke.SetVertices(v);art.Stroke.SetTriangles(ids,0);art.Stroke.RecalculateBounds();return art;
         }
         internal void DrawOrbit(NativeWorldSurface surface,double radius,Color color,double rotation,double opacity,string mode,double pulse,Matrix4x4? parent=null,bool lightningAdditive=false)
         {
             _surface=surface;double rx=radius*1.16,ry=radius*.34;var root=(parent??Matrix4x4.identity)*T(angle:rotation);bool lightning=mode=="lightning";
             void Stroke(Art art,double alpha)=>Paint(art,root,null,color,alpha,additive:!lightning||lightningAdditive,inheritBlend:lightning&&!lightningAdditive);
-            if(lightning){for(int ring=0;ring<2;ring++){double x=ring==0?rx:radius*.98,y=ring==0?ry:radius*.28,q=pulse+ring*.5;var points=new Vector2[21];for(int i=0;i<=20;i++){double a=i/20.0*Math.PI*2,j=Math.Sin(i*3.7+q*5.2)*x*.025;points[i]=P(Math.Cos(a)*(x+j),Math.Sin(a)*(y+j*.34));}Stroke(Dynamic(new[]{PolylineContour(false,points)},Math.Max(.8,x*.028)),opacity*(ring==0?1:.36));}return;}
+            if(lightning){for(int ring=0;ring<2;ring++){double x=ring==0?rx:radius*.98,y=ring==0?ry:radius*.28,q=pulse+ring*.5;var points=_lightningPoints;for(int i=0;i<=20;i++){double a=i/20.0*Math.PI*2,j=Math.Sin(i*3.7+q*5.2)*x*.025;points[i]=P(Math.Cos(a)*(x+j),Math.Sin(a)*(y+j*.34));}
+#if UNITY_EDITOR
+                    if(UseVectorLightningForValidation){Stroke(Dynamic(new[]{PolylineContour(false,points)},Math.Max(.8,x*.028)),opacity*(ring==0?1:.36));continue;}
+#endif
+                    Stroke(UploadSweep(points,Math.Max(.8,x*.028),false),opacity*(ring==0?1:.36));}return;}
             if(mode=="void"){
                 for(int i=0;i<7;i++){int index=i;double a=i*Math.PI*2/7+.08;Stroke(Get(10+i,radius,0,Math.Max(.8,radius*.030),()=>new[]{Trace(rx,ry,a,a+(index%2==0?.58:.34),.70)},cap:PathEnding.Round),opacity*(i%3==0?.94:.72));}
                 Stroke(Get(17,radius,0,Math.Max(.55,radius*.018),()=>new[]{Trace(radius*1.03,radius*.295,Math.PI*.16,Math.PI*1.84,.35)},cap:PathEnding.Round),opacity*.42);

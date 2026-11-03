@@ -18,6 +18,8 @@ namespace EchoSphere.Presentation
         private VisualElement _root,_left,_right,_pause,_shell,_detail,_result,_upgrade,_rewards,_tutorial,_combo,_comboBar;
         private Label _comboTitle,_comboMultiplier;
         private int _version; private bool _visible;
+        private NativePausedBackdropCache _pauseCache;private bool _cachePause,_cacheDetail;private int _pauseCacheKey;
+        internal void SetPauseSnapshotKey(int key)=>_pauseCacheKey=key;
 #if UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
         private readonly NativeBattleFrameJournal _frameJournal=new NativeBattleFrameJournal();
         internal void TraceFrame(Camera camera,NativeWorldSurface world,float density)=>_frameJournal.Submitted(_root,_field,_panel,camera,world,density);
@@ -64,11 +66,13 @@ namespace EchoSphere.Presentation
             _result=Require<VisualElement>("native-result-host");_upgrade=Require<VisualElement>("native-upgrade-host");
             _rewards=Require<VisualElement>("native-rewards-host");_registrations.Add(RegisterNativeBackdrop(_rewards,4));
             _tutorial=Require<VisualElement>("native-tutorial-host");
+            _pauseCache=new NativePausedBackdropCache(this,_pause,4,visible=>_backdrops.SetRequested(_pause,visible));
             Anchors.ReadVersion=()=>_version;Anchors.Backdrops=this;Anchors.Invalidate=invalidate;
         }
         internal void Begin(Texture world,float dpr,bool invalidate,bool active,bool pause,bool detail,bool upgrade,bool rewards,bool tutorial,
             double combo,double comboTimer,string comboTitle,string multiplier)
         {
+            _cachePause=active&&pause&&!upgrade&&!rewards&&!tutorial&&_panel.targetTexture==null;_cacheDetail=_cachePause&&detail;
             _visible=true;_root.style.display=DisplayStyle.Flex;_root.style.visibility=Visibility.Visible;_root.style.opacity=1;_root.SetEnabled(true);_panel.scale=dpr;_field.image=world;
             if(invalidate)_version++;
             Anchors.Clear();Bind(Anchors.HudLeft,_left);Bind(Anchors.HudRight,_right);
@@ -91,6 +95,7 @@ namespace EchoSphere.Presentation
         internal void End(float dpr)
         {
             foreach(var p in _paint)p.Prepare(dpr);
+            _pauseCache.Update(_cachePause,!_cacheDetail,dpr,_pauseCacheKey);
 #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
             if(NativeBackdropValidation.UseLegacy){
                 _backdrops.BeginFrame();
@@ -103,13 +108,13 @@ namespace EchoSphere.Presentation
         {if(content.parent==_shell)NativeUiOrder.InFront(content,_highlight);}
         internal void Hide()
         {
-            if(!_visible)return;_visible=false;
+            if(!_visible)return;_visible=false;_pauseCache?.Reset();
             // Retain filter target ownership across menu/run transitions, as for
             // modal hosts. display:none invalidates Unity 6.3 filter texture IDs
             // still referenced by the retained render chain after a resize.
             _root.style.visibility=Visibility.Hidden;_root.style.opacity=0;_root.SetEnabled(false);
         }
         public IDisposable RegisterNativeBackdrop(VisualElement e,float sigma)=>_backdrops.RegisterNativeBackdrop(e,sigma);
-        protected virtual void OnDestroy(){foreach(var r in _registrations)r.Dispose();_backdrops?.Dispose();foreach(var p in _paint)p.Dispose();_panelLease?.Dispose();}
+        protected virtual void OnDestroy(){_pauseCache?.Dispose();foreach(var r in _registrations)r.Dispose();_backdrops?.Dispose();foreach(var p in _paint)p.Dispose();_panelLease?.Dispose();}
     }
 }
