@@ -110,8 +110,8 @@ namespace EchoSphere.Runtime
             _runSaveAccumulator = 0f;
             SaveCurrentRun();
         }
-        private void OnApplicationPause(bool paused) { TraceNativeRoute(paused?"application-pause":"application-resume");if (paused) PauseAndSaveRun(); }
-        private void OnApplicationFocus(bool focused) { TraceNativeRoute(focused?"application-focus":"application-blur");if (!focused) PauseAndSaveRun(); else InvalidateSourceDensity(); }
+        private void OnApplicationPause(bool paused) { TraceNativeRoute(paused?"application-pause":"application-resume");if (paused) { CancelSphereArrangement(); PauseAndSaveRun(); } }
+        private void OnApplicationFocus(bool focused) { TraceNativeRoute(focused?"application-focus":"application-blur");if (!focused) { CancelSphereArrangement(); PauseAndSaveRun(); } else InvalidateSourceDensity(); }
         private void OnApplicationQuit() { SaveCurrentRun(); }
         private void PauseAndSaveRun()
         {
@@ -187,6 +187,7 @@ namespace EchoSphere.Runtime
         }
         private void RestoreRunSnapshot(SavedRun save)
         {
+            CancelSphereArrangement();
             _nativePausedWorldFrame=null;
             // Stop old entity updates immediately; Unity's deferred Destroy happens after this frame.
             foreach (var agent in _simulationAgents.Where(agent=>agent!=null&&agent.gameObject.activeInHierarchy).OrderBy(agent=>agent.ExistingObjectId()).ToArray())

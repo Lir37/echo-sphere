@@ -48,7 +48,7 @@ namespace EchoSphere.Runtime
         private void NativeMobileSetDirection(double x,double y)=>_nativeMobileMoveInput=new Vector2((x>.2?1f:0f)-(x<-.2?1f:0f),(y<-.2?1f:0f)-(y>.2?1f:0f));
         private void ResetNativeMobileGestures(bool unmount)
         {
-            NativeMobileClearKeys();if(_nativeMobileGestureRoot!=null)foreach(int id in _nativeMobilePointers.Keys)_nativeMobileGestureRoot.ReleasePointer(id);
+            NativeMobileClearKeys();while(_nativeMobilePointers.Count>0){int id=0;foreach(var key in _nativeMobilePointers.Keys){id=key;break;}NativeMobileAbort(id);_nativeMobileGestureRoot?.ReleasePointer(id);}
             _nativeMobilePointers.Clear();_nativeMobileJoystickId=null;_nativeMobileDx=_nativeMobileDy=0;_nativeMobileJoystickActive=false;
             if(unmount){_nativeMobileGhost=null;_nativeMobileMemory=null;_nativeMobilePlacementColor=null;_nativeMobileMounted=false;_nativeMobileLastX=0;_nativeMobileLastY=-1;}
         }
@@ -126,18 +126,19 @@ namespace EchoSphere.Runtime
         private void NativeMobileDown(PointerDownEvent e)
         {
             for(var target=e.target as VisualElement;target!=null&&target!=_nativeMobileGestureRoot;target=target.parent)if(target.ClassListContains("native-mobile-control"))return;
-            if(!NativeMobileAllowed)return;_nativeMobileGestureRoot.CapturePointer(e.pointerId);
+            if(!NativeMobileAllowed||_nativeMobilePointers.ContainsKey(e.pointerId))return;_nativeMobileGestureRoot.CapturePointer(e.pointerId);
             double x=e.position.x,y=e.position.y;var p=new NativeMobilePointer {X=x,Y=y};
             if(NativeMobileWorld(x,y,out double wx,out double wy)){
                 var sphere=NativeMobileHandle(NativeMobileNear(wx,wy,34));
                 if(sphere!=null&&_tutorialStep!=1&&_tutorialStep!=2){if(_sphereMovementLocked)p.Locked=true;else p.Sphere=sphere;}
                 else {double width=Screen.width/SourceDevicePixelRatio;bool zone=IsLeftHanded?x>=0&&x<width*.5:x>=width*.5&&x<width;p.Joystick=_tutorialStep!=2&&!_nativeMobileJoystickId.HasValue&&zone;p.Placing=(_tutorialStep==2||_tutorialStep!=1&&!p.Joystick)&&NativeMobileSphereCount<NativeMobileMaximum;}
             }
+            if(p.Sphere!=null||p.Placing)foreach(var held in _nativeMobilePointers.Values)if(held.Sphere!=null||held.Placing){p.Sphere=null;p.Placing=false;p.Locked=true;break;}
             _nativeMobilePointers[e.pointerId]=p;if(p.Joystick){_nativeMobileJoystickId=e.pointerId;_nativeMobileJoystickX=x;_nativeMobileJoystickY=y;_nativeMobileDx=_nativeMobileDy=0;_nativeMobileJoystickActive=false;}NativeMobileEventCompleted();
         }
         private void NativeMobileMove(PointerMoveEvent e)
         {
-            if(!_nativeMobilePointers.TryGetValue(e.pointerId,out var p))return;double dx=e.position.x-p.X,dy=e.position.y-p.Y,distance=NativeMobileDistance(dx,dy);if(p.Locked)return;
+            if(!NativeMobileAllowed){ResetNativeMobileGestures(false);return;}if(!_nativeMobilePointers.TryGetValue(e.pointerId,out var p))return;double dx=e.position.x-p.X,dy=e.position.y-p.Y,distance=NativeMobileDistance(dx,dy);if(p.Locked)return;
             if(p.Sphere!=null||p.Placing){if(distance>12){p.Moved=true;if(NativeMobileWorld(e.position.x,e.position.y,out double x,out double y)){var preview=NativeMobilePreview(p.Sphere,x,y);if(preview!=null){p.Repositioned=preview.Valid;_nativeMobileGhost=preview;}}}NativeMobileEventCompleted();return;}
             if(distance>12)p.Moved=true;
             if(_nativeMobileJoystickId==e.pointerId){_nativeMobileJoystickActive=distance>12;double length=distance==0?1:distance,scale=Math.Min(1,Math.Max(0,length/58));_nativeMobileDx=dx/length*58*scale;_nativeMobileDy=dy/length*58*scale;
@@ -159,17 +160,19 @@ namespace EchoSphere.Runtime
             }
             if(_nativeMobileJoystickId==id){_nativeMobileJoystickId=null;NativeMobileClearKeys();if(p!=null&&!p.Moved)NativeMobileTap(x,y);}else if(p!=null&&!p.Moved)NativeMobileTap(x,y);
         }
-        private void NativeMobileUp(PointerUpEvent e){NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
-        private void NativeMobileCancel(PointerCancelEvent e){NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
+        private void NativeMobileUp(PointerUpEvent e){if(!NativeMobileAllowed){NativeMobileAbort(e.pointerId);return;}NativeMobileEnd(e.pointerId,e.position.x,e.position.y);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
+        private void NativeMobileCancel(PointerCancelEvent e){NativeMobileAbort(e.pointerId);_nativeMobileGestureRoot.ReleasePointer(e.pointerId);NativeMobileEventCompleted();}
+        private void NativeMobileCaptureOut(PointerCaptureOutEvent e){if(_nativeMobilePointers.ContainsKey(e.pointerId)){NativeMobileAbort(e.pointerId);NativeMobileEventCompleted();}}
+        private void NativeMobileAbort(int id){if(!_nativeMobilePointers.TryGetValue(id,out var p))return;_nativeMobilePointers.Remove(id);if(p.Sphere!=null||p.Placing)_nativeMobileGhost=null;if(_nativeMobileJoystickId==id){_nativeMobileJoystickId=null;NativeMobileClearKeys();_nativeMobileJoystickActive=false;}}
         private void NativeMobileEventCompleted(){if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private void PrepareNativeMobileGestures(NativeRunUiAnchors anchors)
         {
             var element=anchors.Mobile.Content;if(element==_nativeMobileGestureRoot)return;DetachNativeMobileGestures();_nativeMobileGestureRoot=element;if(element==null)return;
-            element.RegisterCallback<PointerDownEvent>(NativeMobileDown);element.RegisterCallback<PointerMoveEvent>(NativeMobileMove);element.RegisterCallback<PointerUpEvent>(NativeMobileUp);element.RegisterCallback<PointerCancelEvent>(NativeMobileCancel);
+            element.RegisterCallback<PointerDownEvent>(NativeMobileDown);element.RegisterCallback<PointerMoveEvent>(NativeMobileMove);element.RegisterCallback<PointerUpEvent>(NativeMobileUp);element.RegisterCallback<PointerCancelEvent>(NativeMobileCancel);element.RegisterCallback<PointerCaptureOutEvent>(NativeMobileCaptureOut);
         }
         private void DetachNativeMobileGestures()
         {
-            if(_nativeMobileGestureRoot==null)return;_nativeMobileGestureRoot.UnregisterCallback<PointerDownEvent>(NativeMobileDown);_nativeMobileGestureRoot.UnregisterCallback<PointerMoveEvent>(NativeMobileMove);_nativeMobileGestureRoot.UnregisterCallback<PointerUpEvent>(NativeMobileUp);_nativeMobileGestureRoot.UnregisterCallback<PointerCancelEvent>(NativeMobileCancel);ResetNativeMobileGestures(true);_nativeMobileGestureRoot=null;
+            if(_nativeMobileGestureRoot==null)return;_nativeMobileGestureRoot.UnregisterCallback<PointerDownEvent>(NativeMobileDown);_nativeMobileGestureRoot.UnregisterCallback<PointerMoveEvent>(NativeMobileMove);_nativeMobileGestureRoot.UnregisterCallback<PointerUpEvent>(NativeMobileUp);_nativeMobileGestureRoot.UnregisterCallback<PointerCancelEvent>(NativeMobileCancel);_nativeMobileGestureRoot.UnregisterCallback<PointerCaptureOutEvent>(NativeMobileCaptureOut);ResetNativeMobileGestures(true);_nativeMobileGestureRoot=null;
         }
     }
 }

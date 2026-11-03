@@ -593,4 +593,21 @@ public static class CombatBalanceSimulation
             Write(output+"/summary.json",result);return result;
         } finally {UnityEditor.EditorApplication.isPaused=paused;}
     }
+
+    public static object Threat() {
+        if(!UnityEditor.EditorApplication.isPlaying)throw new Exception("Play required");
+        string dir="Library/combat-balance/threat";Directory.CreateDirectory(dir);
+        string label=File.Exists(dir+"/label.txt")?File.ReadAllText(dir+"/label.txt").Trim():"before";
+        var rows=new List<object>();
+        foreach(int region in Enumerable.Range(0,6))foreach(int stage in new[]{0,900,1700})foreach(uint seed in new uint[]{0x9e3779b9u,0x3c6ef372u,0xdaa66d2bu,0x78dde6e4u,0x1715609du,0xb54cda56u})foreach(bool strong in new[]{false,true})foreach(var center in new[]{Vector2.zero,Vector2.right*9,Vector2.left*9,Vector2.up*9,Vector2.down*9})using(var a=new Arena(region,seed)) {
+            a.Core.transform.position=center;Set(a.Runtime,"_wave",stage/20+1);Set(a.Runtime,"_runTime",(float)stage);Set(a.Runtime,"_knowledgeLoaded",true);
+            var known=Get<HashSet<string>>(a.Runtime,"_knownKnowledgeIds");foreach(var id in new[]{"resonance_basin","spectral_rift","fractured_bastion","gravity_folds","resonance_storm","null_archive"})for(int i=0;i<5;i++)known.Add("region-lore:"+id+":"+i);
+            Call(a.Runtime,"SpawnEnemy");var e=a.Enemies.Last();a.Sphere(new State{Family=SphereId.Standard,Level=strong?7:1,Branch=strong?SphereEvolutionCatalog.GetBranches(SphereId.Standard)[0].Id:null,Final=strong?SphereEvolutionCatalog.GetFinals(SphereEvolutionCatalog.GetBranches(SphereId.Standard)[0].Id)[0].Id:null}).transform.position=(Vector2)a.Core.transform.position+Vector2.right*70*SpherePlacementRules.SourcePixelsToWorld;
+            string role=e.Role,elite=e.EliteVariant;float hp=e.CurrentHp,speed=e.SourceSpeed,startDistance=Vector2.Distance(e.transform.position,a.Core.transform.position)/SpherePlacementRules.SourcePixelsToWorld;
+            var p=RegionalEnemyRules.Get(region,role);float possible=-1,first=-1,killed=-1,min=startDistance;int attacks=0;const float dt=1f/60;
+            for(int i=0;i<1200;i++) {if(e==null||!e.IsAlive){killed=i*dt;break;}float d=Vector2.Distance(e.transform.position,a.Core.transform.position)/SpherePlacementRules.SourcePixelsToWorld;min=Math.Min(min,d);if(possible<0&&p.Range>0&&d<p.Range)possible=i*dt;float wind=Get<float>(e,"_regionalWindup");a.Tick(dt);if(e!=null&&p.Range>0&&wind>0&&Get<float>(e,"_regionalWindup")<=0){attacks++;if(first<0)first=(i+1)*dt;}}
+            rows.Add(new{region,stage,seed,strong,centerX=center.x,centerY=center.y,role,elite,hp,speed,range=p.Range,interval=p.Interval,windup=p.Windup,projectileSpeed=p.Speed,startDistance,firstPossible=possible,firstShot=first,attacks,killedAt=killed,damage=100000-a.Core.CurrentHp,minDistance=min});
+        }
+        Write(dir+"/"+label+".json",rows);return new{status="PASS",arenas=rows.Count,label,scope="actual spawns and C# combat; isolated one enemy vs one Standard I/VII, 20s; three time strata and six seeds; not full runs or all build combinations"};
+    }
 }

@@ -18,6 +18,7 @@ namespace EchoSphere.Runtime
         private float ChaosOrbMultiplier(string kind) => _chaosOrbBuff == kind && _chaosOrbBuffTimer > 0f ? 1.2f : 1f;
         private void TrySourceDash(bool useTouchDirection = false)
         {
+            if(IsSphereArrangementPaused)return;
             if (_follow) { ShowTimedCombatMessage("FOLLOW: DASH LOCKED", 0.55f); return; }
             var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + (_sourceUi!=null?NativeMobileMovement:_sourceJoystickDirection);
             if (useTouchDirection && _playerCore != null)

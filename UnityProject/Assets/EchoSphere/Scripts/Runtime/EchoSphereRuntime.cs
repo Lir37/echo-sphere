@@ -371,8 +371,8 @@ namespace EchoSphere.Runtime
         private SphereNetworkFormation _preferredDominantFormation = SphereNetworkFormation.None;
         private SphereNetworkFormation _preferredSecondaryFormation = SphereNetworkFormation.None;
 
-        public bool IsGameplayPaused => _mainMenu || (_paused && !_simulationFrame) || (!_simulationFrame && _playerCore != null && _playerCore.IsDead);
-        public bool IsPresentationPaused => _mainMenu || _paused;
+        public bool IsGameplayPaused => IsSphereArrangementPaused || _mainMenu || (_paused && !_simulationFrame) || (!_simulationFrame && _playerCore != null && _playerCore.IsDead);
+        public bool IsPresentationPaused => IsSphereArrangementPaused || _mainMenu || _paused;
         public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
         public bool IsDarkRitualOverloaded => _darkRitualOverloadTimer > 0f;
         public bool IsCombatSimulationPaused => IsGameplayPaused || _playerCore == null;
@@ -1032,13 +1032,15 @@ namespace EchoSphere.Runtime
         private void Update()
         {
             PruneDestroyed();
-            if (!_mainMenu) TickSourceKnowledge(Mathf.Min(0.05f, Time.unscaledDeltaTime));
+            ValidateSphereArrangement();
+            if (!_mainMenu && !IsSphereArrangementPaused) TickSourceKnowledge(Mathf.Min(0.05f, Time.unscaledDeltaTime));
             TickRunAutosave();
             if (TickSourceDeath()) return;
             if (Input.GetKeyDown(KeyCode.Escape) && _runEconomy!=null && _runEconomy.Open) { CloseNativeMerchant(); return; }
             if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending)
                 SetUserPaused(!_userPaused);
             if (_mainMenu || (_paused && !(_tutorialStep == 1 || _tutorialStep == 2)) || _playerCore == null) return;
+            if(_sourceUi==null)HandleSpherePointerInput();
             StepGameplay(Mathf.Min(0.05f, Time.deltaTime), Vector2.zero, true, true);
         }
 
@@ -1046,6 +1048,8 @@ namespace EchoSphere.Runtime
         // balance runs. Overrides supply controller input, never gameplay rules.
         private void StepGameplay(float dt, Vector2 movement, bool nativeInput, bool presentation, Action simulationInput = null)
         {
+            ValidateSphereArrangement();
+            if(IsSphereArrangementPaused){SimulationDeltaTime=0f;return;}
             dt = Mathf.Min(0.05f, Mathf.Max(0f, dt));
             if (!nativeInput)
             {
@@ -1062,9 +1066,9 @@ namespace EchoSphere.Runtime
             if (Input.GetKeyDown(KeyCode.Space)) TrySourceDash();
             foreach (var binding in _activeAbilityHotkeys)
                 if (Input.GetKeyDown(binding.Value)) ActivateActiveAbility(binding.Key);
-            if(_sourceUi==null)HandleSpherePointerInput();
             }
             else simulationInput?.Invoke();
+            if(IsSphereArrangementPaused){SimulationDeltaTime=0f;return;}
             _runTime += dt;
             TickRegionHudState(dt);
             TickSourceRegionFrame(dt);
@@ -4266,6 +4270,7 @@ namespace EchoSphere.Runtime
 
         private void ActivateActiveAbility(RunUpgradeKind kind)
         {
+            if(IsSphereArrangementPaused)return;
             if (_mainMenu || _paused || _levelUp || _choosingEvolution || _gameOver || _stellaRewardPending)
                 return;
             switch (kind)
@@ -5980,6 +5985,7 @@ namespace EchoSphere.Runtime
 
         private void SetUserPaused(bool paused)
         {
+            if(paused)CancelSphereArrangement();
             if (_gameOver || _levelUp || _choosingEvolution || _stellaRewardPending) return;
             if (_runEconomy!=null&&_runEconomy.Open) { _userPaused=paused; _paused=true; return; }
             _userPaused = paused;
@@ -7224,6 +7230,7 @@ namespace EchoSphere.Runtime
                 for (var i = 0; i < Input.touchCount; i++)
                 {
                     var touch = Input.GetTouch(i);
+                    if(touch.phase==TouchPhase.Canceled){ClearSourcePointers();continue;}
                     HandleSourcePointer(touch.fingerId, touch.position, touch.phase == TouchPhase.Began,
                         touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled);
                 }
