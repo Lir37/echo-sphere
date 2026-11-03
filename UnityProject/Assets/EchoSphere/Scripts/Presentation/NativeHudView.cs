@@ -49,8 +49,6 @@ namespace EchoSphere.Presentation
         private readonly NativeHudSurface[] _formationSurfaces=new NativeHudSurface[2];
         private readonly NativeMenuBrush.Paint _dominantPaint,_inactivePaint,_secondaryPaint,_resonanceNormal,_resonanceReady;
         private readonly NativeHudDashBorder _inactiveBorder;
-        private readonly Material _filterMaterial;
-        private readonly FilterFunctionDefinition _saturation;
         private readonly List<FilterFunction> _inactiveFilters=new List<FilterFunction>(),_noFilters=new List<FilterFunction>();
         private readonly NativeHudSurface _resonanceSurface;
         private readonly Func<string,Tooltip> _readTooltip;
@@ -124,10 +122,7 @@ namespace EchoSphere.Presentation
             _dominantPaint=new NativeMenuBrush.Paint {Radius=3,Border=1,BorderColor=A(255,207,122,.82f),Linear=true,Colors=new[]{A(94,63,20,.32f),A(8,18,28,.90f)},Stops=new[]{0f,1f},Inset=new NativeMenuBrush.Shadow(14,Vector2.zero,A(255,184,77,.09f)),OuterA=new NativeMenuBrush.Shadow(14,Vector2.zero,A(255,184,77,.08f))};
             _inactivePaint=new NativeMenuBrush.Paint {Radius=3,Border=1,Linear=true,Colors=_dominantPaint.Colors,Stops=_dominantPaint.Stops,Inset=_dominantPaint.Inset,OuterA=_dominantPaint.OuterA};
             _secondaryPaint=new NativeMenuBrush.Paint {Radius=3,Border=1,BorderColor=A(103,213,255,.33f),Fill=A(6,18,29,.70f)};
-            _filterMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceUiFilters"));
-            _saturation=ScriptableObject.CreateInstance<FilterFunctionDefinition>();_saturation.name="Native HUD inactive formation saturation";_saturation.filterName="native-hud-saturation";_saturation.parameters=Array.Empty<FilterParameterDeclaration>();
-            _saturation.passes=new[]{new PostProcessingPass {material=_filterMaterial,passIndex=0,applySettingsCallback=(properties,context)=>{properties.SetFloat("_CssDpr",context.scaledPixelsPerPoint);properties.SetFloat("_CssReadsGamma",context.readsGamma?1:0);properties.SetFloat("_Amount",.65f);}}};
-            _inactiveFilters.Add(new FilterFunction(_saturation));
+            var inactive=new FilterFunction(FilterFunctionType.Grayscale);inactive.AddParameter(new FilterParameter(.35f));_inactiveFilters.Add(inactive);
             for(int i=0;i<2;i++){
                 if(i==1){_plus=Text(_formationRow,"hud-formation-plus",13,"#d2e5f2","300",1);_plus.style.color=A(210,229,242,.34f);_plus.style.marginLeft=_plus.style.marginRight=5;}
                 var index=i;var button=new Button {name="hud-formation-"+i};button.style.marginLeft=button.style.marginRight=button.style.marginTop=button.style.marginBottom=0;button.style.paddingLeft=button.style.paddingRight=7;button.style.paddingTop=button.style.paddingBottom=6;button.style.flexGrow=1;button.style.flexBasis=0;button.style.minWidth=0;button.style.flexDirection=FlexDirection.Row;button.style.alignItems=Align.Center;button.style.backgroundColor=Color.clear;Border(button,1);_formationRow.Add(button);
@@ -221,6 +216,6 @@ namespace EchoSphere.Presentation
         }
         public void HideTooltip(){_hideTimer?.Pause();_hideTimer=null;_tooltipId=null;_tooltip.style.display=DisplayStyle.None;}
         public void Prepare(float scale){if(_disposed)throw new ObjectDisposedException(nameof(NativeHudView));if(!_bound||_parent.contentRect.width<=0)return;foreach(var surface in _surfaces)surface.Prepare(scale);Radar.Prepare(scale);if(Time.frameCount-_geometryFrame<2)return;if(!Ready){Ready=true;_root.style.opacity=1;}}
-        public void Dispose(){if(_disposed)return;_disposed=true;CancelDrag();HideTooltip();_parent.UnregisterCallback<GeometryChangedEvent>(Resize);Radar.Dispose();foreach(var surface in _surfaces)surface.Dispose();_root.RemoveFromHierarchy();if(Application.isPlaying){UnityEngine.Object.Destroy(_saturation);UnityEngine.Object.Destroy(_filterMaterial);}else{UnityEngine.Object.DestroyImmediate(_saturation);UnityEngine.Object.DestroyImmediate(_filterMaterial);}}
+        public void Dispose(){if(_disposed)return;_disposed=true;CancelDrag();HideTooltip();_parent.UnregisterCallback<GeometryChangedEvent>(Resize);Radar.Dispose();foreach(var surface in _surfaces)surface.Dispose();_root.RemoveFromHierarchy();}
     }
 }
