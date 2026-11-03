@@ -178,7 +178,7 @@ assert.ok(runtimeArt.includes('CreateEntityRoot(definition.DisplayName + " Spher
 const regionVisualsPath = 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs';
 assert.ok(existsSync(join(root, regionVisualsPath)), 'source-mapped Region Field visual layer is missing');
 const regionVisuals = readFileSync(join(root, regionVisualsPath), 'utf8');
-assert.ok(runtimeArt.includes('AddComponent<RegionFieldVisuals>()') && runtimeArt.includes('IsPresentationPaused => _mainMenu || _paused'), 'Region Field must be wired into the active runtime and pause with the presentation');
+assert.ok(runtimeArt.includes('AddComponent<RegionFieldVisuals>()') && runtimeArt.includes('IsPresentationPaused => IsSphereArrangementPaused || _mainMenu || _paused'), 'Region Field must be wired into the active runtime and pause with the presentation');
 assert.ok(regionVisuals.includes('src/region.ts') && regionVisuals.includes('renderer.ts'), 'Region Field source mapping must remain explicit');
 for (const pocket of [
   'AddPocket("Axis Node", 0f, 0f, 340f, "#39d8ff", true)',

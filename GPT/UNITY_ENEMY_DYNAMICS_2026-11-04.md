@@ -11,3 +11,5 @@ Actual isolated Play acceptance20 checks PASS:120 blocked StepGameplay calls, un
 
 ## Baseline combat experiment
 Added Threat entry to existing real-C# combat arena tool.1080actual-spawn arenas:6regions, times0/900/1700 (explicit wave=stage/20+1),6seeds,5player field locations, StandardI/VII, up to20s at60Hz. Observed12roles; this is not a full-wave, all-role or survival trial. Raw baseline is in ignored Library/combat-balance/threat/before.json. Ranged cases/fired/died before firing: Basin108/91/17; fleet180/159/21; brood72/60/12; crystal72/66/6; storm36/35/1; null36/34/2. Censored enemies alive at20s are not deaths. Later source tuning needs matched rerun. No performance or subjective-fun claim.
+
+Initial arrangement CI passed both typechecks; its preflight expected the old exact IsPresentationPaused expression and rejected the additional arrangement pause. Updated that assertion to explicitly require the new arrangement term, retaining the main-menu/ordinary-pause guards.
