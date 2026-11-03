@@ -42,6 +42,7 @@ public static class RunDataRoundtripAcceptance
             var saved=capture.Invoke(runtime,null);string json=JsonUtility.ToJson(saved);end.Invoke(buffers,null);
             var detached=JsonUtility.FromJson(json,saved.GetType());
             rt.GetMethod("RestoreRunSnapshot",F).Invoke(runtime,new[]{detached});
+            foreach(var restored in ((IList)Get(runtime,"_enemies")).Cast<EnemyAgent2D>()) Check(restored.IsBoss||restored.GetComponent<BossCombatAgent2D>()==null,"ordinary enemy acquired a boss controller after JSON roundtrip");
             Check(foreignEnemy!=null&&foreignEnemy.gameObject.activeSelf,"restore touched foreign runtime entities");
             Check(rng.State==state,"restore changed RNG state");Check(core.CurrentHp==104&&core.MaxHp==121,"player data roundtrip");
             var after=capture.Invoke(runtime,null);end.Invoke(buffers,null);

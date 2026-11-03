@@ -249,7 +249,9 @@ namespace EchoSphere.Runtime
                     RunSnapshotCodec.Read(state, "_role", "grunt"), RunSnapshotCodec.Read(state, "_roleDamageMultiplier", 1f),
                     RunSnapshotCodec.Read(state, "_roleRadiusMultiplier", 1f), RunSnapshotCodec.Read(state, "_eliteVariant", ""), RunSnapshotCodec.Read(state, "_damage", 1f));
                 enemy.SetSourceAppearance(baseColor);
-                if (entity.auxiliary != null)
+                // JsonUtility restores a null inline SnapshotValue as an empty object.
+                // The model boss type, not that object, owns controller eligibility.
+                if (BossCombatRules.IsKnownBossType(bossType))
                 {
                     var boss = go.AddComponent<BossCombatAgent2D>();
                     boss.Initialize(this, _player, enemy, bossType, _wave, enemy.SourceSpeed * SpherePlacementRules.SourcePixelsToWorld, enemy.ContactDamage, baseColor);
