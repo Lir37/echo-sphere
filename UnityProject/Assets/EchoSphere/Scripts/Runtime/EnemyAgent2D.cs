@@ -506,7 +506,7 @@ namespace EchoSphere.Runtime
                 if (_roleActionTimer <= 0f)
                 {
                     _roleActionTimer = 4.5f;
-                    _runtime.HealNearbyEnemies(this, 120f, 0.08f, 3);
+                    _runtime.HealNearbyEnemies(this, 120f, 0.08f, 3);RegionalActionFeedback();
                 }
             }
             else if (_role == "disruptor")
@@ -515,7 +515,7 @@ namespace EchoSphere.Runtime
                 if (_roleActionTimer <= 0f)
                 {
                     _roleActionTimer = 6f;
-                    _runtime.TryDisruptNearestSphere(transform.position, 280f);
+                    _runtime.TryDisruptNearestSphere(transform.position, 280f);RegionalActionFeedback();
                 }
             }
 
@@ -525,6 +525,7 @@ namespace EchoSphere.Runtime
             var sourceContactRadius = (SourceRadius + 16f) * SpherePlacementRules.SourcePixelsToWorld;
             if (distanceToPlayer < sourceContactRadius)
             {
+                if(_regionalRecovery<=0)RegionalActionFeedback();
                 // Source damage is resolved at spawn, including difficulty, role and region multipliers.
                 var contactDamage = _damage;
                 if (_role == "charger") contactDamage *= 1.20f;

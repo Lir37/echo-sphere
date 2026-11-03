@@ -74,6 +74,7 @@ namespace EchoSphere.Presentation {
    string role=e.Boss?e.Variant:e.Role;
    int kind=role=="sniper"||role=="ranged"||role=="shooter"?1:role=="tank_guard"||role=="anchor"||role=="architect"?2:role=="healer"||role=="aura"||role=="conductor"?3:role=="splitter"||role=="summoner"?4:role=="phase"||role=="null"?5:role=="bomber"||role=="stella_warden"?6:0;
    var color=e.Freeze?C(105,214,255):style==2?C(174,210,108):style==3?C(123,219,245):style==4?C(255,207,100):C(192,123,230);var dark=RegionalInk(color,.14);var shellColor=RegionalInk(color,.42);var pale=Color.Lerp(color,Color.white,.48f);
+   if(DrawRegionalRoleBody(e,time,root,color))return;
    var parts=RegionalGeometry(style,r);
    if(style==2){
     var leg=parts[1];

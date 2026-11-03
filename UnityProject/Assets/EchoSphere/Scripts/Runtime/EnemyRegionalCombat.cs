@@ -14,12 +14,18 @@ namespace EchoSphere.Runtime {
    float radial=RegionalEnemyRules.Radial(p,distance),side=((int)SourceRadius%2==0?1:-1);
    Vector2 tangent=new Vector2(-toward.y,toward.x)*side;
    if(_regionalWindup>0)return Vector2.zero;
-   if(p.Range<=0){if(p.Motion==RegionalMotion.Lunge)return toward*(_regionalRecovery>0?2.5f:.72f);
-    if(p.Motion==RegionalMotion.Flank)return (toward+tangent*Mathf.Sin(_regionalClock*1.8f)*.8f).normalized*(_regionalRecovery>0?1.8f:1);return toward;}
+   if(p.Range<=0){
+    if(_campaignRegionStyle==1){float cadence=.5f+.5f*Mathf.Sin(_regionalClock*2.5f);float drift=_role=="anchor"?.20f:_role=="charger"?.08f:.65f;return (toward+tangent*drift).normalized*(_role=="charger"?.65f+cadence*.70f:1);}
+    if(_campaignRegionStyle==3){ // Crystals advance in deliberate diagonal steps.
+     float step=Mathf.Sin(_regionalClock*3.2f);return (toward+tangent*(step>0?.50f:-.50f)).normalized*(step>-.55f?1:.18f);}
+    if(_campaignRegionStyle==4)return (toward+tangent*Mathf.Sin(_regionalClock*3.5f)*1.15f).normalized;
+    if(p.Motion==RegionalMotion.Lunge){var aim=(_regionalAim-(Vector2)transform.position).normalized;return (_regionalRecovery>0?Vector2.ClampMagnitude(aim+toward*.3f,1)*2.5f:toward*.72f);}
+    if(p.Motion==RegionalMotion.Flank)return (toward+tangent*(Mathf.Sin(_regionalClock*.75f)>0?.85f:-.85f)).normalized*(_regionalRecovery>0?1.8f:1);return toward;}
    float orbit=p.Motion==RegionalMotion.Orbit?.65f:p.Motion==RegionalMotion.Skirmish?.4f:p.Motion==RegionalMotion.Flank?.85f:0;
    if(distance>p.Range*1.7f)orbit*=.3f;
    return Vector2.ClampMagnitude(toward*radial+tangent*orbit,1);
   }
+  private void RegionalActionFeedback(){if(_campaignRegionStyle>0){_regionalRecovery=.28f;if(_player!=null)_regionalAim=_player.position;}}
   private void TickRegionalAttack(float dt,Vector2 target,float distance){
    var p=RegionalEnemyRules.Get(_campaignRegionStyle,_role);
    _regionalRecovery=Mathf.Max(0,_regionalRecovery-dt);

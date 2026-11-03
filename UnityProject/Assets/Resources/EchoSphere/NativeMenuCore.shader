@@ -33,15 +33,16 @@ Shader "EchoSphere/NativeMenuCore"
                 float3 cyan=float3(.28,.84,1), ice=float3(.72,.96,1), muted=float3(.11,.32,.43);
                 float4 c=0;
                 // Restrained halo, with all its extent inside the retained box.
-                Over(c,cyan,.11*exp(-18*abs(r-.51))*Disk(r,.93,aa));
+                Over(c,cyan,.18*exp(-15*abs(r-.51))*Disk(r,.93,aa));
                 Over(c,muted,Band(r,.86,.0025,aa)*.4);
                 float outerPhase=frac((angle+.15-t*.12)/6.2831853*3);
-                Over(c,cyan,Band(r,.77,.006,aa)*step(.065,outerPhase)*step(outerPhase,.89)*.5);
+                Over(c,cyan,Band(r,.77,.006,aa)*smoothstep(.065-fwidth(outerPhase),.065+fwidth(outerPhase),outerPhase)*(1-smoothstep(.89-fwidth(outerPhase),.89+fwidth(outerPhase),outerPhase))*.5);
                 // Flat dark shell and six separated conducting armour sectors.
                 Over(c,float3(.018,.054,.083),Disk(r,.61,aa));
                 Over(c,cyan,Band(r,.60,.008,aa)*.8);
                 float sector=abs(frac((angle+.5235988+t*.075)/1.0471976)-.5)*2;
-                float plates=step(.15,sector)*step(sector,.85);
+                float angularAA=max(fwidth(sector),.001);
+                float plates=smoothstep(.15-angularAA,.15+angularAA,sector)*(1-smoothstep(.85-angularAA,.85+angularAA,sector));
                 float plateBand=Disk(r,.55,aa)*(1-Disk(r,.405,aa))*plates;
                 Over(c,float3(.045,.17,.23),plateBand);
                 Over(c,cyan,Band(r,.55,.004,aa)*plates*.7);
@@ -53,6 +54,7 @@ Shader "EchoSphere/NativeMenuCore"
                     float2 axis=float2(cos(theta),sin(theta));
                     Over(c,cyan,Segment(p,axis*.61,axis*.71,.005,aa)*.75);
                     float d=length(p-axis*.74);
+                    Over(c,cyan,.18*exp(-d*d/.005));
                     Over(c,float3(.025,.10,.15),Disk(d,.052,aa));
                     Over(c,ice,Band(d,.052,.006,aa)*.9);
                     Over(c,cyan,Disk(d,.021,aa));
@@ -63,7 +65,7 @@ Shader "EchoSphere/NativeMenuCore"
                 Over(c,cyan,Band(r,.32,.006,aa));
                 Over(c,muted,Band(r,.265,.003,aa)*.7);
                 float inner=abs(frac((angle+.2-t*.32)/2.0943951)-.5)*2;
-                Over(c,ice,Band(r,.215,.012,aa)*step(.18,inner)*.8);
+                Over(c,ice,Band(r,.215,.012,aa)*smoothstep(.18-fwidth(inner),.18+fwidth(inner),inner)*.8);
                 float travel=frac((angle-t*.8)/6.2831853);
                 Over(c,ice,Band(r,.265,.005,aa)*pow(saturate(1-travel*7),3)*.85);
                 float diamond=abs(p.x)+abs(p.y);

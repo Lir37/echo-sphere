@@ -56,7 +56,7 @@ namespace EchoSphere.Runtime
         private static INativeWorldSprite ResolveNativePlayerArt(string key)=>NativeWorldArtLibrary.Resolve(key);
         private void DrawNativeEnemyWorld(EnemyAgent2D enemy)
         {
-            var view=ProjectNativeEnemyView(enemy,PlayerPosition,_worldSurface.LocalizeCanvasText,IsRussianUi);view.RegionStyle=enemy.CampaignRegionStyle>=0?enemy.CampaignRegionStyle:(int)_selectedRegion;view.Fleet=view.RegionStyle==1;view.Role=enemy.Role;view.FaceTarget=enemy.RegionalRanged;view.AttackPose=enemy.RegionalAttackPose;view.AttackWindup=enemy.RegionalWindup;var aim=enemy.RegionalWindup>0?enemy.RegionalAim:PlayerPosition;view.AimAngle=System.Math.Atan2(-(aim.y-enemy.transform.position.y),aim.x-enemy.transform.position.x);
+            var view=ProjectNativeEnemyView(enemy,PlayerPosition,_worldSurface.LocalizeCanvasText,IsRussianUi);view.RegionStyle=enemy.CampaignRegionStyle>=0?enemy.CampaignRegionStyle:(int)_selectedRegion;view.Fleet=view.RegionStyle==1;view.Role=enemy.Role;view.FaceTarget=enemy.RegionalRanged;view.AttackPose=enemy.RegionalAttackPose;view.AttackWindup=enemy.RegionalWindup;var aim=enemy.RegionalAttackPose>0?enemy.RegionalAim:PlayerPosition;view.AimAngle=System.Math.Atan2(-(aim.y-enemy.transform.position.y),aim.x-enemy.transform.position.x);
             _nativeWorldCreatures.DrawEnemy(_worldSurface,view,_runTime);
         }
         internal static NativeWorldCreatures.EnemyView ProjectNativeEnemyView(EnemyAgent2D enemy,Vector2 playerPosition,bool localize,bool ru)

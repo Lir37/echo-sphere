@@ -9,19 +9,19 @@ namespace EchoSphere.Runtime
         public void TickSourceEnemyProjectiles(EnemyAgent2D owner, float dt)
         {
             var bullets = new List<BossProjectileAgent2D>();
-            foreach (var agent in _simulationAgents) if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner && bullet.SourceOwner == owner) bullets.Add(bullet);
+            foreach (var agent in _simulationAgents) if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner && !bullet.IndependentRegionalFlight && bullet.SourceOwner == owner) bullets.Add(bullet);
             for (var i = bullets.Count - 1; i >= 0; i--) if (bullets[i] != null && bullets[i].gameObject.activeInHierarchy) bullets[i].SimulationTick(dt);
         }
         private void TickSourceUnownedEnemyProjectiles(float dt)
         {
             var bullets = new List<BossProjectileAgent2D>();
-            foreach (var agent in _simulationAgents) if (agent is BossProjectileAgent2D bullet && !bullet.HasSourceOwner) bullets.Add(bullet);
+            foreach (var agent in _simulationAgents) if (agent is BossProjectileAgent2D bullet && (!bullet.HasSourceOwner || bullet.IndependentRegionalFlight)) bullets.Add(bullet);
             for (var i = bullets.Count - 1; i >= 0; i--) if (bullets[i] != null && bullets[i].gameObject.activeInHierarchy) bullets[i].SimulationTick(dt);
         }
         private void RemoveSourceEnemyProjectiles(EnemyAgent2D owner)
         {
             foreach (var agent in _simulationAgents) if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner && bullet.SourceOwner == owner)
-            { bullet.gameObject.SetActive(false); Destroy(bullet.gameObject); }
+            { if(bullet.IndependentRegionalFlight)bullet.SetSourceOwner(null);else{bullet.gameObject.SetActive(false); Destroy(bullet.gameObject);} }
         }
     }
 }

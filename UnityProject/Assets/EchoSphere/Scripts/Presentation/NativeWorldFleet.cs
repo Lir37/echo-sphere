@@ -10,7 +10,7 @@ namespace EchoSphere.Presentation
         {
             double r=e.Radius;var color=e.Freeze?C(105,214,255):e.Color;
             string role=e.Boss?e.Variant:e.Role;
-            int hull=role=="sniper"||role=="charger"?1:role=="tank_guard"||role=="architect"||role=="anchor"?2:role=="healer"||role=="aura"||role=="conductor"?3:role=="splitter"||role=="summoner"?4:role=="phase"||role=="null"?5:role=="bomber"||role=="stella_warden"?6:0;
+            int hull=role=="charger"?7:role=="swarmer"?8:role=="disruptor"||role=="corruptor"?9:role=="sniper"?1:role=="tank_guard"||role=="architect"||role=="anchor"?2:role=="healer"||role=="aura"||role=="conductor"?3:role=="splitter"||role=="summoner"?4:role=="phase"||role=="null"?5:role=="bomber"||role=="stella_warden"?6:0;
             var dark=RegionalInk(color,.17);var armor=RegionalInk(color,.43);var trim=Color.Lerp(color,Color.white,.38f);double stroke=Math.Max(.8,r*.055);
             Art Shape(int id,Func<Unity.VectorGraphics.BezierContour> make,double w=0)=>Get(2100+id,r,0,w,make);
             var body=Shape(hull,()=>hull==1?Poly(P(1.05*r,0),P(-.8*r,-.27*r),P(-.56*r,0),P(-.8*r,.27*r)):
@@ -18,6 +18,9 @@ namespace EchoSphere.Presentation
                 hull==3?Poly(P(.75*r,0),P(.20*r,.62*r),P(-.66*r,.49*r),P(-.45*r,0),P(-.66*r,-.49*r),P(.20*r,-.62*r)):
                 hull==4?Poly(P(.82*r,-.22*r),P(.42*r,0),P(.82*r,.22*r),P(-.75*r,.65*r),P(-.55*r,0),P(-.75*r,-.65*r)):
                 hull==5?Poly(P(.9*r,0),P(-.48*r,.36*r),P(-.9*r,.8*r),P(-.5*r,0),P(-.9*r,-.8*r),P(-.48*r,-.36*r)):
+                hull==7?Poly(P(1.1*r,0),P(.70*r,-.55*r),P(.14*r,-.43*r),P(-.72*r,-.22*r),P(-.86*r,0),P(-.72*r,.22*r),P(.14*r,.43*r),P(.70*r,.55*r)):
+                hull==8?Poly(P(.9*r,0),P(-.42*r,-.2*r),P(-1.05*r,-.87*r),P(-.81*r,-.10*r),P(-.98*r,.08*r),P(-.81*r,.10*r),P(-1.05*r,.87*r),P(-.42*r,.2*r)):
+                hull==9?Poly(P(.90*r,-.40*r),P(-.25*r,-.60*r),P(-.76*r,-.37*r),P(-.45*r,0),P(-.76*r,.37*r),P(-.25*r,.60*r),P(.90*r,.40*r),P(.25*r,.17*r),P(.07*r,0),P(.25*r,-.17*r)):
                 hull==6?Poly(P(.55*r,-.5*r),P(.85*r,0),P(.55*r,.5*r),P(-.65*r,.72*r),P(-.83*r,0),P(-.65*r,-.72*r)):
                 Poly(P(.95*r,0),P(-.72*r,.62*r),P(-.36*r,0),P(-.72*r,-.62*r)),stroke);
             Paint(body,root,dark,color);
@@ -41,7 +44,7 @@ namespace EchoSphere.Presentation
             double thrust=.28+.26*_gaitBlend+.10*Math.Sin(time*23+e.X*.02),spread=hull==1?.3:hull==2?.55:.65;
             for(int side=-1;side<=1;side+=2){
                 var part=root*T(0,side*r*spread,sx:1,sy:side);
-                Paint(wing,part*T(angle:.04*idle+attack*.10),armor,A(color,.78));
+                Paint(wing,part*T(angle:.12*idle+attack*.20),armor,A(color,.78));
                 Paint(engine,part*T(x:attack*r*.07),RegionalInk(color,.30),color);
                 Paint(vane,part*T(-.45*r,r*.10,.12+.10*idle+attack*.20),dark,color);
                 for(int v=0;v<2;v++)Paint(vent,part*T(-.05*r-v*.18*r,0,idle*.08+attack*.22),null,A(color,.65));Paint(plume,part*T(-.68*r,0,sx:thrust),A(color,.50),null,additive:true);

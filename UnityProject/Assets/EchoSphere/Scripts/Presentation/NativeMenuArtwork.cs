@@ -11,6 +11,7 @@ namespace EchoSphere.Presentation
         private readonly VisualElement _parent;
         private readonly NativeMainMenuBackground _surface;
         private int _animationFrame = -1;
+        private readonly double _animationStarted=Time.realtimeSinceStartupAsDouble;
         public Texture Texture => _surface.Texture;
         public Rect Bounds { get; private set; }
         public int PaintCount => _surface.PaintCount;
@@ -30,7 +31,7 @@ namespace EchoSphere.Presentation
             _surface.SetViewport(box.width, box.height, scale);
             if (_animationFrame != Time.frameCount)
             {
-                _surface.Animate(Time.unscaledTime);
+                _surface.Animate((float)(Time.realtimeSinceStartupAsDouble-_animationStarted));
                 _animationFrame = Time.frameCount;
                 AnimationFrameCount++;
             }

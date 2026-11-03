@@ -68,7 +68,7 @@ namespace EchoSphere.Presentation
         private static double RegionalBodyScale(EnemyView e)=>(e.Fleet||e.RegionStyle>=1&&e.RegionStyle<=5)?2d/3d:1d;
         private void DrawOwnedEnemy(NativeWorldSurface surface,EnemyView e,double t)
         {
-            _surface=surface;double facing=FacingAngle(e,t);if(!e.Boss&&e.RegionStyle>=0&&(e.FaceTarget||e.AttackWindup>0))facing=e.AimAngle;double poseTime=_facing.GetOrCreateValue(e.Identity).AnatomyTime,hit=Clamp(e.HitFlash/.15),pulse=e.Fleet||e.RegionStyle==3?1:1+Math.Sin(poseTime*5+e.X*.01)*.025,scale=pulse+hit*.05;double bodyScale=RegionalBodyScale(e);var signalRoot=T(e.X,e.Y,facing,scale,scale);var root=signalRoot*T(sx:bodyScale,sy:bodyScale);var statusColor=e.Freeze?C(105,214,255):e.Color;
+            _surface=surface;double facing=FacingAngle(e,t);if(!e.Boss&&e.RegionStyle>=0&&(e.FaceTarget||e.AttackWindup>0||e.AttackPose>0))facing=e.AimAngle;double poseTime=_facing.GetOrCreateValue(e.Identity).AnatomyTime,hit=Clamp(e.HitFlash/.15),pulse=e.Fleet||e.RegionStyle==3?1:1+Math.Sin(poseTime*5+e.X*.01)*.025,scale=pulse+hit*.05;double bodyScale=RegionalBodyScale(e);var signalRoot=T(e.X,e.Y,facing,scale,scale);var root=signalRoot*T(sx:bodyScale,sy:bodyScale);var statusColor=e.Freeze?C(105,214,255):e.Color;
             // All current body/limb/wing/tail controls and status glyphs fit
             // inside 4r+32, including stroke miters and minimum-size details.
             // The largest body glow is 2.55r; bone chains and tails are <3r.

@@ -10,23 +10,25 @@ namespace EchoSphere.Runtime
   private int _nativeProjectileCount,_nativeParticleCount;
   private readonly Dictionary<EnemyAgent2D,List<BossProjectileAgent2D>> _nativeEnemyProjectileGroups=new Dictionary<EnemyAgent2D,List<BossProjectileAgent2D>>();
   private readonly List<List<BossProjectileAgent2D>> _nativeEnemyProjectileLists=new List<List<BossProjectileAgent2D>>();
-  private void ClearNativeEntityFrame(){_nativeProjectileCount=_nativeParticleCount=0;_nativeEnemyProjectileGroups.Clear();foreach(var list in _nativeEnemyProjectileLists)list.Clear();}
+  private readonly List<BossProjectileAgent2D> _nativeIndependentProjectiles=new List<BossProjectileAgent2D>();
+  private void ClearNativeEntityFrame(){_nativeIndependentProjectiles.Clear();_nativeProjectileCount=_nativeParticleCount=0;_nativeEnemyProjectileGroups.Clear();foreach(var list in _nativeEnemyProjectileLists)list.Clear();}
   private void PrepareNativeEntityFrame()
   {
    ClearNativeEntityFrame();int used=0;
    foreach(var agent in _simulationAgents){if(agent==null||!agent.gameObject.activeInHierarchy)continue;if(agent is ProjectileAgent)_nativeProjectileCount++;else if(agent is SourceParticle2D)_nativeParticleCount++;
+    if(agent is BossProjectileAgent2D free&&free.IndependentRegionalFlight&&(free.SourceOwner==null||!free.SourceOwner.IsAlive))_nativeIndependentProjectiles.Add(free);
     if(agent is BossProjectileAgent2D bullet&&bullet.SourceOwner!=null&&bullet.SourceOwner.IsAlive){if(!_nativeEnemyProjectileGroups.TryGetValue(bullet.SourceOwner,out var list)){if(used>=_nativeEnemyProjectileLists.Count)_nativeEnemyProjectileLists.Add(new List<BossProjectileAgent2D>());list=_nativeEnemyProjectileLists[used++];_nativeEnemyProjectileGroups.Add(bullet.SourceOwner,list);}list.Add(bullet);}}
   }
   internal struct NativeEnemyProjectileView {internal double X,Y,Radius,Vx,Vy;internal int Kind;internal Color Color;}
   internal static NativeEnemyProjectileView ProjectNativeEnemyProjectile(BossProjectileAgent2D bullet,EnemyAgent2D owner)
   {
-   var point=NativeSourcePixels(bullet.transform.position);var velocity=NativeSourcePixels(bullet.SourceProjectionVelocity);string visual=bullet.SourceProjectionBossType,type=owner.BossType;bool ordinary=visual=="enemy_ranged"||visual=="enemy_sniper";
-   ColorUtility.TryParseHtmlString(ordinary?(visual=="enemy_sniper"?"#ffe066":"#ff6b55"):owner.SourceColorHtml,out var color);
+   var point=NativeSourcePixels(bullet.transform.position);var velocity=NativeSourcePixels(bullet.SourceProjectionVelocity);string visual=bullet.SourceProjectionBossType,type=owner!=null?owner.BossType:"";bool ordinary=visual=="enemy_ranged"||visual=="enemy_sniper";
+   ColorUtility.TryParseHtmlString(ordinary?(visual=="enemy_sniper"?"#ffe066":"#ff6b55"):owner!=null?owner.SourceColorHtml:"#bc87e8",out var color);
    int regionalKind=-1;
    if(visual.StartsWith("regional_",StringComparison.Ordinal)){regionalKind=visual=="regional_fleet"?1:visual=="regional_spore"?(bullet.SourceProjectionVelocity.sqrMagnitude<.0001f?6:4):visual=="regional_crystal"?3:visual=="regional_arc"?2:visual=="regional_void"?5:0;ColorUtility.TryParseHtmlString(visual=="regional_spore"?"#b9cf69":visual=="regional_crystal"?"#7fd9ee":visual=="regional_arc"?"#ffd36d":visual=="regional_void"?"#bc87e8":visual=="regional_fleet"?"#66ddff":"#ff6b55",out color);}
    return new NativeEnemyProjectileView {X=point.x,Y=point.y,Radius=(bullet.SourceProjectionHitRadius-BossCombatRules.PlayerRadiusWorld)/SpherePlacementRules.SourcePixelsToWorld,Vx=velocity.x,Vy=velocity.y,Kind=regionalKind>=0?regionalKind:ordinary?(visual=="enemy_sniper"?1:0):type=="shooter"?2:type=="charger"?3:type=="summoner"?4:5,Color=color};
   }
-  private void DrawNativeEnemyProjectileLayer(){foreach(var owner in _enemies)if(owner!=null&&owner.IsAlive&&_nativeEnemyProjectileGroups.TryGetValue(owner,out var bullets))foreach(var bullet in bullets){var view=ProjectNativeEnemyProjectile(bullet,owner);_nativeWorldProjectiles.Draw(_worldSurface,(float)view.X,(float)view.Y,(float)view.Radius,view.Vx,view.Vy,view.Kind,view.Color,_runTime);}}
+  private void DrawNativeEnemyProjectileLayer(){foreach(var owner in _enemies)if(owner!=null&&owner.IsAlive&&_nativeEnemyProjectileGroups.TryGetValue(owner,out var bullets))foreach(var bullet in bullets){var view=ProjectNativeEnemyProjectile(bullet,owner);_nativeWorldProjectiles.Draw(_worldSurface,(float)view.X,(float)view.Y,(float)view.Radius,view.Vx,view.Vy,view.Kind,view.Color,_runTime);}foreach(var bullet in _nativeIndependentProjectiles){var view=ProjectNativeEnemyProjectile(bullet,null);_nativeWorldProjectiles.Draw(_worldSurface,(float)view.X,(float)view.Y,(float)view.Radius,view.Vx,view.Vy,view.Kind,view.Color,_runTime);}}
   private static readonly Color NativeExperienceColor=NativeMutationColor("#63e6ff"),NativeHealthColor=NativeMutationColor("#ff5c72");
   internal struct NativePixelPoint {internal double x,y;}
   private static NativePixelPoint NativeSourcePixels(Vector2 world)=>new NativePixelPoint {x=world.x/SpherePlacementRules.SourcePixelsToWorld,y=-world.y/SpherePlacementRules.SourcePixelsToWorld};
