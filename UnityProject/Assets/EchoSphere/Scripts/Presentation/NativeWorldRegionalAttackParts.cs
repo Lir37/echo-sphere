@@ -3,6 +3,7 @@ using UnityEngine;
 namespace EchoSphere.Presentation {
  internal sealed partial class NativeWorldCreatures {
   private void DrawRegionalAttackParts(EnemyView e,Matrix4x4 root){
+   if(e.RegionStyle<=0)return; // Preserve the original region-one silhouettes.
    if(e.RegionStyle>0&&e.AttackPose>0)DrawRegionalAttackFeedback(e,root);
    bool ranged=e.FaceTarget;
    double r=e.Radius,pose=Math.Max(0,Math.Min(1,e.AttackPose));var color=e.Freeze?C(105,214,255):e.RegionStyle==2?C(174,210,108):e.RegionStyle==3?C(123,219,245):e.RegionStyle==4?C(255,207,100):e.RegionStyle==5?C(192,123,230):e.Color;

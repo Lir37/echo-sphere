@@ -476,6 +476,8 @@ namespace EchoSphere.Runtime
             if(_campaignRegionStyle>0){movement=_runtime.SteerRegionalEnemy(this,movement);
                 // Separation may move sideways but cannot turn approach into flight.
                 float retreat=Vector2.Dot(movement,directionToPlayer);if(retreat<0)movement-=directionToPlayer*retreat;
+                // Fleet separation must not push a holding gunship into a ram.
+                if(_campaignRegionStyle==1&&distanceToPlayer<=RegionalEnemyRules.Get(1,_role).Range*SpherePlacementRules.SourcePixelsToWorld){float closing=Vector2.Dot(movement,directionToPlayer);if(closing>0)movement-=directionToPlayer*closing;}
             }
             transform.position += (Vector3)(movement * _moveSpeed * speedMultiplier * dt);
             if(_campaignRegionStyle>=0)TickRegionalAttack(dt,target,distanceToPlayer);

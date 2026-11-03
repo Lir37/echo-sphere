@@ -8,14 +8,14 @@ namespace EchoSphere.Core {
  public static class RegionalEnemyRules {
   public static RegionalEnemyProfile Get(int region,string role){
    bool sniper=role=="sniper",ranged=sniper||role=="ranged";
-   // Only explicit firing roles shoot. Other silhouettes retain regional movement
-   // without silently becoming ranged units. Distances are source pixels.
+   // Fleet hulls fight with onboard weapons. Other factions mix melee and firing roles.
+   // Distances are source pixels; no firing profile orders retreat.
    switch(region){
-    case 1:return ranged?new RegionalEnemyProfile(sniper?RegionalMotion.Hold:RegionalMotion.Orbit,sniper?110:80,0,sniper?3.8f:2.8f,sniper?.85f:.55f,sniper?350:250,"fleet"):new RegionalEnemyProfile(RegionalMotion.Flank,0,0,0,0,0,"");
-    case 2:return ranged||role=="bomber"||role=="corruptor"||role=="splitter"?new RegionalEnemyProfile(RegionalMotion.Skirmish,sniper?105:75,0,4,.7f,190,"spore",3):new RegionalEnemyProfile(RegionalMotion.Lunge,0,0,3.2f,.65f,0,"bite");
-    case 3:return ranged?new RegionalEnemyProfile(RegionalMotion.Hold,sniper?110:85,0,sniper?4:3.6f,.9f,280,"crystal"):new RegionalEnemyProfile(RegionalMotion.Chase,0,0,0,0,0,"");
-    case 4:return ranged?new RegionalEnemyProfile(RegionalMotion.Orbit,sniper?100:70,0,2.9f,.65f,310,"arc",2):new RegionalEnemyProfile(RegionalMotion.Flank,0,0,0,0,0,"");
-    case 5:return ranged||role=="corruptor"?new RegionalEnemyProfile(RegionalMotion.Flank,sniper?105:80,0,3.7f,.8f,230,"void",2):new RegionalEnemyProfile(RegionalMotion.Flank,0,0,3,.8f,0,"tentacle");
+    case 1:return new RegionalEnemyProfile(sniper?RegionalMotion.Hold:role=="tank_guard"||role=="anchor"?RegionalMotion.Hold:RegionalMotion.Orbit,sniper?105:role=="charger"?60:role=="swarmer"?65:role=="tank_guard"?90:80,0,sniper?3.2f:role=="swarmer"?1.8f:2.4f,sniper?.65f:.5f,sniper?350:250,"fleet",role=="bomber"||role=="tank_guard"?3:role=="ranged"?2:1);
+    case 2:if(role=="corruptor")return new RegionalEnemyProfile(RegionalMotion.Skirmish,80,0,3,.5f,150,"web");return ranged||role=="bomber"||role=="corruptor"||role=="splitter"?new RegionalEnemyProfile(RegionalMotion.Skirmish,sniper?105:75,0,4,.7f,190,"spore",3):new RegionalEnemyProfile(RegionalMotion.Lunge,0,0,3.2f,.65f,0,"bite");
+    case 3:return ranged?new RegionalEnemyProfile(RegionalMotion.Hold,sniper?110:85,0,sniper?3:2.6f,.5f,280,"crystal",sniper?1:3):new RegionalEnemyProfile(RegionalMotion.Chase,0,0,0,0,0,"");
+    case 4:return ranged?new RegionalEnemyProfile(RegionalMotion.Orbit,sniper?100:70,0,2.4f,.5f,310,"arc",2):new RegionalEnemyProfile(RegionalMotion.Flank,0,0,0,0,0,"");
+    case 5:return ranged||role=="corruptor"?new RegionalEnemyProfile(RegionalMotion.Flank,sniper?105:80,0,3f,.5f,230,"void",2):new RegionalEnemyProfile(RegionalMotion.Flank,0,0,3,.8f,0,"tentacle");
     default:return ranged?new RegionalEnemyProfile(RegionalMotion.Hold,sniper?110:80,0,sniper?2.2f:3.2f,sniper?.7f:.5f,sniper?320:245,"organic"):new RegionalEnemyProfile(RegionalMotion.Chase,0,0,0,0,0,"");
    }
   }

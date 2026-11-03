@@ -68,7 +68,7 @@ namespace EchoSphere.Presentation
         private readonly Vector4[] _instanceColors=new Vector4[64];private readonly float[] _instanceOpacities=new float[64];
         internal int GeometryDrawCalls {get;private set;}
         internal int InstancedPrimitiveCount {get;private set;}
-        internal Vector2 SourceOrigin;internal bool LocalizeCanvasText=true;internal Texture UiTexture=>_uiTarget;
+        internal Vector2 SourceOrigin;internal bool LocalizeCanvasText=true;internal Texture UiTexture=>_uiTarget;internal RenderTexture CompositeTexture=>_target;
         internal Vector2 LogicalSize=>_logicalSize;
         private static readonly ProfilerMarker ShadowCommandsMarker=new ProfilerMarker("EchoSphere.World.ShadowCommands"),ExecuteMarker=new ProfilerMarker("EchoSphere.World.Execute"),FrameMarker=new ProfilerMarker("EchoSphere.World.Composite");
         private static readonly int ShadowMaskId=Shader.PropertyToID("_SourceShadowMask");

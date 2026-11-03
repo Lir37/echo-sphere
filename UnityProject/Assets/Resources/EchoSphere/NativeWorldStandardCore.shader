@@ -6,9 +6,9 @@ Shader "EchoSphere/NativeWorldStandardCore"
         Cull Off ZWrite Off ZTest Always
         HLSLINCLUDE
         #include "UnityCG.cginc"
-        float _Radius,_NativeOpacity,_Family;float4 _NativeColor;
+        float _Radius,_NativeOpacity,_Family,_GeometryScale;float4 _NativeColor;
         struct Varyings {float4 position:SV_POSITION;float2 local:TEXCOORD0;};
-        Varyings vert(float4 vertex:POSITION){Varyings o;o.position=UnityObjectToClipPos(vertex);o.local=vertex.xy;return o;}
+        Varyings vert(float4 vertex:POSITION){Varyings o;o.position=UnityObjectToClipPos(vertex);o.local=vertex.xy*(_GeometryScale>0?_GeometryScale:1);return o;}
         float4 frag(Varyings i):SV_Target
         {
             // Same two-circle radial solution as the authored Canvas gradient:

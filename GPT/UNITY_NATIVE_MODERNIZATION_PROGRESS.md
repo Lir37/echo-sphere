@@ -2716,3 +2716,6 @@ UNITY_MENU_STATIC_GLASS_CACHE_2026-11-03.md, VisualReferences/MenuGlassCache-202
 Новый локальный Release APK с кэшем стекла собран: ECHO-SPHERE-menu-cache-regions-test.apk,
 57239520байт, SHA25631e321deb8ace477fe79dacc07e26bae661b66809d097376b8f7df4a796c5bc6.
 На телефон не устанавливался. Прежний21.5FPS — исходный замер, не результат кэша.
+
+## 2026-11-03 — regional combat / sphere rendering correction
+Fleet hulls now fire rather than inheriting melee-only roles; hold-band separation cannot cause ramming. Region-one generic attack attachments removed. Brood web traps, crystal spreads and faster readable ranged preparation connected. Player-centred arena glow removed. Standard sphere retains pulsating core geometry and locally baked Gaussian ring/arc instead of repeated tessellation/blur. Editor/core checks PASS; new Release installed, phone gameplay/performance pending unlock. Full receipt: UNITY_REGIONAL_COMBAT_CORRECTION_2026-11-03.md.

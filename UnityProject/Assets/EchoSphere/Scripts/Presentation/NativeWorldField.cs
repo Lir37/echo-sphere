@@ -45,7 +45,8 @@ namespace EchoSphere.Presentation
         {
             if(w!=_w||h!=_h||ox!=_ox||oy!=_oy){_w=w;_h=h;_ox=ox;_oy=oy;Build();}
             _properties.SetVector("_Field",new Vector4(w,h,focusX,focusY));
-            surface.DrawNativeMesh(_gradient,_gradientMaterial,_properties);surface.DrawNativeMesh(_nebulae,_shapeMaterial,_properties);surface.DrawNativeMesh(_details,_shapeMaterial,_properties);
+            // The player-centred full-arena glow is intentionally removed.
+            surface.DrawNativeMesh(_nebulae,_shapeMaterial,_properties);surface.DrawNativeMesh(_details,_shapeMaterial,_properties);
 
         }
         private void Build()
