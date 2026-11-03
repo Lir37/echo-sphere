@@ -17,6 +17,6 @@ test('Native run bounds model refreshes while native rendering remains frame-dri
   assert.match(native, /bool update=_sourceUi\.Dirty\|\|\(!_userPaused&&now>=_nativeRunNextModel\)/);
   assert.match(native, /_nativeRunNextModel=now\+\.1/);
   assert.match(native, /if\(update\)ReadNativeMobileState\(\)/);
-  assert.match(native, /PrepareNativeRunPresenters\(anchors\);_nativeRunDocument\.End\(SourceDevicePixelRatio\)/);
+  assert.match(native, /PrepareNativeRunPresenters\(anchors\);_nativeRunDocument\.SetPauseSnapshotKey\([^;]+\);_nativeRunDocument\.End\(SourceDevicePixelRatio\)/);
   assert.doesNotMatch(bridge, /_sourceUi\.Draw\(/);
 });
