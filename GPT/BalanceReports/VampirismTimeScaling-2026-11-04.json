@@ -1,0 +1,105 @@
+{
+  "model": "Deterministic sensitivity sweep, NOT full combat/player survival simulation",
+  "scenarios": 40320,
+  "regions": 6,
+  "difficulties": 4,
+  "archetypes": 3,
+  "waves": [
+    1,
+    10,
+    20,
+    40,
+    60
+  ],
+  "timesSeconds": [
+    0,
+    300,
+    600,
+    900,
+    1200,
+    1800,
+    3600
+  ],
+  "minHealingReductionPercent": 70.34422,
+  "maxHealingReductionPercent": 98.74377,
+  "assumptions": "Same enemy HP and kill throughput for isolated ring comparison; overkill factor 1/2/5/10; .5/2/5/10 kills per second; no ability/mutation lifesteal, shield, hit frequency, player evasion, HP overheal or victory probabilities simulated. Separate samples show additive time scaling on existing wave profiles. Existing damage formulas/catalog values are used; clocks and waves are independent inputs.",
+  "samples": [
+    {
+      "seconds": 0,
+      "wave": 40,
+      "hp": 238,
+      "damage": 19,
+      "oldHealingPerSecond": 203.5,
+      "newHealingPerSecond": 11.9,
+      "hpWithTime": 238,
+      "damageWithTime": 19,
+      "newHealingWithTime": 11.9
+    },
+    {
+      "seconds": 300,
+      "wave": 40,
+      "hp": 238,
+      "damage": 19,
+      "oldHealingPerSecond": 203.5,
+      "newHealingPerSecond": 11.9,
+      "hpWithTime": 261.80002,
+      "damageWithTime": 20.425001,
+      "newHealingWithTime": 13.09
+    },
+    {
+      "seconds": 600,
+      "wave": 40,
+      "hp": 238,
+      "damage": 19,
+      "oldHealingPerSecond": 203.5,
+      "newHealingPerSecond": 11.9,
+      "hpWithTime": 285.6,
+      "damageWithTime": 21.85,
+      "newHealingWithTime": 14.28
+    },
+    {
+      "seconds": 900,
+      "wave": 40,
+      "hp": 238,
+      "damage": 19,
+      "oldHealingPerSecond": 203.5,
+      "newHealingPerSecond": 11.9,
+      "hpWithTime": 309.4,
+      "damageWithTime": 23.275,
+      "newHealingWithTime": 15.469999
+    },
+    {
+      "seconds": 1200,
+      "wave": 40,
+      "hp": 238,
+      "damage": 19,
+      "oldHealingPerSecond": 203.5,
+      "newHealingPerSecond": 11.9,
+      "hpWithTime": 333.19998,
+      "damageWithTime": 24.699999,
+      "newHealingWithTime": 16.66
+    },
+    {
+      "seconds": 1800,
+      "wave": 40,
+      "hp": 238,
+      "damage": 19,
+      "oldHealingPerSecond": 203.5,
+      "newHealingPerSecond": 11.9,
+      "hpWithTime": 380.8,
+      "damageWithTime": 27.550001,
+      "newHealingWithTime": 19.039999
+    },
+    {
+      "seconds": 3600,
+      "wave": 40,
+      "hp": 238,
+      "damage": 19,
+      "oldHealingPerSecond": 203.5,
+      "newHealingPerSecond": 11.9,
+      "hpWithTime": 523.6,
+      "damageWithTime": 36.1,
+      "newHealingWithTime": 26.179998
+    }
+  ]
+}

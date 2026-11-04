@@ -137,6 +137,7 @@ namespace EchoSphere.Runtime
             if (owner != null && allowAuthoredProcs) actual = owner.ApplySourceBranchHit(this, actual, wasCritical);
             actual *= _runtime == null ? 1f : _runtime.SourceBuffDamageMultiplier;
             actual*=RegionalIncomingMultiplier;
+            var lifestealDamage = _runtime != null && _runtime.UsesCampaignCombat ? Mathf.Min(Mathf.Max(0f, _hp), Mathf.Max(0f, actual)) : actual;
             _hp -= Mathf.Max(0f, actual);
             RefreshReceivedDamageVisuals();
             if (_eliteVariant == "mirror_warden" && actual > 0f && _runtime != null)
@@ -147,7 +148,7 @@ namespace EchoSphere.Runtime
                 _runtime.RegisterCharacterHitProcs(owner, actual, allowAuthoredProcs);
             if (owner != null) _runtime.ApplySourceAfterHitGeometry(owner, this, actual);
             _runtime?.EmitSourceHitFeedback(this, actual, true, allowAuthoredProcs, wasCritical, source);
-            _runtime?.HealCoreFromDamage(actual);
+            _runtime?.HealCoreFromDamage(lifestealDamage);
             _runtime?.ApplyCampaignArtifactProtocolHit(owner,this,actual,allowAuthoredProcs);
             FinishReceivedDamage(source, owner, actual);
             return actual;
@@ -610,7 +611,7 @@ namespace EchoSphere.Runtime
         {
             if (_hp <= 0f && !_dead)
             {
-                if (_runtime.HasArtifact("vampire_ring")) _runtime.HealPlayer(5f);
+                if (!_runtime.UsesCampaignCombat && _runtime.HasArtifact("vampire_ring")) _runtime.HealPlayer(5f);
                 _runtime.ApplySourceVoidReaperKill(this, owner, damage);
                 _dead = true;
                 _runtime.RegisterEnemyDeath(this, transform.position, _xpReward, sourceSphere);
@@ -626,10 +627,10 @@ namespace EchoSphere.Runtime
                 _runtime.DrainResonance(5f * dt);
             if (_eliteVariant == "pyroclast" &&
                 distanceToPlayer < 95f * SpherePlacementRules.SourcePixelsToWorld)
-                _runtime.TryDamagePlayerOverTime(8f * dt);
+                _runtime.TryDamagePlayerOverTime(8f * dt * _runtime.CampaignEnemyDamageMultiplier);
             if (_eliteVariant == "stasis_warden" &&
                 distanceToPlayer < 170f * SpherePlacementRules.SourcePixelsToWorld)
-                _runtime.TryDamagePlayerOverTime(6f * dt);
+                _runtime.TryDamagePlayerOverTime(6f * dt * _runtime.CampaignEnemyDamageMultiplier);
 
             _elitePulseTimer -= dt;
             if (_elitePulseTimer > 0f) return;

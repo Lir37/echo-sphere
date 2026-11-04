@@ -79,6 +79,12 @@ internal static class ArtifactGameplayChecks
   Near(ArtifactGameplayRules.RecoveryDurationMultiplier(new List<string>{"signal_knot"},true),1/1.05f,"recovery speed to duration conversion");Near(ArtifactGameplayRules.RecoveryDurationMultiplier(new List<string>{"signal_knot"},false),1,"legacy recovery unchanged");
   Near(Conditional("echo_thread",new ArtifactDamageContext {HasActiveLink=true}),1.05f,"linked sphere thread");Near(Conditional("echo_thread",new ArtifactDamageContext()),1,"isolated sphere thread off");
   Near(ArtifactGameplayRules.CounterattackChance(new List<string>{"mirror","mirror_dust"},true),.28f,"reflection chances compose");Near(ArtifactGameplayRules.CounterattackChance(new List<string>{"mirror_dust"},true),.08f,"dust standalone chance");Near(ArtifactGameplayRules.CounterattackChance(new List<string>{"mirror_dust"},false),0,"legacy dust no counter");Near(ArtifactGameplayRules.CounterattackChance(new List<string>{"mirror","mirror_dust"},false),.20f,"legacy mirror unchanged");Near(ArtifactGameplayRules.EffectTotal(new List<string>{"mirror_dust"},"sphereDamage",true),0,"dust no hidden damage");
+  Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("vampire_ring"),"vampire",true),.01f,"campaign ring one percent");
+  Near(ArtifactGameplayRules.Effect(ArtifactRewardRules.Get("vampire_ring"),"vampire",false),.03f,"legacy catalog retained");
+  Near(RegionalCombatTuning.HealthTimeMultiplier(0),1,"start HP unchanged");Near(RegionalCombatTuning.HealthTimeMultiplier(1800),1.6f,"30 minute HP");
+  Near(RegionalCombatTuning.DamageTimeMultiplier(0),1,"start damage unchanged");Near(RegionalCombatTuning.DamageTimeMultiplier(1800),1.45f,"30 minute damage");
+  foreach(float invalid in new[]{-1f,float.NaN,float.PositiveInfinity,float.NegativeInfinity}){Near(RegionalCombatTuning.HealthTimeMultiplier(invalid),1,"safe HP clock");Near(RegionalCombatTuning.DamageTimeMultiplier(invalid),1,"safe damage clock");}
+  for(int second=1;second<=7200;second++){Near(RegionalCombatTuning.HealthTimeMultiplier(second)>RegionalCombatTuning.HealthTimeMultiplier(second-1)?1:0,1,"HP increases with time");Near(RegionalCombatTuning.DamageTimeMultiplier(second)>RegionalCombatTuning.DamageTimeMultiplier(second-1)?1:0,1,"damage increases with time");}
   Console.WriteLine("Artifact gameplay corrections: "+checks+" behavioral checks PASS");return checks;
  }
 }

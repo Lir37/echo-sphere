@@ -2731,3 +2731,6 @@ Phone reconnected: current Release installed. Same restored1:29 save, warm pause
 
 ## 2026-11-04 — UI/combat presentation polish
 Implementation and bounded Editor evidence: [UNITY_UI_COMBAT_POLISH_2026-11-04.md](UNITY_UI_COMBAT_POLISH_2026-11-04.md). Physical Android acceptance and exhaustive all-screen text acceptance remain open. CLI retained at beta.15.
+
+## 2026-11-04 — Vampire Ring and enemy clock balance
+User-authorized balance correction: [UNITY_VAMPIRISM_ENEMY_SCALING_2026-11-04.md](UNITY_VAMPIRISM_ENEMY_SCALING_2026-11-04.md). Ring1%, no kill heal, no excess-damage lifesteal; additional campaign HP/damage clock scaling. Editor/runtime and sensitivity evidence recorded; fresh Android acceptance remains open.

@@ -2,6 +2,10 @@ using System;
 namespace EchoSphere.Core {
  // Authored campaign tuning; source/legacy spawn profiles are left intact.
  public static class RegionalCombatTuning {
+  // Clock multipliers compound the existing wave/difficulty/role stats, without speeding up enemies.
+  public static float HealthTimeMultiplier(float seconds)=>1f+.02f*Minutes(seconds);
+  public static float DamageTimeMultiplier(float seconds)=>1f+.015f*Minutes(seconds);
+  private static float Minutes(float seconds)=>float.IsFinite(seconds)?Math.Max(0,seconds)/60f:0f;
   public const float FirstAttackDelay=.25f, CrystalClosedMultiplier=.55f, CrystalOpenMultiplier=1.20f, CrystalOpenSeconds=1.2f;
   public const int OrdinaryBroodCap=3, BossBroodCap=10, BossBroodPhaseTwoCap=14, GlobalBroodCap=24, FleetGroupSize=3, EnergyLinkCap=6;
   public const float SummonSpeed=135, SummonHpShare=.12f, SummonMinHp=12, SummonMaxHp=90, SummonBodyOffset=.25f, FleetCommandRange=160, MeleeWindupRange=100;

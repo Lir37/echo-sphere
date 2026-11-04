@@ -59,6 +59,7 @@ static class Program
  static int Quantile(IEnumerable<int> items,double p){var v=items.OrderBy(x=>x).ToArray();return v[(int)Math.Floor((v.Length-1)*p)];}
  static void Main(string[] args)
  {
+  if(args.Length>0&&args[0]=="survival"){SurvivalSensitivity.Run(args.Length>1?args[1]:"UnityProject/Library/survival-sensitivity.json");return;}
   int seeds=args.Length>0?int.Parse(args[0]):128;string path=args.Length>1?args[1]:"UnityProject/Library/point6-balance.json";int pricingVersion=args.Length>2?int.Parse(args[2]):2;var rows=new List<Row>();
   foreach(var region in Enum.GetValues<EchoRegionId>())foreach(var profile in Profiles)foreach(var policy in new[]{"cheap","rarity","mixed"})for(uint seed=1;seed<=seeds;seed++)foreach(bool exploration in new[]{false,true})rows.Add(Run(seed,region,profile,policy,exploration,pricingVersion));
   var groups=rows.GroupBy(r=>new{r.Profile,r.Policy,r.Exploration}).Select(g=>new{g.Key,Runs=g.Count(),EchoP50=Quantile(g.Select(x=>x.Echo),.5),BoughtP10=Quantile(g.Select(x=>x.Bought),.1),BoughtP50=Quantile(g.Select(x=>x.Bought),.5),BoughtP90=Quantile(g.Select(x=>x.Bought),.9),ArtifactsP10=Quantile(g.Select(x=>x.Artifacts),.1),ArtifactsP50=Quantile(g.Select(x=>x.Artifacts),.5),ArtifactsP90=Quantile(g.Select(x=>x.Artifacts),.9),TargetShare=g.Count(x=>x.Artifacts>=20&&x.Artifacts<=23)/(double)g.Count(),RunesP50=Quantile(g.Select(x=>x.Runes),.5),SpecialCellsP50=Quantile(g.Select(x=>x.Cells),.5)}).ToArray();

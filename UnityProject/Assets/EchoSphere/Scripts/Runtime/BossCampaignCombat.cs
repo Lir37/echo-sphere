@@ -57,7 +57,7 @@ namespace EchoSphere.Runtime
                     for(int i=0;i<p.Count;i++)
                     {
                         float a=p.Attack==CampaignBossAttack.Fan?angle+(i-(p.Count-1)*.5f)*.20f:angle+i*Mathf.PI*2/p.Count;
-                        _runtime.SpawnBossProjectile(origin,new Vector2(Mathf.Cos(a),Mathf.Sin(a))*BossCombatRules.ToWorldUnits(p.Speed),p.Damage,7f,_bossType,_color,_agent);
+                        _runtime.SpawnBossProjectile(origin,new Vector2(Mathf.Cos(a),Mathf.Sin(a))*BossCombatRules.ToWorldUnits(p.Speed),p.Damage*_runtime.CampaignEnemyDamageMultiplier,7f,_bossType,_color,_agent);
                     }
                     break;
                 case CampaignBossAttack.Summon:
@@ -65,7 +65,7 @@ namespace EchoSphere.Runtime
                     for(int i=0;i<p.Count;i++)
                     {
                         float a=angle+i*Mathf.PI*2/p.Count;
-                        var child=_runtime.SpawnBossMinion(origin+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*60f*scale,20f+_wave*4f,BossCombatRules.ToWorldUnits(90f),2,_bossType=="stella_warden"?"moth":"wisp",_color);
+                        var child=_runtime.SpawnBossMinion(origin+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*60f*scale,(20f+_wave*4f)*_runtime.CampaignEnemyHealthMultiplier,BossCombatRules.ToWorldUnits(90f),2,_bossType=="stella_warden"?"moth":"wisp",_color);
                         if(child!=null&&_agent.CampaignRegionStyle>=0)child.SetCampaignRegion((EchoRegionId)_agent.CampaignRegionStyle);
                     }
                     break;

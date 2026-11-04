@@ -1410,13 +1410,13 @@ namespace EchoSphere.Runtime
             var challengeXp = GetChallengeEnemyXpMultiplier();
 
             var hp = (profile.HpBase + _wave * profile.HpPerWave) *
-                difficulty.EnemyHpMultiplier * pocket.Hp * challengeHp * roleHp;
+                difficulty.EnemyHpMultiplier * pocket.Hp * challengeHp * roleHp * CampaignEnemyHealthMultiplier;
             var speed = BossCombatRules.ToWorldUnits(profile.SpeedBase + _wave * profile.SpeedPerWave) *
                 difficulty.EnemySpeedMultiplier * pocket.Speed * challengeSpeed * roleSpeed;
             if(UsesCampaignCombat)speed*=RegionalCombatTuning.SpeedMultiplier(speed/SpherePlacementRules.SourcePixelsToWorld,role);
             // Source stores the fully modified damage on the enemy at spawn time.
             var damage = (profile.DamageBase + _wave * profile.DamagePerWave) *
-                difficulty.EnemyDamageMultiplier * GetRegionEnemyDamageMultiplier() * roleDamage;
+                difficulty.EnemyDamageMultiplier * GetRegionEnemyDamageMultiplier() * roleDamage * CampaignEnemyDamageMultiplier;
             var xpReward = profile.XpReward * pocket.Xp * challengeXp;
             var eliteRoll=_rng.NextFloat();
             var isElite = forceElite || EnemySpawnRules.ShouldBeElite(_wave,eliteRoll);
@@ -1562,9 +1562,9 @@ namespace EchoSphere.Runtime
             var tint = Color.white;
             ColorUtility.TryParseHtmlString(type=="brood_queen"?"#b9cf69":type=="fleet_carrier"?"#72dbff":BossCombatRules.GetColorHex(type), out tint);
             var difficulty = CurrentDifficulty;
-            var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier;
+            var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier * CampaignEnemyHealthMultiplier;
             var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier;
-            var damage = BossCombatRules.GetContactDamage(wave) * difficulty.EnemyDamageMultiplier;
+            var damage = BossCombatRules.GetContactDamage(wave) * difficulty.EnemyDamageMultiplier * CampaignEnemyDamageMultiplier;
             var root = CreateEntityRoot("ECHO SPHERE Boss / " + type, position, 1.23f);
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
@@ -1582,7 +1582,7 @@ namespace EchoSphere.Runtime
             if (_player == null || _gameOver) return null;
             var root = CreateEntityRoot("Boss Minion", position, .38f);
             var agent = root.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant, damage: 8f);
+            agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant, damage: 8f * CampaignEnemyDamageMultiplier);
             agent.SetSourceAppearance(tint); agent.SetSourceRadius(10f);
             if(UsesCampaignCombat)agent.SetCampaignRegion(ActiveCampaignRegion);
             _enemies.Add(agent); RegisterEnemyQuery(agent); RecordEnemyEncounter(agent);

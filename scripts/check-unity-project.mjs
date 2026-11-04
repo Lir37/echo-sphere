@@ -390,7 +390,7 @@ assert.ok(runtimeArt.includes('SpawnStellaChest(position)') && runtimeArt.includ
 assert.ok(runtimeArt.includes('ArtifactRewardRules.IsLegendaryStellaWindow') && runtimeArt.includes('PickChoices(_ownedArtifacts, _rng.NextFloat, true') && runtimeArt.includes('PickChoices(_ownedArtifacts, _rng.NextFloat, false'), 'Stella rarity-window selection/fallback is missing');
 assert.ok(runtimeArt.includes('GetStellaChoiceCount(_ownedArtifacts)') && artifactRules.includes('Contains(owned,"quantum_fold")'), 'Quantum Fold must add a fourth Stella choice');
 assert.ok(runtimeArt.includes('ChooseStellaReward(i)') && runtimeArt.includes('_stellaRewardPending'), 'Stella rewards must wait for explicit player selection');
-assert.ok(readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8').includes('HealCoreFromDamage(actual)') && runtimeArt.includes('GetArtifactSphereFamilyDamageMultiplier') && runtimeArt.includes('SetDashCooldownMultiplier'), 'artifact combat/stat hooks are not connected');
+assert.ok(readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8').includes('HealCoreFromDamage(lifestealDamage)') && runtimeArt.includes('GetArtifactSphereFamilyDamageMultiplier') && runtimeArt.includes('SetDashCooldownMultiplier'), 'artifact combat/stat hooks are not connected');
 const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
 assert.ok(playerCore.includes('CanReceiveDamageNow') && playerCore.includes('IncreaseMaxHp') && playerCore.includes('SetDashCooldownMultiplier'), 'player artifact stat hooks are missing');
 const enemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');

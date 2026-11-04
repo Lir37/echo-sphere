@@ -38,7 +38,7 @@ namespace EchoSphere.Runtime {
     if(p.Range>0){
      var direction=(_regionalAim-(Vector2)transform.position).normalized;if(direction.sqrMagnitude<.01f)direction=Vector2.right;
      for(int i=0;i<p.Pellets;i++){float angle=(i-(p.Pellets-1)*.5f)*.16f;var shot=new Vector2(direction.x*Mathf.Cos(angle)-direction.y*Mathf.Sin(angle),direction.x*Mathf.Sin(angle)+direction.y*Mathf.Cos(angle));
-      _runtime.SpawnBossProjectile((Vector2)transform.position+shot*SourceRadius*SpherePlacementRules.SourcePixelsToWorld,shot*p.Speed*SpherePlacementRules.SourcePixelsToWorld,(_role=="sniper"?10:6)/Mathf.Sqrt(p.Pellets),p.Shot=="spore"?8:5,"regional_"+p.Shot,new Color(.6f,.85f,1),this);}
+      _runtime.SpawnBossProjectile((Vector2)transform.position+shot*SourceRadius*SpherePlacementRules.SourcePixelsToWorld,shot*p.Speed*SpherePlacementRules.SourcePixelsToWorld,(_role=="sniper"?10:6)*_runtime.CampaignEnemyDamageMultiplier/Mathf.Sqrt(p.Pellets),p.Shot=="spore"?8:5,"regional_"+p.Shot,new Color(.6f,.85f,1),this);}
      SourceAudio2D.Play("shoot");
     }else if(p.Shot=="tentacle"&&_player!=null){
      float unit=SpherePlacementRules.SourcePixelsToWorld;
