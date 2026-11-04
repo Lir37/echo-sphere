@@ -6,7 +6,7 @@ using System.Text.Json;
 record Profile(string Name,float Lifetime,float Collection);
 record Event(double Time,int Echo,bool Elite,bool Boss);
 record Row(int Seed,string Region,string Profile,string Policy,bool Exploration,int Kills,int Echo,int Bought,int Chests,int Boss,int Explore,int Artifacts,int Wallet,int Runes,int Cells);
-static class Program
+static partial class Program
 {
  static readonly Profile[] Profiles={new("slow",18,.55f),new("regular",8,.80f),new("fast",3,.95f),new("ceiling",.5f,1)};
  static List<Event> Events(uint seed,EchoRegionId region,Profile p)
@@ -59,6 +59,7 @@ static class Program
  static int Quantile(IEnumerable<int> items,double p){var v=items.OrderBy(x=>x).ToArray();return v[(int)Math.Floor((v.Length-1)*p)];}
  static void Main(string[] args)
  {
+  if(args.Length>0&&args[0]=="meta"){MetaProgression(args.Length>1?args[1]:"UnityProject/Library/meta-progression.json");return;}
   if(args.Length>0&&args[0]=="survival"){SurvivalSensitivity.Run(args.Length>1?args[1]:"UnityProject/Library/survival-sensitivity.json");return;}
   int seeds=args.Length>0?int.Parse(args[0]):128;string path=args.Length>1?args[1]:"UnityProject/Library/point6-balance.json";int pricingVersion=args.Length>2?int.Parse(args[2]):2;var rows=new List<Row>();
   foreach(var region in Enum.GetValues<EchoRegionId>())foreach(var profile in Profiles)foreach(var policy in new[]{"cheap","rarity","mixed"})for(uint seed=1;seed<=seeds;seed++)foreach(bool exploration in new[]{false,true})rows.Add(Run(seed,region,profile,policy,exploration,pricingVersion));

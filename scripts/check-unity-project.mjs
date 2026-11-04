@@ -400,8 +400,8 @@ assert.ok(runtime.includes('DrawSourceMainHome();') && runtime.includes('"ВЫБ
 const regionFieldNamespaceCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs'), 'utf8');
 assert.ok(regionFieldNamespaceCheck.includes('using EchoSphere.Core;'), 'Region field must import the source Region id types');
 const persistentUpgradeRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/PersistentUpgradeRules.cs'), 'utf8');
-for (const token of ['"dmg"', '"radius"', '"speed"', '"spheres"', '"hp"', '"crit"', '"xp"', 'Math.Pow(3d, currentLevel)'])
-  assert.ok(persistentUpgradeRules.includes(token), 'source persistent-shop contract missing: ' + token);
+for (const token of ['"dmg"', '"radius"', '"speed"', '"spheres"', '"hp"', '"crit"', '"xp"', 'GetBaseCost(id) * (currentLevel + 1) * (currentLevel + 1) * (currentLevel + 4) / 4'])
+  assert.ok(persistentUpgradeRules.includes(token), 'authored persistent-shop contract missing: ' + token);
 const difficultyRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/DifficultyRules.cs'), 'utf8');
 for (const token of ['0.7f, 0.8f, 0.7f, 0.8f, 0.8f', '1.4f, 1.2f, 1.3f, 1.5f, 1.2f', '2f, 1.4f, 1.6f, 2f, 1.5f'])
   assert.ok(difficultyRules.includes(token), 'source Difficulty multipliers missing: ' + token);
@@ -667,8 +667,8 @@ assert.ok(menuRuntime.includes('JsonUtility.FromJson<AchievementSaveData>') &&
   menuRuntime.includes('SaveUnlockedAchievementIds()') && menuRuntime.includes('SourceAchievements'),
   'source achievement IDs and the achievement catalogue must be persisted and displayed');
 assert.ok(menuRuntime.includes('FinalizeRunResult()') && menuRuntime.includes('_runResultSaved') &&
-  menuRuntime.includes('Math.Floor(goldFormula * difficulty.GoldMultiplier)') &&
-  menuRuntime.includes('RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion)') &&
+  menuRuntime.includes('MetaCurrencyRules.RunCredits(_runTime,_bossesDefeated,_kills,_regionStabilized,_selectedRegion,_runEliteKills,difficulty.GoldMultiplier') &&
+  readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/MetaCurrencyRules.cs'), 'utf8').includes('Math.Floor(Math.Max(0,seconds))*.15+Math.Max(0,bosses)*25d+Math.Max(0,kills)*.05') &&
   menuRuntime.includes('SaveLeaderboardEntries()'),
   'game-over must award source-formula Credits and persist one leaderboard result per run');
 assert.ok(menuRuntime.includes('UnlockAchievementIf(_kills >= 500, "kills_500")') &&

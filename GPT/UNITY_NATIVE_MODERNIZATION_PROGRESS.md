@@ -2742,3 +2742,7 @@ User-requested menu/archive/reward rework: [UNITY_MENU_ARCHIVE_REWORK_2026-11-04
 Artifact archive follow-up: tap a discovered artifact to inspect all existing sets/combinations, effects and required artifact pictures. Actual Editor1152 targeted checks PASS; phone acceptance pending. See same menu/archive report.
 
 Sphere/ability archive follow-up: click opens selected IV/VII progression and reciprocal existing synergies; unknown variants remain masked. Immediate choice discovery, existing save keys. Editor2133 targeted checks PASS; Android pending. See menu/archive report.
+
+
+## 2026-11-04 — Archive art, long-term economy and formation regression
+[UNITY_ARCHIVE_ECONOMY_FORMATIONS_2026-11-04.md](UNITY_ARCHIVE_ECONOMY_FORMATIONS_2026-11-04.md):302 semantic archive emblems, XP-only future mastery, recalibrated character/shop prices with36864 modeled income cases, retained primary/secondary formation identity through disable/addition, regional hostile ammunition. Editor/Core checks passed; Android delivery/acceptance reported separately.

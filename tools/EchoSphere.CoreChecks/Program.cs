@@ -250,7 +250,7 @@ internal static class Program
         Equal(PersistentUpgradeRules.GetBaseCost("dmg"), 200, "source Sphere damage base cost");
         Equal(PersistentUpgradeRules.GetBaseCost("hp"), 150, "source starting HP base cost");
         Equal(PersistentUpgradeRules.GetCost("dmg", 0), 200, "shop cost at level zero");
-        Equal(PersistentUpgradeRules.GetCost("dmg", 1), 600, "shop cost follows baseCost * 3^level");
+        Equal(PersistentUpgradeRules.GetCost("dmg", 1), 1000, "shop cost follows authored quadratic progression");
         Equal(PersistentUpgradeRules.GetCost("dmg", 10), 0, "max-level item cannot be purchased");
         Equal(PersistentUpgradeRules.GetMaxLevel("spheres"), 3, "source start-sphere upgrade cap");
         Near(PersistentUpgradeRules.GetPercentMultiplier(4), 1.20f, 0.000001f, "shop +5% level scaling");

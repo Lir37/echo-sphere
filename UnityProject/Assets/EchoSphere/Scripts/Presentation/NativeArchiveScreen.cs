@@ -10,7 +10,7 @@ namespace EchoSphere.Presentation
     {
         public sealed class ArtifactMember {public string Id,Name;public bool Selected;}
         public sealed class ArtifactBuild {public string Title,Description;public bool Combination;public List<ArtifactMember> Members=new List<ArtifactMember>();}
-        public class ProgressionChoice {public bool Open;public string Title,Description;}
+        public class ProgressionChoice {public bool Open;public string IconId,Title,Description;}
         public sealed class ProgressionBranch:ProgressionChoice {public List<ProgressionChoice> Finals=new List<ProgressionChoice>();}
         public sealed class ProgressionLink:ProgressionChoice {public string PartnerId,PartnerName,Requirements;}
         public sealed class ProgressionDetail {public List<ProgressionBranch> Branches=new List<ProgressionBranch>();public List<ProgressionLink> Links=new List<ProgressionLink>();}
@@ -153,6 +153,7 @@ namespace EchoSphere.Presentation
             Text(parent,"archive-progression-hint",L("Названия и эффекты открываются после выбора в забеге.","Names and effects are revealed after you choose them in a run."),12,"#98abc1",wrap:true).style.marginTop=8;
             if(card.Progression.Branches.Count==0)Text(parent,"archive-progression-empty",L("У этой способности нет веток мутации.","This ability has no mutation branches."),13,"#98abc1",wrap:true).style.marginTop=12;
             void Choice(VisualElement box,ProgressionChoice choice,int level){
+                var icon=new NativeContentIcon(choice.Open?choice.IconId:"locked",C("#a5f3fc"),40);icon.style.marginBottom=8;box.Add(icon);
                 Text(box,"archive-progression-stage",(level==4?"IV":"VII")+" · "+(choice.Open?L("ОТКРЫТО","DISCOVERED"):L("НЕ ИЗУЧЕНО","UNDISCOVERED")),10,choice.Open?"#9389c4":"#64748b",wrap:true);
                 Text(box,"archive-progression-name",choice.Open?choice.Title:L("Неизученная мутация","Undiscovered mutation"),16,choice.Open?"#dff5ff":"#7e91a7","700",true).style.marginTop=5;
                 Text(box,"archive-progression-description",choice.Open?choice.Description:L("Выберите этот вариант в забеге, чтобы открыть его описание.","Choose this option in a run to reveal its description."),13,choice.Open?"#82d9e4":"#64748b",wrap:true,line:1.6).style.marginTop=8;

@@ -12,10 +12,11 @@ namespace EchoSphere.Core
     }
     public static class MetaCurrencyRules
     {
-        // Authored initial economy, approved2026-11-01. No exchange between currencies.
+        // Persistent economy, retuned2026-11-04 for user-requested long-term progression. No exchange between currencies.
         public const int NaturalDiscoveryData=1, LoreResearchCost=3, StabilizationShards=3;
-        public static int CharacterUnlockShards(int legacyUnlockCost)=>(int)Math.Min(int.MaxValue,Math.Max(0,((long)legacyUnlockCost+149)/150));
-        public static int MasteryResearchShards(int currentLevel)=>currentLevel<1||currentLevel>=10?0:2*(currentLevel+1);
+        // Existing character identity/cost keys; early unlock first, longer goals later. No mastery purchase.
+        public static int CharacterUnlockShards(int legacyUnlockCost){switch(legacyUnlockCost){case 0:return 0;case 1500:return 24;case 2000:return 72;case 2500:return 144;case 3000:return 256;case 3500:return 448;case 4000:return 704;case 4500:return 960;case 5000:return 1200;default:throw new ArgumentOutOfRangeException(nameof(legacyUnlockCost));}}
+        public static int RunCredits(float seconds,int bosses,int kills,bool stabilized,EchoRegionId region,int elites,float multiplier=1f,int runeCredits=0){double credits=Math.Floor((Math.Floor(Math.Max(0,seconds))*.15+Math.Max(0,bosses)*25d+Math.Max(0,kills)*.05)*multiplier);if(stabilized)credits+=RegionBossScheduleRules.GetBaseGoldReward(region)+Math.Max(0,elites)*5d+Math.Max(0,bosses)*35d;return (int)Math.Min(int.MaxValue,Math.Max(0,credits+Math.Max(0,runeCredits)));}
         public static int RunShards(int bosses,bool stabilized)=>(int)Math.Min(int.MaxValue,Math.Max(0L,bosses)+(stabilized?StabilizationShards:0));
         public static MetaWallet MigrateGold(int gold)=>new MetaWallet{Version=1,Credits=Math.Max(0,gold),Receipts=new List<string>()};
         public static bool Valid(MetaWallet wallet)=>wallet!=null&&wallet.Version==1&&wallet.Credits>=0&&wallet.ResonanceShards>=0&&wallet.ArchiveData>=0&&wallet.Receipts!=null;
@@ -46,6 +47,6 @@ namespace EchoSphere.Core
         public static string Name(CurrencyId id,bool ru)
         {switch(id){case CurrencyId.Echo:return ru?"Эхо":"Echo";case CurrencyId.Credits:return ru?"Кредиты":"Credits";case CurrencyId.ResonanceShards:return ru?"Осколки резонанса":"Resonance Shards";case CurrencyId.ArchiveData:return ru?"Данные архива":"Archive Data";default:throw new ArgumentOutOfRangeException(nameof(id));}}
         public static string Purpose(CurrencyId id,bool ru)
-        {switch(id){case CurrencyId.Echo:return ru?"Ресурс забега для торговца; не переносится между забегами.":"Run resource for the merchant; not carried between runs.";case CurrencyId.Credits:return ru?"Награда за забег. Постоянные улучшения в магазине.":"Run reward. Permanent shop upgrades.";case CurrencyId.ResonanceShards:return ru?"За босса +1, за стабилизацию +"+StabilizationShards+". Открытие персонажей и необязательное ускорение мастерства; обычный рост от XP сохраняется.":"+1 per Boss, +"+StabilizationShards+" for stabilization. Character unlocks and optional mastery acceleration; normal XP progression remains available.";case CurrencyId.ArchiveData:return ru?"За новую находку +"+NaturalDiscoveryData+". Исследование региональной записи стоит "+LoreResearchCost+" и не приносит новых данных.":"New discovery +"+NaturalDiscoveryData+". Regional lore research costs "+LoreResearchCost+" and does not grant new Data.";default:throw new ArgumentOutOfRangeException(nameof(id));}}
+        {switch(id){case CurrencyId.Echo:return ru?"Ресурс забега для торговца; не переносится между забегами.":"Run resource for the merchant; not carried between runs.";case CurrencyId.Credits:return ru?"Награда за забег. Постоянные улучшения в магазине.":"Run reward. Permanent shop upgrades.";case CurrencyId.ResonanceShards:return ru?"За босса +1, за стабилизацию +"+StabilizationShards+". Открытие персонажей. Мастерство растёт только от опыта забегов.":"+1 per Boss, +"+StabilizationShards+" for stabilization. Character unlocks. Mastery advances only through run XP.";case CurrencyId.ArchiveData:return ru?"За новую находку +"+NaturalDiscoveryData+". Исследование региональной записи стоит "+LoreResearchCost+" и не приносит новых данных.":"New discovery +"+NaturalDiscoveryData+". Regional lore research costs "+LoreResearchCost+" and does not grant new Data.";default:throw new ArgumentOutOfRangeException(nameof(id));}}
     }
 }

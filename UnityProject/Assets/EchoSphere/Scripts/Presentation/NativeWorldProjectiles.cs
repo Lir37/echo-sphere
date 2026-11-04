@@ -44,12 +44,14 @@ namespace EchoSphere.Presentation
         private readonly Dictionary<(float,int,PathEnding,PathCorner,float),Art> _art=new Dictionary<(float,int,PathEnding,PathCorner,float),Art>();
         private readonly Material _material=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native hostile projectiles",hideFlags=HideFlags.DontSave};
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();private int _used;
-        internal void BeginFrame(){_used=0;}
+        internal void BeginFrame(){_used=0;_regional?.BeginFrame();}
         private MaterialPropertyBlock Properties(Color c){if(_used==_properties.Count)_properties.Add(new MaterialPropertyBlock());var p=_properties[_used++];p.SetVector("_NativeColor",new Vector4(c.r,c.g,c.b,c.a));return p;}
         private static Color Alpha(Color c,float a){c.a=a;return c;}
         private static Color Html(string value){ColorUtility.TryParseHtmlString(value,out var c);return c;}
-        internal void Draw(NativeWorldSurface surface,float x,float y,float r,double vx,double vy,int kind,Color color,double time)
+        private NativeRegionalProjectileArt _regional;
+        internal void Draw(NativeWorldSurface surface,float x,float y,float r,double vx,double vy,int kind,Color color,double time,int region=-1,int style=0)
         {
+            if(region>=0){if(_regional==null)_regional=new NativeRegionalProjectileArt();_regional.Draw(surface,x,y,r,vx,vy,region,kind,style,time);return;}
             var key=(r,kind,surface.NativeStrokeEnding,surface.NativeStrokeCorner,surface.NativeStrokeMiter);if(!_art.TryGetValue(key,out var art)){art=new Art(r,kind,key.Item3,key.Item4,key.Item5);_art.Add(key,art);}
             bool enemy=kind<2;var transform=Matrix4x4.TRS(new Vector3(x,y,0),Quaternion.Euler(0,0,(float)Math.Atan2(vy,vx)*Mathf.Rad2Deg),Vector3.one);
             void Paint(Mesh mesh,Color tint,Matrix4x4? local=null,bool additive=false,bool detail=false){surface.DrawNativeMesh(mesh,_material,Properties(tint),transform*(local??Matrix4x4.identity),shadow:detail?Color.clear:enemy?(Color?)color:null,shadowBlur:detail?0:enemy?7:0,inheritShadow:!detail&&!enemy,additive:additive,inheritShadowOffsets:enemy);}
@@ -68,6 +70,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){foreach(var art in _art.Values)art.Dispose();_art.Clear();Destroy(_material);}
+        public void Dispose(){_regional?.Dispose();foreach(var art in _art.Values)art.Dispose();_art.Clear();Destroy(_material);}
     }
 }

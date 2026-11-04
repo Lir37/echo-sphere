@@ -1,0 +1,218 @@
+{
+  "fastestModeledCreditsPerHour": 6865.16129032258,
+  "minimumShopHoursInModeledWins": 128.9845879146697,
+  "scope": "Economy throughput model, not player/AI/device simulation.512seeds x6regions x4enemy-lifetime/collection profiles x3run lengths.60seconds between runs. Stabilization modeled as win at30minutes; real win rate, exploration and challenge difficulty are not predicted. Endless assumes every scheduled boss instantly killed; ignores initial delay, giving optimistic upper bound24shards/hour. No elapsed-day gate. Existing balances/progress retained.",
+  "comparisons": 36864,
+  "characterTotalShards": 3880,
+  "earliestAllCharactersHoursAtEndlessCeiling": 161.66666666666666,
+  "daysAt1Hour": 161.66666666666666,
+  "daysAt1_5Hours": 107.77777777777777,
+  "daysAt2Hours": 80.83333333333333,
+  "firstCharacterShards": 24,
+  "stabilizationShardsPer30Minutes": 6,
+  "oldShopTotal": 17337700,
+  "newShopTotal": 885500,
+  "prices": [
+    {
+      "id": "dmg",
+      "levels": [
+        200,
+        1000,
+        2700,
+        5600,
+        10000,
+        16200,
+        24500,
+        35200,
+        48600,
+        65000
+      ],
+      "total": 209000,
+      "oldTotal": 5904800
+    },
+    {
+      "id": "radius",
+      "levels": [
+        200,
+        1000,
+        2700,
+        5600,
+        10000,
+        16200,
+        24500,
+        35200,
+        48600,
+        65000
+      ],
+      "total": 209000,
+      "oldTotal": 5904800
+    },
+    {
+      "id": "speed",
+      "levels": [
+        300,
+        1500,
+        4050,
+        8400,
+        15000,
+        24300,
+        36750
+      ],
+      "total": 90300,
+      "oldTotal": 327900
+    },
+    {
+      "id": "spheres",
+      "levels": [
+        500,
+        2500,
+        6750
+      ],
+      "total": 9750,
+      "oldTotal": 6500
+    },
+    {
+      "id": "hp",
+      "levels": [
+        150,
+        750,
+        2025,
+        4200,
+        7500,
+        12150,
+        18375,
+        26400,
+        36450,
+        48750
+      ],
+      "total": 156750,
+      "oldTotal": 4428600
+    },
+    {
+      "id": "crit",
+      "levels": [
+        400,
+        2000,
+        5400,
+        11200,
+        20000,
+        32400,
+        49000
+      ],
+      "total": 120400,
+      "oldTotal": 437200
+    },
+    {
+      "id": "xp",
+      "levels": [
+        300,
+        1500,
+        4050,
+        8400,
+        15000,
+        24300,
+        36750
+      ],
+      "total": 90300,
+      "oldTotal": 327900
+    }
+  ],
+  "scenarios": [
+    {
+      "profileDuration": "slow:300",
+      "samples": 3072,
+      "creditsPerHour": 480,
+      "p95": 490,
+      "shopHours": 1844.7916666666667,
+      "oldShopHours": 36120.208333333336
+    },
+    {
+      "profileDuration": "slow:900",
+      "samples": 3072,
+      "creditsPerHour": 667.5,
+      "p95": 671.25,
+      "shopHours": 1326.5917602996255,
+      "oldShopHours": 25974.082397003745
+    },
+    {
+      "profileDuration": "slow:1800",
+      "samples": 3072,
+      "creditsPerHour": 2699.9999999999995,
+      "p95": 2945.806451612903,
+      "shopHours": 327.962962962963,
+      "oldShopHours": 6421.370370370371
+    },
+    {
+      "profileDuration": "regular:300",
+      "samples": 3072,
+      "creditsPerHour": 520,
+      "p95": 520,
+      "shopHours": 1702.8846153846155,
+      "oldShopHours": 33341.730769230766
+    },
+    {
+      "profileDuration": "regular:900",
+      "samples": 3072,
+      "creditsPerHour": 723.75,
+      "p95": 727.5,
+      "shopHours": 1223.4887737478412,
+      "oldShopHours": 23955.3713298791
+    },
+    {
+      "profileDuration": "regular:1800",
+      "samples": 3072,
+      "creditsPerHour": 4056.774193548387,
+      "p95": 4356.774193548386,
+      "shopHours": 218.2768765903308,
+      "oldShopHours": 4273.765108142494
+    },
+    {
+      "profileDuration": "fast:300",
+      "samples": 3072,
+      "creditsPerHour": 550,
+      "p95": 550,
+      "shopHours": 1610,
+      "oldShopHours": 31523.090909090908
+    },
+    {
+      "profileDuration": "fast:900",
+      "samples": 3072,
+      "creditsPerHour": 783.75,
+      "p95": 783.75,
+      "shopHours": 1129.8245614035088,
+      "oldShopHours": 22121.4673046252
+    },
+    {
+      "profileDuration": "fast:1800",
+      "samples": 3072,
+      "creditsPerHour": 5324.516129032258,
+      "p95": 5663.225806451613,
+      "shopHours": 166.3061916878711,
+      "oldShopHours": 3256.201987156186
+    },
+    {
+      "profileDuration": "ceiling:300",
+      "samples": 3072,
+      "creditsPerHour": 570,
+      "p95": 570,
+      "shopHours": 1553.5087719298247,
+      "oldShopHours": 30417.01754385965
+    },
+    {
+      "profileDuration": "ceiling:900",
+      "samples": 3072,
+      "creditsPerHour": 828.75,
+      "p95": 828.75,
+      "shopHours": 1068.4766214177978,
+      "oldShopHours": 20920.301659125187
+    },
+    {
+      "profileDuration": "ceiling:1800",
+      "samples": 3072,
+      "creditsPerHour": 6119.999999999999,
+      "p95": 6487.74193548387,
+      "shopHours": 144.68954248366015,
+      "oldShopHours": 2832.95751633987
+    }
+  ]
+}

@@ -55,7 +55,7 @@ namespace EchoSphere.Runtime
             }if(changed)SaveShopState();}
             if(characters||mastery){EnsureCharacterProfilesLoaded();bool changed=false;foreach(var definition in CharacterRules.All){var profile=FindCharacterProfile(definition.Id);if(profile==null)continue;
                 if(!profile.unlocked&&MetaCurrencyRules.HasReceipt(wallet,"purchase:character:"+profile.id)){profile.unlocked=true;changed=true;}
-                if(mastery)for(int level=2;level<=10;level++)if(level>profile.masteryLevel&&MetaCurrencyRules.HasReceipt(wallet,"purchase:mastery:"+profile.id+":"+level)){profile.unlocked=true;ApplyMasteryResearch(profile,level);changed=true;}
+                if(mastery)for(int level=2;level<=10;level++)if(level>profile.masteryLevel&&MetaCurrencyRules.HasReceipt(wallet,"purchase:mastery:"+profile.id+":"+level)){profile.unlocked=true;RestoreLegacyPurchasedMastery(profile,level);changed=true;}
             }if(changed)SaveCharacterProfiles();}
             if(lore){EnsureKnowledgeLoaded();bool changed=false;foreach(var entry in CampaignRegionLore.All)if(MetaCurrencyRules.HasReceipt(wallet,"purchase:lore:"+entry.Id))changed|=_knownKnowledgeIds.Add(entry.Id);
                 if(changed){PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new System.Collections.Generic.List<string>(_knownKnowledgeIds)}));PlayerPrefs.Save();}}

@@ -11,15 +11,7 @@ namespace EchoSphere.Runtime
   private void GrantCompletedRunCurrencies()
   {
             var difficulty = CurrentDifficulty;
-            var goldFormula = System.Math.Floor(_runTime) * 0.15d + _bossesDefeated * 25d + _kills * 0.05d;
-            _runGoldEarned = (int)System.Math.Floor(goldFormula * difficulty.GoldMultiplier);
-            if (_regionStabilized)
-            {
-                // Exact src/region.ts reward: region base + 5 per elite + 35 per defeated boss.
-                _runGoldEarned += RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion) +
-                    _runEliteKills * 5 + _bossesDefeated * 35;
-            }
-            _runGoldEarned=(int)Math.Min(int.MaxValue,(long)_runGoldEarned+RuneRules.CellReward(_runEconomy?.Runes));
+            _runGoldEarned=MetaCurrencyRules.RunCredits(_runTime,_bossesDefeated,_kills,_regionStabilized,_selectedRegion,_runEliteKills,difficulty.GoldMultiplier,RuneRules.CellReward(_runEconomy?.Runes));
             if(string.IsNullOrEmpty(_runMetaReceipt))_runMetaReceipt=Guid.NewGuid().ToString("N");
             _runShardsEarned=MetaCurrencyRules.RunShards(_bossesDefeated,_regionStabilized);
             GrantMetaOnce("run:"+_runMetaReceipt,_runGoldEarned,_runShardsEarned,0);
@@ -50,19 +42,7 @@ namespace EchoSphere.Runtime
    // One existing knowledge save, including batched currency receipts. No Save per ID.
    PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new List<string>(_knownKnowledgeIds),appearances=new List<BestiaryAppearance>(_bestiaryAppearances.Values)}));WriteMetaWallet(wallet);
   }
-  private void ResearchNativeCharacterMastery(string id,int expectedLevel)
-  {
-   if(!_mainMenu||_mainMenuPage!=MainMenuPage.Characters||!CharacterRules.TryParseSourceId(id,out var character))return;
-   var profile=GetCharacterProfile(character);if(!profile.unlocked||profile.masteryLevel+1!=expectedLevel||expectedLevel>10)return;
-   int cost=MetaCurrencyRules.MasteryResearchShards(profile.masteryLevel);
-   if(!TryBuyMeta("purchase:mastery:"+id+":"+expectedLevel,CurrencyId.ResonanceShards,cost)){
-    _nativeCharacterMessage=IsRussianUi?"Недостаточно осколков резонанса.":"Not enough Resonance Shards.";
-   }else{
-    ApplyMasteryResearch(profile,expectedLevel);SaveCharacterProfiles();_nativeCharacterMessage="";_nativeMenuModelVersion++;
-   }
-   _nativeCharacterState=ReadNativeCharacterState();
-  }
-  private void ApplyMasteryResearch(CharacterProfileData profile,int level)
+  private void RestoreLegacyPurchasedMastery(CharacterProfileData profile,int level)
   {
    profile.masteryXp=Mathf.Max(profile.masteryXp,CharacterRules.GetMasteryThreshold(level));
    profile.masteryLevel=Mathf.Max(profile.masteryLevel,CharacterRules.GetMasteryLevelForXp(profile.masteryXp));

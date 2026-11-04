@@ -6532,17 +6532,18 @@ namespace EchoSphere.Runtime
             _abilityDrones.RemoveAll(drone => drone == null || !drone.IsNetworkNodeAlive);
             var includeDrones = GetAbilityLevel(RunUpgradeKind.Minion) >= 3;
             if(_nativeNetworkAnalysis==null)_nativeNetworkAnalysis=new EchoSphere.Presentation.NativeNetworkAnalysisCache();
-            var nodes = _nativeNetworkAnalysis.Nodes;nodes.Clear();
+            var nodes = _nativeNetworkAnalysis.Nodes;nodes.Clear();_nativeNetworkAnalysis.Identities.Clear();_nativeNetworkAnalysis.SphereCount=_spheres.Count;
             for (var i = 0; i < _spheres.Count; i++)
             {
                 var sphere = _spheres[i];
+                _nativeNetworkAnalysis.Identities.Add(sphere==null?int.MinValue+i:sphere.ExistingObjectId());
                 if (sphere == null || !sphere.gameObject.activeInHierarchy)
                 {
                     nodes.Add(new SphereNetworkNode(Vec2.Zero, false));
                     continue;
                 }
                 var position = (Vector2)sphere.transform.position;
-                nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), !sphere.NetworkDisabled));
+                nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), true, sphere.SourceProjectionNetworkDisabledTimer));
             }
             // new-desing appends temporary Minions to the runtime network from
             // Minion Ability level III onward. Keep Sphere indexes first, then
@@ -6551,17 +6552,14 @@ namespace EchoSphere.Runtime
                 foreach (var drone in _abilityDrones)
                 {
                     var position = drone.NetworkPosition;
+                    _nativeNetworkAnalysis.Identities.Add(drone.ExistingObjectId());
                     nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), drone.IsNetworkNodeAlive));
                 }
 
             var previous = _preferredDominantFormation != SphereNetworkFormation.None ? _preferredDominantFormation : _previousDominantFormation;
             _networkState = _nativeNetworkAnalysis.Analyze(_networkState,previous,_preferredDominantFormation,_preferredSecondaryFormation);
-            if (_preferredDominantFormation != SphereNetworkFormation.None &&
-                !SphereNetworkRules.TrySetDominantFormation(_networkState, _preferredDominantFormation))
-                _preferredDominantFormation = SphereNetworkFormation.None;
-            if (_preferredSecondaryFormation != SphereNetworkFormation.None &&
-                !SphereNetworkRules.TrySetSecondaryFormation(_networkState, _preferredSecondaryFormation))
-                _preferredSecondaryFormation = SphereNetworkFormation.None;
+            if(_preferredDominantFormation!=SphereNetworkFormation.None&&!_networkState.FormationCandidates.Exists(shape=>shape.Type==_preferredDominantFormation))_preferredDominantFormation=SphereNetworkFormation.None;
+            if(_preferredSecondaryFormation!=SphereNetworkFormation.None&&!_networkState.FormationCandidates.Exists(shape=>shape.Type==_preferredSecondaryFormation))_preferredSecondaryFormation=SphereNetworkFormation.None;
 
             var dominantForFractal = _networkState.DominantFormation;
             if (_sphereCharacterId == SphereCharacterId.Fractal && dominantForFractal != null &&
@@ -6588,6 +6586,7 @@ namespace EchoSphere.Runtime
             if (currentIndex >= _networkState.FormationCandidates.Count - 1)
             {
                 _preferredDominantFormation = SphereNetworkFormation.None;
+                _nativeNetworkAnalysis?.RequestSelectionRefresh(true);
                 RefreshNetworkState();
                 ShowMessage("GEOMETRY AUTO");
                 return;
@@ -6615,6 +6614,7 @@ namespace EchoSphere.Runtime
             if (next == SphereNetworkFormation.None || next == current)
             {
                 _preferredSecondaryFormation = SphereNetworkFormation.None;
+                _nativeNetworkAnalysis?.RequestSelectionRefresh(false);
                 RefreshNetworkState();
                 ShowMessage("SECONDARY GEOMETRY AUTO");
                 return;

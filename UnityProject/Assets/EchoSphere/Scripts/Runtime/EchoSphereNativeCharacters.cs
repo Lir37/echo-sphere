@@ -24,7 +24,7 @@ namespace EchoSphere.Runtime
                 _nativeCharacterState=ReadNativeCharacterState();_nativeCharacterWasActive=true;
                 _camera.cullingMask=0;
             }
-            _nativeCharacterScreen.Show(_nativeCharacterState,NativeSubmenuScale,()=>_mainMenuPage=MainMenuPage.Home,ChooseNativeCharacter,ExpandNativeCharacter,ResearchNativeCharacterMastery);
+            _nativeCharacterScreen.Show(_nativeCharacterState,NativeSubmenuScale,()=>_mainMenuPage=MainMenuPage.Home,ChooseNativeCharacter,ExpandNativeCharacter);
             return true;
         }
         private void ChooseNativeCharacter(string id)
@@ -72,8 +72,6 @@ namespace EchoSphere.Runtime
                     MasteryPercent=next<0?100:Mathf.Clamp01((profile.masteryXp-previous)/(float)Math.Max(1,next-previous))*100,
                     Action=profile.unlocked?(_sphereCharacterId==definition.Id?L("Выбран","Selected"):L("Выбрать","Select")):MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost)+(ru?" ОР":" RS"),
                     Toggle=_expandedCharacterId==id?L("Скрыть мастерство","Hide mastery"):L("Показать мастерство","Show mastery"),
-                    MasteryNextLevel=profile.masteryLevel+1,CanResearchMastery=profile.unlocked&&profile.masteryLevel<10&&GetMetaBalance(CurrencyId.ResonanceShards)>=MetaCurrencyRules.MasteryResearchShards(profile.masteryLevel),
-                    MasteryAction=profile.unlocked&&profile.masteryLevel<10?L("Исследовать мастерство · ","Research mastery · ")+MetaCurrencyRules.MasteryResearchShards(profile.masteryLevel)+L(" ОР"," RS"):"",
                     NextLabel=string.IsNullOrEmpty(nextTitle)?L("Мастерство полностью развито.","Mastery fully developed."):L("Следующий уровень · ещё ","Next level · ")+Math.Max(0,next-profile.masteryXp)+L(" опыта"," XP remaining"),NextTitle=nextTitle,NextDescription=nextDescription});
             }
             return new NativeCharacterScreen.State {Russian=ru,Gold=MetaBalanceLabel(CurrencyId.ResonanceShards),Message=_nativeCharacterMessage,Characters=rows};

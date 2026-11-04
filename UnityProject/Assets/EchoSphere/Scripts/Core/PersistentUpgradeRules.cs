@@ -2,7 +2,7 @@ using System;
 
 namespace EchoSphere.Core
 {
-    /// <summary>Persistent shop cost/level rules sourced from new-desing/src/gameData.ts.</summary>
+    /// <summary>Persistent shop levels/effects retained from source; price curve retuned for long-term progression.</summary>
     public static class PersistentUpgradeRules
     {
         public static readonly string[] Ids = { "dmg", "radius", "speed", "spheres", "hp", "crit", "xp" };
@@ -33,7 +33,7 @@ namespace EchoSphere.Core
         {
             var max = GetMaxLevel(id);
             if (max <= 0 || currentLevel < 0 || currentLevel >= max) return 0;
-            return (int)Math.Floor(GetBaseCost(id) * Math.Pow(3d, currentLevel));
+            return GetBaseCost(id) * (currentLevel + 1) * (currentLevel + 1) * (currentLevel + 4) / 4;
         }
         public static float GetPercentMultiplier(int level) => 1f + Math.Max(0, level) * 0.05f;
         public static int GetStartingHpBonus(int level) => Math.Max(0, level) * 10;

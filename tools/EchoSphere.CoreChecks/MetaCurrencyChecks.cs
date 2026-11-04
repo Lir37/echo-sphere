@@ -19,8 +19,7 @@ internal static class MetaCurrencyChecks
     if(i%20==0)state=(MetaWallet)RunSnapshotCodec.Restore(RunSnapshotCodec.Capture(state),typeof(MetaWallet));
    }
   }
-  A(MetaCurrencyRules.CharacterUnlockShards(0)==0&&MetaCurrencyRules.CharacterUnlockShards(1500)==10&&MetaCurrencyRules.CharacterUnlockShards(2500)==17,"authored unlock prices");
-  A(MetaCurrencyRules.MasteryResearchShards(1)==4&&MetaCurrencyRules.MasteryResearchShards(9)==20&&MetaCurrencyRules.MasteryResearchShards(10)==0,"optional mastery prices and cap");
+  A(MetaCurrencyRules.CharacterUnlockShards(0)==0&&MetaCurrencyRules.CharacterUnlockShards(1500)==24&&MetaCurrencyRules.CharacterUnlockShards(2500)==144,"authored unlock prices");
   A(MetaCurrencyRules.RunShards(3,true)==6&&MetaCurrencyRules.RunShards(1,false)==1&&MetaCurrencyRules.RunShards(0,false)==0,"boss/stabilization income");
   A(MetaCurrencyRules.RunShards(int.MaxValue,true)==int.MaxValue,"reward overflow safe");
   foreach(var def in CharacterRules.All){int price=MetaCurrencyRules.CharacterUnlockShards(def.UnlockCost);A(def.UnlockCost==0?price==0:price>0,"all character prices defined");Console.WriteLine("Meta unlock "+CharacterRules.ToSourceId(def.Id)+": "+price+" Shards ("+(price==0?0:(price+5)/6)+" six-Shard clears)");}
@@ -29,6 +28,9 @@ internal static class MetaCurrencyChecks
   A(!MetaCurrencyRules.TryPurchaseOnce(wallet,"purchase:two",CurrencyId.Credits,1)&&!MetaCurrencyRules.HasReceipt(wallet,"purchase:two"),"unaffordable cannot create entitlement");
   wallet=MetaCurrencyRules.MigrateGold(int.MaxValue);A(MetaCurrencyRules.TryGrantOnce(wallet,"saturate",int.MaxValue,int.MaxValue,int.MaxValue)&&wallet.Credits==int.MaxValue,"saturating grants");
   A(!MetaCurrencyRules.TryGrantOnce(wallet,"negative",-1,0,0)&&!MetaCurrencyRules.HasReceipt(wallet,"negative"),"invalid grant does not consume receipt");
+  long totalShop=0;foreach(string id in PersistentUpgradeRules.Ids)for(int level=0;level<PersistentUpgradeRules.GetMaxLevel(id);level++){int cost=PersistentUpgradeRules.GetCost(id,level);A(cost>0,"positive shop price");if(level>0)A(cost>PersistentUpgradeRules.GetCost(id,level-1),"monotonic shop progression");totalShop+=cost;}A(totalShop==885500,"authored complete shop budget");A(CharacterRules.All.Sum(c=>MetaCurrencyRules.CharacterUnlockShards(c.UnlockCost))==3880,"authored character budget");
+  A(MetaCurrencyRules.RunCredits(1800,3,5000,true,EchoRegionId.ResonanceBasin,10)==1000,"unchanged campaign credit payout");
+  A(MetaCurrencyRules.RunCredits(300,0,100,false,EchoRegionId.ResonanceBasin,0)==50,"failure keeps proportional earnings");
   Console.WriteLine("Meta currencies: "+count+" checks PASS");return count;
  }
 }

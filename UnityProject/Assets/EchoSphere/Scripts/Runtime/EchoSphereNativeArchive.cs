@@ -68,15 +68,15 @@ namespace EchoSphere.Runtime
             foreach(var branch in branches.Take(3)){
                 string branchKey=(sphere?"sphere-branch:":"ability-evolution:")+branch.Id;
                 bool opened=_knownKnowledgeIds.Contains(branchKey);
-                var row=new NativeArchiveScreen.ProgressionBranch{Open=opened,Title=opened?branch.Name(ru):null,Description=opened?(sphere?branch.BranchCard.Description(ru):branch.Description(ru)):null};
+                var row=new NativeArchiveScreen.ProgressionBranch{IconId=branchKey,Open=opened,Title=opened?branch.Name(ru):null,Description=opened?(sphere?branch.BranchCard.Description(ru):branch.Description(ru)):null};
                 if(opened){
                     if(sphere)for(int i=0;i<Math.Min(3,branch.FinalCards.Count);i++){
                         bool known=_knownKnowledgeIds.Contains("sphere-final:"+id+":"+branch.Id+":"+i);
-                        row.Finals.Add(new NativeArchiveScreen.ProgressionChoice{Open=known,Title=known?branch.FinalCards[i].Name(ru):null,Description=known?branch.FinalCards[i].Description(ru):null});
+                        row.Finals.Add(new NativeArchiveScreen.ProgressionChoice{IconId="sphere-final:"+id+":"+branch.Id+":"+i,Open=known,Title=known?branch.FinalCards[i].Name(ru):null,Description=known?branch.FinalCards[i].Description(ru):null});
                     }
                     else foreach(var final in (branch.HasFinalPool?branch.Finals:abilityDefinition.FallbackFinals).Take(3)){
                         bool known=_knownKnowledgeIds.Contains("ability-evolution:"+final.Id);
-                        row.Finals.Add(new NativeArchiveScreen.ProgressionChoice{Open=known,Title=known?final.Name(ru):null,Description=known?final.Description(ru):null});
+                        row.Finals.Add(new NativeArchiveScreen.ProgressionChoice{IconId="ability-evolution:"+final.Id,Open=known,Title=known?final.Name(ru):null,Description=known?final.Description(ru):null});
                     }
                 }
                 card.Progression.Branches.Add(row);
@@ -145,6 +145,7 @@ namespace EchoSphere.Runtime
             }
             if(_knowledgeSection=="artifacts")foreach(var card in cards)BindArchiveArtifactBuilds(card,ru);
             if(_knowledgeSection=="spheres"||_knowledgeSection=="abilities")foreach(var card in cards)BindArchiveProgression(card,ru);
+            if(_knowledgeSection=="basics")foreach(var card in cards)if(card.BasicIndex>=0)card.Id="basic:"+(card.BasicIndex==0?"network":"resonance");
             return new NativeArchiveScreen.State {Russian=ru,Section=_knowledgeSection,Query=_knowledgeQuery,Known=_knownKnowledgeIds.Count,WalletSummary=MetaBalanceLabel(CurrencyId.Credits)+" · "+MetaBalanceLabel(CurrencyId.ResonanceShards)+" · "+MetaBalanceLabel(CurrencyId.ArchiveData),Cards=cards};
         }
     }

@@ -15,6 +15,8 @@ namespace EchoSphere.Runtime
         private float _damage, _hitRadius, _time;
         private Color _color;
         private string _bossType = "";
+        private int _visualRegion=-1;
+        internal int ProjectionRegion=>_visualRegion;
         private EnemyAgent2D _sourceOwner;
         private bool _hasSourceOwner, _removed;
         public bool HasSourceOwner => _hasSourceOwner;
@@ -22,7 +24,7 @@ namespace EchoSphere.Runtime
         internal bool IndependentSimulationFlight => IndependentRegionalFlight || (_sourceOwner != null && _sourceOwner.IsBoss);
         internal Color ProjectionColor => _color;
         public EnemyAgent2D SourceOwner => _sourceOwner;
-        public void SetSourceOwner(EnemyAgent2D owner) { _sourceOwner = owner; _hasSourceOwner = owner != null; }
+        public void SetSourceOwner(EnemyAgent2D owner) { _sourceOwner = owner; _hasSourceOwner = owner != null;if(owner!=null)_visualRegion=owner.CampaignRegionStyle; }
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, Vector2 velocity,
             float sourceRadius, float damage, string bossType, Color color)
