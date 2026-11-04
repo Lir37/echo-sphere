@@ -5966,6 +5966,7 @@ namespace EchoSphere.Runtime
                 _sphereBranches[_pendingEvolutionSphere] = option.Id;
 
             }
+            EnsureKnowledgeLoaded();CollectRunKnowledge();
             var text=SourceEvolutionText(option);
             ShowTimedCombatMessage(text==null?EchoSphere.Presentation.NativePlayerCopy.Text(option.Name,IsRussianUi):PlannerName(text), 2.2f, _pendingFinalEvolution ? "#c4453d" : "#d4943d");
             SourceAudio2D.Play("evolve");

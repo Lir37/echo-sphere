@@ -2740,3 +2740,5 @@ User-authorized balance correction: [UNITY_VAMPIRISM_ENEMY_SCALING_2026-11-04.md
 User-requested menu/archive/reward rework: [UNITY_MENU_ARCHIVE_REWORK_2026-11-04.md](UNITY_MENU_ARCHIVE_REWORK_2026-11-04.md). 178 reachable bestiary identities, death-only unlocks and actual anatomy pictures, character lore/portraits, 90 distinct artifact illustrations, merchant in HUD, combo below panes, colored results and disabled ad placeholders. One free reroll per entire run confirmed. Editor/Core checks passed; no fresh APK or Android acceptance this cycle.
 
 Artifact archive follow-up: tap a discovered artifact to inspect all existing sets/combinations, effects and required artifact pictures. Actual Editor1152 targeted checks PASS; phone acceptance pending. See same menu/archive report.
+
+Sphere/ability archive follow-up: click opens selected IV/VII progression and reciprocal existing synergies; unknown variants remain masked. Immediate choice discovery, existing save keys. Editor2133 targeted checks PASS; Android pending. See menu/archive report.

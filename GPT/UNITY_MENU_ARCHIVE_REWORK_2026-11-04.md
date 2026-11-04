@@ -36,3 +36,13 @@ User-requested artifact tap now opens a bounded scroll detail page for discovere
 Actual Unity compilation and Play Mode: 1152 targeted checks PASS, covering all 90 artifacts in RU/EN, exact existing campaign and full-set memberships, pair requirements, actual click handling and horizontal text bounds. Current Console ground truth had zero errors/warnings. RU/EN detail images and receipt archived alongside previous evidence. Android acceptance remains open; APK not built in this follow-up. CI is checked after publishing the commit.
 
 Continuation: use the commit containing this follow-up. Artifact detail now shows builds/effects/required items. Next is mobile acceptance with the rest of the menu/archive changes; one free reroll per run and ad stubs remain unchanged.
+
+## Sphere and ability progression follow-up
+
+Discovered sphere and ability cards now open the same bounded detail page. IV branches and VII finals are grouped by their actual parent using NativeRunCatalog, the same definitions used by the upgrade picker. Only choices recorded in existing knowledge keys expose names/descriptions. Unselected branches have generic locked text and no final contents; selected parents show locked placeholders for unselected finals. Abilities without mutation branches say so.
+
+Both sides list existing SphereAbilityLinks and discovered partners. Synergy effects/names unlock only when the required sphere branch and actual ability final have been chosen and the partner is discovered; unknown mutation names remain masked in requirements. Historical link final aliases resolve to the actual choice ID using the existing runtime final-slot rule. No new synergies, combat rules or content definitions. Accepted ChooseEvolution now collects existing knowledge immediately, preserving the same batched persistence/reward mechanism and keys.
+
+Actual Unity compile PASS; Play Mode2133 targeted checks PASS covering every sphere/ability branch and final individually, hidden sibling choices, reciprocal existing synergies, accepted choice discovery and RU/EN attached click/layout. Existing115 archive behavior checks and1152 artifact build checks also pass. Screens/receipt stored in VisualReferences/MenuArchive-2026-11-04. Android and full visual acceptance remain open, no APK built here. CI result reported after push.
+
+Continuation: use the commit containing this follow-up. Sphere/ability archive pages now show previously chosen mutations and gated reciprocal synergies. Next: verify archive discovery across runs/relaunch and scrolling on Android with the prior menu/artifact updates. Ads remain stubs, free reroll one per run.
