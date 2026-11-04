@@ -29,6 +29,11 @@ namespace EchoSphere.Runtime
             catch (Exception) { }
             _knowledgeLoaded = true;
         }
+        private void RecordEnemyEncounter(EnemyAgent2D enemy)
+        {
+            if(enemy==null)return;EnsureKnowledgeLoaded();
+            RecordNaturalKnowledge(enemy.IsBoss?"boss:"+enemy.BossType:"monster:"+enemy.SourceMonsterType);
+        }
         private string SourceAbilityId(RunUpgradeKind kind)
         {
             switch (kind)
@@ -50,7 +55,13 @@ namespace EchoSphere.Runtime
             _knowledgeTick += dt;
             if (_knowledgeTick < 0.35f && !_gameOver) return;
             _knowledgeTick = 0f; EnsureKnowledgeLoaded();
-            var previous = _knownKnowledgeIds.Count;
+            CollectRunKnowledge();
+            if (_pendingKnowledgeRewards.Count > 0) PersistKnowledgeProgress();
+        }
+        // Discovery collection is independent of wallet/persistence, so fast encounters
+        // and restored model state share the same identities and batched save.
+        private void CollectRunKnowledge()
+        {
             foreach (var sphere in _spheres) if (sphere != null) RecordNaturalKnowledge("sphere:" + sphere.Type.ToString().ToLowerInvariant());
             foreach (var pair in _sphereLevels) if (pair.Value > 0) RecordNaturalKnowledge("sphere:" + pair.Key.ToString().ToLowerInvariant());
             foreach (var enemy in _enemies) if (enemy != null) RecordNaturalKnowledge(enemy.IsBoss ? "boss:" + enemy.BossType : "monster:" + enemy.SourceMonsterType);
@@ -65,9 +76,8 @@ namespace EchoSphere.Runtime
             }
             foreach (var pair in _abilityBranches) RecordNaturalKnowledge("ability-evolution:" + pair.Value);
             foreach (var pair in _abilityFinals) RecordNaturalKnowledge("ability-evolution:" + pair.Value);
-            if (previous != _knownKnowledgeIds.Count)
-            { PersistKnowledgeProgress(); }
         }
+
         private void DrawSourceKnowledgeBaseScreen()
         {
             EnsureKnowledgeLoaded();

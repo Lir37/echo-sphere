@@ -853,8 +853,8 @@ assert.ok(sphereAttack.includes('EngineerRelayRules.ConsumesOnAttack(_type)') &&
   sphereAttack.includes('if (hitSomething) _runtime.TriggerEngineerRelay(this)'),
   'Engineer relay must be applied once to eligible attacks and trigger from actual field/orbital activity');
 assert.ok(menuRuntime.includes('SpawnEngineerRelayLightning(from, to, 0.28f)') &&
-  engineerRelayVfxSource.includes('Math.Min(26,len*.08)') && engineerRelayVfxSource.includes('.28*alpha') &&
-  engineerRelayVfxSource.includes('.9*alpha'), 'active Engineer bolt must retain source wobble and alpha layers');
+  engineerRelayVfxSource.includes('Vector2[17]') && engineerRelayVfxSource.includes('Vector2[13]') &&
+  engineerRelayVfxSource.includes('Branches') && engineerRelayVfxSource.includes('inheritShadow:false'), 'approved lightning redesign must retain pooled core, glow and connected branches without blur passes');
 
 // Manual native APK builds were explicitly enabled by the user on 2026-11-02.
 // Ordinary push CI remains separate and cannot silently build the WebView app.

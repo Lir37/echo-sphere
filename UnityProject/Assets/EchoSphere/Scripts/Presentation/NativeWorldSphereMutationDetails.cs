@@ -79,11 +79,7 @@ namespace EchoSphere.Presentation
         }
         internal bool DrawChainLightning(NativeWorldSurface surface,double fromX,double fromY,double toX,double toY,Color color,string branch,double final,double alpha,double time)
         {
-            if(string.IsNullOrEmpty(branch))return false;_surface=surface;double dx=toX-fromX,dy=toY-fromY,len=Math.Sqrt(dx*dx+dy*dy);if(len==0)len=1;double nx=-dy/len,ny=dx/len;int pieces=branch=="chain_web"?10:branch=="chain_storm"?8:12;var points=new Vector2[pieces+1];points[0]=P(fromX,fromY);for(int i=1;i<pieces;i++){double q=i/(double)pieces,amp=len*(branch=="chain_storm"?.12:branch=="chain_leech"?.06:.09),zig=(i%2!=0?-1:1)*amp*(.7+.3*Math.Sin(time*22+i));points[i]=P(fromX+dx*q+nx*zig,fromY+dy*q+ny*zig);}points[pieces]=P(toX,toY);
-            var path=PolylineContour(false,points);Paint(Dynamic(new[]{path},Math.Max(4,len*.015),cap:PathEnding.Round),Matrix4x4.identity,null,A(color,Mathf.Clamp01((float)(.18*alpha))),additive:true);Paint(Dynamic(new[]{path},Math.Max(1.2,len*.0045),cap:PathEnding.Round),Matrix4x4.identity,null,C(245,255,255,Mathf.Clamp01((float)(.88*alpha))),additive:true);
-            if(branch=="chain_web")for(int i=0;i<4;i++){double a=time*2+i*Math.PI*2/4;Paint(Dynamic(new[]{Line(toX,toY,toX+Math.Cos(a)*(8+final*2),toY+Math.Sin(a)*(6+final))},1,cap:PathEnding.Round),Matrix4x4.identity,null,C(255,244,150,Mathf.Clamp01((float)(.68*alpha))),additive:true);}
-            else if(branch=="chain_storm")Paint(Circle(3+final*.8),T(toX,toY),C(255,249,190,Mathf.Clamp01((float)(.9*alpha))),null,additive:true);
-            else{double radius=3+Math.Sin(time*16)*.8;Paint(Dynamic(new[]{EllipseContour(P(toX,toY),(float)radius,(float)radius)},1,cap:PathEnding.Round),Matrix4x4.identity,null,C(255,255,255,Mathf.Clamp01((float)(.7*alpha))),additive:true);}return true;
+            _chainBolts.Draw(surface,fromX,fromY,toX,toY,alpha,time,color,branch,final);return true;
         }
     }
 }

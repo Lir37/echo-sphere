@@ -20,6 +20,8 @@ namespace EchoSphere.Core
         public uint RngState;
         public bool Pending, Prepared, Open;
         public double ArrivedAt;
+        public bool MerchantPlaced;
+        public float MerchantX,MerchantY;
         public List<MerchantOffer> Offers = new List<MerchantOffer>();
     }
     // New-run economy only. A null state deliberately preserves legacy runs.
@@ -49,7 +51,7 @@ namespace EchoSphere.Core
         public static bool AdvanceMerchant(RunEconomyState state,double time)
         {
             if(state==null||state.Pending||time<MerchantAt(state.NextMerchant)||double.IsNaN(time)||state.NextMerchant==int.MaxValue)return false;
-            state.ArrivedAt=MerchantAt(state.NextMerchant++);state.Pending=true;state.Prepared=false;state.Open=false;state.Offers.Clear();return true;
+            state.MerchantPlaced=false;state.ArrivedAt=MerchantAt(state.NextMerchant++);state.Pending=true;state.Prepared=false;state.Open=false;state.Offers.Clear();return true;
         }
         public static void Collect(RunEconomyState state,int baseExperience)
         {

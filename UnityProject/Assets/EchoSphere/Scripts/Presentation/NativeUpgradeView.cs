@@ -20,6 +20,7 @@ namespace EchoSphere.Presentation
         private readonly Action<int> _pick,_lock;
         private readonly Action _reroll;
         private readonly VisualElement _content,_grid;
+        private readonly ScrollView _scroll;
         private readonly List<VisualElement> _cards=new List<VisualElement>();
         private readonly List<NativeHudSurface> _paint=new List<NativeHudSurface>();
         private readonly List<IDisposable> _backdrops=new List<IDisposable>();
@@ -31,7 +32,9 @@ namespace EchoSphere.Presentation
         {
             _document=document;_pick=pick;_lock=lockChoice;_reroll=reroll;
             Root=Box(parent,"native-upgrade-picker");Root.style.position=Position.Absolute;Root.style.left=Root.style.right=Root.style.top=Root.style.bottom=0;Root.style.alignItems=Align.Center;Root.style.justifyContent=Justify.Center;Root.style.opacity=0;
-            _content=Box(Root,"upgrade-content");_content.style.width=Length.Percent(100);_content.style.maxWidth=672;_content.style.paddingLeft=_content.style.paddingRight=24;
+            Root.style.overflow=Overflow.Hidden;
+            _scroll=new ScrollView(ScrollViewMode.Vertical){name="upgrade-scroll"};NativePauseScreenView.ConfigureMobileScroll(_scroll);_scroll.style.width=Length.Percent(100);_scroll.style.maxWidth=720;_scroll.style.maxHeight=Length.Percent(100);_scroll.style.flexShrink=1;_scroll.style.minHeight=0;Root.Add(_scroll);
+            _content=Box(_scroll,"upgrade-content");_content.style.width=Length.Percent(100);_content.style.maxWidth=672;_content.style.paddingLeft=_content.style.paddingRight=16;_content.style.paddingTop=_content.style.paddingBottom=16;_content.style.flexShrink=0;
             _grid=Box(_content,"upgrade-grid");
         }
         public void Bind(State state)
@@ -54,18 +57,18 @@ namespace EchoSphere.Presentation
             Paint(card,new NativeMenuBrush.Paint {Radius=12,Border=1,Fill=choice.ElementCard?new Color(element.r,element.g,element.b,13f/255):C("#0d1726"),BorderColor=choice.ElementCard?new Color(element.r,element.g,element.b,136f/255):C("#5a8c4a4d"),Inset=choice.ElementCard?(NativeMenuBrush.Shadow?)new NativeMenuBrush.Shadow(24,Vector2.zero,new Color(element.r,element.g,element.b,11f/255)):null});
             var pick=Button(card,"pick-upgrade-"+choice.Index,()=>Consume(()=>_pick?.Invoke(choice.Index)));pick.style.width=Length.Percent(100);pick.style.paddingLeft=pick.style.paddingRight=pick.style.paddingTop=pick.style.paddingBottom=12;
             var category=Text(pick,"upgrade-category",choice.Category,10,"#5a8c4a");category.style.letterSpacing=5;category.style.marginBottom=4;
-            var name=Box(pick,"upgrade-name-row",true);name.style.alignItems=Align.Center;name.style.marginBottom=8;
+            var name=Box(pick,"upgrade-name-row",true);name.style.alignItems=Align.Center;name.style.flexWrap=Wrap.Wrap;name.style.marginBottom=8;name.style.paddingRight=0;
             if(choice.Forecast){var forecast=Badge(name,L("ПРОГНОЗ","FORECAST"),9,"#d8c8ff",C("#b68cff1a"),C("#b68cff73"));forecast.style.marginRight=8;}
             var title=Text(name,"upgrade-name",choice.Name,18,"#dcecff","700",true,28d/18);title.style.flexShrink=1;
             if(choice.ElementCard){var badge=Badge(name,choice.Element,10,choice.ElementColor,new Color(element.r,element.g,element.b,18f/255),new Color(element.r,element.g,element.b,102f/255));badge.style.marginLeft=8;}
             var description=Text(pick,"upgrade-description",choice.Description,14,"#b6c9de","400",true,20d/14);description.style.marginBottom=8;
             if(!string.IsNullOrEmpty(choice.HintNames))Hints(pick,choice);
             Text(pick,"upgrade-level",choice.Level,12,"#7f9bb8b3","400",true);
-            var locked=Button(card,"lock-upgrade-"+choice.Index,()=>Consume(()=>_lock?.Invoke(choice.Index)));locked.style.position=Position.Absolute;locked.style.top=locked.style.right=8;locked.style.paddingLeft=locked.style.paddingRight=8;locked.style.paddingTop=locked.style.paddingBottom=4;Border(locked,6);locked.SetEnabled(choice.CanLock);locked.style.opacity=!choice.CanLock&&!choice.Locked?.2f:1;
+            var locked=Button(card,"lock-upgrade-"+choice.Index,()=>Consume(()=>_lock?.Invoke(choice.Index)));locked.style.alignSelf=Align.FlexEnd;locked.style.flexShrink=0;card.Insert(0,locked);locked.style.paddingLeft=locked.style.paddingRight=8;locked.style.paddingTop=locked.style.paddingBottom=4;Border(locked,6);locked.SetEnabled(choice.CanLock);locked.style.opacity=!choice.CanLock&&!choice.Locked?.2f:1;
             Paint(locked,new NativeMenuBrush.Paint {Radius=6,Border=1,Fill=C(choice.Locked?"#d4943d33":"#d4943d0d"),BorderColor=C(choice.Locked?"#d4943db3":"#d4943d4d")});
-            var lockLabel=Text(locked,"upgrade-lock-label",choice.Locked?L("ЗАКРЕПЛЕНО","LOCKED"):L("ЗАКРЕПИТЬ","LOCK"),9,choice.Locked?"#ffd18a":"#d4943d","700");lockLabel.style.letterSpacing=5;
+            var lockLabel=Text(locked,"upgrade-lock-label",choice.Locked?L("ЗАКРЕПЛЕНО","LOCKED"):L("ЗАКРЕПИТЬ","LOCK"),9,choice.Locked?"#ffd18a":"#d4943d","700");lockLabel.style.letterSpacing=0;lockLabel.style.flexShrink=0;
         }
-        private VisualElement Badge(VisualElement parent,string value,float size,string color,Color fill,Color border){var box=Box(parent,"upgrade-badge");box.style.paddingLeft=box.style.paddingRight=6;box.style.paddingTop=box.style.paddingBottom=2;Border(box,6);Paint(box,new NativeMenuBrush.Paint {Radius=6,Border=1,Fill=fill,BorderColor=border});Text(box,"upgrade-badge-text",value,size,color,"700");return box;}
+        private VisualElement Badge(VisualElement parent,string value,float size,string color,Color fill,Color border){var box=Box(parent,"upgrade-badge");box.style.paddingLeft=box.style.paddingRight=6;box.style.paddingTop=box.style.paddingBottom=2;Border(box,6);Paint(box,new NativeMenuBrush.Paint {Radius=6,Border=1,Fill=fill,BorderColor=border});box.style.flexShrink=0;box.style.width=Mathf.Min(200,value.Length*size*.85f+16);box.style.maxWidth=Length.Percent(100);var label=Text(box,"upgrade-badge-text",value,size,color,"700",true);label.style.letterSpacing=0;return box;}
         private void Hints(VisualElement parent,Choice choice)
         {
             var hint=Box(parent,"upgrade-synergy-hint");hint.style.marginTop=8;hint.style.paddingLeft=hint.style.paddingRight=10;hint.style.paddingTop=hint.style.paddingBottom=8;Border(hint,8);Paint(hint,new NativeMenuBrush.Paint {Radius=8,Border=1,Fill=C("#39d8ff0d"),BorderColor=C("#39d8ff40")});
@@ -81,8 +84,8 @@ namespace EchoSphere.Presentation
         }
         public void Prepare(float scale,float viewportWidth)
         {
-            if(_disposed)throw new ObjectDisposedException(nameof(NativeUpgradeView));NativeUiOrder.Last(Root);bool columns=viewportWidth>=640;_grid.style.flexDirection=columns?FlexDirection.Row:FlexDirection.Column;
-            for(int i=0;i<_cards.Count;i++){var card=_cards[i];card.style.flexBasis=columns?0:StyleKeyword.Auto;card.style.flexGrow=columns?1:0;card.style.flexShrink=1;card.style.marginRight=columns&&i<_cards.Count-1?16:0;card.style.marginBottom=!columns&&i<_cards.Count-1?16:0;}
+            if(_disposed)throw new ObjectDisposedException(nameof(NativeUpgradeView));_scroll.style.paddingTop=Mathf.Max(0,(Screen.height-Screen.safeArea.yMax)/Mathf.Max(.01f,scale));_scroll.style.paddingBottom=Mathf.Max(0,Screen.safeArea.yMin/Mathf.Max(.01f,scale));NativeUiOrder.Last(Root);bool columns=viewportWidth>=640;_grid.style.flexDirection=columns?FlexDirection.Row:FlexDirection.Column;
+            for(int i=0;i<_cards.Count;i++){var card=_cards[i];card.style.flexBasis=columns?0:StyleKeyword.Auto;card.style.flexGrow=columns?1:0;card.style.flexShrink=columns?1:0;card.style.minWidth=0;card.style.marginRight=columns&&i<_cards.Count-1?12:0;card.style.marginBottom=!columns&&i<_cards.Count-1?12:0;}
             if(Root.layout.width<=0||_content.layout.width<=0||Time.frameCount-_geometryFrame<2)return;foreach(var paint in _paint)paint.Prepare(scale);Ready=true;Root.style.opacity=1;
         }
         private void Consume(Action action){if(_consumed)return;_consumed=true;foreach(var button in _buttons)button.SetEnabled(false);action?.Invoke();}

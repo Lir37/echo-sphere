@@ -37,6 +37,7 @@ namespace EchoSphere.Presentation
             float viewportWidth, bool movement, Vector2? joystick, Vector2? placement,
             bool ghost, bool memory, float dpr)
         {
+            interfaceScale *= .75f;
             _dock.style.left = leftHanded ? new StyleLength(StyleKeyword.Auto) : new StyleLength(12);
             _dock.style.right = leftHanded ? new StyleLength(12) : new StyleLength(StyleKeyword.Auto);
             _dock.style.alignItems = leftHanded ? Align.FlexEnd : Align.FlexStart;

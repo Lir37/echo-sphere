@@ -32,7 +32,8 @@ namespace EchoSphere.Presentation
         private readonly Material _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native sphere family art",hideFlags=HideFlags.DontSave};
         private readonly Material _glow=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldFamilyGlow")){name="Native sphere family glow",hideFlags=HideFlags.DontSave};
         private NativeWorldSurface _surface;
-        internal void BeginFrame(){_used=0;_dynamicUsed=0;_sweepUsed=0;_ownedOrbitalWeapons?.BeginFrame();}
+        private readonly NativeWorldEnergyBolts _chainBolts=new NativeWorldEnergyBolts();
+        internal void BeginFrame(){_chainBolts.BeginFrame();_used=0;_dynamicUsed=0;_sweepUsed=0;_ownedOrbitalWeapons?.BeginFrame();}
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Matrix4x4 T(double x=0,double y=0,double angle=0,double scale=1)=>Matrix4x4.TRS(new Vector3((float)x,(float)y,0),Quaternion.Euler(0,0,(float)angle*Mathf.Rad2Deg),new Vector3((float)scale,(float)scale,1));
         private static Color C(int r,int g,int b,double a=1)=>new Color(r/255f,g/255f,b/255f,(float)a);
@@ -100,6 +101,6 @@ namespace EchoSphere.Presentation
 
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
-        public void Dispose(){_ownedOrbitalWeapons?.Dispose();_ownedOrbitalWeapons=null;foreach(var art in _art.Values)art.Dispose();foreach(var art in _dynamic)art.Dispose();foreach(var art in _sweeps)art.Dispose();_sweeps.Clear();_art.Clear();_dynamic.Clear();_glowSpaces.Clear();Destroy(_solid);Destroy(_glow);Destroy(_mutationGlow);}
+        public void Dispose(){_chainBolts.Dispose();_ownedOrbitalWeapons?.Dispose();_ownedOrbitalWeapons=null;foreach(var art in _art.Values)art.Dispose();foreach(var art in _dynamic)art.Dispose();foreach(var art in _sweeps)art.Dispose();_sweeps.Clear();_art.Clear();_dynamic.Clear();_glowSpaces.Clear();Destroy(_solid);Destroy(_glow);Destroy(_mutationGlow);}
     }
 }

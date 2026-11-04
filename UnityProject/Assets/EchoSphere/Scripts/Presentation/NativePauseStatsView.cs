@@ -51,7 +51,7 @@ namespace EchoSphere.Presentation
             label.style.marginLeft=label.style.marginRight=label.style.marginTop=label.style.marginBottom=0;
             label.style.paddingLeft=label.style.paddingRight=label.style.paddingTop=label.style.paddingBottom=0;
             label.style.fontSize=size;label.style.color=C(color);label.style.letterSpacing=spacing*100/size;
-            label.style.flexShrink=0;label.style.minWidth=0;label.style.whiteSpace=wrap?WhiteSpace.Normal:WhiteSpace.NoWrap;
+            label.style.flexShrink=1;label.style.minWidth=0;label.style.maxWidth=Length.Percent(100);label.style.overflow=Overflow.Hidden;label.style.textOverflow=TextOverflow.Ellipsis;label.style.whiteSpace=wrap?WhiteSpace.Normal:WhiteSpace.NoWrap;
             if(!wrap)label.style.height=(float)(size*line);
             ConfigureFont(label,weight,line);
         }

@@ -57,6 +57,7 @@ namespace EchoSphere.Presentation
                 if(layout!=null&&Document.visualTreeAsset!=layout)Document.visualTreeAsset=layout;
                 Document.enabled=true;
                 Document.rootVisualElement.style.overflow=Overflow.Hidden;
+                var textBounds=Resources.Load<StyleSheet>("EchoSphere/NativeTextBounds");if(textBounds!=null&&!Document.rootVisualElement.styleSheets.Contains(textBounds))Document.rootVisualElement.styleSheets.Add(textBounds);
             }catch{if(_continuity!=null)_continuity.Users--;else UnityEngine.Object.Destroy(Panel);throw;}
         }
         public void Dispose()

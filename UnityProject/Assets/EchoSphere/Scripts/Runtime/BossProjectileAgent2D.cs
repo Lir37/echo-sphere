@@ -19,6 +19,7 @@ namespace EchoSphere.Runtime
         private bool _hasSourceOwner, _removed;
         public bool HasSourceOwner => _hasSourceOwner;
         internal bool IndependentRegionalFlight => _bossType!="regional_organic"&&_bossType.StartsWith("regional_",System.StringComparison.Ordinal);
+        internal bool IndependentSimulationFlight => IndependentRegionalFlight || (_sourceOwner != null && _sourceOwner.IsBoss);
         internal Color ProjectionColor => _color;
         public EnemyAgent2D SourceOwner => _sourceOwner;
         public void SetSourceOwner(EnemyAgent2D owner) { _sourceOwner = owner; _hasSourceOwner = owner != null; }

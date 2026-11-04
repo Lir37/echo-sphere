@@ -65,13 +65,18 @@ namespace EchoSphere.Presentation
         {Begin(surface);double missing=Math.Max(0,1-hp/Math.Max(1,maxHp)),steps=Math.Min(4,Math.Floor(missing/.2));Paint(Geometry(EllipseContour(P(x,y),110,110),steps>0?2:1,new[]{6f,5f}),Matrix4x4.identity,null,C(196,69,61,steps>0?.22:.10));}
         internal void DrawShield(NativeWorldSurface surface,Shield s,NativeWorldSprites sprites,Func<string,INativeWorldSprite> resolve)
         {
-            if(s.Charges<=0||s.Timer<=0)return;Begin(surface);double pulse=1+Math.Sin(s.Time*8)*.035,radius=s.PlayerRadius*1.38,recast=Math.Max(0,Math.Min(1,s.Pulse/.85)),wave=1+(1-recast)*.55,alpha=.20+recast*.65;var root=T(s.X,s.Y,pulse);
-            if(s.Spherist)sprites.Draw(surface,resolve("player-spherist-shield"),0,0,radius*2.20,0,.78,false,false,false,root,additive:true);
-            var points=new Vector2[8];for(int i=0;i<8;i++){double a=-Math.PI/8+i*Math.PI/4+Math.Sin(s.Time*1.8)*.03,rr=radius*(1+Math.Sin(s.Time*4+i)*.012);points[i]=P(Math.Cos(a)*rr,Math.Sin(a)*rr*.88);}Paint(Geometry(PolylineContour(true,points),2.2,fill:true),root,C(64,214,255,.08),C(99,230,255,.88),true);
-            Paint(Geometry(EllipseContour(Vector2.zero,(float)(radius*.86),(float)(radius*.86)),1),root,null,C(225,251,255,.72),true);
-            if(recast>.02){Paint(Geometry(EllipseContour(Vector2.zero,(float)(radius*wave),(float)(radius*wave)),2.2+recast*1.8),root,null,C(223,250,255),true,alpha);Paint(Geometry(EllipseContour(Vector2.zero,(float)(radius*(wave+.08)),(float)(radius*(wave+.08))),5),root,null,C(223,250,255),true,alpha*.42);}
-            for(int i=0;i<s.Charges;i++){double a=-Math.PI/2+i*Math.PI*2/Math.Max(1,s.Charges)+s.Time*.45;Paint(Geometry(EllipseContour(P(Math.Cos(a)*radius,Math.Sin(a)*radius*.88),3.2f,3.2f),0,fill:true),root,C(223,250,255),null,true,1);}
-            Text(s.Label,P(0,3),C(223,250,255),9,"system-ui,sans-serif",root,true,1);
+            if(s.Charges<=0&&s.Timer<=0)return;Begin(surface);
+            double radius=s.PlayerRadius*1.48,hit=Math.Max(0,Math.Min(1,s.Pulse/.85));var root=T(s.X,s.Y);
+            // A light segmented membrane leaves the character and ground readable.
+            for(int i=0;i<6;i++){
+                double start=i*Math.PI/3+s.Time*.12;var points=new Vector2[9];
+                for(int j=0;j<9;j++){double a=start+j/8d*Math.PI*.245;points[j]=P(Math.Cos(a)*radius,Math.Sin(a)*radius);}
+                Paint(Geometry(PolylineContour(false,points),1.4+hit*.8),root,null,C(105,225,250,.68+hit*.28),true);
+            }
+            Paint(Geometry(EllipseContour(Vector2.zero,(float)(radius*.93),(float)(radius*.93)),.65,fill:true),root,C(100,210,245,.035+hit*.055),C(180,245,255,.24),true);
+            int charges=(int)Math.Min(12,Math.Max(0,s.Charges));
+            for(int i=0;i<charges;i++){double a=-Math.PI/2+(i-(charges-1)*.5)*.22;var q=P(Math.Cos(a)*radius,Math.Sin(a)*radius);Paint(Geometry(EllipseContour(q,1.8f,1.8f),0,fill:true),root,C(225,252,255),null,true);}
+            if(hit>.02)Paint(Geometry(EllipseContour(Vector2.zero,(float)(radius*(1+(1-hit)*.25)),(float)(radius*(1+(1-hit)*.25))),1),root,null,C(185,245,255,hit*.55),true);
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
         public void Dispose(){foreach(var art in _art)art.Dispose();foreach(var label in _labels)label.Dispose();_art.Clear();_labels.Clear();Destroy(_material);}

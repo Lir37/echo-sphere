@@ -10,7 +10,7 @@ namespace EchoSphere.Presentation
     public sealed class NativeArtifactGlyph : IDisposable
     {
         private readonly VisualElement _root,_clip,_geometry;
-        private readonly Label _core;
+        private readonly Label _core;private NativeContentIcon _contentIcon;
         private readonly NativeHudSurface _base,_highlight;
         private Color _color;
         private string _glyph,_colorText;
@@ -30,8 +30,9 @@ namespace EchoSphere.Presentation
             _geometry=Box(_clip,"artifact-glyph-lines");_geometry.style.position=Position.Absolute;_geometry.style.left=_geometry.style.right=_geometry.style.top=_geometry.style.bottom=0;_geometry.generateVisualContent+=Draw;
             _core=Text(_clip,"artifact-glyph-core",inheritedFontSize*1.45f,"#7f9bb8",line:1);
         }
-        public void Bind(string glyph,string color)
+        public void Bind(string glyph,string color,string id=null)
         {
+            if(id!=null){if(_contentIcon==null){_contentIcon=new NativeContentIcon("artifact:"+id,Color.white);_contentIcon.style.position=Position.Absolute;_contentIcon.style.left=_contentIcon.style.right=_contentIcon.style.top=_contentIcon.style.bottom=9;_contentIcon.style.width=_contentIcon.style.height=StyleKeyword.Auto;_clip.Add(_contentIcon);}_contentIcon.Bind("artifact:"+id,ColorUtility.TryParseHtmlString(color,out var iconColor)?iconColor:Color.white);_core.style.display=DisplayStyle.None;_geometry.style.display=DisplayStyle.None;}
             if(_disposed)throw new ObjectDisposedException(nameof(NativeArtifactGlyph));if(_glyph==glyph&&_colorText==color)return;
             if(!ColorUtility.TryParseHtmlString(color,out var parsed))throw new ArgumentException("Original glyph color required",nameof(color));
             _glyph=glyph;_colorText=color;_color=parsed;Set(_core,glyph);_core.style.color=parsed;_core.style.textShadow=new TextShadow {color=parsed,blurRadius=12,offset=Vector2.zero};

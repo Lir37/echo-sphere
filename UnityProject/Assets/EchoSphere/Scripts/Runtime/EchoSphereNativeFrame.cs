@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
             _nativeWorldFeedback.Rectangle(-frame.WorldWidth/2,-frame.WorldHeight/2,frame.WorldWidth,frame.WorldHeight,1.5,NativeWorldBorder);_worldSurface.SetDash(Array.Empty<float>());
             DrawNativeCharacterWorldIndicators();
             DrawNativeViewFormationMemory();DrawNativeViewSphereNetwork();
-            DrawNativeExperienceLayer();
+            DrawNativeMerchantUnit();DrawNativeExperienceLayer();
             DrawNativeHealthLayer();
             DrawNativeRuneLayer();DrawNativeRuneZone();
             DrawNativeChestLayer(false);

@@ -9,6 +9,8 @@ namespace EchoSphere.Runtime
         internal float SourceProjectionRemaining => _remaining;
         internal float SourceProjectionRotation => _rotation;
         internal SphereId SourceProjectionAnchorType => _anchorType;
+        internal float VisualAttack => Mathf.Clamp01(_visualAttack / .24f);
+        private float _visualAttack;
         private Color _savedColor = new Color(0.35f,0.83f,1f,0.95f);
         Color IRunSaveColor.SavedColor => _savedColor;
         void IRunSaveColor.RestoreSavedColor(Color color) => _savedColor = color;
@@ -42,6 +44,7 @@ namespace EchoSphere.Runtime
         public void SimulationTick(float dt)
         {
             if (_runtime == null || _runtime.IsGameplayPaused) return;
+            _visualAttack = Mathf.Max(0, _visualAttack - dt);
             _remaining -= dt;
             if (_remaining <= 0f) { NativeSimulationLifetime.Destroy(gameObject); return; }
 
@@ -146,6 +149,7 @@ namespace EchoSphere.Runtime
 
             _attackTimer = _anchorType == SphereId.Sniper ? 1f :
                 _anchorType == SphereId.Orbital ? 0.62f : 0.8f;
+            _visualAttack = .24f;
         }
     }
 }

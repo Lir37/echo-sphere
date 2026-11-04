@@ -70,7 +70,7 @@ namespace EchoSphere.Presentation
             while(_items.Count<state.Artifacts.Count)AddCard(_items.Count);
             for(int i=0;i<_items.Count;i++){
                 var card=_items[i];card.Root.style.display=i<state.Artifacts.Count?DisplayStyle.Flex:DisplayStyle.None;if(i>=state.Artifacts.Count)continue;var model=state.Artifacts[i];
-                Set(card.Name,model.Name);Set(card.Rarity,model.RarityLabel.ToUpperInvariant());Set(card.Description,model.Description);card.Glyph.Bind(model.Glyph,model.GlyphColor);
+                Set(card.Name,model.Name);Set(card.Rarity,model.RarityLabel.ToUpperInvariant());Set(card.Description,model.Description);card.Glyph.Bind(model.Glyph,model.GlyphColor,model.Id);
                 if(card.Border!=model.BorderColor){card.Border=model.BorderColor;card.Surface.SetPaint(Paint(model.BorderColor,2));}
                 card.Sets.style.display=model.Sets.Count==0?DisplayStyle.None:DisplayStyle.Flex;
                 while(card.Badges.Count<model.Sets.Count){var badge=new NativeArtifactSetBadge(card.Sets,_selectSet);badge.Root.style.marginRight=8;badge.Root.style.marginTop=8;card.Badges.Add(badge);}

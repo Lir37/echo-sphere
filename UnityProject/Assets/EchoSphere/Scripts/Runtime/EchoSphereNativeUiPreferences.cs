@@ -14,7 +14,7 @@ namespace EchoSphere.Runtime
         private static double NativeInterfaceScale
         {
             get {const string key="echosphere_interface_scale",missing="\u0001";string text=PlayerPrefs.GetString(key,missing);
-                double raw=text==missing?(PlayerPrefs.HasKey(key)?PlayerPrefs.GetFloat(key,float.NaN):0):text.Trim().Length==0?0:double.TryParse(text,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double number)?number:double.NaN;
+                double raw=text==missing?(PlayerPrefs.HasKey(key)?PlayerPrefs.GetFloat(key,float.NaN):1):text.Trim().Length==0?0:double.TryParse(text,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double number)?number:double.NaN;
                 return double.IsFinite(raw)?Math.Min(1.25,Math.Max(.75,raw)):1;}
         }
         private void NativeResetAllProgress()

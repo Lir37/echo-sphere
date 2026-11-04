@@ -51,12 +51,15 @@ namespace EchoSphere.Runtime
                 chest.AddComponent<ArtifactChestAgent2D>().Initialize(this);
             }
             RunEconomyRules.AdvanceMerchant(_runEconomy,_runTime);
-            if(_runEconomy.Pending&&!_runEconomy.Open&&_runTime>=_runEconomy.ArrivedAt+40)OpenNativeMerchant();
+            if(_runEconomy.Pending&&!_runEconomy.Open){
+                if(!_runEconomy.MerchantPlaced){var point=PlayerPosition+Vector2.right*(90*SpherePlacementRules.SourcePixelsToWorld);float edge=30*SpherePlacementRules.SourcePixelsToWorld;point.x=Mathf.Clamp(point.x,-SpherePlacementRules.WorldWidth/2+edge,SpherePlacementRules.WorldWidth/2-edge);point.y=Mathf.Clamp(point.y,-SpherePlacementRules.WorldHeight/2+edge,SpherePlacementRules.WorldHeight/2-edge);_runEconomy.MerchantX=point.x;_runEconomy.MerchantY=point.y;_runEconomy.MerchantPlaced=true;}
+                if(Vector2.Distance(PlayerPosition,new Vector2(_runEconomy.MerchantX,_runEconomy.MerchantY))<=26*SpherePlacementRules.SourcePixelsToWorld)OpenNativeMerchant();
+            }
         }
         private bool CanOpenNativeMerchant=>_runEconomy!=null&&_runEconomy.Pending&&!_runEconomy.Open&&!_mainMenu&&!_gameOver&&!_paused&&!_levelUp&&!_choosingEvolution&&!_stellaRewardPending&&_tutorialStep<0&&_playerCore!=null&&!_playerCore.IsDead;
         private void OpenNativeMerchant()
         {
-            if(!CanOpenNativeMerchant)return;
+            if(!CanOpenNativeMerchant||!_runEconomy.MerchantPlaced||Vector2.Distance(PlayerPosition,new Vector2(_runEconomy.MerchantX,_runEconomy.MerchantY))>26*SpherePlacementRules.SourcePixelsToWorld)return;
             RunEconomyRules.Prepare(_runEconomy,_ownedArtifacts);_runEconomy.Open=true;_paused=true;
             ResetNativeMobileGestures(false);ClearSpherePointer();RefreshNativeCommandModels();SaveCurrentRun();
         }
@@ -76,6 +79,11 @@ namespace EchoSphere.Runtime
             RecordDiscoveredArtifactProtocols();
             if(choice.GetEffect("maxHp")>0f&&_playerCore!=null)_playerCore.IncreaseMaxHp(choice.GetEffect("maxHp"));
             if(_playerCore!=null)_playerCore.SetDashCooldownMultiplier(Mathf.Max(.55f,1f+GetRunArtifactEffectTotal("cooldown")));
+        }
+        private void DrawNativeMerchantUnit(){
+            if(_runEconomy==null||!_runEconomy.Pending||!_runEconomy.MerchantPlaced||_mainMenu||_gameOver)return;
+            var point=NativeSourcePixels(new Vector2(_runEconomy.MerchantX,_runEconomy.MerchantY));
+            _nativeWorldMinions.DrawMerchant(_worldSurface,(float)point.x,(float)point.y,(int)ActiveCampaignRegion,_runTime);
         }
         private void PrepareNativeMerchant()
         {

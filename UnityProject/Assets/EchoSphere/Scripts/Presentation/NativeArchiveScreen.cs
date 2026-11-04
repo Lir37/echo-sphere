@@ -93,14 +93,29 @@ namespace EchoSphere.Presentation
                 var column=Box(grid,"archive-column");column.style.width=Length.Percent(_state.Section=="basics"?100:50);column.style.paddingLeft=column.style.paddingRight=6;column.style.paddingBottom=_state.Section=="basics"?16:12;if(_state.Section!="basics")_columns.Add(column);
                 var article=Box(column,"archive-card");Pad(article,16);Surface(article,true);article.style.opacity=card.Open?1:.8f;
                 var row=Box(article,"archive-card-row",true);row.style.alignItems=Align.FlexStart;
-                var icon=Box(row,"archive-card-icon");icon.style.width=icon.style.height=36;icon.style.marginTop=2;icon.style.marginRight=12;icon.style.alignItems=Align.Center;icon.style.justifyContent=Justify.Center;Surface(icon,true);Icon(icon,card.Open?"Sparkles":"LockKeyhole",15,C(card.Open?"#a5f3fc":"#64748b"));
+                var icon=Box(row,"archive-card-icon");icon.style.width=icon.style.height=36;icon.style.marginTop=2;icon.style.marginRight=12;icon.style.alignItems=Align.Center;icon.style.justifyContent=Justify.Center;Surface(icon,true);icon.Add(new NativeContentIcon(card.Open?card.Id:"locked",C(card.Open?"#a5f3fc":"#64748b"),28));
                 var copy=Box(row,"archive-card-copy");copy.style.flexGrow=1;copy.style.flexShrink=1;
                 Text(copy,"archive-card-title",card.Open?card.Title:L("Запись не открыта","Entry locked"),16,"#f1f5f9","600",true);
-                Text(copy,"archive-card-description",card.Open?card.Description:L("Получите этот объект во время игры, чтобы открыть запись.","Obtain or encounter this during a run to unlock the entry."),12,"#94a3b8","400",true,20d/12).style.marginTop=4;
+                Text(copy,"archive-card-description",card.Open?card.Description:LockedCopy(card),12,"#94a3b8","400",true,20d/12).style.marginTop=4;
                 if(card.Open&&!string.IsNullOrEmpty(card.Details))Details(copy,card);
                 if(!card.Open&&!string.IsNullOrEmpty(card.ResearchAction)){
                     var research=Button(copy,"archive-research-"+card.Id,()=>_research?.Invoke(card.Id),false);Surface(research,true);research.style.color=C(card.CanResearch?"#a5f3fc":"#64748b");var researchCopy=Text(research,"archive-research-copy",card.ResearchAction,11,card.CanResearch?"#a5f3fc":"#64748b","500",true);researchCopy.style.unityTextAlign=TextAnchor.MiddleCenter;researchCopy.style.flexGrow=1;research.SetEnabled(card.CanResearch);research.style.fontSize=11;research.style.marginTop=8;research.style.minHeight=32;research.style.whiteSpace=WhiteSpace.Normal;research.style.minWidth=0;
                 }
+            }
+        }
+        private string LockedCopy(Card card)
+        {
+            switch(_state.Section){
+                case "monsters":case "bosses":return L("Встретьте этого противника в забеге.","Encounter this enemy during a run.");
+                case "evolutions":return L("Выберите эту мутацию или эволюцию в забеге.","Choose this mutation or evolution during a run.");
+                case "abilities":return L("Получите эту способность в забеге.","Acquire this ability during a run.");
+                case "regions":
+                    if(card.Id.EndsWith(":0",StringComparison.Ordinal))return L("Начните забег в этом регионе или исследуйте запись.","Start a run in this region or research this entry.");
+                    if(card.Id.EndsWith(":1",StringComparison.Ordinal))return L("Найдите тайник, реле или узел разлома в регионе. Можно открыть исследованием.","Find a cache, relay or breach node in this region, or research this entry.");
+                    if(card.Id.EndsWith(":2",StringComparison.Ordinal))return L("Найдите потерянный сигнал в регионе или исследуйте запись.","Find a lost signal in this region or research this entry.");
+                    if(card.Id.EndsWith(":3",StringComparison.Ordinal))return L("Победите элиту, исследуйте гнездо или разрыв в регионе. Можно открыть исследованием.","Defeat an elite, explore a nest or rupture in this region, or research this entry.");
+                    return L("Встретьте босса, найдите его след в регионе или исследуйте запись.","Encounter a boss, find a boss trace in this region, or research this entry.");
+                default:return L("Получите этот объект в забеге.","Acquire this during a run.");
             }
         }
         private void Details(VisualElement parent,Card card)

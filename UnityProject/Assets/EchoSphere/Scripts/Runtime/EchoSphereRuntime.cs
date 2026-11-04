@@ -1441,7 +1441,7 @@ namespace EchoSphere.Runtime
             agent.Initialize(this, _player, hp, speed, xpReward,
                 visualVariant, "", isElite, archetype, isPhaseRole,
                 role, roleDamage, roleRadius, eliteVariant, damage); if(UsesCampaignCombat)agent.SetCampaignRegion(ecologyRegion);agent.SetSourceAppearance(tint); agent.SetSourceVisualTier(_bossesDefeated);
-            _enemies.Add(agent); RegisterEnemyQuery(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent); RecordEnemyEncounter(agent);
         }
         private bool HasActiveBoss()
         {
@@ -1569,7 +1569,7 @@ namespace EchoSphere.Runtime
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
                 BossCombatRules.GetVisualVariant(type), type); agent.SetSourceAppearance(tint); agent.SetSourceVisualTier(Mathf.FloorToInt(wave/10f));
-            _enemies.Add(agent); RegisterEnemyQuery(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent); RecordEnemyEncounter(agent);
             var combat = root.AddComponent<BossCombatAgent2D>();
             combat.Initialize(this, _player, agent, type, wave, speed, damage, tint);
             agent.SetBossCombat(combat);
@@ -1585,7 +1585,7 @@ namespace EchoSphere.Runtime
             agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant, damage: 8f);
             agent.SetSourceAppearance(tint); agent.SetSourceRadius(10f);
             if(UsesCampaignCombat)agent.SetCampaignRegion(ActiveCampaignRegion);
-            _enemies.Add(agent); RegisterEnemyQuery(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent); RecordEnemyEncounter(agent);
             return agent;
         }
 
