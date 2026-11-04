@@ -40,3 +40,14 @@ CI and final commit are recorded in the cycle's final response. Source and repor
 Continuation: ECHO SPHERE, unity-migration, use the HEAD containing this report. UI/combat polish implemented; read this report and the three mandatory GPT documents. Keep CLI beta.15 and Editor 6000.6.1f1. Next: Android acceptance of the new merchant, controls/mutation scrolling, visual effects and remaining text screens; build a fresh APK when requested. Do not use the phone without renewed authorization.
 ## Device follow-up
 The user connected Xiaomi 11T by USB and authorized installation/testing. First release build from 0c7bada0 installed successfully with data retained, revealing global text-rule truncation on the real main menu. The correction removes that stylesheet and restores shared label sizing; mutation/shop constraints remain local. A fresh corrected APK replaces the intermediate build. The existing saved run at 20:02 must be preserved. Final device evidence is recorded below when verification completes.
+
+Device follow-up result (2026-11-04):
+- Corrected release IL2CPP APK source 0f12d3f38bc35b912f1d007031a66904a4f46500; ARMv7 + ARM64, ECHO_REGION_TEST_ACCESS enabled, 57345826 bytes.
+- File: UnityProject/Builds/Android/ECHO-SPHERE-ui-combat-polish-regions-test.apk.
+- SHA256: 16EBDB43084BD09011FE81F192A0F9A5BAE5787B3574C45AAD30CBEF3250E6EB.
+- ADB install -r: Success on connected Xiaomi 11T. No uninstall/data clear/settings changes. Existing run was present at 20:02 and resumed successfully.
+- Actual screenshots checked: restored full main-menu copy/icons after warm-up, archive artifact icons and wrapping, pause stats, active battle HUD, merchant appearing at existing schedule with top-center status, level-up selection.
+- Battle progressed to 21:26 / level36 and opened an upgrade choice. No upgrade or artifact purchase was selected for the user; phone left at that paused choice. Merchant contact/purchase is still unverified on device.
+- No new matching fatal/texture/unhandled exception in the inspected process log window. No FPS, GC or long-duration performance claim.
+- Known remaining visual acceptance: pending-merchant status is wider than the clear gap between top HUD panels; archive category viewport clips part of its second row. These must be addressed locally, not by reinstating global text width/ellipsis rules. Existing sphere names and some battle controls intentionally ellipsize; the full all-screen text task remains open.
+- Device screenshots remain local in Library/ui-polish-device, without publishing private player progress images.
