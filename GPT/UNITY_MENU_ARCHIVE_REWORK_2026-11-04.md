@@ -46,3 +46,7 @@ Both sides list existing SphereAbilityLinks and discovered partners. Synergy eff
 Actual Unity compile PASS; Play Mode2133 targeted checks PASS covering every sphere/ability branch and final individually, hidden sibling choices, reciprocal existing synergies, accepted choice discovery and RU/EN attached click/layout. Existing115 archive behavior checks and1152 artifact build checks also pass. Screens/receipt stored in VisualReferences/MenuArchive-2026-11-04. Android and full visual acceptance remain open, no APK built here. CI result reported after push.
 
 Continuation: use the commit containing this follow-up. Sphere/ability archive pages now show previously chosen mutations and gated reciprocal synergies. Next: verify archive discovery across runs/relaunch and scrolling on Android with the prior menu/artifact updates. Ads remain stubs, free reroll one per run.
+
+## Lore correction — environment
+
+User clarified the game is not set in an aerial environment. Removed the invented reference to air from Glimmerwing lore in RU/EN; its wings now sense the existing field directly. Reviewed current ArchiveLore and CampaignRegionLore for explicit air, breathing, atmospheric and wind dependencies; no other occurrences found. No claim that the entire setting is literal vacuum is introduced. Existing dated screenshots preserve earlier verification evidence and may contain the old sentence. No gameplay or visuals changed. Existing core checks and CI are verified for this text correction.
