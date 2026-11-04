@@ -8,7 +8,9 @@ namespace EchoSphere.Presentation
 {
     public sealed class NativeArchiveScreen : MonoBehaviour
     {
-        public sealed class Card { public string Id,Group,Title,Description,Details,DetailsEnglish,RegionLore,RegionLoreEnglish,CharacterId,ResearchAction;public BestiaryAppearance Enemy;public bool Open,CanResearch;public int BasicIndex=-1; }
+        public sealed class ArtifactMember {public string Id,Name;public bool Selected;}
+        public sealed class ArtifactBuild {public string Title,Description;public bool Combination;public List<ArtifactMember> Members=new List<ArtifactMember>();}
+        public sealed class Card { public List<ArtifactBuild> Builds; public string Id,Group,Title,Description,Details,DetailsEnglish,RegionLore,RegionLoreEnglish,CharacterId,ResearchAction;public BestiaryAppearance Enemy;public bool Open,CanResearch;public int BasicIndex=-1; }
         public sealed class State { public bool Russian;public string Section,Query,WalletSummary;public int Known;public IReadOnlyList<Card> Cards; }
         private static readonly string[] Sections={"basics","spheres","monsters","bosses","abilities","artifacts","evolutions","regions","runes","characters"};
         private static readonly string[] Icons={"BookOpen","CircleDot","Swords","Shield","Zap","Gem","Network","BookOpen","Zap","UserRound"};
@@ -104,7 +106,7 @@ namespace EchoSphere.Presentation
                 var copy=Box(row,"archive-card-copy");copy.style.flexGrow=1;copy.style.flexShrink=1;
                 Text(copy,"archive-card-title",card.Open||card.Enemy!=null||card.CharacterId!=null?card.Title:L("Запись не открыта","Entry locked"),16,"#f1f5f9","600",true);
                 Text(copy,"archive-card-description",card.Open?card.Description:LockedCopy(card),12,"#94a3b8","400",true,20d/12).style.marginTop=4;
-                if(card.Enemy!=null||card.CharacterId!=null){article.pickingMode=PickingMode.Position;if(card.Open){article.RegisterCallback<ClickEvent>(_=>OpenDetail(card));Text(copy,"archive-read",L("Открыть запись →","Read entry →"),11,"#67dbe8",wrap:true).style.marginTop=8;}}
+                if(card.Enemy!=null||card.CharacterId!=null||card.Builds!=null){article.pickingMode=PickingMode.Position;if(card.Open){article.RegisterCallback<ClickEvent>(_=>OpenDetail(card));Text(copy,"archive-read",L("Открыть запись →","Read entry →"),11,"#67dbe8",wrap:true).style.marginTop=8;}}
                 else if(card.Open&&!string.IsNullOrEmpty(card.Details))Details(copy,card);
                 if(!card.Open&&!string.IsNullOrEmpty(card.ResearchAction)){
                     var research=Button(copy,"archive-research-"+card.Id,()=>_research?.Invoke(card.Id),false);Surface(research,true);research.style.color=C(card.CanResearch?"#a5f3fc":"#64748b");var researchCopy=Text(research,"archive-research-copy",card.ResearchAction,11,card.CanResearch?"#a5f3fc":"#64748b","500",true);researchCopy.style.unityTextAlign=TextAnchor.MiddleCenter;researchCopy.style.flexGrow=1;research.SetEnabled(card.CanResearch);research.style.fontSize=11;research.style.marginTop=8;research.style.minHeight=32;research.style.whiteSpace=WhiteSpace.Normal;research.style.minWidth=0;
@@ -133,11 +135,25 @@ namespace EchoSphere.Presentation
         private void OpenDetail(Card card){if(!card.Open)return;CloseDetail();_detail=new VisualElement{name="archive-entry-detail"};Fill(_detail);_detail.style.backgroundColor=C("#02070ff5");_detail.style.alignItems=Align.Center;_detail.style.justifyContent=Justify.Center;Pad(_detail,16);_root.Add(_detail);
             var panel=new ScrollView(ScrollViewMode.Vertical){name="archive-detail-scroll"};NativePauseScreenView.ConfigureMobileScroll(panel);panel.style.width=Length.Percent(100);panel.style.maxWidth=600;panel.style.maxHeight=Length.Percent(100);panel.style.flexShrink=1;panel.style.minHeight=0;panel.style.backgroundColor=C("#0a1421");_detail.Add(panel);var body=panel.contentContainer;Pad(body,16);
             var close=new Button(CloseDetail){name="archive-detail-close",text=L("← К записям","← Back to entries")};close.style.minHeight=36;close.style.backgroundColor=C("#102938");close.style.color=C("#a5edf4");close.style.borderTopColor=close.style.borderBottomColor=close.style.borderLeftColor=close.style.borderRightColor=C("#294855");close.style.whiteSpace=WhiteSpace.Normal;body.Add(close);
-            var art=Box(body,"archive-detail-art");art.style.width=art.style.height=192;art.style.alignSelf=Align.Center;AddPortrait(art,card);
+            var art=Box(body,"archive-detail-art");art.style.width=art.style.height=192;art.style.alignSelf=Align.Center;if(card.Builds!=null){art.style.alignItems=Align.Center;art.style.justifyContent=Justify.Center;art.Add(new NativeContentIcon(card.Id,C("#a5f3fc"),144));}else AddPortrait(art,card);
             Text(body,"archive-detail-title",card.Title,24,"#dff5ff","700",true).style.marginTop=8;
             Text(body,"archive-detail-behavior",card.Description,13,"#82d9e4",wrap:true).style.marginTop=10;
+            if(card.Builds!=null){ArtifactBuildDetails(body,card);return;}
             Text(body,"archive-detail-lore",!_state.Russian&&card.DetailsEnglish!=null?card.DetailsEnglish:card.Details,14,"#c5d3e1",wrap:true,line:1.7).style.marginTop=18;
             string region=_state.Russian?card.RegionLore:card.RegionLoreEnglish;if(!string.IsNullOrEmpty(region)){Text(body,"archive-detail-region-title",L("ИЗ ИСТОРИИ РЕГИОНА","REGIONAL HISTORY"),11,"#9389c4","700",true).style.marginTop=24;Text(body,"archive-detail-region",region,13,"#98abc1",wrap:true,line:1.7).style.marginTop=8;}
+        }
+        private void ArtifactBuildDetails(VisualElement parent,Card card)
+        {
+            Text(parent,"archive-artifact-builds-title",L("СБОРКИ И СОЧЕТАНИЯ","BUILDS AND COMBINATIONS"),12,"#f5cf87","700",true).style.marginTop=22;
+            if(card.Builds.Count==0){Text(parent,"archive-artifact-no-build",L("Не входит в особые сборки. Его эффект действует самостоятельно.","Not part of a special build. Its effect works independently."),13,"#98abc1",wrap:true).style.marginTop=12;return;}
+            foreach(var build in card.Builds){
+                var box=Box(parent,"archive-artifact-build");Pad(box,12);Surface(box,true);box.style.marginTop=12;
+                Text(box,"archive-build-kind",build.Combination?L("СОЧЕТАНИЕ","COMBINATION"):L("СБОРКА","BUILD"),10,"#9389c4",wrap:true);
+                Text(box,"archive-build-name",build.Title,17,"#dff5ff","700",true).style.marginTop=4;
+                Text(box,"archive-build-effect",build.Description,13,"#82d9e4",wrap:true,line:1.6).style.marginTop=8;
+                Text(box,"archive-build-requirements",L("Нужны все артефакты:","Requires all artifacts:"),12,"#98abc1",wrap:true).style.marginTop=12;
+                foreach(var member in build.Members){var row=Box(box,"archive-build-member",true);row.style.alignItems=Align.Center;row.style.marginTop=8;var icon=new NativeContentIcon(member.Id,C("#a5f3fc"),32);icon.style.flexShrink=0;icon.style.marginRight=10;row.Add(icon);var label=Text(row,"archive-build-member-name",member.Name+(member.Selected?L(" · этот артефакт"," · this artifact"):""),12,member.Selected?"#f5cf87":"#c5d3e1",wrap:true);label.style.flexShrink=1;label.style.minWidth=0;}
+            }
         }
         private void Details(VisualElement parent,Card card)
         {

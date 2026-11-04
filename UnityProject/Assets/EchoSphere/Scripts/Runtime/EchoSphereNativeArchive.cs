@@ -37,6 +37,23 @@ namespace EchoSphere.Runtime
             if(!_mainMenu||_mainMenuPage!=MainMenuPage.Knowledge)return;
             _knowledgeQuery=value;_nativeArchiveState=ReadNativeArchiveState();
         }
+        private void BindArchiveArtifactBuilds(NativeArchiveScreen.Card card,bool ru)
+        {
+            if(!card.Id.StartsWith("artifact:",StringComparison.Ordinal))return;
+            string artifactId=card.Id.Substring(9);
+            card.Builds=new List<NativeArchiveScreen.ArtifactBuild>();
+            void Add(string title,string description,IEnumerable<string> requirements,bool combination=false){
+                var ids=requirements.Distinct().ToArray();if(!ids.Contains(artifactId))return;
+                var build=new NativeArchiveScreen.ArtifactBuild{Title=NativePlayerCopy.Text(title,ru),Description=NativePlayerCopy.Text(description,ru),Combination=combination};
+                foreach(string id in ids){var item=ArtifactRewardRules.Get(id);if(item==null)throw new InvalidOperationException("Unknown archive build artifact: "+id);build.Members.Add(new NativeArchiveScreen.ArtifactMember{Id="artifact:"+id,Name=NativePlayerCopy.Text(ru?item.NameRussian:item.NameEnglish,ru),Selected=id==artifactId});}
+                card.Builds.Add(build);
+            }
+            foreach(var set in _nativeArchiveCatalog.Planner){
+                if(set.category=="artifact-set")Add(ru?set.nameRu:set.nameEn,ru?set.descRu:set.descEn,SourceSetArtifacts(set));
+                else if(set.category=="artifact-synergy")Add(ru?set.nameRu:set.nameEn,ru?set.descRu:set.descEn,set.requires??Array.Empty<string>(),true);
+            }
+            foreach(var set in CampaignArtifactSets.All)Add(ru?set.Ru:set.En,ru?set.DescriptionRu:set.DescriptionEn,set.Requires);
+        }
         private NativeArchiveScreen.State ReadNativeArchiveState()
         {
             EnsureKnowledgeLoaded();
@@ -82,6 +99,7 @@ namespace EchoSphere.Runtime
                 if(query.Length>0&&!name.ToLowerInvariant().Contains(query)&&!description.ToLowerInvariant().Contains(query))continue;
                 cards.Add(new NativeArchiveScreen.Card{Id="rune:"+id,Group="",Title=name,Description=description,Details=ru?"Подберите руну в течение 22 с.":"Pick up the rune within 22 s.",Open=true,BasicIndex=-1});
             }
+            if(_knowledgeSection=="artifacts")foreach(var card in cards)BindArchiveArtifactBuilds(card,ru);
             return new NativeArchiveScreen.State {Russian=ru,Section=_knowledgeSection,Query=_knowledgeQuery,Known=_knownKnowledgeIds.Count,WalletSummary=MetaBalanceLabel(CurrencyId.Credits)+" · "+MetaBalanceLabel(CurrencyId.ResonanceShards)+" · "+MetaBalanceLabel(CurrencyId.ArchiveData),Cards=cards};
         }
     }

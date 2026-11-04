@@ -28,3 +28,11 @@ Date: 2026-11-04. Branch: unity-migration. Baseline: 8bd27218a42c416cbd8f09de4bc
 ## Continue
 
 Use the commit containing this report on unity-migration. Menu/archive/reward UI is implemented and Editor checked. Next: build current APK when requested; verify kill/character unlock persistence, mobile archive scrolling, merchant HUD and result/reroll placeholders on Xiaomi 11T. Ads remain stubs; one free reroll per run.
+
+## Artifact build detail follow-up
+
+User-requested artifact tap now opens a bounded scroll detail page for discovered artifacts. Lists every matching existing full set and artifact combination, their existing localized effects and all required artifacts with shared pictures. Selected artifact is highlighted. Artifacts with no special set explicitly say so. Full sets expand their existing synergy prerequisites through the same runtime resolver; the eight campaign sets use CampaignArtifactSets. No new combinations, bonuses, formulas or unlock rules added. Archive discovery is not confused with current-run ownership.
+
+Actual Unity compilation and Play Mode: 1152 targeted checks PASS, covering all 90 artifacts in RU/EN, exact existing campaign and full-set memberships, pair requirements, actual click handling and horizontal text bounds. Current Console ground truth had zero errors/warnings. RU/EN detail images and receipt archived alongside previous evidence. Android acceptance remains open; APK not built in this follow-up. CI is checked after publishing the commit.
+
+Continuation: use the commit containing this follow-up. Artifact detail now shows builds/effects/required items. Next is mobile acceptance with the rest of the menu/archive changes; one free reroll per run and ad stubs remain unchanged.
