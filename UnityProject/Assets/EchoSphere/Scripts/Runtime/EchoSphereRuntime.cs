@@ -531,7 +531,7 @@ namespace EchoSphere.Runtime
         public float NextRunRandom() => _rng.NextFloat();
         public int GetShopUpgradeLevel(string id) { EnsureShopSaveLoaded(); return _shopSave.upgrades.Get(id); }
         public float GetShopSphereRadiusMultiplier() => PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("radius"));
-        private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
+        private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(UsesCampaignCombat ? "normal" : PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
         public float SourceBuffDamageMultiplier => _buffTimer > 0f ? 1.3f : 1f;
         public float SphereDamageMultiplier => _damageMultiplier * PlayerLoopRules.MutationDamage(_mutationStage) * ChaosOrbMultiplier("dmg") *
             (_teleportDamageBuffTimer > 0f ? 2f : 1f) *
@@ -913,7 +913,8 @@ namespace EchoSphere.Runtime
             _characterMasteryLevel = characterProfile.masteryLevel;
             SaveCharacterProfiles();
 
-            GrantCompletedRunCurrencies();
+            RecordCompletedCharacterArchive();
+            GrantCompletedRunCurrencies();PersistKnowledgeProgress();
 
             var fallbackName = IsRussianUi ? "Игрок" : "Player";
             var entry = new LeaderboardEntry
@@ -953,7 +954,7 @@ namespace EchoSphere.Runtime
         private void ResetPersistentProgress()
         {
             ClearRunSnapshot();
-            _knownKnowledgeIds.Clear();
+            _knownKnowledgeIds.Clear();_bestiaryAppearances.Clear();
             ClearMetaWallet();
             PlayerPrefs.DeleteKey(GoldPreferenceKey);
             PlayerPrefs.DeleteKey(ShopPreferenceKey);
@@ -1441,7 +1442,7 @@ namespace EchoSphere.Runtime
             agent.Initialize(this, _player, hp, speed, xpReward,
                 visualVariant, "", isElite, archetype, isPhaseRole,
                 role, roleDamage, roleRadius, eliteVariant, damage); if(UsesCampaignCombat)agent.SetCampaignRegion(ecologyRegion);agent.SetSourceAppearance(tint); agent.SetSourceVisualTier(_bossesDefeated);
-            _enemies.Add(agent); RegisterEnemyQuery(agent); RecordEnemyEncounter(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent);
         }
         private bool HasActiveBoss()
         {
@@ -1569,7 +1570,7 @@ namespace EchoSphere.Runtime
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
                 BossCombatRules.GetVisualVariant(type), type); agent.SetSourceAppearance(tint); agent.SetSourceVisualTier(Mathf.FloorToInt(wave/10f));
-            _enemies.Add(agent); RegisterEnemyQuery(agent); RecordEnemyEncounter(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent);
             var combat = root.AddComponent<BossCombatAgent2D>();
             combat.Initialize(this, _player, agent, type, wave, speed, damage, tint);
             agent.SetBossCombat(combat);
@@ -1585,7 +1586,7 @@ namespace EchoSphere.Runtime
             agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant, damage: 8f * CampaignEnemyDamageMultiplier);
             agent.SetSourceAppearance(tint); agent.SetSourceRadius(10f);
             if(UsesCampaignCombat)agent.SetCampaignRegion(ActiveCampaignRegion);
-            _enemies.Add(agent); RegisterEnemyQuery(agent); RecordEnemyEncounter(agent);
+            _enemies.Add(agent); RegisterEnemyQuery(agent);
             return agent;
         }
 
@@ -2785,6 +2786,7 @@ namespace EchoSphere.Runtime
 
         public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, float xpReward = 1f, SphereId? sourceSphere = null)
         {
+            RecordEnemyDefeat(enemy);
             if (enemy != null) RemoveSourceEnemyProjectiles(enemy);
             var drain = sourceSphere.HasValue ? GetSphereAuthoredModifierLevel(sourceSphere.Value, SphereAuthoredModifier.Drain) : GetGlobalSphereModifierLevel("drain");
             if (drain > 0 && _playerCore != null) HealPlayer(_playerCore.MaxHp * 0.03f * drain);
@@ -7092,7 +7094,7 @@ namespace EchoSphere.Runtime
             _sourceRenderState=default;_sourceRenderEntities.Clear();
 #endif
             _nativePresentedDominant=_nativePresentedSecondary=null;
-            _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+            _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, CurrentDifficulty.Id, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
             _runEconomy=RunEconomyRules.Create(_rng.State);
             _runMetaReceipt=Guid.NewGuid().ToString("N");
             _runShardsEarned=_runArchiveDataEarned=0;_pendingKnowledgeRewards.Clear();

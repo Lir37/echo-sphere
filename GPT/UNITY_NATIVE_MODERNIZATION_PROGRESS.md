@@ -2734,3 +2734,7 @@ Implementation and bounded Editor evidence: [UNITY_UI_COMBAT_POLISH_2026-11-04.m
 
 ## 2026-11-04 — Vampire Ring and enemy clock balance
 User-authorized balance correction: [UNITY_VAMPIRISM_ENEMY_SCALING_2026-11-04.md](UNITY_VAMPIRISM_ENEMY_SCALING_2026-11-04.md). Ring1%, no kill heal, no excess-damage lifesteal; additional campaign HP/damage clock scaling. Editor/runtime and sensitivity evidence recorded; fresh Android acceptance remains open.
+
+
+## 2026-11-04 — Home, bestiary and rewards
+User-requested menu/archive/reward rework: [UNITY_MENU_ARCHIVE_REWORK_2026-11-04.md](UNITY_MENU_ARCHIVE_REWORK_2026-11-04.md). 178 reachable bestiary identities, death-only unlocks and actual anatomy pictures, character lore/portraits, 90 distinct artifact illustrations, merchant in HUD, combo below panes, colored results and disabled ad placeholders. One free reroll per entire run confirmed. Editor/Core checks passed; no fresh APK or Android acceptance this cycle.

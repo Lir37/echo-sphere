@@ -1,6 +1,6 @@
 namespace EchoSphere.Core
 {
-    public enum RewardedPlacement { Revive, DoubleRunRewards }
+    public enum RewardedPlacement { Revive, DoubleRunRewards, LevelUpReroll }
     public enum RewardedShowResult { RewardEarned, ClosedWithoutReward, NotReady, Failed }
 
     /// <summary>Provider-neutral contracts only. No ad SDK or credentials are included.</summary>

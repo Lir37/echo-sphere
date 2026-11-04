@@ -9,6 +9,7 @@ namespace EchoSphere.Presentation {
   internal void Bind(string id,Color color){if(ContentId==id&&_color==color)return;ContentId=id??"";_color=color;MarkDirtyRepaint();}
   internal static uint Signature(string id){uint h=2166136261;foreach(char c in id??""){h^=c;h*=16777619;}return h;}
   private void Draw(MeshGenerationContext context){var p=context.painter2D;float size=Mathf.Min(contentRect.width,contentRect.height);if(size<=1)return;float scale=size/32;Vector2 origin=contentRect.center;
+   if(ContentId.StartsWith("artifact:",StringComparison.Ordinal)&&NativeArtifactIllustrations.Draw(context.painter2D,ContentId.Substring(9),origin,scale))return;
    Vector2 V(float x,float y)=>origin+new Vector2(x,y)*scale;
    void Line(params Vector2[] q){p.BeginPath();p.MoveTo(q[0]);for(int i=1;i<q.Length;i++)p.LineTo(q[i]);p.Stroke();}
    void Ring(float x,float y,float r){p.BeginPath();p.Arc(V(x,y),r*scale,0,360);p.ClosePath();p.Stroke();}

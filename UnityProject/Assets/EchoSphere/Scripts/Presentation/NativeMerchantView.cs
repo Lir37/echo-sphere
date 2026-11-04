@@ -30,7 +30,7 @@ namespace EchoSphere.Presentation {
   private static void StyleButton(Button b){b.style.minHeight=42;b.style.whiteSpace=WhiteSpace.Normal;b.style.fontSize=13;b.style.backgroundColor=new Color(.04f,.10f,.14f);b.style.color=new Color(.74f,.94f,1);b.style.borderTopWidth=b.style.borderBottomWidth=b.style.borderLeftWidth=b.style.borderRightWidth=1;b.style.borderTopColor=b.style.borderBottomColor=b.style.borderLeftColor=b.style.borderRightColor=new Color(.18f,.32f,.4f);}
   internal void Bind(RunEconomyState state,IList<string> owned,bool ru,double time,bool visible,bool canOpen,bool leftHanded){
    _root.style.display=visible&&state!=null?DisplayStyle.Flex:DisplayStyle.None;if(!visible||state==null)return;_state=state;_owned=owned;_ru=ru;NativeUiOrder.Last(_root);
-   _status.style.display=state.Open?DisplayStyle.None:DisplayStyle.Flex;
+   _status.style.display=DisplayStyle.None;
    if(state.Pending)_status.text=ru?"Торговец рядом · подойдите":"Merchant nearby · approach";else{int left=(int)Math.Max(0,Math.Ceiling(RunEconomyRules.MerchantAt(state.NextMerchant)-time));_status.text=(ru?"Торговец ":"Merchant ")+left/60+":"+(left%60).ToString("00");}
    _overlay.style.display=state.Open?DisplayStyle.Flex:DisplayStyle.None;if(!state.Open)return;
    _title.text=ru?"Торговец Эха":"Echo Merchant";_balance.text=state.Echo+(ru?" Эхо":" Echo");_close.text=ru?"Продолжить путь":"Continue";

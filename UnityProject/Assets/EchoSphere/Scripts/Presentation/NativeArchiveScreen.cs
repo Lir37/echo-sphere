@@ -2,19 +2,20 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using EchoSphere.Core;
 
 namespace EchoSphere.Presentation
 {
     public sealed class NativeArchiveScreen : MonoBehaviour
     {
-        public sealed class Card { public string Id,Group,Title,Description,Details,ResearchAction;public bool Open,CanResearch;public int BasicIndex=-1; }
+        public sealed class Card { public string Id,Group,Title,Description,Details,DetailsEnglish,RegionLore,RegionLoreEnglish,CharacterId,ResearchAction;public BestiaryAppearance Enemy;public bool Open,CanResearch;public int BasicIndex=-1; }
         public sealed class State { public bool Russian;public string Section,Query,WalletSummary;public int Known;public IReadOnlyList<Card> Cards; }
-        private static readonly string[] Sections={"basics","spheres","monsters","bosses","abilities","artifacts","evolutions","regions","runes"};
-        private static readonly string[] Icons={"BookOpen","CircleDot","Swords","Shield","Zap","Gem","Network","BookOpen","Zap"};
-        private static readonly string[] LabelsRu={"Ядро игры","Сферы","Монстры","Боссы","Способности","Артефакты","Эволюции","Регионы","Руны"};
-        private static readonly string[] LabelsEn={"Core","Spheres","Monsters","Bosses","Abilities","Artifacts","Evolutions","Regions","Runes"};
-        private static readonly string[] SubRu={"Как работает забег","Узлы боевой сети","Противники","Главные угрозы","Активные и пассивные","Редкие усиления","Ветки и финалы","Сигналы и история регионов","Временные эффекты"};
-        private static readonly string[] SubEn={"How a run works","Combat network nodes","Enemies","Major threats","Active and passive","Rare upgrades","Branches and finals","Regional signals and records","Temporary effects"};
+        private static readonly string[] Sections={"basics","spheres","monsters","bosses","abilities","artifacts","evolutions","regions","runes","characters"};
+        private static readonly string[] Icons={"BookOpen","CircleDot","Swords","Shield","Zap","Gem","Network","BookOpen","Zap","UserRound"};
+        private static readonly string[] LabelsRu={"Ядро игры","Сферы","Монстры","Боссы","Способности","Артефакты","Эволюции","Регионы","Руны","Персонажи"};
+        private static readonly string[] LabelsEn={"Core","Spheres","Monsters","Bosses","Abilities","Artifacts","Evolutions","Regions","Runes","Characters"};
+        private static readonly string[] SubRu={"Как работает забег","Узлы боевой сети","Противники","Главные угрозы","Активные и пассивные","Редкие усиления","Ветки и финалы","Сигналы и история регионов","Временные эффекты","Истории персонажей"};
+        private static readonly string[] SubEn={"How a run works","Combat network nodes","Enemies","Major threats","Active and passive","Rare upgrades","Branches and finals","Regional signals and records","Temporary effects","Character stories"};
         private Label _walletSummary;
         private NativePanelLease _panelLease;
         private UIDocument _document;private PanelSettings _panel;private NativeMainMenuBackground _background;
@@ -30,6 +31,10 @@ namespace EchoSphere.Presentation
         private State _state;private Action _back;private Action<string> _select,_query,_research;
         private bool _visible;private int _geometryFrame;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
+        private readonly NativeBestiaryArtwork _enemyArtwork=new NativeBestiaryArtwork();
+        private readonly NativeCharacterArtwork.Lease _characterArtwork=new NativeCharacterArtwork.Lease();
+        private readonly List<(Image Image,Card Card)> _portraits=new List<(Image,Card)>();
+        private VisualElement _detail;
         private string L(string ru,string en)=>_state.Russian?ru:en;
         private void Ensure()
         {
@@ -52,10 +57,11 @@ namespace EchoSphere.Presentation
             _title.style.fontSize=sm?24:20;_known.style.display=sm?DisplayStyle.Flex:DisplayStyle.None;
             _layout.style.flexDirection=md?FlexDirection.Row:FlexDirection.Column;
             _navigation.style.width=md?224:StyleKeyword.Auto;_navigation.style.marginRight=md?12:0;_navigation.style.marginBottom=md?0:12;
-            _navigation.style.maxHeight=md?StyleKeyword.None:64;
-            _nav.style.flexDirection=md?FlexDirection.Column:FlexDirection.Row;_nav.style.flexWrap=md?Wrap.NoWrap:Wrap.Wrap;foreach(var tab in _tabs){tab.style.marginRight=md?0:8;tab.style.marginBottom=md?8:0;}
+            _navigation.style.maxHeight=StyleKeyword.None;
+            _nav.style.flexDirection=md?FlexDirection.Column:FlexDirection.Row;_nav.style.flexWrap=md?Wrap.NoWrap:Wrap.Wrap;foreach(var tab in _tabs){tab.style.width=md?new StyleLength(StyleKeyword.Auto):new StyleLength(Length.Percent(width<360?50:33.333f));tab.style.marginRight=0;tab.style.marginBottom=4;tab.style.minWidth=0;tab.style.minHeight=32;tab.style.paddingLeft=tab.style.paddingRight=6;var arrow=tab.Q("icon-ChevronRight");if(arrow!=null)arrow.style.display=md?DisplayStyle.Flex:DisplayStyle.None;}foreach(var label in _tabLabels){label.style.fontSize=md?12:10;label.style.whiteSpace=WhiteSpace.Normal;}
             foreach(var subtitle in _subtitles)subtitle.style.display=md?DisplayStyle.Flex:DisplayStyle.None;
             foreach(var column in _columns)column.style.width=Length.Percent(sm?50:100);foreach(var column in _conceptColumns)column.style.width=Length.Percent(sm?50:100);
+            LoadVisibleArtwork();
             Pad(_main,sm?20:12);_background.SetViewport(width,Screen.height/scale,scale);
             if(Time.frameCount-_geometryFrame>=2){foreach(var p in _chrome)p.Prepare(scale);foreach(var p in _cardPaint)p.Prepare(scale);foreach(var glass in _glass)glass.Prepare(_root,8,scale);_page.style.opacity=1;_cards.style.opacity=1;}
         }
@@ -82,6 +88,7 @@ namespace EchoSphere.Presentation
         }
         private void BindCards()
         {
+            CloseDetail();foreach(var portrait in _portraits){portrait.Image.image=null;portrait.Image.sprite=null;}_portraits.Clear();_characterArtwork.Dispose();
             foreach(var paint in _cardPaint)paint.Dispose();_cardPaint.Clear();_columns.Clear();_conceptColumns.Clear();_cards.Clear();
             VisualElement grid=null;string previous=null;
             foreach(var card in _state.Cards){
@@ -93,11 +100,12 @@ namespace EchoSphere.Presentation
                 var column=Box(grid,"archive-column");column.style.width=Length.Percent(_state.Section=="basics"?100:50);column.style.paddingLeft=column.style.paddingRight=6;column.style.paddingBottom=_state.Section=="basics"?16:12;if(_state.Section!="basics")_columns.Add(column);
                 var article=Box(column,"archive-card");Pad(article,16);Surface(article,true);article.style.opacity=card.Open?1:.8f;
                 var row=Box(article,"archive-card-row",true);row.style.alignItems=Align.FlexStart;
-                var icon=Box(row,"archive-card-icon");icon.style.width=icon.style.height=36;icon.style.marginTop=2;icon.style.marginRight=12;icon.style.alignItems=Align.Center;icon.style.justifyContent=Justify.Center;Surface(icon,true);icon.Add(new NativeContentIcon(card.Open?card.Id:"locked",C(card.Open?"#a5f3fc":"#64748b"),28));
+                var icon=Box(row,"archive-card-icon");icon.style.width=icon.style.height=36;icon.style.marginTop=2;icon.style.marginRight=12;icon.style.alignItems=Align.Center;icon.style.justifyContent=Justify.Center;Surface(icon,true);if(card.Enemy!=null||card.CharacterId!=null){icon.style.width=icon.style.height=80;AddPortrait(icon,card);if(!card.Open){var padlock=new NativeContentIcon("locked",C("#c5dae8"),22);padlock.style.position=Position.Absolute;padlock.style.bottom=padlock.style.right=2;icon.Add(padlock);}}else icon.Add(new NativeContentIcon(card.Open?card.Id:"locked",C(card.Open?"#a5f3fc":"#64748b"),32));
                 var copy=Box(row,"archive-card-copy");copy.style.flexGrow=1;copy.style.flexShrink=1;
-                Text(copy,"archive-card-title",card.Open?card.Title:L("Запись не открыта","Entry locked"),16,"#f1f5f9","600",true);
+                Text(copy,"archive-card-title",card.Open||card.Enemy!=null||card.CharacterId!=null?card.Title:L("Запись не открыта","Entry locked"),16,"#f1f5f9","600",true);
                 Text(copy,"archive-card-description",card.Open?card.Description:LockedCopy(card),12,"#94a3b8","400",true,20d/12).style.marginTop=4;
-                if(card.Open&&!string.IsNullOrEmpty(card.Details))Details(copy,card);
+                if(card.Enemy!=null||card.CharacterId!=null){article.pickingMode=PickingMode.Position;if(card.Open){article.RegisterCallback<ClickEvent>(_=>OpenDetail(card));Text(copy,"archive-read",L("Открыть запись →","Read entry →"),11,"#67dbe8",wrap:true).style.marginTop=8;}}
+                else if(card.Open&&!string.IsNullOrEmpty(card.Details))Details(copy,card);
                 if(!card.Open&&!string.IsNullOrEmpty(card.ResearchAction)){
                     var research=Button(copy,"archive-research-"+card.Id,()=>_research?.Invoke(card.Id),false);Surface(research,true);research.style.color=C(card.CanResearch?"#a5f3fc":"#64748b");var researchCopy=Text(research,"archive-research-copy",card.ResearchAction,11,card.CanResearch?"#a5f3fc":"#64748b","500",true);researchCopy.style.unityTextAlign=TextAnchor.MiddleCenter;researchCopy.style.flexGrow=1;research.SetEnabled(card.CanResearch);research.style.fontSize=11;research.style.marginTop=8;research.style.minHeight=32;research.style.whiteSpace=WhiteSpace.Normal;research.style.minWidth=0;
                 }
@@ -106,7 +114,8 @@ namespace EchoSphere.Presentation
         private string LockedCopy(Card card)
         {
             switch(_state.Section){
-                case "monsters":case "bosses":return L("Встретьте этого противника в забеге.","Encounter this enemy during a run.");
+                case "monsters":case "bosses":return L("Победите этого противника, чтобы открыть запись.","Defeat this enemy to unlock its entry.");
+                case "characters":return L("Завершите забег этим персонажем.","Finish a run as this character.");
                 case "evolutions":return L("Выберите эту мутацию или эволюцию в забеге.","Choose this mutation or evolution during a run.");
                 case "abilities":return L("Получите эту способность в забеге.","Acquire this ability during a run.");
                 case "regions":
@@ -118,13 +127,25 @@ namespace EchoSphere.Presentation
                 default:return L("Получите этот объект в забеге.","Acquire this during a run.");
             }
         }
+        private void AddPortrait(VisualElement parent,Card card){var image=new Image{name="archive-portrait",scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};image.style.width=image.style.height=Length.Percent(100);image.style.opacity=card.Open?1:.18f;parent.Add(image);_portraits.Add((image,card));}
+        private void LoadVisibleArtwork(){_enemyArtwork.BeginFrame();foreach(var item in _portraits){if(_detail!=null&&!_detail.Contains(item.Image))continue;if(item.Image.panel==null||!item.Image.worldBound.Overlaps(_detail!=null?_detail.worldBound:_scroll.contentViewport.worldBound)||item.Image.worldBound.height<=0)continue;if(item.Card.Enemy!=null)item.Image.image=_enemyArtwork.Resolve(item.Card.Enemy);else if(item.Card.CharacterId!=null)item.Image.sprite=_characterArtwork.Retain(item.Card.CharacterId,true)?.Sprite;}}
+        private void CloseDetail(){if(_detail==null)return;for(int i=_portraits.Count-1;i>=0;i--)if(_detail.Contains(_portraits[i].Image)){_portraits[i].Image.image=null;_portraits[i].Image.sprite=null;_portraits.RemoveAt(i);}_detail.RemoveFromHierarchy();_detail=null;}
+        private void OpenDetail(Card card){if(!card.Open)return;CloseDetail();_detail=new VisualElement{name="archive-entry-detail"};Fill(_detail);_detail.style.backgroundColor=C("#02070ff5");_detail.style.alignItems=Align.Center;_detail.style.justifyContent=Justify.Center;Pad(_detail,16);_root.Add(_detail);
+            var panel=new ScrollView(ScrollViewMode.Vertical){name="archive-detail-scroll"};NativePauseScreenView.ConfigureMobileScroll(panel);panel.style.width=Length.Percent(100);panel.style.maxWidth=600;panel.style.maxHeight=Length.Percent(100);panel.style.flexShrink=1;panel.style.minHeight=0;panel.style.backgroundColor=C("#0a1421");_detail.Add(panel);var body=panel.contentContainer;Pad(body,16);
+            var close=new Button(CloseDetail){name="archive-detail-close",text=L("← К записям","← Back to entries")};close.style.minHeight=36;close.style.backgroundColor=C("#102938");close.style.color=C("#a5edf4");close.style.borderTopColor=close.style.borderBottomColor=close.style.borderLeftColor=close.style.borderRightColor=C("#294855");close.style.whiteSpace=WhiteSpace.Normal;body.Add(close);
+            var art=Box(body,"archive-detail-art");art.style.width=art.style.height=192;art.style.alignSelf=Align.Center;AddPortrait(art,card);
+            Text(body,"archive-detail-title",card.Title,24,"#dff5ff","700",true).style.marginTop=8;
+            Text(body,"archive-detail-behavior",card.Description,13,"#82d9e4",wrap:true).style.marginTop=10;
+            Text(body,"archive-detail-lore",!_state.Russian&&card.DetailsEnglish!=null?card.DetailsEnglish:card.Details,14,"#c5d3e1",wrap:true,line:1.7).style.marginTop=18;
+            string region=_state.Russian?card.RegionLore:card.RegionLoreEnglish;if(!string.IsNullOrEmpty(region)){Text(body,"archive-detail-region-title",L("ИЗ ИСТОРИИ РЕГИОНА","REGIONAL HISTORY"),11,"#9389c4","700",true).style.marginTop=24;Text(body,"archive-detail-region",region,13,"#98abc1",wrap:true,line:1.7).style.marginTop=8;}
+        }
         private void Details(VisualElement parent,Card card)
         {
             if(card.BasicIndex==0){var grid=Box(parent,"core-concepts",true);grid.style.flexWrap=Wrap.Wrap;grid.style.marginTop=16;grid.style.marginLeft=grid.style.marginRight=-6;foreach(string line in card.Details.Split('\n')){int colon=line.IndexOf(": ",StringComparison.Ordinal);if(colon<0)continue;var column=Box(grid,"core-concept-column");column.style.paddingLeft=column.style.paddingRight=6;column.style.paddingBottom=12;_conceptColumns.Add(column);var box=Box(column,"core-concept");Pad(box,12);Surface(box,true);Text(box,"core-concept-name",line.Substring(0,colon).ToUpperInvariant(),12,"#a5f3fc","700",true);Text(box,"core-concept-copy",line.Substring(colon+2),12,"#94a3b8","400",true,20d/12).style.marginTop=4;}return;}
             if(card.BasicIndex==1){int index=0;foreach(string paragraph in card.Details.Split(new[]{"\n\n"},StringSplitOptions.None)){var text=Text(parent,"resonance-explanation",paragraph,14,index++==3?"#a5f3fc":"#cbd5e1","400",true,24d/14);text.style.marginTop=index==1?16:12;}return;}
             Text(parent,"archive-details",card.Details,12,_state.Section=="spheres"?"#94a3b8":"#64748b","400",true,_state.Section=="spheres"?20d/12:1.5).style.marginTop=_state.Section=="monsters"?8:12;
         }
-        private string GroupName(string group)=>_state.Section=="regions"?NativeRunCatalog.Instance.GetRegion(group).Name(_state.Russian):group=="sphere-branches"?L("ВЕТКИ СФЕР","SPHERE BRANCHES"):group=="sphere-finals"?L("ФИНАЛЬНЫЕ ФОРМЫ СФЕР","FINAL SPHERE FORMS"):L("ЭВОЛЮЦИИ СПОСОБНОСТЕЙ","ABILITY EVOLUTIONS");
+        private string GroupName(string group)=>group.StartsWith("bestiary-region:",StringComparison.Ordinal)?(_state.Russian?ArchiveLore.Region(int.Parse(group.Substring(16))).NameRu:ArchiveLore.Region(int.Parse(group.Substring(16))).NameEn):_state.Section=="regions"?NativeRunCatalog.Instance.GetRegion(group).Name(_state.Russian):group=="sphere-branches"?L("ВЕТКИ СФЕР","SPHERE BRANCHES"):group=="sphere-finals"?L("ФИНАЛЬНЫЕ ФОРМЫ СФЕР","FINAL SPHERE FORMS"):L("ЭВОЛЮЦИИ СПОСОБНОСТЕЙ","ABILITY EVOLUTIONS");
         private void Surface(VisualElement e,bool card){e.style.borderLeftWidth=e.style.borderRightWidth=e.style.borderTopWidth=e.style.borderBottomWidth=1;e.style.borderLeftColor=e.style.borderRightColor=e.style.borderTopColor=e.style.borderBottomColor=Color.clear;Paint(e,NativeProgressionScreen.CardPaint(true,default,default),card);}
         private void Paint(VisualElement e,NativeMenuBrush.Paint paint,bool card){var surface=new NativeHudSurface(e,paint);(card?_cardPaint:_chrome).Add(surface);}
         private Button Button(VisualElement parent,string name,Action action,bool track=true){var button=new Button(action){name=name};button.AddToClassList("progression-button");parent.Add(button);if(track)_buttons.Add(button);return button;}
@@ -134,7 +155,7 @@ namespace EchoSphere.Presentation
         private static void Fill(VisualElement e){e.style.position=Position.Absolute;e.style.left=e.style.right=e.style.top=e.style.bottom=0;}
         private static void Pad(VisualElement e,float p){e.style.paddingLeft=e.style.paddingRight=e.style.paddingTop=e.style.paddingBottom=p;}
         private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var p in _chrome)p.Dispose();_chrome.Clear();foreach(var p in _cardPaint)p.Dispose();_cardPaint.Clear();_buttons.Clear();_tabs.Clear();_tabLabels.Clear();_subtitles.Clear();_columns.Clear();_conceptColumns.Clear();_page.Clear();}
-        public void Hide(){if(!_visible)return;_visible=false;NativeMenuRetainedState.Visible(_root,false);}
-        private void OnDestroy(){if(_document!=null)Clear();_background?.Dispose();_panelLease?.Dispose();}
+        public void Hide(){if(!_visible)return;CloseDetail();foreach(var p in _portraits){p.Image.sprite=null;}_characterArtwork.Dispose();_visible=false;NativeMenuRetainedState.Visible(_root,false);}
+        private void OnDestroy(){foreach(var p in _portraits){p.Image.image=null;p.Image.sprite=null;}_characterArtwork.Dispose();_enemyArtwork.Dispose();if(_document!=null)Clear();_background?.Dispose();_panelLease?.Dispose();}
     }
 }

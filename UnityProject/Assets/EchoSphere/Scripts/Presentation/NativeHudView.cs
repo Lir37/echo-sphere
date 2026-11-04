@@ -41,6 +41,8 @@ namespace EchoSphere.Presentation
         private readonly VisualElement _parent,_root,_left,_right,_rightClip,_region,_formationRow,_tooltip,_tooltipLines,_tooltipHeading;
         private readonly Label _runCurrency,_level,_hp,_resonanceTitle,_resonance,_spheres,_wave,_linksTitle,_links,_noFormation,_timer,_regionTitle,_phase,_pocket,_boss,_plus,_tooltipTitle,_tooltipEffect;
         private readonly VisualElement _xpFill,_hpFill,_resonanceFill;
+        private readonly VisualElement _merchantIndicator;
+        private readonly Label _merchantCountdown;
         private readonly Button[] _formationButtons=new Button[2];
         private readonly Label[] _formationNames=new Label[2];
         private readonly string[] _formationIds=new string[2];
@@ -145,9 +147,13 @@ namespace EchoSphere.Presentation
             _tooltipTitle=Text(tipHeading,"hud-tooltip-title",8,"#ffcf7a","900",spacing:1.12f);_tooltipEffect=Text(tipHeading,"hud-tooltip-effect",7,"#ffcf7a","900",spacing:.56f);_tooltipEffect.style.opacity=.72f;_tooltipLines=Box(_tooltip,"hud-tooltip-lines");
             _tooltip.RegisterCallback<PointerDownEvent>(evt=>HideTooltip());_tooltip.RegisterCallback<KeyDownEvent>(evt=>{if(evt.keyCode==KeyCode.Return||evt.keyCode==KeyCode.KeypadEnter||evt.keyCode==KeyCode.Space)HideTooltip();});HideTooltip();
             var radarRow=Box(_rightClip,"hud-radar-row",true);radarRow.style.justifyContent=Justify.FlexEnd;radarRow.style.alignItems=Align.FlexStart;
-            _runCurrency=Text(radarRow,"hud-run-currency",8,"#8edce9","600");_runCurrency.pickingMode=PickingMode.Ignore;
+            var economyColumn=Box(radarRow,"hud-economy");economyColumn.style.flexGrow=1;economyColumn.style.flexShrink=1;economyColumn.style.minWidth=0;
+            _runCurrency=Text(economyColumn,"hud-run-currency",8,"#8edce9","600");_runCurrency.pickingMode=PickingMode.Ignore;
             _runCurrency.style.flexGrow=1;_runCurrency.style.flexShrink=1;_runCurrency.style.minWidth=0;_runCurrency.style.marginRight=6;
             _runCurrency.style.whiteSpace=WhiteSpace.Normal;_runCurrency.style.unityTextAlign=TextAnchor.UpperLeft;_runCurrency.style.display=DisplayStyle.None;
+            _merchantIndicator=Box(economyColumn,"hud-merchant",true);_merchantIndicator.style.alignItems=Align.Center;_merchantIndicator.style.marginTop=5;_merchantIndicator.style.display=DisplayStyle.None;
+            var merchantIcon=Box(_merchantIndicator,"hud-merchant-icon");merchantIcon.style.width=merchantIcon.style.height=11;merchantIcon.style.marginRight=3;merchantIcon.style.backgroundImage=new StyleBackground(Resources.Load<VectorImage>("EchoSphere/NativeMenuIcons/Store"));merchantIcon.style.unityBackgroundImageTintColor=C("#8edce9");
+            _merchantCountdown=Text(_merchantIndicator,"hud-merchant-time",8,"#8edce9","500");
             Radar=new NativeHudRadarView(radarRow);
             var timerRow=Box(_rightClip,"hud-timer-row",true);timerRow.style.marginTop=2;timerRow.style.justifyContent=Justify.FlexEnd;
             var timer=Box(timerRow,"hud-timer",true);timer.style.alignItems=Align.Center;
@@ -183,6 +189,7 @@ namespace EchoSphere.Presentation
         public void SetSafeArea(float left,float right,float top){if(left==_safeLeft&&right==_safeRight&&top==_safeTop)return;_safeLeft=left;_safeRight=right;_safeTop=top;Layout(_parent.contentRect.width);}
         private static void Set(Label label,string text){if(label.text!=text)label.text=text??"";}
         // The wallet can change without rebuilding the complete HUD/radar state.
+        public void SetMerchantStatus(string countdown,bool nearby){_merchantIndicator.style.display=string.IsNullOrEmpty(countdown)?DisplayStyle.None:DisplayStyle.Flex;_merchantCountdown.text=countdown??"";_merchantCountdown.style.color=C(nearby?"#55e6c1":"#8edce9");}
         public void SetRunCurrency(int? amount,bool russian)
         {
             if(_lastRunCurrency==amount&&_lastRunCurrencyRussian==russian)return;

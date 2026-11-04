@@ -11,10 +11,10 @@ namespace EchoSphere.Presentation
     {
         public readonly struct Row
         {
-            public readonly string Label,Value;
-            public Row(string label,string value){Label=label;Value=value;}
+            public readonly string Label,Value,ColorHex;
+            public Row(string label,string value,string colorHex="#dcecff"){Label=label;Value=value;ColorHex=colorHex;}
         }
-        public sealed class State { public string Title,Record,Return;public bool Clear,NewRecord;public IReadOnlyList<Row> Rows; }
+        public sealed class State { public bool Russian;public string Title,Record,Return;public bool Clear,NewRecord;public IReadOnlyList<Row> Rows; }
         public VisualElement Root {get;}
         public bool Ready {get;private set;}
         private readonly VisualElement _panel,_returnHost;
@@ -31,14 +31,17 @@ namespace EchoSphere.Presentation
         public NativeRunResultView(VisualElement parent,State state,INativeUiBackdrops document,Action exit)
         {
             Root=NativePauseStatsView.Box(parent,"native-run-result");Root.style.position=Position.Absolute;Root.style.left=Root.style.right=Root.style.top=Root.style.bottom=0;Root.style.alignItems=Align.Center;Root.style.justifyContent=Justify.Center;Root.style.opacity=0;
-            _panel=NativePauseStatsView.Box(Root,"native-result-content");_panel.style.width=Length.Percent(100);_panel.style.maxWidth=384;_panel.style.flexShrink=1;_panel.style.paddingLeft=_panel.style.paddingRight=24;
-            float titleSize=state.Clear?28:36;
+            var scroll=new ScrollView(ScrollViewMode.Vertical){name="result-scroll"};NativePauseScreenView.ConfigureMobileScroll(scroll);scroll.style.width=Length.Percent(100);scroll.style.maxWidth=520;scroll.style.maxHeight=Length.Percent(100);scroll.style.flexShrink=1;scroll.style.minHeight=0;Root.style.paddingTop=Root.style.paddingBottom=16;Root.Add(scroll);
+            _panel=NativePauseStatsView.Box(scroll.contentContainer,"native-result-content");_panel.style.width=Length.Percent(100);_panel.style.maxWidth=520;_panel.style.flexShrink=1;_panel.style.paddingLeft=_panel.style.paddingRight=16;
+            float titleSize=26;
             var title=Text(_panel,"result-title",state.Title,titleSize,state.Clear?"#55e6c1":"#ff4d5d","700",true,state.Clear?32d/28:40d/36);title.style.unityTextAlign=TextAnchor.MiddleCenter;title.style.marginBottom=8;
-            if(state.NewRecord){_record=Text(_panel,"result-record",state.Record,24,"#ffb84d","700",true,32d/24);_record.style.unityTextAlign=TextAnchor.MiddleCenter;_record.style.marginBottom=16;}
-            var card=NativePauseStatsView.Box(_panel,"result-summary");card.style.paddingLeft=card.style.paddingRight=card.style.paddingTop=card.style.paddingBottom=24;card.style.marginBottom=24;ReserveBorder(card);
+            if(state.NewRecord){_record=Text(_panel,"result-record",state.Record,16,"#ffb84d","700",true,32d/24);_record.style.unityTextAlign=TextAnchor.MiddleCenter;_record.style.marginBottom=16;}
+            var card=NativePauseStatsView.Box(_panel,"result-summary");card.style.paddingLeft=card.style.paddingRight=card.style.paddingTop=card.style.paddingBottom=16;card.style.marginBottom=16;ReserveBorder(card);
             Paint(card,new NativeMenuBrush.Paint {Radius=12,Border=1,Fill=C("#0d1726"),BorderColor=C("#243b55")});
             for(int i=0;i<state.Rows.Count;i++){var row=NativePauseStatsView.Box(card,"result-row-"+i,true);row.style.justifyContent=Justify.SpaceBetween;if(i>0)row.style.marginTop=8;
-                var label=Text(row,"result-label",state.Rows[i].Label,16,"#7f9bb8",wrap:true);label.style.flexGrow=1;label.style.flexShrink=1;label.style.minWidth=0;var value=Text(row,"result-value",state.Rows[i].Value,16,"#dcecff","500");value.style.flexShrink=0;value.style.marginLeft=12;}
+                var label=Text(row,"result-label",state.Rows[i].Label,12,"#7f9bb8",wrap:true);label.style.flexGrow=1;label.style.flexShrink=1;label.style.minWidth=0;var value=Text(row,"result-value",state.Rows[i].Value,17,state.Rows[i].ColorHex??"#dcecff","700");value.style.flexShrink=0;value.style.marginLeft=12;}
+            var doubleReward=new Button{name="result-double-rewards",text=state.Russian?"▶ Удвоить награды":"▶ Double rewards"};doubleReward.style.minHeight=44;doubleReward.style.whiteSpace=WhiteSpace.Normal;doubleReward.style.fontSize=14;doubleReward.style.color=C("#ffd27c");doubleReward.style.backgroundColor=C("#241d13");doubleReward.SetEnabled(false);_panel.Add(doubleReward);
+            var adHint=Text(_panel,"result-ad-hint",state.Russian?"Скоро · за просмотр рекламы":"Coming soon · watch an ad",10,"#8499ad",wrap:true);adHint.style.unityTextAlign=TextAnchor.MiddleCenter;adHint.style.marginTop=5;adHint.style.marginBottom=14;
             _returnHost=NativePauseStatsView.Box(_panel,"result-return-host");_returnHost.style.borderTopLeftRadius=_returnHost.style.borderTopRightRadius=_returnHost.style.borderBottomLeftRadius=_returnHost.style.borderBottomRightRadius=12;
             var button=new Button(exit){name="result-return"};button.style.marginLeft=button.style.marginRight=button.style.marginTop=button.style.marginBottom=0;button.style.paddingLeft=button.style.paddingRight=32;button.style.paddingTop=button.style.paddingBottom=12;button.style.backgroundColor=Color.clear;ReserveBorder(button);
             button.style.borderTopLeftRadius=button.style.borderTopRightRadius=button.style.borderBottomLeftRadius=button.style.borderBottomRightRadius=12;_returnHost.Add(button);

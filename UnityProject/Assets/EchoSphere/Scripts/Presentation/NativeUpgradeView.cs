@@ -45,7 +45,7 @@ namespace EchoSphere.Presentation
             foreach(var choice in state.Choices)BuildChoice(choice);
             if(state.ShowReroll){var row=Box(_content,"upgrade-reroll-row",true);row.style.marginTop=16;row.style.justifyContent=Justify.Center;
                 var button=Button(row,"upgrade-reroll",()=>Consume(_reroll));button.SetEnabled(state.CanReroll);button.style.opacity=state.CanReroll?1:.3f;button.style.paddingLeft=button.style.paddingRight=16;button.style.paddingTop=button.style.paddingBottom=8;Border(button,8);
-                Paint(button,new NativeMenuBrush.Paint {Radius=8,Border=1,Fill=C("#39d8ff1a"),BorderColor=C("#39d8ff66")});var label=Text(button,"upgrade-reroll-label",state.Reroll.ToUpperInvariant(),10,"#9fefff","700");label.style.letterSpacing=5;
+                Paint(button,new NativeMenuBrush.Paint {Radius=8,Border=1,Fill=C("#39d8ff1a"),BorderColor=C("#39d8ff66")});var label=Text(button,"upgrade-reroll-label",state.Reroll.ToUpperInvariant(),10,"#9fefff","700");label.style.letterSpacing=.4f;label.style.whiteSpace=WhiteSpace.Normal;label.style.height=StyleKeyword.Auto;label.style.flexShrink=1;label.style.unityTextAlign=TextAnchor.MiddleCenter;
             }
             foreach(var button in _buttons)_backdrops.Add(_document.RegisterNativeBackdrop(button,8));
             _geometryFrame=Time.frameCount;if(!shown)Root.style.opacity=0;

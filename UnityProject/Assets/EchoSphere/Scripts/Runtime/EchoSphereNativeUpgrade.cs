@@ -79,7 +79,7 @@ namespace EchoSphere.Runtime
                 var choice=new NativeUpgradeView.Choice {Index=value.Index,Key=key,Category=category,Name=!string.IsNullOrEmpty(value.Text.Name(ru))?value.Text.Name(ru):"Sphere",Description=value.Text.Description(ru)??"",Level=level,Locked=locked==key,CanLock=locks>0&&locked.Length==0&&ordinary,Forecast=forecast,ElementCard=elementCard,Element=elementCard?meta.Icon+" "+meta.Name(ru):"",ElementColor=elementCard?meta.Color:"",HintNames=string.Join("\n",hintNames),HintDescription=string.Join(" · ",hintDescriptions)};
                 choices.Add(choice);signature.Append('|').Append(key).Append('|').Append(choice.Name).Append('|').Append(choice.Description).Append('|').Append(choice.HintDescription).Append('|').Append(forecast);
             }
-            return new NativeUpgradeView.State {Russian=ru,Title=title,Reroll=L("Перебросить","Reroll")+" · "+rerolls,ShowReroll=choices.Count==3&&routine,CanReroll=rerolls>0,Signature=signature.ToString(),Choices=choices};
+            return new NativeUpgradeView.State {Russian=ru,Title=title,Reroll=rerolls>0?L("Перебросить · бесплатно","Reroll · free"):L("▶ Переброс за рекламу · скоро","▶ Ad reroll · coming soon"),ShowReroll=choices.Count==3&&routine,CanReroll=rerolls>0,Signature=signature.ToString(),Choices=choices};
         }
 #if (UNITY_EDITOR && ECHO_SPHERE_REFERENCE_VISUALS)
         private NativeUpgradeView.State LegacyReadNativeUpgradeState(bool ru)
@@ -105,7 +105,7 @@ namespace EchoSphere.Runtime
                 var choice=new NativeUpgradeView.Choice {Index=(int)value["nativeIndex"].Number,Key=key,Category=category,Name=value["name"][lang].Truth?value["name"][lang].Text:"Sphere",Description=value["desc"][lang].Truth?value["desc"][lang].Text:"",Level=level,Locked=locked==key,CanLock=locks>0&&locked.Length==0&&ordinary,Forecast=forecast,ElementCard=elementCard,Element=elementCard?meta.Icon+" "+meta.Name(ru):"",ElementColor=elementCard?meta.Color:"",HintNames=string.Join("\n",hintNames),HintDescription=string.Join(" · ",hintDescriptions)};
                 choices.Add(choice);signature.Append('|').Append(key).Append('|').Append(choice.Name).Append('|').Append(choice.Description).Append('|').Append(choice.HintDescription).Append('|').Append(forecast);
             }
-            return new NativeUpgradeView.State {Russian=ru,Title=title,Reroll=L("Перебросить","Reroll")+" · "+rerolls,ShowReroll=choices.Count==3&&routine,CanReroll=rerolls>0,Signature=signature.ToString(),Choices=choices};
+            return new NativeUpgradeView.State {Russian=ru,Title=title,Reroll=rerolls>0?L("Перебросить · бесплатно","Reroll · free"):L("▶ Переброс за рекламу · скоро","▶ Ad reroll · coming soon"),ShowReroll=choices.Count==3&&routine,CanReroll=rerolls>0,Signature=signature.ToString(),Choices=choices};
         }
 #endif
     }

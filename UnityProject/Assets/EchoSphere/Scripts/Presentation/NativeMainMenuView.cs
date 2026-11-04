@@ -83,6 +83,14 @@ namespace EchoSphere.Presentation
             _name.RegisterValueChangedCallback(NameChanged);
             Bind("open-map",Destination.Map);Bind("open-character",Destination.Characters);
             _continue=Bind("continue-run",Destination.Continue);
+            // Home has one central action; resume lives with the bottom navigation.
+            foreach(var className in new[]{"loadout","name-row"})_root.Q(className:className).style.display=DisplayStyle.None;
+            foreach(var nodeName in new[]{"core-caption","core-title","select-run","core-copy"})_root.Q(nodeName).style.display=DisplayStyle.None;
+            _root.Q("nav-2").style.display=DisplayStyle.None;
+            _continue.style.paddingLeft=_continue.style.paddingRight=8;_continue.style.paddingTop=_continue.style.paddingBottom=8;
+            _continue.style.marginTop=0;_continue.style.flexDirection=FlexDirection.Column;_continue.style.minWidth=0;
+            _continue.Q("continue-title").style.fontSize=10;_continue.Q("continue-time").style.fontSize=8;
+            foreach(var text in new[]{_continue.Q("continue-title"),_continue.Q("continue-time")}){text.style.whiteSpace=WhiteSpace.Normal;text.style.flexShrink=1;text.style.minWidth=0;text.style.unityTextAlign=TextAnchor.MiddleCenter;}
             var destinations=new[]{Destination.Characters,Destination.Shop,Destination.Leaderboard,Destination.Achievements,Destination.Knowledge,Destination.Settings};
             for(int i=0;i<destinations.Length;i++)_navigation[i]=Bind("nav-"+i,destinations[i]);
             Navigation.style.flexDirection=FlexDirection.Column;Navigation.style.flexWrap=Wrap.NoWrap;
@@ -130,6 +138,7 @@ namespace EchoSphere.Presentation
                     Text("continue-time",(ru?"Сохранено на ":"Saved at ")+seconds/60+":"+(seconds%60).ToString("00"));
                 }
                 _shown=state;_hasState=true;
+                LayoutNavigation(_parent.contentRect.width);
             }
             _root.style.display=DisplayStyle.Flex;
         }
@@ -165,10 +174,12 @@ namespace EchoSphere.Presentation
         }
         private void LayoutNavigation(float width)
         {
+            var buttons=new System.Collections.Generic.List<Button>();for(int i=0;i<_navigation.Length;i++)if(i!=2)buttons.Add(_navigation[i]);
+            if(_hasState&&_shown.SavedRunTime.HasValue)buttons.Add(_continue);
             var columns=width<=650?3:6;
             _navigationRows[1].style.display=columns==3?DisplayStyle.Flex:DisplayStyle.None;
-            for(int i=0;i<_navigation.Length;i++){
-                var button=_navigation[i];var row=_navigationRows[i/columns];if(button.parent!=row)row.Add(button);
+            for(int i=0;i<buttons.Count;i++){
+                var button=buttons[i];var row=_navigationRows[i/columns];if(button.parent!=row)row.Add(button);
                 button.style.width=StyleKeyword.Auto;button.style.flexBasis=0;button.style.flexGrow=1;button.style.flexShrink=1;
                 button.style.marginRight=i%columns==columns-1?0:5;button.style.marginTop=0;
             }

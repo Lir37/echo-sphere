@@ -74,6 +74,7 @@ namespace EchoSphere.Presentation
         }
         public void SetCharacter(string id)
         {
+            if(_view.Root.Q(className:"loadout").resolvedStyle.display==DisplayStyle.None)return;
             if(_portraitId==id)return;_portraitId=id;
             _characterPortrait.sprite=null;var art=_portraitLease.Select(id);_characterPortrait.sprite=art?.Sprite;
             _hasPortrait=_characterPortrait.sprite!=null;
@@ -110,12 +111,12 @@ namespace EchoSphere.Presentation
             if(Time.frameCount-_geometryFrame<=1)return false;
             if(_disposed)throw new ObjectDisposedException(nameof(NativeMainMenuComposition));
             var size=_view.Root.layout;var avatar=_view.Avatar.layout;
-            if(size.width<=0||size.height<=0||avatar.width<=0||avatar.height<=0||!float.IsFinite(size.width+size.height+avatar.width+avatar.height))return false;
+            if(size.width<=0||size.height<=0||!float.IsFinite(size.width+size.height))return false;
             using var sample=PrepareMarker.Auto();
             int backgroundCount=_background.PaintCount,artCount=_artwork.PaintCount;
             _background.SetViewport(size.width,size.height,scale);if(!_artwork.Prepare(scale))return false;
             if(backgroundCount!=_background.PaintCount||artCount!=_artwork.PaintCount||_scale!=scale){Invalidate();}
-            if(!_hasPortrait&&(_avatar==null||_avatarWidth!=avatar.width||_avatarHeight!=avatar.height||_scale!=scale||_characterColor!=characterColor)){
+            if(avatar.width>0&&avatar.height>0&&!_hasPortrait&&(_avatar==null||_avatarWidth!=avatar.width||_avatarHeight!=avatar.height||_scale!=scale||_characterColor!=characterColor)){
                 _avatar??=new NativeMenuBrush();
                 _avatar.Render(avatar.width,avatar.height,scale,NativeMenuArtwork.AvatarPaint(characterColor));
                 _avatarImage.image=_avatar.Texture;var r=_avatar.Bounds;_avatarImage.style.left=r.x;_avatarImage.style.top=r.y;_avatarImage.style.width=r.width;_avatarImage.style.height=r.height;

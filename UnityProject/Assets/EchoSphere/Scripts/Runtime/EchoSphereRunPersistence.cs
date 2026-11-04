@@ -89,7 +89,7 @@ namespace EchoSphere.Runtime
             "_nativePauseSynergiesBoundVersion", "_nativePauseSynergiesIsland", "_nativePauseSynergiesPilot",
             "_nativeSettingsScreen", "_nativeSettingsWasActive", "_sourceUiWasPaused",
             "_shopSaveLoaded", "_characterProfiles", "_characterProfilesLoaded", "_leaderboardEntries", "_unlockedAchievementIds",
-            "_knownArtifactProtocolIds", "_artifactProtocolKnowledgeLoaded", "_knownKnowledgeIds", "_knowledgeLoaded", "_sourceKnowledge",
+            "_knownArtifactProtocolIds", "_artifactProtocolKnowledgeLoaded", "_knownKnowledgeIds", "_bestiaryAppearances", "_knowledgeLoaded", "_sourceKnowledge",
             "_mainMenuPage", "_mainMenu", "_regionSelect", "_settingsResetPending", "_characterScrollPosition", "_expandedCharacterId",
             "_uiScale", "_uiWidth", "_uiHeight", "_artifactProtocolScrollPosition", "_knowledgeScrollPosition", "_knowledgeQuery", "_knowledgeSection",
             "_spherePointerActive", "_spherePointerFromTouch", "_spherePointerMoved", "_spherePointerIsMovement", "_spherePointerIsPlacing",

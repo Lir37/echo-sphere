@@ -7,15 +7,16 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        [Serializable] private sealed class KnowledgeSave { public List<string> ids = new List<string>(); }
+        [Serializable] private sealed class KnowledgeSave { public List<string> ids = new List<string>(); public List<BestiaryAppearance> appearances=new List<BestiaryAppearance>(); }
         private EchoSphere.Presentation.NativeArchiveCatalog _sourceKnowledge;
         private readonly HashSet<string> _knownKnowledgeIds = new HashSet<string>();
+        private readonly Dictionary<string,BestiaryAppearance> _bestiaryAppearances=new Dictionary<string,BestiaryAppearance>(StringComparer.Ordinal);
         private bool _knowledgeLoaded;
         private string _knowledgeSection = "basics", _knowledgeQuery = "";
         private float _knowledgeTick;
-        private static readonly string[] KnowledgeSections = { "basics", "spheres", "monsters", "bosses", "abilities", "artifacts", "evolutions", "regions", "runes" };
-        private static readonly string[] KnowledgeLabelsRu = { "Ядро игры", "Сферы", "Монстры", "Боссы", "Способности", "Артефакты", "Эволюции", "Регионы", "Руны" };
-        private static readonly string[] KnowledgeLabelsEn = { "Core", "Spheres", "Monsters", "Bosses", "Abilities", "Artifacts", "Evolutions", "Regions", "Runes" };
+        private static readonly string[] KnowledgeSections = { "basics", "spheres", "monsters", "bosses", "abilities", "artifacts", "evolutions", "regions", "runes", "characters" };
+        private static readonly string[] KnowledgeLabelsRu = { "Ядро игры", "Сферы", "Монстры", "Боссы", "Способности", "Артефакты", "Эволюции", "Регионы", "Руны", "Персонажи" };
+        private static readonly string[] KnowledgeLabelsEn = { "Core", "Spheres", "Monsters", "Bosses", "Abilities", "Artifacts", "Evolutions", "Regions", "Runes", "Characters" };
         private void EnsureKnowledgeLoaded()
         {
             if (_knowledgeLoaded) return;
@@ -25,14 +26,25 @@ namespace EchoSphere.Runtime
             {
                 var save = JsonUtility.FromJson<KnowledgeSave>(PlayerPrefs.GetString("echosphere_knowledge_v1", "{}"));
                 if (save?.ids != null) foreach (var id in save.ids) _knownKnowledgeIds.Add(id);
+                if(save?.appearances!=null)foreach(var appearance in save.appearances)if(appearance!=null&&!string.IsNullOrEmpty(appearance.Id)&&BestiaryCatalog.Find(appearance.Id)!=null)_bestiaryAppearances[appearance.Id]=appearance;
             }
             catch (Exception) { }
             _knowledgeLoaded = true;
         }
-        private void RecordEnemyEncounter(EnemyAgent2D enemy)
+        private void RecordEnemyDefeat(EnemyAgent2D enemy)
         {
             if(enemy==null)return;EnsureKnowledgeLoaded();
-            RecordNaturalKnowledge(enemy.IsBoss?"boss:"+enemy.BossType:"monster:"+enemy.SourceMonsterType);
+            int region=enemy.CampaignRegionStyle>=0?enemy.CampaignRegionStyle:(int)ActiveCampaignRegion;
+            string type=enemy.IsBoss?enemy.BossType:enemy.IsElite?enemy.EliteVariant:region==0?enemy.SourceVisualVariant:enemy.Role;
+            string key=BestiaryCatalog.Key(region,enemy.IsBoss,enemy.IsElite,type);
+            if(BestiaryCatalog.Find(key)==null)return;
+            if(!_bestiaryAppearances.ContainsKey(key))_bestiaryAppearances[key]=new BestiaryAppearance{Id=key,Region=region,Role=enemy.Role,Variant=enemy.IsBoss?enemy.BossType:enemy.SourceVisualVariant,Boss=enemy.IsBoss,Elite=enemy.IsElite,Radius=enemy.SourceRadius,ColorHex=enemy.SourceColorHtml};
+            RecordNaturalKnowledge(key);
+        }
+        private void RecordCompletedCharacterArchive()
+        {
+            if(_tutorialStep>=0||_runTime<=0)return;EnsureKnowledgeLoaded();
+            RecordNaturalKnowledge("character:"+CharacterRules.ToSourceId(_sphereCharacterId));
         }
         private string SourceAbilityId(RunUpgradeKind kind)
         {
@@ -64,7 +76,7 @@ namespace EchoSphere.Runtime
         {
             foreach (var sphere in _spheres) if (sphere != null) RecordNaturalKnowledge("sphere:" + sphere.Type.ToString().ToLowerInvariant());
             foreach (var pair in _sphereLevels) if (pair.Value > 0) RecordNaturalKnowledge("sphere:" + pair.Key.ToString().ToLowerInvariant());
-            foreach (var enemy in _enemies) if (enemy != null) RecordNaturalKnowledge(enemy.IsBoss ? "boss:" + enemy.BossType : "monster:" + enemy.SourceMonsterType);
+
             foreach (var pair in _abilityLevels) if (pair.Value > 0) RecordNaturalKnowledge("ability:" + SourceAbilityId(pair.Key));
             foreach (var artifact in _ownedArtifacts) RecordNaturalKnowledge("artifact:" + artifact);
             foreach (var pair in _sphereBranches) RecordNaturalKnowledge("sphere-branch:" + pair.Value);

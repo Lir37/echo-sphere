@@ -44,7 +44,7 @@ namespace EchoSphere.Runtime
             if(_nativeArchiveCatalog==null)throw new InvalidOperationException("Native archive catalog missing");
             bool ru=IsRussianUi;string query=_knowledgeQuery.Trim().ToLowerInvariant();var cards=new List<NativeArchiveScreen.Card>();int basic=0;
             foreach(var entry in _nativeArchiveCatalog.Entries){
-                if(entry.section!=_knowledgeSection)continue;
+                if(entry.section!=_knowledgeSection||_knowledgeSection=="monsters"||_knowledgeSection=="bosses"||_knowledgeSection=="characters")continue;
                 string name=entry.Name(ru);
                 if(entry.id.StartsWith("ability:",StringComparison.Ordinal)){var ability=NativeRunCatalog.Instance.GetAbility(entry.id.Substring(8));if(ability!=null)name=ability.Name(ru);}
                 // The original evolution section does not filter by query. Keep
@@ -59,7 +59,14 @@ namespace EchoSphere.Runtime
                 string id="artifact:"+item.Id;
                 cards.Add(new NativeArchiveScreen.Card{Id=id,Group="",Title=name,Description=NativePlayerCopy.Text(ru?item.DescriptionRussian:item.DescriptionEnglish,ru),Details="",Open=_knownKnowledgeIds.Contains(id),BasicIndex=-1});
             }
-            if(_knowledgeSection=="bosses")foreach(string type in CampaignBossRules.AdditionalTypes){string name=CampaignBossRules.Name(type,ru),description=CampaignBossRules.Description(type,ru);if(query.Length>0&&!name.ToLowerInvariant().Contains(query)&&!description.ToLowerInvariant().Contains(query))continue;cards.Add(new NativeArchiveScreen.Card{Id="boss:"+type,Group="",Title=name,Description=description,Details=ru?"Уклоняйтесь от подготовленных атак и не позволяйте выводку окружить ядро.":"Dodge prepared attacks and keep the brood from surrounding the core.",Open=_knownKnowledgeIds.Contains("boss:"+type),BasicIndex=-1});}
+            if(_knowledgeSection=="monsters"||_knowledgeSection=="bosses")foreach(var entry in BestiaryCatalog.All){
+                if(_knowledgeSection=="bosses"&&!entry.Boss)continue;
+                string name=entry.Name(ru);if(query.Length>0&&!name.ToLowerInvariant().Contains(query)&&!CampaignRegions.SourceId(entry.Region).Contains(query))continue;
+                _bestiaryAppearances.TryGetValue(entry.Id,out var appearance);appearance??=entry.DefaultAppearance();
+                string behavior=entry.Boss?BestiaryCatalog.BossBehavior(entry.Variant,ru):BestiaryCatalog.Behavior((int)entry.Region,appearance.Role,ru)+(entry.Elite?" "+BestiaryCatalog.EliteBehavior(entry.Type,ru):"");
+                cards.Add(new NativeArchiveScreen.Card{Id=entry.Id,Group="bestiary-region:"+(int)entry.Region,Title=name,Description=behavior,Details=entry.Lore(ru),Open=_knownKnowledgeIds.Contains(entry.Id),Enemy=appearance,RegionLore=ArchiveLore.Region((int)entry.Region).Ru,RegionLoreEnglish=ArchiveLore.Region((int)entry.Region).En});
+            }
+            if(_knowledgeSection=="characters")foreach(var character in CharacterRules.All){string id=CharacterRules.ToSourceId(character.Id),name=ru?character.NameRu:character.NameEn;if(query.Length>0&&!name.ToLowerInvariant().Contains(query))continue;cards.Add(new NativeArchiveScreen.Card{Id="character:"+id,Title=name,Description=ru?character.DescriptionRu:character.DescriptionEn,Details=ArchiveLore.Character(id).Ru,DetailsEnglish=ArchiveLore.Character(id).En,Open=_knownKnowledgeIds.Contains("character:"+id),CharacterId=id});}
             if(_knowledgeSection=="regions")foreach(var lore in CampaignRegionLore.All)
             {
                 string title=NativeRunCatalog.Instance.GetRegion(RegionSourceId(lore.Region)).Name(ru)+" · "+(lore.Index+1)+"/5";

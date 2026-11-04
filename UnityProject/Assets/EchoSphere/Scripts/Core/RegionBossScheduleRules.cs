@@ -174,6 +174,17 @@ namespace EchoSphere.Core
 
     public static class RegionPocketRules
     {
+        public static System.Collections.Generic.IReadOnlyList<string> AvailableCampaignRoles(EchoRegionId region)
+        {
+            var roles=new System.Collections.Generic.SortedSet<string>(System.StringComparer.Ordinal);
+            void At(float x,float y){foreach(float time in new[]{0f,900f,1500f})for(int slot=0;slot<4;slot++)roles.Add(SelectCampaignRole(region,x,y,(slot+.5f)/4,time));}
+            if((int)region>=2){foreach(var p in CampaignRegions.Get(region).Pockets)At(p.X*SourcePixelsToWorld,p.Y*SourcePixelsToWorld);}
+            else foreach(var p in region==EchoRegionId.SpectralRift?Rift:Basin)At(p.X,p.Y);
+            for(int slot=0;slot<4;slot++)roles.Add(CampaignRegionContent.SelectSupport(region,(slot+.5f)/4,0));
+            roles.Add("grunt"); // Generic boss summons.
+            if(region==EchoRegionId.SpectralRift||region==EchoRegionId.FracturedBastion){roles.Add("swarmer");roles.Add("ranged");}
+            return new System.Collections.Generic.List<string>(roles);
+        }
         private const float SourcePixelsToWorld = 12.6f / 720f;
 
         private readonly struct Pocket

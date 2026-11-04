@@ -48,7 +48,7 @@ namespace EchoSphere.Runtime
    }
    _pendingKnowledgeRewards.Clear();
    // One existing knowledge save, including batched currency receipts. No Save per ID.
-   PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new List<string>(_knownKnowledgeIds)}));WriteMetaWallet(wallet);
+   PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new List<string>(_knownKnowledgeIds),appearances=new List<BestiaryAppearance>(_bestiaryAppearances.Values)}));WriteMetaWallet(wallet);
   }
   private void ResearchNativeCharacterMastery(string id,int expectedLevel)
   {

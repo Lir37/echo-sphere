@@ -22,15 +22,17 @@ namespace EchoSphere.Runtime
         private NativeRunResultView.State ReadNativeRunResultState()
         {
             string lang=IsRussianUi?"ru":"en";string T(string key)=>NativeText(key,lang=="ru");
+            int seconds=Mathf.Max(0,Mathf.FloorToInt(_runTime));
             var rows=new List<NativeRunResultView.Row> {
-                new NativeRunResultView.Row(T("survived"),Mathf.FloorToInt(_runTime)+" "+T("seconds")),
-                new NativeRunResultView.Row(T("wave"),_wave.ToString()),new NativeRunResultView.Row(IsRussianUi?"УБИЙСТВА":"KILLS",_kills.ToString()),new NativeRunResultView.Row(IsRussianUi?"КРЕДИТЫ":"CREDITS",_runGoldEarned.ToString())};
-            rows.Add(new NativeRunResultView.Row(IsRussianUi?"ОСКОЛКИ РЕЗОНАНСА":"RESONANCE SHARDS",_runShardsEarned.ToString()));
-            rows.Add(new NativeRunResultView.Row(IsRussianUi?"ДАННЫЕ АРХИВА":"ARCHIVE DATA",_runArchiveDataEarned.ToString()));
+                new NativeRunResultView.Row(T("survived"),(seconds/60).ToString("00")+":"+(seconds%60).ToString("00")),
+                new NativeRunResultView.Row(T("wave"),_wave.ToString()),new NativeRunResultView.Row(IsRussianUi?"УБИЙСТВА":"KILLS",_kills.ToString()),new NativeRunResultView.Row(IsRussianUi?"КРЕДИТЫ":"CREDITS",_runGoldEarned.ToString(),"#ffd27c")};
+            rows.Add(new NativeRunResultView.Row(IsRussianUi?"ОСКОЛКИ РЕЗОНАНСА":"RESONANCE SHARDS",_runShardsEarned.ToString(),"#c7a2ff"));
+            rows.Add(new NativeRunResultView.Row(IsRussianUi?"ДАННЫЕ АРХИВА":"ARCHIVE DATA",_runArchiveDataEarned.ToString(),"#65dceb"));
+            rows.Add(new NativeRunResultView.Row(IsRussianUi?"ОПЫТ ПЕРСОНАЖА":"CHARACTER XP",Mathf.FloorToInt(_characterMasteryRunXp).ToString(),"#75e6b4"));
             // All six regions now own playable contracts, mastery and Endless.
             if(_regionStabilized){rows.Add(new NativeRunResultView.Row(IsRussianUi?"ИСПЫТАНИЯ":"CHALLENGES",GetCompletedRegionChallenges(_selectedRegion).Length+"/3"));rows.Add(new NativeRunResultView.Row(IsRussianUi?"БЕСКОНЕЧНЫЙ":"ENDLESS",IsRegionEndlessUnlocked(_selectedRegion)?(IsRussianUi?"ОТКРЫТ":"UNLOCKED"):(IsRussianUi?"ЗАКРЫТ":"LOCKED")));rows.Add(new NativeRunResultView.Row(IsRussianUi?"МАСТЕРСТВО":"MASTERY",_regionMasteryChallengesCompleted+"/3"));}
-            if(_sourceResultRank>0&&_sourceResultRank<=10)rows.Add(new NativeRunResultView.Row(T("rank"),"#"+_sourceResultRank));
-            return new NativeRunResultView.State {Title=_regionStabilized?(IsRussianUi?"РЕГИОН СТАБИЛИЗИРОВАН":"REGION STABILIZED"):T("gameOver"),Clear=_regionStabilized,NewRecord=_sourceResultNewRecord,Record=T("newRecord"),Return=T("return"),Rows=rows};
+
+            return new NativeRunResultView.State {Russian=IsRussianUi,Title=_regionStabilized?(IsRussianUi?"РЕГИОН СТАБИЛИЗИРОВАН":"REGION STABILIZED"):T("gameOver"),Clear=_regionStabilized,NewRecord=_sourceResultNewRecord,Record=T("newRecord"),Return=T("return"),Rows=rows};
         }
         private void ExitNativeRunResult(){ClearRunSnapshot();PlayerPrefs.SetInt("echo-sphere:open_region_select",1);PlayerPrefs.Save();SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);}
     }

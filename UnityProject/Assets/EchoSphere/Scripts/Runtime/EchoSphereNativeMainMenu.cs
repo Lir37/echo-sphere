@@ -77,7 +77,7 @@ namespace EchoSphere.Runtime
                 case NativeMainMenuView.Destination.Map:_regionSelect=true;break;
                 case NativeMainMenuView.Destination.Characters:_mainMenuPage=MainMenuPage.Characters;break;
                 case NativeMainMenuView.Destination.Shop:_mainMenuPage=MainMenuPage.Shop;break;
-                case NativeMainMenuView.Destination.Leaderboard:_mainMenuPage=MainMenuPage.Leaderboard;break;
+                case NativeMainMenuView.Destination.Leaderboard:return;
                 case NativeMainMenuView.Destination.Achievements:_mainMenuPage=MainMenuPage.Achievements;break;
                 case NativeMainMenuView.Destination.Knowledge:_mainMenuPage=MainMenuPage.Knowledge;break;
                 case NativeMainMenuView.Destination.Settings:_mainMenuPage=MainMenuPage.Settings;break;

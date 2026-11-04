@@ -54,6 +54,7 @@ namespace EchoSphere.Presentation
         }
         private readonly Material _solid,_radial;
         private NativeWorldSurface _surface;
+        private bool _portraitDrawing;
         internal int CulledBodyCount {get;private set;}
 #if UNITY_EDITOR
         internal bool DisableEarlyBodyCullingForValidation=false;
@@ -183,7 +184,7 @@ namespace EchoSphere.Presentation
         {var art=Get(3,r,0,Math.Max(.8,r*.025),()=>Oval(r*1.16,r*1.16,4.9),false);Paint(art,m*T(angle:t*.2),null,A(color,.30));}
         internal void Draw(NativeWorldSurface surface,double radius,Color color,double time,string variant,bool boss,Matrix4x4? parent=null)
         {
-            _surface=surface;var root=parent??Matrix4x4.identity;Glow(root,radius*(boss?2.55:2.15),color,boss?.085:.065);
+            _surface=surface;var root=parent??Matrix4x4.identity;if(!_portraitDrawing)Glow(root,radius*(boss?2.55:2.15),color,boss?.085:.065);
             _poseTime=time;_poseVariant=variant;_airborneLegs=!boss&&(variant=="wisp"||variant=="moth");_organicFaces=true;
             try{if(boss)Boss(root,radius,color,time,variant);else Creature(root,radius,color,time,variant);}
             finally{_gaitActive=false;_airborneLegs=false;_organicFaces=false;}

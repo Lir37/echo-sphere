@@ -17,6 +17,8 @@ namespace EchoSphere.Presentation
         private VisualElement _highlight;
         private VisualElement _root,_left,_right,_pause,_shell,_detail,_result,_upgrade,_rewards,_tutorial,_combo,_comboBar;
         private Label _comboTitle,_comboMultiplier;
+        private float _comboHudScale=1;
+        internal void SetComboHudScale(float scale)=>_comboHudScale=scale;
         private int _version; private bool _visible;
         private NativePausedBackdropCache _pauseCache;private bool _cachePause,_cacheDetail;private int _pauseCacheKey;
         internal void SetPauseSnapshotKey(int key)=>_pauseCacheKey=key;
@@ -52,8 +54,8 @@ namespace EchoSphere.Presentation
             ControlsPredecessor=vignette;
             _left=Require<VisualElement>("native-hud-left-anchor");_right=Require<VisualElement>("native-hud-right-anchor");
             _combo=Require<VisualElement>("native-combo");_comboTitle=Require<Label>("combo-title");_comboMultiplier=Require<Label>("combo-multiplier");
-            NativePauseStatsView.ConfigureText(_comboTitle,24,"#ff4d5d","700",32d/24);
-            NativePauseStatsView.ConfigureText(_comboMultiplier,14,"#b6c9de","700",20d/14);
+            NativePauseStatsView.ConfigureText(_comboTitle,15,"#ff4d5d","700",20d/15);
+            NativePauseStatsView.ConfigureText(_comboMultiplier,10,"#b6c9de","700",14d/10);
             _comboBar=Require<VisualElement>("combo-progress");
             _pause=Require<VisualElement>("native-pause-overlay");_shell=Require<VisualElement>("native-pause-shell");
             _registrations.Add(RegisterNativeBackdrop(_pause,4));
@@ -81,6 +83,7 @@ namespace EchoSphere.Presentation
             if(pause){Bind(Anchors.PauseShell,_shell);if(detail)Bind(Anchors.PauseDetail,_detail);}
             if(!active)Bind(Anchors.Result,_result);if(active&&upgrade)Bind(Anchors.Upgrade,_upgrade);if(active&&rewards)Bind(Anchors.Rewards,_rewards);if(tutorial)Bind(Anchors.Tutorial,_tutorial);
             Show(_combo,active&&combo>=5);_comboTitle.text=comboTitle;_comboTitle.style.color=C(combo>=50?"#ffb84d":combo>=25?"#ff6b6b":"#ff4d5d");_comboMultiplier.text=multiplier;_comboBar.style.width=Length.Percent((float)(comboTimer/3*100));
+            _combo.style.top=Mathf.Max(8,(Screen.height-Screen.safeArea.yMax)/dpr)+148*_comboHudScale;
         }
         private static void Bind(NativeRunUiAnchors.Slot slot,VisualElement element)=>slot.Bind(element,element,null);
         // Retain filtered render trees when an absolute overlay is hidden. Unity's
