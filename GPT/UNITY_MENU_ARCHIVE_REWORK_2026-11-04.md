@@ -50,3 +50,11 @@ Continuation: use the commit containing this follow-up. Sphere/ability archive p
 ## Lore correction — environment
 
 User clarified the game is not set in an aerial environment. Removed the invented reference to air from Glimmerwing lore in RU/EN; its wings now sense the existing field directly. Reviewed current ArchiveLore and CampaignRegionLore for explicit air, breathing, atmospheric and wind dependencies; no other occurrences found. No claim that the entire setting is literal vacuum is introduced. Existing dated screenshots preserve earlier verification evidence and may contain the old sentence. No gameplay or visuals changed. Existing core checks and CI are verified for this text correction.
+
+## Android delivery — 2026-11-04
+
+Built locally in Unity6000.6.1f1 from source commit620c53ad2d09a950b422c20231eafe4b76e6c15f (already on GitHub, contract CI SUCCESS41836831590). BuildResult Succeeded,335.6seconds. Release IL2CPP, ARM64 and ARMv7 as configured; ECHO_REGION_TEST_ACCESS remains enabled only through the test build's extra scripting define. APK: UnityProject/Builds/Android/ECHO-SPHERE-620c53ad-regions-test.apk;817250336bytes; SHA256 ef0d54032055fff2a684e454ef58cd412c0bd2c38dc0e2b0130724af150e4347.
+
+ADB install -r returned Success on Xiaomi11T. Installed base.apk SHA256 matches the local artifact exactly; package com.lir37.echosphere, version0.1.0/code1. No uninstall, data clear, save replacement or unlock-save edits. Explicit launcher activity started successfully and the new home menu was observed on the phone. This is installation/startup verification, not full mobile archive or combat acceptance. Startup logs include Unity's nonfatal missing optional AssetPackManager class message; no fatal crash observed in this bounded launch. The Editor Pipeline request timed out at30seconds while synchronous BuildPlayer continued; the completed BuildReport/receipt and actual installed APK, not that request response, establish build success.
+
+Documentation commit after this delivery does not alter APK source content. Continue from the current branch HEAD; current phone APK contains source620c53ad. Next: user acceptance of new archive/discovery pages and run UI. No performance or full-game acceptance claimed by this delivery.
