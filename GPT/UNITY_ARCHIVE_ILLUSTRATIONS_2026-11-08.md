@@ -30,3 +30,7 @@ CI and APK delivery are recorded after the source commit. Android visual accepta
 ## Continue
 
 Use the current `unity-migration` HEAD and this report. Complete/read the delivery entry, then inspect illustrated discovered entries on Android, including the32 fleet records. Keep battle models, mechanics, discovery conditions and save format unchanged.
+
+## Delivery update
+
+Source `22f8ba93cde1a2de189985c18439d91ccd63a4a2` is pushed. CI [42488286642](https://github.com/Lir37/echo-sphere/actions/runs/42488286642): SUCCESS. All188 illustrations are integrated and checked in Editor. The user postponed APK production before any new build started. The next requested work is a concept for distinct, neutral battle backgrounds and visual variants of the18 existing trials; it is not implemented yet. Android illustration acceptance remains open. This delivery update is local documentation until committed.

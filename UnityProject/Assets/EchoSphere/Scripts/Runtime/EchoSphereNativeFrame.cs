@@ -9,8 +9,6 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private static readonly Unity.Profiling.ProfilerMarker NativeWorldFrameMarker=new Unity.Profiling.ProfilerMarker("EchoSphere.World.BuildFrame");
-        private static readonly UnityEngine.Color NativeWorldBackground=new UnityEngine.Color(7/255f,16/255f,29/255f,1);
-        private static readonly UnityEngine.Color NativeWorldDarkBackground=new UnityEngine.Color(4/255f,9/255f,18/255f,1);
         private static readonly UnityEngine.Color NativeWorldBorder=new UnityEngine.Color(100/255f,180/255f,1,.24f);
         private static readonly UnityEngine.Color NativeWorldBorderShadow=new UnityEngine.Color(57/255f,216/255f,1,.22f);
         private static readonly float[] NativeWorldBorderDash={10f,8f};
@@ -40,7 +38,10 @@ namespace EchoSphere.Runtime
             PrepareNativeEntityFrame();
             var frame=ProjectNativeFrameInputs();double time=frame.Time;
             double w=backingWidth,h=backingHeight;
-            _worldSurface.ResetTransform();_nativeWorldFeedback.Background(w,h,NativeWorldBackground,NativeWorldDarkBackground);
+            _worldSurface.ResetTransform();
+            int backdropRegion=_tutorialStep>=0?0:(int)ActiveCampaignRegion;
+            string backdropTrial=_tutorialStep<0&&UsesCampaignCombat&&!_convergenceRun?_regionChallengeId:null;
+            _nativeWorldFeedback.BattleBackground(w,h,backdropRegion,new UnityEngine.Vector2((float)frame.CameraX,(float)frame.CameraY),backdropTrial,time);
             DrawNativeViewVoidAmbient(w,h,time);
             double load=frame.EnemyCount+_nativeProjectileCount*.55+_nativeParticleCount*.28+_damageNumbers.Count*.42+_sourceLightningVisuals.Count*.75;
             int fxStride=load>220?3:load>150?2:1,damageStride=_damageNumbers.Count>36?2:1,lightningStride=_sourceLightningVisuals.Count>18?2:1;

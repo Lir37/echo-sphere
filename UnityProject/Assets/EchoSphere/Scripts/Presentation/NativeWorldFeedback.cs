@@ -20,6 +20,7 @@ namespace EchoSphere.Presentation
         private readonly Stack<NativeWorldLabel> _freeEventLabels=new Stack<NativeWorldLabel>();
         private readonly List<object> _expiredLabels=new List<object>();private ulong _frame;
         private int _used,_labelUsed;private NativeWorldSurface _surface;
+        private NativeWorldDepthBackdrop _depthBackdrop;
         private Mesh _particleMesh;
         private readonly List<MaterialPropertyBlock> _particleProperties=new List<MaterialPropertyBlock>();
         private int _particleUsed;
@@ -46,6 +47,11 @@ namespace EchoSphere.Presentation
             if(w!=_width||h!=_height){_width=w;_height=h;_background.Clear();_background.vertices=new[]{new Vector3(0,0,0),new Vector3((float)w,0,0),new Vector3((float)w,(float)h,0),new Vector3(0,(float)h,0)};_background.triangles=new[]{0,1,2,0,2,3};_background.RecalculateBounds();}
             _backgroundProperties.SetVector("_FrameSize",new Vector4((float)w,(float)h,0,0));_backgroundProperties.SetColor("_Center",center);_backgroundProperties.SetColor("_Middle",middle);
             _surface.DrawNativeMesh(_background,_backgroundMaterial,_backgroundProperties,inheritBlend:true,inheritShadow:true);
+        }
+        internal void BattleBackground(double width,double height,int region,Vector2 camera,string trial,double time)
+        {
+            if(_depthBackdrop==null)_depthBackdrop=new NativeWorldDepthBackdrop();
+            _depthBackdrop.Draw(_surface,(float)width,(float)height,region,camera,trial,time);
         }
         internal void Rectangle(double x,double y,double w,double h,double width,Color color)
             =>Paint(PolylineContour(true,P(x,y),P(x+w,y),P(x+w,y+h),P(x,y+h)),width,color,Matrix4x4.identity,false);
@@ -93,6 +99,6 @@ namespace EchoSphere.Presentation
         }
         internal void Text(string text,double x,double y,Color color,float size)
         {if(_labelUsed==_labels.Count)_labels.Add(new NativeWorldLabel());_labels[_labelUsed++].Draw(_surface,text,P(x,y),color,fontSize:size,inheritBlend:true,inheritShadow:true,baseline:_surface.NativeTextBaseline);}
-        public void Dispose(){foreach(var entry in _eventLabels.Values)entry.Label.Dispose();_eventLabels.Clear();_expiredLabels.Clear();foreach(var label in _freeEventLabels)label.Dispose();_freeEventLabels.Clear();foreach(var art in _art)if(art.Mesh!=null)UnityEngine.Object.Destroy(art.Mesh);foreach(var label in _labels)label.Dispose();UnityEngine.Object.Destroy(_particleMesh);_particleProperties.Clear();UnityEngine.Object.Destroy(_solid);UnityEngine.Object.Destroy(_background);UnityEngine.Object.Destroy(_backgroundMaterial);}
+        public void Dispose(){_depthBackdrop?.Dispose();_depthBackdrop=null;foreach(var entry in _eventLabels.Values)entry.Label.Dispose();_eventLabels.Clear();_expiredLabels.Clear();foreach(var label in _freeEventLabels)label.Dispose();_freeEventLabels.Clear();foreach(var art in _art)if(art.Mesh!=null)UnityEngine.Object.Destroy(art.Mesh);foreach(var label in _labels)label.Dispose();UnityEngine.Object.Destroy(_particleMesh);_particleProperties.Clear();UnityEngine.Object.Destroy(_solid);UnityEngine.Object.Destroy(_background);UnityEngine.Object.Destroy(_backgroundMaterial);}
     }
 }
