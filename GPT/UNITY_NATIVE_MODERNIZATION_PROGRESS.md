@@ -2746,3 +2746,6 @@ Sphere/ability archive follow-up: click opens selected IV/VII progression and re
 
 ## 2026-11-04 — Archive art, long-term economy and formation regression
 [UNITY_ARCHIVE_ECONOMY_FORMATIONS_2026-11-04.md](UNITY_ARCHIVE_ECONOMY_FORMATIONS_2026-11-04.md):302 semantic archive emblems, XP-only future mastery, recalibrated character/shop prices with36864 modeled income cases, retained primary/secondary formation identity through disable/addition, regional hostile ammunition. Editor/Core checks passed; Android delivery/acceptance reported separately.
+
+## 2026-11-08 — Narrative archive illustrations
+[UNITY_ARCHIVE_ILLUSTRATIONS_2026-11-08.md](UNITY_ARCHIVE_ILLUSTRATIONS_2026-11-08.md):188 separate realistic lore illustrations (178 bestiary +10 characters), asynchronous detail-only ownership, responsive3:2 view, Android ASTC6x6. Editor asset1128 checks and RU/EN rapid-switch UI checks PASS. Delivery/CI recorded separately; Android art acceptance remains open.

@@ -1,0 +1,8 @@
+{
+  "unity": "6000.6.1f1",
+  "playing": false,
+  "errors": 1,
+  "warnings": 0,
+  "messages": 4,
+  "errorContext": "The single collapsed Console error is Pipeline compatibility fallback for editor.playmode; editor_play fallback succeeded. No archive/runtime exception was found in the Editor log. Console was not cleared."
+}

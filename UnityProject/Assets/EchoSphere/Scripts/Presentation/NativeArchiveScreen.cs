@@ -41,6 +41,7 @@ namespace EchoSphere.Presentation
         private readonly NativeCharacterArtwork.Lease _characterArtwork=new NativeCharacterArtwork.Lease();
         private readonly List<(Image Image,Card Card)> _portraits=new List<(Image,Card)>();
         private VisualElement _detail;
+        private readonly NativeArchiveDetailArtwork _detailArtwork=new NativeArchiveDetailArtwork();
         private string L(string ru,string en)=>_state.Russian?ru:en;
         private void Ensure()
         {
@@ -135,11 +136,17 @@ namespace EchoSphere.Presentation
         }
         private void AddPortrait(VisualElement parent,Card card){var image=new Image{name="archive-portrait",scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};image.style.width=image.style.height=Length.Percent(100);image.style.opacity=card.Open?1:.18f;parent.Add(image);_portraits.Add((image,card));}
         private void LoadVisibleArtwork(){_enemyArtwork.BeginFrame();foreach(var item in _portraits){if(_detail!=null&&!_detail.Contains(item.Image))continue;if(item.Image.panel==null||!item.Image.worldBound.Overlaps(_detail!=null?_detail.worldBound:_scroll.contentViewport.worldBound)||item.Image.worldBound.height<=0)continue;if(item.Card.Enemy!=null)item.Image.image=_enemyArtwork.Resolve(item.Card.Enemy);else if(item.Card.CharacterId!=null)item.Image.sprite=_characterArtwork.Retain(item.Card.CharacterId,true)?.Sprite;}}
-        private void CloseDetail(){if(_detail==null)return;for(int i=_portraits.Count-1;i>=0;i--)if(_detail.Contains(_portraits[i].Image)){_portraits[i].Image.image=null;_portraits[i].Image.sprite=null;_portraits.RemoveAt(i);}_detail.RemoveFromHierarchy();_detail=null;}
+        private void CloseDetail(){_detailArtwork.Dispose();if(_detail==null)return;for(int i=_portraits.Count-1;i>=0;i--)if(_detail.Contains(_portraits[i].Image)){_portraits[i].Image.image=null;_portraits[i].Image.sprite=null;_portraits.RemoveAt(i);}_detail.RemoveFromHierarchy();_detail=null;}
         private void OpenDetail(Card card){if(!card.Open)return;CloseDetail();_detail=new VisualElement{name="archive-entry-detail"};Fill(_detail);_detail.style.backgroundColor=C("#02070ff5");_detail.style.alignItems=Align.Center;_detail.style.justifyContent=Justify.Center;Pad(_detail,16);_root.Add(_detail);
             var panel=new ScrollView(ScrollViewMode.Vertical){name="archive-detail-scroll"};NativePauseScreenView.ConfigureMobileScroll(panel);panel.style.width=Length.Percent(100);panel.style.maxWidth=600;panel.style.maxHeight=Length.Percent(100);panel.style.flexShrink=1;panel.style.minHeight=0;panel.style.backgroundColor=C("#0a1421");_detail.Add(panel);var body=panel.contentContainer;Pad(body,16);
             var close=new Button(CloseDetail){name="archive-detail-close",text=L("← К записям","← Back to entries")};close.style.minHeight=36;close.style.backgroundColor=C("#102938");close.style.color=C("#a5edf4");close.style.borderTopColor=close.style.borderBottomColor=close.style.borderLeftColor=close.style.borderRightColor=C("#294855");close.style.whiteSpace=WhiteSpace.Normal;body.Add(close);
-            var art=Box(body,"archive-detail-art");art.style.width=art.style.height=192;art.style.alignSelf=Align.Center;if(card.Builds!=null||card.Progression!=null){art.style.alignItems=Align.Center;art.style.justifyContent=Justify.Center;art.Add(new NativeContentIcon(card.Id,C("#a5f3fc"),144));}else AddPortrait(art,card);
+            var art=Box(body,"archive-detail-art");art.style.width=art.style.height=192;art.style.alignSelf=Align.Center;if(card.Builds!=null||card.Progression!=null){art.style.alignItems=Align.Center;art.style.justifyContent=Justify.Center;art.Add(new NativeContentIcon(card.Id,C("#a5f3fc"),144));}else {
+                art.style.width=Length.Percent(100);art.style.height=240;art.style.marginTop=12;art.style.flexShrink=0;
+                art.RegisterCallback<GeometryChangedEvent>(e=>{if(e.newRect.width>0)art.style.height=e.newRect.width*2f/3f;});
+                var illustration=new Image{name="archive-detail-illustration",scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};
+                illustration.style.width=illustration.style.height=Length.Percent(100);art.Add(illustration);
+                _detailArtwork.Show(card.Id,illustration);
+            }
             Text(body,"archive-detail-title",card.Title,24,"#dff5ff","700",true).style.marginTop=8;
             Text(body,"archive-detail-behavior",card.Description,13,"#82d9e4",wrap:true).style.marginTop=10;
             if(card.Progression!=null){ProgressionDetails(body,card);return;}
@@ -197,6 +204,6 @@ namespace EchoSphere.Presentation
         private static void Pad(VisualElement e,float p){e.style.paddingLeft=e.style.paddingRight=e.style.paddingTop=e.style.paddingBottom=p;}
         private void Clear(){foreach(var glass in _glass)glass.Dispose();_glass.Clear();foreach(var p in _chrome)p.Dispose();_chrome.Clear();foreach(var p in _cardPaint)p.Dispose();_cardPaint.Clear();_buttons.Clear();_tabs.Clear();_tabLabels.Clear();_subtitles.Clear();_columns.Clear();_conceptColumns.Clear();_page.Clear();}
         public void Hide(){if(!_visible)return;CloseDetail();foreach(var p in _portraits){p.Image.sprite=null;}_characterArtwork.Dispose();_visible=false;NativeMenuRetainedState.Visible(_root,false);}
-        private void OnDestroy(){foreach(var p in _portraits){p.Image.image=null;p.Image.sprite=null;}_characterArtwork.Dispose();_enemyArtwork.Dispose();if(_document!=null)Clear();_background?.Dispose();_panelLease?.Dispose();}
+        private void OnDestroy(){_detailArtwork.Dispose();foreach(var p in _portraits){p.Image.image=null;p.Image.sprite=null;}_characterArtwork.Dispose();_enemyArtwork.Dispose();if(_document!=null)Clear();_background?.Dispose();_panelLease?.Dispose();}
     }
 }
