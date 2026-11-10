@@ -614,7 +614,8 @@ assert.ok(runtime.includes('SphereAuthoredModifierRules.GetExecuteDamageMultipli
   runtime.includes('SphereAuthoredModifierRules.GetCorruptDamageMultiplier') &&
   runtime.includes('SphereAuthoredModifierRules.GetImpactDistancePixels') &&
   runtime.includes('SphereAuthoredModifierRules.GetAnchorSlowMultiplier') &&
-  runtime.includes('damage * GetSourceSphereModifiers(source).healOnHit') &&
+  runtime.includes('HealPlayer(Mathf.Min(damage, target.CurrentHp) * GetSourceSphereModifiers(source).healOnHit)') &&
+  runtime.includes('_playerCore?.HealFromCombat(amount)') &&
   runtime.includes('SphereAuthoredModifierRules.GetShatterDamageMultiplier'),
   'Execute/Mark/Corrupt or deterministic on-hit modifier effects are missing from runtime');
 assert.ok(enemy.includes('RegisterEnemyDeath(this, transform.position, _xpReward, sourceSphere)') &&
