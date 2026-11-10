@@ -1802,6 +1802,14 @@ internal static class Program
         var disrupted = SphereNetworkRules.Analyze(disruptedNodes);
         Equal(disrupted.Nodes.Count, 2, "disabled node leaves active Network");
         Equal(disrupted.Links.Count, 1, "disabled node contributes no links");
+        var lineAngle = Math.PI / 48;
+        var lineSpacing = 300f * SpherePlacementRules.SourcePixelsToWorld;
+        var diagonal = new Vec2((float)Math.Cos(lineAngle) * lineSpacing, (float)Math.Sin(lineAngle) * lineSpacing);
+        var angledLine = SphereNetworkRules.Analyze(new[] {
+            new SphereNetworkNode(Vec2.Zero), new SphereNetworkNode(diagonal), new SphereNetworkNode(diagonal + diagonal)
+        });
+        True(angledLine.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Line),
+            "a straight line between the sampled angles is recognized");
         Near(SphereNetworkRules.GetFormationBonusMultiplier(disrupted, SphereNetworkFormation.Line), 0f, 0f, "inactive geometry grants no bonus");
     }
 

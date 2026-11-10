@@ -338,6 +338,31 @@ namespace EchoSphere.Core
                 }
                 best = Math.Max(best, 1f - Math.Min(1f, maxError / (72f * SpherePlacementRules.SourcePixelsToWorld)));
             }
+            // Long straight lines can fall between the sampled directions.
+            if (best < 0.80f)
+            {
+                var axis = Vec2.Zero;
+                var maxDistance = 0f;
+                foreach (var index in indexes)
+                {
+                    var delta = nodes[index].Position - center;
+                    var distance = delta.X * delta.X + delta.Y * delta.Y;
+                    if (distance <= maxDistance) continue;
+                    maxDistance = distance;
+                    axis = delta;
+                }
+                if (maxDistance > 0f)
+                {
+                    var maxCross = 0f;
+                    foreach (var index in indexes)
+                    {
+                        var delta = nodes[index].Position - center;
+                        maxCross = Math.Max(maxCross, Math.Abs(delta.X * axis.Y - delta.Y * axis.X));
+                    }
+                    var maxError = maxCross / (float)Math.Sqrt(maxDistance);
+                    best = Math.Max(best, 1f - Math.Min(1f, maxError / (72f * SpherePlacementRules.SourcePixelsToWorld)));
+                }
+            }
             return best;
         }
 
