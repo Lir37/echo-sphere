@@ -81,6 +81,7 @@ namespace EchoSphere.Runtime
         public bool IsMarked => _markTimer > 0f;
         public void ApplyRuneMark(float duration) => _markTimer = Mathf.Max(_markTimer, Mathf.Max(0f, duration));
         public bool IsBoss => !string.IsNullOrEmpty(_bossType);
+        internal Vector2 BossMovementThisTick { get; private set; }
         public bool IsElite => _isElite;
         public bool IsPhaseRole => _isPhaseRole;
         public bool IsTank => _archetype == EnemyArchetype.Tank;
@@ -390,6 +391,7 @@ namespace EchoSphere.Runtime
 
         public void SimulationTick(float dt)
         {
+            BossMovementThisTick = Vector2.zero;
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
             _sourceVisualRotation+=dt; if(_sourceHitFlash>0f)_sourceHitFlash-=dt; _elementalReactionTimer = Mathf.Max(0f, _elementalReactionTimer - dt);
             if (_freezeVulnerabilityTimer > 0f)
@@ -465,7 +467,9 @@ namespace EchoSphere.Runtime
             var target = (Vector2)_player.position;
             if (_bossCombat != null)
             {
+                var before = (Vector2)transform.position;
                 _bossCombat.Tick(_runtime.SimulationDeltaTime);
+                BossMovementThisTick = (Vector2)transform.position - before;
                 return;
             }
             var toPlayer = target - (Vector2)transform.position;

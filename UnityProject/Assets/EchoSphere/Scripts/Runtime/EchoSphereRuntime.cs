@@ -6547,6 +6547,8 @@ namespace EchoSphere.Runtime
         private EchoSphere.Presentation.NativeNetworkAnalysisCache _nativeNetworkAnalysis;
         private void RefreshNetworkState()
         {
+            bool hadMainBonus=_networkState?.DominantFormation?.Active??false;
+            bool hadSecondaryBonus=_networkState?.SecondaryFormation?.Active??false;
             _abilityDrones.RemoveAll(drone => drone == null || !drone.IsNetworkNodeAlive);
             var includeDrones = GetAbilityLevel(RunUpgradeKind.Minion) >= 3;
             if(_nativeNetworkAnalysis==null)_nativeNetworkAnalysis=new EchoSphere.Presentation.NativeNetworkAnalysisCache();
@@ -6575,7 +6577,10 @@ namespace EchoSphere.Runtime
                 }
 
             var previous = _preferredDominantFormation != SphereNetworkFormation.None ? _preferredDominantFormation : _previousDominantFormation;
+            _nativeNetworkAnalysis.PreserveDisplacedSelection=_bossFormationRecovery;
             _networkState = _nativeNetworkAnalysis.Analyze(_networkState,previous,_preferredDominantFormation,_preferredSecondaryFormation);
+            _bossFormationRecovery=_nativeNetworkAnalysis.PreserveDisplacedSelection;
+            if(hadMainBonus!=(_networkState.DominantFormation?.Active??false)||hadSecondaryBonus!=(_networkState.SecondaryFormation?.Active??false))_nativeHudBoundVersion=-1;
             if(_preferredDominantFormation!=SphereNetworkFormation.None&&!_networkState.FormationCandidates.Exists(shape=>shape.Type==_preferredDominantFormation))_preferredDominantFormation=SphereNetworkFormation.None;
             if(_preferredSecondaryFormation!=SphereNetworkFormation.None&&!_networkState.FormationCandidates.Exists(shape=>shape.Type==_preferredSecondaryFormation))_preferredSecondaryFormation=SphereNetworkFormation.None;
 
@@ -7116,7 +7121,7 @@ namespace EchoSphere.Runtime
             _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, CurrentDifficulty.Id, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
             _runEconomy=RunEconomyRules.Create(_rng.State);
             _runMetaReceipt=Guid.NewGuid().ToString("N");
-            _runShardsEarned=_runArchiveDataEarned=0;_pendingKnowledgeRewards.Clear();
+            _runShardsEarned=_runArchiveDataEarned=0;_pendingKnowledgeRewards.Clear();_bossFormationRecovery=false;
             ResetCampaignRegionalProgress();
             _timeSplitterBuffTimer=0f;
             _mandalaDamageStored=0f;

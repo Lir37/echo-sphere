@@ -2758,6 +2758,8 @@ Sphere/ability archive follow-up: click opens selected IV/VII progression and re
 
 
 ## 2026-11-11 — Approved sphere spacing
+
+Follow-up: [UNITY_BOSS_SPHERE_PUSH_AND_TUTORIAL_2026-11-11.md](UNITY_BOSS_SPHERE_PUSH_AND_TUTORIAL_2026-11-11.md). User-approved boss body displacement active, follow/save retained, selected damaged geometry inactive until repair. Tutorial measured placement and independent upgrade space;144 mobile layout cases PASS. Android acceptance pending; no APK/image generation.
 [UNITY_SPHERE_SPACING_AND_BOSS_PASSAGE_2026-11-11.md](UNITY_SPHERE_SPACING_AND_BOSS_PASSAGE_2026-11-11.md): interactive placement/drag center spacing56px, existing saved positions retained. Core281435 and Editor1856 checks PASS. Boss blockage confirmed in sphere collision resolution; boss-only pass-through proposed, not implemented. No APK or image generation.
 
 ## 2026-11-10 — Archive integration and gameplay follow-up

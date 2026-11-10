@@ -186,6 +186,16 @@ namespace EchoSphere.Runtime
             transform.position = (Vector2)_player.position + _followOffset;
         }
 
+        internal void ApplyBossDisplacement(Vector2 delta)
+        {
+            transform.position += (Vector3)delta;
+            if (_followEnabled && _player != null)
+            {
+                if (_followOffsetValid) _followOffset += delta;
+                else { _followOffset = (Vector2)transform.position - (Vector2)_player.position; _followOffsetValid = true; }
+            }
+        }
+
         private void LateUpdate()
         {
             if (_runtime != null && !_runtime.IsGameplayPaused) SyncFollowPosition();

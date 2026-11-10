@@ -12,7 +12,7 @@ namespace EchoSphere.Runtime
     {
         private static bool EntitySnapshotField(FieldInfo field) =>
             !(field.DeclaringType == typeof(SphereAttackAgent) && (field.Name == "_presentationAttackActive" || field.Name == "_presentationAimRotation" || field.Name == "_presentationAimValid" || field.Name == "_presentationShotSerial" || field.Name == "_presentationShotTime")) &&
-            !(field.DeclaringType == typeof(EnemyAgent2D) && field.Name == "_visualVariant") &&
+            !(field.DeclaringType == typeof(EnemyAgent2D) && (field.Name == "_visualVariant" || field.Name == "<BossMovementThisTick>k__BackingField")) &&
             !(typeof(IRunSaveColor).IsAssignableFrom(field.DeclaringType) && field.Name == "_savedColor");
         private const string RunSnapshotKey = "echosphere_active_run_v1";
         private float _runSaveAccumulator;
@@ -57,7 +57,7 @@ namespace EchoSphere.Runtime
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
             "_sourceTrianglePulseActive",
-            "_pendingKnowledgeRewards", "_metaWallet", "_metaWalletRaw", "_metaEntitlementsRaw", "_nativeMerchantView", "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
+            "_bossSpherePushWorkspace", "_spaceCollisionSpheres", "_pendingKnowledgeRewards", "_metaWallet", "_metaWalletRaw", "_metaEntitlementsRaw", "_nativeMerchantView", "_spaceCollisionBodies", "_spaceCollisionBodyPool", "_spaceCollisionTowers", "_spaceCollisionWorkspace", "_enemyQueryListCount",
             "_nativeNetworkProjection", "_nativePausedWorldFrame",
             "_nativeTransientPools",
             "_simulationTypes", "_simulationPhases",
@@ -206,6 +206,7 @@ namespace EchoSphere.Runtime
             _campaignRegionProgress=null;_convergenceRun=false;_convergenceState=null;
             _runMetaReceipt=null;_runShardsEarned=_runArchiveDataEarned=0;_pendingKnowledgeRewards.Clear();
             _runEconomy=null; // Missing economy in a legacy snapshot must remain legacy.
+            _bossFormationRecovery=false;_nativeNetworkAnalysis=null;
             RunSnapshotCodec.Restore(save.runtime, GetType(), this, field => !NonRunFields.Contains(field.Name));
             if(string.IsNullOrEmpty(_runMetaReceipt))_runMetaReceipt="legacy:"+Hash128.Compute(PlayerPrefs.GetString(RunSnapshotKey,JsonUtility.ToJson(save))).ToString();
             InitializeRestoredCampaignProgress();

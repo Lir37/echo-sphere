@@ -8,6 +8,8 @@ namespace EchoSphere.Core
         public Vec2 Position;
         public float Radius, Speed, Mass;
         public bool FollowBreach;
+        public bool PushesSpheres;
+        public Vec2 SpherePushMotion;
     }
 
     // Direct translation of src/spaceCollision.ts. Inputs and outputs use source pixels,
@@ -43,7 +45,7 @@ namespace EchoSphere.Core
                 for (var enemyIndex=0;enemyIndex<enemies.Count;enemyIndex++)
                 {
                     var enemy=enemies[enemyIndex];
-                    if (follow && enemy.FollowBreach) continue;
+                    if (enemy.PushesSpheres || follow && enemy.FollowBreach) continue;
                     for (var towerIndex=0;towerIndex<towers.Count;towerIndex++)
                     {
                         var tower=towers[towerIndex];

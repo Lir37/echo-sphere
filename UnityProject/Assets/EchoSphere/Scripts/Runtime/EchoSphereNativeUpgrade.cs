@@ -21,6 +21,7 @@ namespace EchoSphere.Runtime
             var slot=anchors.Upgrade;var host=slot.Content;if(host==null){DisposeNativeUpgrade();return;}
             if(_nativeUpgradeView==null||_nativeUpgradeView.Root.parent!=host){DisposeNativeUpgrade();_nativeUpgradeView=new NativeUpgradeView(host,anchors.Backdrops,PickNativeUpgrade,LockNativeUpgrade,RerollNativeUpgrades);}
             if(_nativeUpgradeBoundVersion!=anchors.Version){_nativeUpgradeView.Bind(ReadNativeUpgradeState());_nativeUpgradeBoundVersion=anchors.Version;}
+            _nativeUpgradeView.SetTutorialInset(_tutorialStep==4&&_nativeTutorial!=null?_nativeTutorial.CardBounds.yMax+12:0);
             bool ready=_nativeUpgradeView.Ready;_nativeUpgradeView.Prepare(SourceDevicePixelRatio,Screen.width/SourceDevicePixelRatio);
             if(_nativeUpgradeView.Ready){slot.HideLegacy();if(!ready)anchors.Invalidate?.Invoke();}
         }

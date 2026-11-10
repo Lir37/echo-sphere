@@ -23,6 +23,7 @@ internal static class Program
             Check(()=>_assertions += ArtifactGameplayChecks.Run());
             Check(()=>_assertions += SpatialIndexChecks.Run());
             Check(()=>_assertions += CollisionScratchChecks.Run());
+            Check(()=>_assertions += BossSphereDisplacementChecks.Run());
             Check(CheckCombatRules);
             Check(CheckFormationFollow);
             Check(CheckCatalogAndRewardedContracts);

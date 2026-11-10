@@ -16,7 +16,7 @@ namespace EchoSphere.Runtime
         private static readonly string[] NativeTutorialBodies={"tutorialWelcomeBody","tutorialMoveBody","tutorialPlaceBody","tutorialNetworkBody","tutorialUpgradeBody","tutorialDoneBody"};
         private static readonly string[] NativeTutorialTargets={null,"movement","field","network","upgrade",null};
         private bool NativeTutorialRequested=>!_mainMenu&&!_gameOver&&_tutorialStep>=0;
-        private void DisposeNativeTutorial(){_nativeTutorial?.Dispose();_nativeTutorial=null;_nativeTutorialTarget=null;_nativeTutorialTargetKey=null;}
+        private void DisposeNativeTutorial(){_nativeUpgradeView?.SetTutorialInset(0);_nativeTutorial?.Dispose();_nativeTutorial=null;_nativeTutorialTarget=null;_nativeTutorialTargetKey=null;}
         private void PrepareNativeTutorial(NativeRunUiAnchors anchors)
         {
             if(!NativeTutorialRequested){DisposeNativeTutorial();return;}
@@ -29,6 +29,7 @@ namespace EchoSphere.Runtime
                 if(target!=null)_nativeTutorialTarget=anchors.TutorialTarget?.Invoke(target);
             }
             bool ready=_nativeTutorial.Ready;float scale=SourceDevicePixelRatio;_nativeTutorial.Prepare(Screen.width/scale,Screen.height/scale,scale,_nativeTutorialTarget);
+            _nativeUpgradeView?.SetTutorialInset(_tutorialStep==4?_nativeTutorial.CardBounds.yMax+12:0);
             if(_nativeTutorial.Ready){slot.HideLegacy();if(!ready)anchors.Invalidate?.Invoke();}
         }
         private bool CanAdvanceNativeTutorial()

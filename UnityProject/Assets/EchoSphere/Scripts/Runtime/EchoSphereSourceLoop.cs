@@ -12,6 +12,9 @@ namespace EchoSphere.Runtime
         private readonly List<CollisionBody> _spaceCollisionBodies=new List<CollisionBody>();
         private readonly List<CollisionBody> _spaceCollisionBodyPool=new List<CollisionBody>();
         private readonly List<Vec2> _spaceCollisionTowers=new List<Vec2>();
+        private readonly List<SphereAttackAgent> _spaceCollisionSpheres=new List<SphereAttackAgent>();
+        private readonly BossSphereDisplacementRules.Workspace _bossSpherePushWorkspace=new BossSphereDisplacementRules.Workspace();
+        private bool _bossFormationRecovery;
         private readonly SpaceCollisionRules.Workspace _spaceCollisionWorkspace=new SpaceCollisionRules.Workspace();
         private float _chaosOrbTimer, _chaosOrbBuffTimer, _buffTimer, _deathTimer;
         private string _chaosOrbBuff;
@@ -95,7 +98,7 @@ namespace EchoSphere.Runtime
             if (_mainMenu || _playerCore == null) return;
             var scale = SpherePlacementRules.SourcePixelsToWorld;
             var agents = _spaceCollisionAgents; var bodies = _spaceCollisionBodies;
-            agents.Clear();bodies.Clear();
+            agents.Clear();bodies.Clear();bool movingBoss=false;
             foreach (var e in _enemies)
             {
                 if (e == null || !e.IsAlive) continue;
@@ -104,14 +107,24 @@ namespace EchoSphere.Runtime
                 var body=_spaceCollisionBodyPool[bodies.Count];
                 body.Position=new Vec2(e.transform.position.x / scale, -e.transform.position.y / scale);
                 body.Radius=e.SourceRadius;body.Speed=e.SourceSpeed;body.Mass=e.CollisionMass;body.FollowBreach=e.Role=="charger"||e.Role=="phase";
+                body.PushesSpheres=e.IsBoss;
+                body.SpherePushMotion=new Vec2(e.BossMovementThisTick.x/scale,-e.BossMovementThisTick.y/scale);
+                if(body.PushesSpheres&&body.SpherePushMotion.LengthSquared>.00000001f)movingBoss=true;
                 bodies.Add(body);
             }
             var towers = _spaceCollisionTowers;towers.Clear();
-            foreach (var s in _spheres) if (s != null) towers.Add(new Vec2(s.transform.position.x / scale, -s.transform.position.y / scale));
+            _spaceCollisionSpheres.Clear();
+            foreach (var s in _spheres) if (s != null) {towers.Add(new Vec2(s.transform.position.x / scale, -s.transform.position.y / scale));_spaceCollisionSpheres.Add(s);}
+            bool displaced=movingBoss&&BossSphereDisplacementRules.Resolve(bodies,towers,dt,_bossSpherePushWorkspace);
+            if(displaced)for(int i=0;i<towers.Count;i++){
+                var sphere=_spaceCollisionSpheres[i];var target=new Vector2(towers[i].X*scale,-towers[i].Y*scale);
+                sphere.ApplyBossDisplacement(target-(Vector2)sphere.transform.position);
+            }
             var p = SpaceCollisionRules.ResolveRetained(new Vec2(_player.position.x / scale, -_player.position.y / scale), bodies, towers, dt, _follow,_spaceCollisionWorkspace);
             _player.position = new Vector3(p.X * scale, -p.Y * scale, _player.position.z);
             for (var i = 0; i < agents.Count; i++){agents[i].transform.position = new Vector3(bodies[i].Position.X * scale, -bodies[i].Position.Y * scale, agents[i].transform.position.z);RefreshEnemyQuery(agents[i]);}
             if (_follow) foreach (var sphere in _spheres) if (sphere != null) sphere.SyncFollowPosition();
+            if(displaced){_bossFormationRecovery=true;RefreshNetworkState();}
         }
         public void SpawnSourceParticle(Vector2 position, Vector2 sourceVelocity, float life, float size, string htmlColor, float maxLife = 0f)
         {

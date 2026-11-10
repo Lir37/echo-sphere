@@ -5,7 +5,7 @@
         <ui:Image name="tutorial-shade" class="tutorial-fill" picking-mode="Ignore" />
         <ui:VisualElement name="tutorial-focus" class="tutorial-box tutorial-focus" picking-mode="Ignore" />
         <ui:VisualElement name="tutorial-pulse-ring" class="tutorial-box tutorial-focus" picking-mode="Ignore" />
-        <ui:VisualElement name="tutorial-card" class="tutorial-box tutorial-card">
+        <ui:ScrollView name="tutorial-card" class="tutorial-box tutorial-card" mode="Vertical" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden">
             <ui:Label name="tutorial-step" class="tutorial-label tutorial-step" picking-mode="Ignore" enable-rich-text="false" />
             <ui:Label name="tutorial-title" class="tutorial-label tutorial-title" picking-mode="Ignore" enable-rich-text="false" />
             <ui:Label name="tutorial-body" class="tutorial-label tutorial-body" picking-mode="Ignore" enable-rich-text="false" />
@@ -20,6 +20,6 @@
                     <ui:Label name="tutorial-next-text" class="tutorial-label tutorial-next-text" picking-mode="Ignore" enable-rich-text="false" />
                 </ui:Button>
             </ui:VisualElement>
-        </ui:VisualElement>
+        </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>

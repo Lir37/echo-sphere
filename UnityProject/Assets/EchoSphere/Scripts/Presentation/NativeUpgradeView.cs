@@ -25,6 +25,8 @@ namespace EchoSphere.Presentation
         private readonly List<NativeHudSurface> _paint=new List<NativeHudSurface>();
         private readonly List<IDisposable> _backdrops=new List<IDisposable>();
         private readonly List<Button> _buttons=new List<Button>();
+        private float _tutorialInset;
+        public void SetTutorialInset(float top){top=Mathf.Max(0,top);if(top==_tutorialInset)return;_tutorialInset=top;Root.style.top=top;_geometryFrame=Time.frameCount;}
         private State _state;private int _geometryFrame;private bool _disposed,_consumed;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         private string L(string ru,string en)=>_state.Russian?ru:en;
