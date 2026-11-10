@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "checks": 45988,
+  "entries": 119,
+  "attackArticulation": 119,
+  "quadrupedVariants": 7,
+  "retainedMeshes": 1298,
+  "scope": "Actual production DrawEnemy for all region 3-6 identities; idle/attack/freeze, shared mesh reuse, no per-part blur, first-two-region size and RNG"
+}

@@ -17,7 +17,7 @@ namespace EchoSphere.Presentation {
    if(_built++>0)return null;
    if(_owner==null){_owner=new GameObject("Archive anatomy portrait baker"){hideFlags=HideFlags.HideAndDontSave};_surface=_owner.AddComponent<NativeWorldSurface>();_surface.Initialize();_surface.SetViewport(192,192,1);_creatures=new NativeWorldCreatures();}
    ColorUtility.TryParseHtmlString(a.ColorHex??"#4a7a8a",out var color);
-   var view=new NativeWorldCreatures.EnemyView{Identity=a,Radius=a.Boss?32:44,HasRotation=true,Rotation=-.25,Boss=a.Boss,Elite=a.Elite,Variant=a.Variant,Role=a.Role,RegionStyle=a.Region,Fleet=a.Region==1,Color=color,Portrait=true,Hp=1,MaxHp=1,BossName=""};
+   var view=new NativeWorldCreatures.EnemyView{Identity=a,Radius=a.Boss?32:44,HasRotation=true,Rotation=-.25,Boss=a.Boss,Elite=a.Elite,BestiaryType=EchoSphere.Core.BestiaryCatalog.Find(a.Id)?.Type,Variant=a.Variant,Role=a.Role,RegionStyle=a.Region,Fleet=a.Region==1,Color=color,Portrait=true,Hp=1,MaxHp=1,BossName=""};
    _surface.Begin(Vector2.zero);_surface.ResetTransform();_creatures.BeginFrame();_creatures.DrawEnemy(_surface,view,1.7);_surface.End();
    if(image==null){image=new RenderTexture(192,192,0,RenderTextureFormat.ARGB32){name="Archive "+a.Id,hideFlags=HideFlags.DontSave};_cache[a.Id]=image;}if(!image.IsCreated())image.Create();Graphics.Blit(_surface.UiTexture,image);_sources[a.Id]=new BestiaryAppearance{Id=a.Id,Region=a.Region,Role=a.Role,Variant=a.Variant,ColorHex=a.ColorHex,Boss=a.Boss,Elite=a.Elite};BakeCount++;return image;
   }

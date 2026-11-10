@@ -2752,3 +2752,6 @@ Sphere/ability archive follow-up: click opens selected IV/VII progression and re
 
 ## 2026-11-10 — Bestiary partition and regional concept previews
 [UNITY_REGIONAL_CONCEPTS_AND_BESTIARY_2026-11-10.md](UNITY_REGIONAL_CONCEPTS_AND_BESTIARY_2026-11-10.md): monsters exclude bosses; actual native archive projection 1430 checks PASS. Preview-only articulated designs for all 88 entries in regions 4–6, recorded in Unity; production enemy views unchanged. No APK. Earlier HUD/fusion/background changes remain local and unfinished. CI recorded separately after push.
+
+## 2026-11-10 — Approved regional enemy integration
+[UNITY_APPROVED_REGIONAL_ENEMIES_2026-11-10.md](UNITY_APPROVED_REGIONAL_ENEMIES_2026-11-10.md): approved region 3–6 anatomy and quadrupeds active in production DrawEnemy for all 119 identities. Retained meshes, actual attack/locomotion poses, freeze stability; previous regional body path removed. Unity compile, 45988 anatomy checks and 73 actual attack checks PASS. APK/Android acceptance pending; earlier local HUD/fusion/background work remains separate.
