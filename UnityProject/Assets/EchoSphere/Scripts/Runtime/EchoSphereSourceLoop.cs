@@ -31,7 +31,7 @@ namespace EchoSphere.Runtime
         private void TickSourceEarlyPlayerState(float dt, bool dashWasActive)
         {
             _buffTimer = Mathf.Max(0f, _buffTimer - dt);
-            if (dashWasActive)
+            if (dashWasActive && !_playerCore.IsRooted)
             {
                 _player.position += (Vector3)(_playerCore.DashDirection * (600f * SpherePlacementRules.SourcePixelsToWorld * dt));
                 if (_rng.NextFloat() < 0.5f) SpawnSourceParticle(PlayerPosition, Vector2.zero, 0.3f, 3f, "#d4943d");

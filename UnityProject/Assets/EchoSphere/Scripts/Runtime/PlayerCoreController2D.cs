@@ -9,6 +9,9 @@ namespace EchoSphere.Runtime
         public float CurrentHp { get; private set; } = 100f;
         public float InvulnerableTimer { get; private set; }
         public float ContactGraceTimer { get; private set; }
+        public float WebRootTimer { get; private set; }
+        public bool IsRooted => WebRootTimer > 0f;
+        public void ApplyWebRoot(float duration) { if(!IsDead) WebRootTimer=Mathf.Max(WebRootTimer,Mathf.Max(0,duration)); }
         public float DashCooldown { get; private set; }
         public float DashTimer { get; private set; }
         public int ShieldCharges { get; private set; }
@@ -42,6 +45,7 @@ namespace EchoSphere.Runtime
 
         public void Tick(float deltaTime)
         {
+            WebRootTimer = Mathf.Max(0f, WebRootTimer - deltaTime);
             InvulnerableTimer = Mathf.Max(0f, InvulnerableTimer - deltaTime);
             ContactGraceTimer = Mathf.Max(0f, ContactGraceTimer - deltaTime);
             DashCooldown = Mathf.Max(0f, DashCooldown - deltaTime);
@@ -55,12 +59,12 @@ namespace EchoSphere.Runtime
 
         public Vector2 GetVelocity(Vector2 requestedDirection, float speed, float followMultiplier)
         {
-            return requestedDirection.sqrMagnitude <= 0.0001f ? Vector2.zero : requestedDirection.normalized * speed * followMultiplier;
+            return IsRooted || requestedDirection.sqrMagnitude <= 0.0001f ? Vector2.zero : requestedDirection.normalized * speed * followMultiplier;
         }
 
         public bool TryDash(Vector2 direction)
         {
-            if (IsDead || DashCooldown > 0f) return false;
+            if (IsDead || IsRooted || DashCooldown > 0f) return false;
             if (direction.sqrMagnitude <= 0.0001f) direction = Vector2.up;
             DashDirection = direction.normalized;
             DashCount++;

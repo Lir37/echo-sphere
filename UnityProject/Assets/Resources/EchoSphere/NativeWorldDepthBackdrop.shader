@@ -17,7 +17,7 @@ Shader "EchoSphere/NativeWorldDepthBackdrop"
             #pragma fragment frag
             #include "UnityCG.cginc"
             sampler2D _Backdrop,_PreviousBackdrop;
-            float4 _FrameSize,_DepthCamera,_DepthStyle,_DepthReady;
+            float4 _FrameSize,_DepthCamera,_ArenaCamera,_DepthStyle,_DepthReady;
             float _NativeOpacity;
             struct Varyings {float4 position:SV_POSITION;float2 local:TEXCOORD0;};
             Varyings vert(float4 position:POSITION)
@@ -95,7 +95,7 @@ Shader "EchoSphere/NativeWorldDepthBackdrop"
                 float luma=dot(c,float3(.2126,.7152,.0722));
                 c=lerp(luma.xxx,c,.88);
                 c=lerp(c,fallback,.10);
-                float2 nearWorld=p+_DepthCamera.xy;
+                float2 nearWorld=p+_ArenaCamera.xy;
                 float grid=max(Line(nearWorld.x,120,.35),Line(nearWorld.y,120,.35));
                 c+=float3(.004,.007,.009)*grid;
                 return float4(c*_NativeOpacity,_NativeOpacity);

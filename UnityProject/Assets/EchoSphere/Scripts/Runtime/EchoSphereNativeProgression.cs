@@ -46,10 +46,10 @@ namespace EchoSphere.Runtime
             string T(string key)=>NativeText(key,lang=="ru");
             var state=new NativeProgressionScreen.State {Back=T("back")};
             if(_mainMenuPage==MainMenuPage.Shop){
-                EnsureShopSaveLoaded();state.Page=NativeProgressionScreen.Page.Shop;state.Title=T("shopTitle");state.Gold=GetGold().ToString(CultureInfo.InvariantCulture)+(IsRussianUi?" КР":" CR");
+                EnsureShopSaveLoaded();state.Page=NativeProgressionScreen.Page.Shop;state.Title=T("shopTitle");state.Gold=GetGold().ToString(CultureInfo.InvariantCulture);
                 var items=new List<NativeProgressionScreen.ShopItem>();
                 foreach(string id in PersistentUpgradeRules.Ids){int level=GetShopUpgradeLevel(id),max=PersistentUpgradeRules.GetMaxLevel(id),cost=PersistentUpgradeRules.GetCost(id,level);bool maxed=level>=max;
-                    items.Add(new NativeProgressionScreen.ShopItem {Id=id,Name=GetShopUpgradeName(id),Description=GetShopUpgradeDescription(id),Owned=T("owned")+": "+level+"/"+max,Price=maxed?T("max"):cost+(IsRussianUi?" КР":" CR"),Maxed=maxed,CanBuy=!maxed&&GetGold()>=cost});
+                    items.Add(new NativeProgressionScreen.ShopItem {Id=id,Name=GetShopUpgradeName(id),Description=GetShopUpgradeDescription(id),Owned=T("owned")+": "+level+"/"+max,Price=maxed?T("max"):cost.ToString(CultureInfo.InvariantCulture),Maxed=maxed,CanBuy=!maxed&&GetGold()>=cost});
                 }state.Shop=items;
             }else if(_mainMenuPage==MainMenuPage.Leaderboard){
                 state.Page=NativeProgressionScreen.Page.Leaderboard;state.Title=T("leaderTitle");state.Empty=T("noScores");

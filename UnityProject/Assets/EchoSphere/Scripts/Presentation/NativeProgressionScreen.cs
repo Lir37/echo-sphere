@@ -37,7 +37,7 @@ namespace EchoSphere.Presentation
         private bool _visible;
         private int _geometryFrame;
         private float _scale=1;
-        private sealed class ShopRow { internal Label Owned,Price; internal Button Button; internal ShopItem State; }
+        private sealed class ShopRow { internal Label Owned,Price; internal VisualElement Currency; internal Button Button; internal ShopItem State; }
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         private static Color A(int r,int g,int b,float a)=>new Color(r/255f,g/255f,b/255f,a);
         internal static NativeMenuBrush.Paint CardPaint(bool concept,Color fill,Color border,float radius=12)=>concept?new NativeMenuBrush.Paint {
@@ -77,7 +77,7 @@ namespace EchoSphere.Presentation
             if(_shown==null||_shown.Page!=Page.Shop||state.Shop.Count!=_shopRows.Count)return;
             _balance.text=state.Gold;
             for(int i=0;i<_shopRows.Count;i++){
-                var row=_shopRows[i];var item=state.Shop[i];row.State=item;row.Owned.text=item.Owned;row.Price.text=item.Price;
+                var row=_shopRows[i];var item=state.Shop[i];row.State=item;row.Owned.text=item.Owned;row.Price.text=item.Price;if(row.Currency!=null)row.Currency.style.display=item.Maxed?DisplayStyle.None:DisplayStyle.Flex;
                 row.Button.SetEnabled(item.CanBuy);row.Button.EnableInClassList("can-buy",item.CanBuy);
                 row.Price.style.color=item.CanBuy?C("#dcecff"):A(127,155,184,.5f);
             }
@@ -94,7 +94,7 @@ namespace EchoSphere.Presentation
             var back=Button(header,"progression-back",()=>_back?.Invoke());back.AddToClassList("back");back.style.flexDirection=FlexDirection.Row;back.style.alignItems=Align.Center;
             var arrow=Icon(back,"ArrowLeft",20,C("#7f9bb8"));arrow.style.marginRight=8;
             Text(back,"back-text",state.Back,16,"#7f9bb8");_glass.Add(new NativeMenuGlass(back,8));
-            if(state.Page==Page.Shop){var gold=Box(header,"shop-balance",true);gold.style.alignItems=Align.Center;Text(gold,"shop-coin","●",24,"#ffb84d","700").style.marginRight=8;_balance=Text(gold,"shop-gold",state.Gold,16,"#ffb84d","700");}
+            if(state.Page==Page.Shop){var gold=Box(header,"shop-balance",true);gold.style.alignItems=Align.Center;var coin=new NativeContentIcon("currency:Credits",C("#ffb84d"),24);coin.style.marginRight=8;gold.Add(coin);_balance=Text(gold,"shop-gold",state.Gold,16,"#ffb84d","700");}
             else if(state.Page==Page.Achievements)Text(header,"achievement-count",state.Count,14,"#7f9bb8b3");
             var title=Text(_content,"progression-title",state.Title,24,concept?"#e3f4ff":"#dcecff",concept?"500":"700");
             title.style.unityTextAlign=TextAnchor.MiddleCenter;title.style.height=32;title.style.marginBottom=24;
@@ -117,6 +117,7 @@ namespace EchoSphere.Presentation
             button.AddToClassList("purchase");button.style.minWidth=96;button.style.paddingLeft=button.style.paddingRight=20;
             button.style.paddingTop=button.style.paddingBottom=10;ReserveBorder(button);
             Paint(button,CardPaint(true,default,default));_glass.Add(new NativeMenuGlass(button,8));
+            button.style.flexDirection=FlexDirection.Row;button.style.alignItems=Align.Center;{var icon=new NativeContentIcon("currency:Credits",C("#ffb84d"),18);icon.style.marginRight=5;icon.style.display=item.Maxed?DisplayStyle.None:DisplayStyle.Flex;button.Add(icon);row.Currency=icon;}
             row.Price=Text(button,"shop-price",item.Price,14,item.CanBuy?"#dcecff":"#7f9bb880","500");
             row.Price.style.unityTextAlign=TextAnchor.MiddleCenter;button.SetEnabled(item.CanBuy);button.EnableInClassList("can-buy",item.CanBuy);
             _shopRows.Add(row);

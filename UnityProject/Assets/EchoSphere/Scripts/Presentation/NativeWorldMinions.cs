@@ -43,6 +43,13 @@ namespace EchoSphere.Presentation {
    Paint(a.Trace,root,color);Paint(_core,root,Color.Lerp(color,Color.white,.6f));
   }
   private readonly Dictionary<int,Art> _merchants=new Dictionary<int,Art>();
+  internal void DrawFusionCrown(NativeWorldSurface surface,float x,float y,float radius,Color color,double time){
+   var a=Get(SphereId.Orbital);var root=T(x,y);for(int i=0;i<4;i++){
+    float angle=45+i*90;var m=root*T(0,0,angle)*T(radius+6,0,90,.45f,.6f);
+    surface.DrawNativeMesh(a.Fin,_material,ColorBlock(color),m,inheritShadow:false);
+    surface.DrawNativeMesh(_pin,_material,ColorBlock(Color.Lerp(color,Color.white,.6f)),root*T(0,0,angle)*T(radius+7,0),inheritShadow:false);
+   }
+  }
   internal void DrawMerchant(NativeWorldSurface surface,float x,float y,int region,double time){
    if(!_merchants.TryGetValue(region,out var a)){Vector2[] body;switch(region){
     case 1:body=new[]{P(0,-15),P(10,-3),P(12,11),P(0,7),P(-12,11),P(-10,-3)};break;

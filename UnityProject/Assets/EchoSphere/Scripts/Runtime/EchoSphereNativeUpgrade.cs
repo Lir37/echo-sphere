@@ -48,6 +48,7 @@ namespace EchoSphere.Runtime
                 }
                 if(result.Count!=_evolutionChoices.Count)throw new InvalidOperationException("Evolution cards and native choices differ");
             }else foreach(var choice in _levelUpChoices){
+                if(choice.Kind==RunUpgradeKind.Fusion){var fusion=FusionText(choice.Title);result.Add(new NativeUpgradeInput{Index=result.Count,Type="fusion",CurrentLevel=7,NewLevel=7,Key=GetUpgradeChoiceKey(choice),Text=new NativeRunCatalog.Text{NameRu=fusion?.Name(true)??choice.Title,NameEn=fusion?.Name(false)??choice.Title,DescriptionRu=(fusion?.Description(true)??"")+"\nОбъединить: способность исчезает с панели и срабатывает от атак сферы.",DescriptionEn=(fusion?.Description(false)??"")+"\nFuse: the ability leaves the dock and triggers from sphere attacks."}});continue;}
                 var text=SourceUpgradeText(choice);if(text==null)throw new InvalidOperationException("Missing source upgrade text: "+GetUpgradeChoiceKey(choice));
                 var row=new NativeUpgradeInput {Index=result.Count,Type=choice.Kind==RunUpgradeKind.Sphere?"sphere":"ability",CurrentLevel=choice.CurrentLevel,NewLevel=choice.NextLevel,Text=new NativeRunCatalog.Text {NameRu=text.nameRu,NameEn=text.nameEn,DescriptionRu=text.descRu,DescriptionEn=text.descEn},Key=GetUpgradeChoiceKey(choice)};
                 if(choice.Kind==RunUpgradeKind.Sphere){row.SphereType=choice.Sphere.ToString().ToLowerInvariant();row.SphereStage="upgrade";row.SphereBranch=GetSphereBranch(choice.Sphere);}
@@ -70,7 +71,8 @@ namespace EchoSphere.Runtime
                 string key=value.Key;
                 bool forecast=_sphereCharacterId==EchoSphere.Core.SphereCharacterId.Oracle&&_oracleForecastKeys.Contains(key);
                 string category=type=="modifier"?L("МОДИФИКАТОР","MODIFIER"):abilityStage=="branch"?L("ВЕТКА СПОСОБНОСТИ","ABILITY BRANCH"):abilityStage=="final"?L("ФИНАЛЬНАЯ ФОРМА СПОСОБНОСТИ","FINAL ABILITY FORM"):sphereStage=="branch"?L("ВЕТКА СФЕРЫ","SPHERE BRANCH"):sphereStage=="final"?L("ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ","FINAL SPECIALIZATION"):type=="ability"?L("АКТИВНАЯ СПОСОБНОСТЬ","ACTIVE ABILITY"):L("УЛУЧШЕНИЕ СФЕРЫ","SPHERE UPGRADE");
-                string level=type=="modifier"?L("Разблокирует эффект","Unlocks the effect"):sphereStage=="branch"||abilityStage=="branch"?L("Уровень IV • выбор ветки","Level IV • choose a branch"):sphereStage=="final"||abilityStage=="final"?L("Уровень VII • выбор финальной формы","Level VII • choose final form"):T("level")+" "+NativePresentationMath.NumberText(value.CurrentLevel)+" → "+NativePresentationMath.NumberText(value.NewLevel);
+                if(type=="fusion")category=L("ОБЪЕДИНЕНИЕ","FUSION");
+                string level=type=="fusion"?L("Сфера VII + Способность VII","Sphere VII + Ability VII"):type=="modifier"?L("Разблокирует эффект","Unlocks the effect"):sphereStage=="branch"||abilityStage=="branch"?L("Уровень IV • выбор ветки","Level IV • choose a branch"):sphereStage=="final"||abilityStage=="final"?L("Уровень VII • выбор финальной формы","Level VII • choose final form"):T("level")+" "+NativePresentationMath.NumberText(value.CurrentLevel)+" → "+NativePresentationMath.NumberText(value.NewLevel);
                 string element=type=="sphere"?NativeRunCatalog.Instance.GetSphereBranch(value.SphereBranch)?.Element:null;
                 var meta=NativeRunCatalog.Instance.GetElement(element);
                 bool elementCard=meta!=null&&(sphereStage=="branch"||sphereStage=="final");

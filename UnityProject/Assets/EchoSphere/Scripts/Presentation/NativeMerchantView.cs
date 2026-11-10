@@ -17,7 +17,7 @@ namespace EchoSphere.Presentation {
    _overlay=new VisualElement{name="merchant-overlay"};Fill(_overlay);_overlay.style.backgroundColor=new Color(.005f,.015f,.025f,.95f);_overlay.style.alignItems=Align.Center;_overlay.style.justifyContent=Justify.Center;_overlay.style.paddingLeft=_overlay.style.paddingRight=12;_overlay.style.paddingTop=_overlay.style.paddingBottom=24;_overlay.RegisterCallback<PointerDownEvent>(e=>e.StopPropagation());_overlay.RegisterCallback<PointerUpEvent>(e=>e.StopPropagation());_root.Add(_overlay);
    _panel=new VisualElement{name="merchant-panel"};_panel.style.width=Length.Percent(100);_panel.style.maxWidth=560;_panel.style.maxHeight=Length.Percent(100);_panel.style.minHeight=0;_panel.style.flexShrink=1;_panel.style.paddingLeft=_panel.style.paddingRight=12;_panel.style.paddingTop=_panel.style.paddingBottom=12;_panel.style.backgroundColor=new Color(.025f,.045f,.07f);_overlay.Add(_panel);
    var header=new VisualElement();header.style.flexDirection=FlexDirection.Row;header.style.alignItems=Align.Center;_panel.Add(header);
-   _title=Text(header,"",18);_title.style.flexGrow=1;_balance=Text(header,"",13);_balance.style.color=new Color(.85f,.75f,.45f);
+   _title=Text(header,"",18);_title.style.flexGrow=1;header.Add(new NativeContentIcon("currency:Echo",new Color(.4f,.9f,.96f),22));_balance=Text(header,"",13);_balance.style.color=new Color(.85f,.75f,.45f);
    _stock=new ScrollView(ScrollViewMode.Vertical){name="merchant-stock"};NativePauseScreenView.ConfigureMobileScroll(_stock);_stock.style.maxHeight=Length.Percent(48);_stock.style.minHeight=80;_stock.style.flexShrink=1;_stock.style.marginTop=12;_panel.Add(_stock);
    _grid=new VisualElement{name="merchant-grid"};_grid.style.flexDirection=FlexDirection.Row;_grid.style.flexWrap=Wrap.Wrap;_stock.Add(_grid);
    var info=new ScrollView(ScrollViewMode.Vertical){name="merchant-item-details"};NativePauseScreenView.ConfigureMobileScroll(info);info.style.maxHeight=Length.Percent(28);info.style.flexShrink=1;info.style.minHeight=64;_panel.Add(info);_details=info.contentContainer;_details.style.paddingTop=8;
@@ -33,7 +33,7 @@ namespace EchoSphere.Presentation {
    _status.style.display=DisplayStyle.None;
    if(state.Pending)_status.text=ru?"Торговец рядом · подойдите":"Merchant nearby · approach";else{int left=(int)Math.Max(0,Math.Ceiling(RunEconomyRules.MerchantAt(state.NextMerchant)-time));_status.text=(ru?"Торговец ":"Merchant ")+left/60+":"+(left%60).ToString("00");}
    _overlay.style.display=state.Open?DisplayStyle.Flex:DisplayStyle.None;if(!state.Open)return;
-   _title.text=ru?"Торговец Эха":"Echo Merchant";_balance.text=state.Echo+(ru?" Эхо":" Echo");_close.text=ru?"Продолжить путь":"Continue";
+   _title.text=ru?"Торговец Эха":"Echo Merchant";_balance.text=state.Echo.ToString();_close.text=ru?"Продолжить путь":"Continue";
    var key=new StringBuilder().Append(ru).Append('|').Append(state.NextMerchant).Append('|').Append(state.Echo);foreach(var row in state.Offers)key.Append('|').Append(row.ArtifactId).Append(row.Sold).Append(owned.Contains(row.ArtifactId));string signature=key.ToString();
    if(_signature!=signature){_signature=signature;_grid.Clear();_selected=Mathf.Clamp(_selected,0,Math.Max(0,state.Offers.Count-1));
     for(int i=0;i<state.Offers.Count;i++){int slot=i;var row=state.Offers[i];var item=ArtifactRewardRules.Get(row.ArtifactId);if(item==null)continue;var cell=new VisualElement();cell.style.width=Length.Percent(25);cell.style.minWidth=0;cell.style.paddingLeft=cell.style.paddingRight=3;cell.style.paddingBottom=6;_grid.Add(cell);
@@ -42,7 +42,7 @@ namespace EchoSphere.Presentation {
    }BindSelection();
   }
   private void BindSelection(){if(_state.Offers.Count==0){_name.text=_ru?"Всё уже найдено":"Everything collected";_description.text="";_purchase.SetEnabled(false);_purchase.text="—";return;}
-   var row=_state.Offers[_selected];var item=ArtifactRewardRules.Get(row.ArtifactId);bool sold=row.Sold||_owned.Contains(row.ArtifactId);_name.text=NativePlayerCopy.Text(_ru?item.NameRussian:item.NameEnglish,_ru);_description.text=NativePlayerCopy.Text(ArtifactGameplayRules.DescriptionOverride(item.Id,_ru)??(_ru?item.DescriptionRussian:item.DescriptionEnglish),_ru);_purchase.text=sold?(_ru?"Получено":"Owned"):(_ru?"Купить · ":"Buy · ")+row.Price+(_ru?" Эхо":" Echo")+(row.Discount?"  −25%":"");_purchase.SetEnabled(RunEconomyRules.CanBuy(_state,_selected,_owned));
+   var row=_state.Offers[_selected];var item=ArtifactRewardRules.Get(row.ArtifactId);bool sold=row.Sold||_owned.Contains(row.ArtifactId);_name.text=NativePlayerCopy.Text(_ru?item.NameRussian:item.NameEnglish,_ru);_description.text=NativePlayerCopy.Text(ArtifactGameplayRules.DescriptionOverride(item.Id,_ru)??(_ru?item.DescriptionRussian:item.DescriptionEnglish),_ru);_purchase.text=sold?(_ru?"Получено":"Owned"):(_ru?"Купить · ":"Buy · ")+row.Price+(row.Discount?"  −25%":"");_purchase.SetEnabled(RunEconomyRules.CanBuy(_state,_selected,_owned));
    for(int i=0;i<_grid.childCount;i++){var b=_grid[i].Q<Button>();if(b!=null)b.style.borderBottomColor=b.style.borderTopColor=b.style.borderLeftColor=b.style.borderRightColor=i==_selected?new Color(.65f,.9f,1):new Color(.18f,.32f,.4f);}
   }
  }

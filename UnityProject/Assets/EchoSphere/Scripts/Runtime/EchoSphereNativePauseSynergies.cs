@@ -37,7 +37,8 @@ namespace EchoSphere.Runtime
             foreach(var link in catalog.SphereAbilityLinks){
                 bool sphereOk=NativeLiveSphereLevel(link.Sphere)>=7,abilityOk=NativeLiveAbilityLevel(link.Ability)>=7;
                 bool selected=NativeLiveSphereBranch(link.Sphere)==link.Branch;
-                bool active=sphereOk&&abilityOk&&selected,inProgress=selected&&!active,eligible=!selected&&sphereOk;
+                var runtimeLink=FusionLink(link.Id);
+                bool active=_fusedAbilityLinks.Contains(link.Id),eligible=CanFuse(runtimeLink),inProgress=selected&&!active&&!eligible;
                 string branch=catalog.GetSphereBranch(link.Branch)?.Name(ru)??"—";
                 cards.Add(new NativePauseSynergiesState.Card {
                     Id=link.Id,Name=link.Name(ru),Description=link.Description(ru),

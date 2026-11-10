@@ -9,6 +9,8 @@ namespace EchoSphere.Presentation {
   internal void Bind(string id,Color color){if(ContentId==id&&_color==color)return;ContentId=id??"";_color=color;MarkDirtyRepaint();}
   internal static uint Signature(string id){uint h=2166136261;foreach(char c in id??""){h^=c;h*=16777619;}return h;}
   private void Draw(MeshGenerationContext context){var p=context.painter2D;float size=Mathf.Min(contentRect.width,contentRect.height);if(size<=1)return;float scale=size/32;Vector2 origin=contentRect.center;
+   if(NativeCurrencyIllustrations.Draw(p,ContentId,origin,scale))return;
+   if(ContentId.StartsWith("artifact-build:",StringComparison.Ordinal)&&NativeArtifactBuilds.Draw(p,ContentId,origin,scale))return;
    if(ContentId.StartsWith("artifact:",StringComparison.Ordinal)&&NativeArtifactIllustrations.Draw(context.painter2D,ContentId.Substring(9),origin,scale))return;
    if(ContentId!="locked"&&NativeArchiveIllustrations.Draw(context.painter2D,ContentId,origin,scale))return;
    Vector2 V(float x,float y)=>origin+new Vector2(x,y)*scale;

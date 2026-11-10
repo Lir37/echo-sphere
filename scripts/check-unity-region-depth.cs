@@ -18,7 +18,7 @@ public static class RegionDepthCheck
    Vector2 U(Vector2 camera)=>(Vector2)type.GetMethod("DistantUv",F).Invoke(null,new object[]{viewport*.5f,viewport,camera,span});
    var dx=U(new Vector2(200,0))-U(Vector2.zero);var dy=U(new Vector2(0,200))-U(Vector2.zero);
    A(Math.Abs(dx.x*span.x-7)<.001&&Math.Abs(dx.y)<.0001,"far horizontal motion is 3.5 percent");
-   A(Math.Abs(dy.x*span.x-1.12)<.001&&Math.Abs(-dy.y*span.y-6.58)<.001,"oblique projection affects only distant plane");
+   A(Math.Abs(dy.x*span.x-.175)<.001&&Math.Abs(-dy.y*span.y-6.58)<.001,"oblique projection affects only distant plane");
   }
   for(int r=0;r<6;r++)
   {

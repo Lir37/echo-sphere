@@ -8,6 +8,7 @@ namespace EchoSphere.Runtime
         private Vector2 _upgradePickerScroll;
         private SourcePlannerEntry SourceUpgradeText(RunUpgradeChoice choice)
         {
+            if(choice.Kind==RunUpgradeKind.Fusion){var text=FusionText(choice.Title);return new SourcePlannerEntry{nameRu=text?.Name(true)??choice.Title,nameEn=text?.Name(false)??choice.Title,descRu=(text?.Description(true)??"")+" Объединить со сферой.",descEn=(text?.Description(false)??"")+" Fuse with the sphere."};}
             EnsureKnowledgeLoaded();
             if (choice.Kind != RunUpgradeKind.Sphere) return PlannerEntry("ability-upgrade", SourceAbilityId(choice.Kind) + "|" + choice.NextLevel);
             var type = choice.Sphere.ToString().ToLowerInvariant();

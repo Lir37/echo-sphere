@@ -147,6 +147,16 @@ namespace EchoSphere.Runtime
                 }
             }
 
+            // Damage is immediate in the existing model. The short beam/impact
+            // communicates that hit without introducing a second projectile hit.
+            float visualRadius=_anchorType==SphereId.Aura?52f:_anchorType==SphereId.Pulse?68f:rangePixels;
+            if(((Vector2)target.transform.position-attackOrigin).sqrMagnitude<=visualRadius*visualRadius*scaleWorld*scaleWorld)
+            {
+                var tint=SphereAttackAgent.ColorFor(_anchorType);
+                _runtime.SpawnCombatArc(attackOrigin,target.transform.position,_anchorType,_branch,_final,tint,.16f);
+                _runtime.SpawnImpact(target.transform.position,tint);
+            }
+
             _attackTimer = _anchorType == SphereId.Sniper ? 1f :
                 _anchorType == SphereId.Orbital ? 0.62f : 0.8f;
             _visualAttack = .24f;

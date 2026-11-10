@@ -1,0 +1,2094 @@
+{
+  "Entries": [
+    {
+      "Id": "sphere:standard",
+      "Ru": "На обломках старых станций эти узлы ещё держат строй. Корпуса меняются, но короткое орудие и ровное голубое ядро остаются узнаваемыми. Их ценят за то, что даже среди помех каждый выстрел приходит туда, куда был направлен.",
+      "En": "These nodes still hold formation among the ruins of old stations. Casings change, but the short weapon and steady blue core remain familiar. Even through interference, their shots arrive where they were aimed."
+    },
+    {
+      "Id": "sphere:sniper",
+      "Ru": "Её присутствие замечают по тонкой черте на далёком панцире. Пока прочие узлы заполняют пространство вспышками, Снайпер ждёт короткого совпадения линий. После попадания вновь остаётся тишина приборов.",
+      "En": "Its presence is revealed by a fine scar across distant armor. While other nodes fill the void with flashes, the Sniper waits for a brief alignment. After the hit, the instruments fall quiet again."
+    },
+    {
+      "Id": "sphere:shotgun",
+      "Ru": "Широкая боевая часть собрана из коротких направляющих. Вблизи их раздельные вспышки сливаются в один удар, оставляя на броне россыпь светящихся вмятин. Дробовик не пытается казаться изящным; его линии рассчитаны на тесную схватку.",
+      "En": "Its broad combat head is built from short guides. At close range their separate flashes merge into a single blow, leaving a constellation of glowing dents. The Shotgun's blunt proportions belong in a crowded fight."
+    },
+    {
+      "Id": "sphere:chain",
+      "Ru": "Между разомкнутыми электродами почти всегда дрожит слабый свет. Полный разряд не задерживается на первой цели: в соседних телах он находит продолжение пути. Погасший след ещё на миг соединяет врагов, которых прежде ничто не связывало.",
+      "En": "A faint light trembles between the open electrodes. A full discharge does not settle on its first target; neighboring bodies offer a path onward. Its fading trace briefly joins enemies that shared nothing before."
+    },
+    {
+      "Id": "sphere:aura",
+      "Ru": "Тонкие элементы вокруг ядра не целятся в отдельного противника. Они удерживают незримую границу, которую замечают лишь вошедшие в неё. Снаружи узел кажется спокойным; рядом с ним даже прочный панцирь начинает терять цельность.",
+      "En": "The slender parts around the core do not aim at a single foe. They maintain an unseen boundary, revealed only to those who cross it. The node looks calm from afar; nearby, even a strong shell begins to lose its integrity."
+    },
+    {
+      "Id": "sphere:orbital",
+      "Ru": "Рядом с ядром оставлено пустое пространство. Боевые элементы проходят дальше, по двум встречным траекториям, и режущая кромка встречает врага раньше, чем тот добирается до центра. Тонкий световой след показывает уже совершённый разрез.",
+      "En": "Open space surrounds the core. Its combat elements travel farther out on two opposing paths, meeting an enemy before it can reach the center. A thin luminous wake records a cut already made."
+    },
+    {
+      "Id": "sphere:prism",
+      "Ru": "Грани орудия выглядят неподвижными даже во время удара. Лишь отражение выдаёт работу внутренних направляющих: один луч приходит к цели, а дальше пространство расходится на несколько направлений. Розовое ядро остаётся той же точкой отсчёта при любой настройке.",
+      "En": "The weapon's facets appear still even as it strikes. Reflections betray the inner guides at work: one beam reaches its target, then the space beyond opens into several directions. The pink core remains the reference point through every tuning."
+    },
+    {
+      "Id": "sphere:gravity",
+      "Ru": "Изогнутые держатели ничего не выпускают наружу. Рядом с ними меняется сам рисунок движения: обломки отклоняются, тела теряют прежний курс. Центр поля остаётся светлым и почти неподвижным, пока вокруг него сходятся чужие траектории.",
+      "En": "Its curved vanes launch nothing outward. Instead, nearby motion changes: debris bends aside and bodies lose their course. The field's center stays bright and almost still while other trajectories converge around it."
+    },
+    {
+      "Id": "sphere:pulse",
+      "Ru": "Перед волной на направляющих возникает короткий ровный отблеск. Затем пространство вокруг узла раскрывается кольцом, проходит сквозь обломки и встречает чужие тела. Следующая пауза принадлежит уже новому удару.",
+      "En": "A brief, even gleam crosses the guides before each wave. Then the space around the node opens into a ring, passes through debris and meets hostile bodies. The pause that follows already belongs to the next strike."
+    },
+    {
+      "Id": "sphere:void",
+      "Ru": "В разомкнутой боевой части нет сплошной поверхности, за которую мог бы зацепиться взгляд. Удар выдаёт её лишь на миг: тёмные края сходятся на повреждённой цели, и прежний разлом становится глубже. За ним остаётся фиолетовая нить.",
+      "En": "There is no solid surface inside the open combat head for the eye to follow. A strike reveals it briefly: dark edges meet over a damaged target, deepening an existing fracture. A violet thread lingers behind."
+    },
+    {
+      "Id": "ability:radius",
+      "Ru": "Первые расширенные поля замечали по обломкам, которые начинали светиться дальше привычной границы. Узел ещё не менял положения, а пространство вокруг уже отзывалось на его присутствие.",
+      "En": "The first expanded fields were noticed in fragments lighting up beyond the familiar boundary. The node had not moved, yet the space around it was already responding."
+    },
+    {
+      "Id": "ability:damage",
+      "Ru": "В старых записях рядом с этой настройкой оставляли изображения пробитых пластин. Форма орудия почти не менялась; менялся след, который оно оставляло в цели.",
+      "En": "Old records placed images of pierced plates beside this tuning. The weapon's outline scarcely changed; the mark it left in its target did."
+    },
+    {
+      "Id": "ability:attackspeed",
+      "Ru": "Когда задержки между узлами удалось сократить, отдельные вспышки сложились в чёткий ритм. Орудия больше не ждали чужого затихающего эха.",
+      "En": "Once the delays between nodes were shortened, separate flashes settled into a precise rhythm. Weapons no longer waited for another echo to fade."
+    },
+    {
+      "Id": "ability:maxspheres",
+      "Ru": "В сохранившихся схемах незаполненное место всегда обведено тонкой линией. Это обещание ещё одного узла: сеть должна научиться удерживать его прежде, чем он займёт своё место.",
+      "En": "Surviving diagrams outline an empty place with a fine line. It promises another node: the network must learn to hold it before it can take its position."
+    },
+    {
+      "Id": "ability:blast",
+      "Ru": "Сигнал проходит по узлам, и на каждом коротко повторяется одна и та же вспышка. Враждебные тела принимают её уже не как сообщение, а как удар.",
+      "En": "A signal passes through the nodes, each briefly repeating the same flash. Hostile bodies receive it as an impact rather than a message."
+    },
+    {
+      "Id": "ability:shield",
+      "Ru": "Снаружи барьер похож на едва заметный излом света. При ударе его грани проступают целиком, принимают чужую траекторию и снова уходят в прозрачность.",
+      "En": "From outside, the barrier resembles a faint bend in the light. On impact its facets appear, catch the incoming trajectory and become transparent again."
+    },
+    {
+      "Id": "ability:teleport",
+      "Ru": "Между началом и концом прыжка не остаётся пройденного пути. Только тонкий складчатый след связывает две точки, которые на миг оказались ближе, чем должны.",
+      "En": "No traveled path remains between the jump's beginning and end. A thin folded trace joins two points that were briefly closer than they should have been."
+    },
+    {
+      "Id": "ability:movespeed",
+      "Ru": "Вытянутый след ещё хранит прежнее направление, когда ядро уже меняет курс. Эта настройка узнаётся по лёгкости, с которой тяжёлый на вид корпус проходит между обломками.",
+      "En": "The stretched wake still holds the old direction while the core changes course. This tuning is recognized by the ease with which a seemingly heavy shell slips between fragments."
+    },
+    {
+      "Id": "ability:slow",
+      "Ru": "Существо продолжает тянуться вперёд, но движение больше не отвечает его усилию. В тонком поле каждый следующий шаг будто повторяет предыдущий с опозданием.",
+      "En": "The creature keeps reaching forward, but motion no longer answers its effort. Within the thin field, each step seems to repeat the last a moment too late."
+    },
+    {
+      "Id": "ability:vitality",
+      "Ru": "В глубоких слоях ядра удерживается свет, который не участвует в обычной работе. Пока внешняя оболочка принимает удары, этот запас сохраняет узел цельным.",
+      "En": "Deep layers of the core hold light apart from its ordinary work. As the outer shell takes impacts, that reserve keeps the node whole."
+    },
+    {
+      "Id": "ability:firetrail",
+      "Ru": "На перегретых направляющих остаётся янтарный отблеск. Сеть на короткое время работает на пределе, и привычные сигналы проходят через неё с непривычной силой.",
+      "En": "An amber gleam remains on overheated guides. For a short interval the network runs at its limit, carrying familiar signals with unfamiliar force."
+    },
+    {
+      "Id": "ability:minion",
+      "Ru": "Небольшой угловатый аппарат занимает место рядом с узлом. Его детали повторяют задачу хозяина, а не его форму: дроном движет короткая рабочая команда, которую он выполняет до конца.",
+      "En": "A small angular machine takes its place beside the node. Its parts echo its owner's task rather than its shape: a brief working command carries the drone through its service."
+    },
+    {
+      "Id": "ability:vampire",
+      "Ru": "После удара не вся энергия уходит в распадающуюся цель. Тонкая обратная нить находит повреждения в собственном ядре и гаснет там, где оболочка вновь становится целой.",
+      "En": "Not all the energy of a strike is lost inside the failing target. A fine returning thread finds damage in the core and fades where its shell becomes whole again."
+    },
+    {
+      "Id": "ability:lightning",
+      "Ru": "У разряда нет заранее проложенной дороги. На миг он связывает чужие тела в одну проводящую линию; после него каждый излом ещё светится отдельно.",
+      "En": "The discharge has no road laid out in advance. For an instant it joins hostile bodies into one conducting path; afterward, each bend glows alone."
+    },
+    {
+      "Id": "ability:dodge",
+      "Ru": "Иногда между попаданием и промахом остаётся ширина тонкого следа. Ядро смещается прежде, чем чужая траектория успевает замкнуться на нём.",
+      "En": "Sometimes only the width of a faint wake separates a hit from a miss. The core shifts before an incoming trajectory can close upon it."
+    },
+    {
+      "Id": "ability:crit",
+      "Ru": "Самая толстая броня не бывает одинаковой повсюду. Настройка ищет короткое совпадение угла и открытого шва, где обычный выстрел оставит необычно глубокий след.",
+      "En": "Even the thickest armor is never uniform. This tuning seeks a brief alignment of angle and exposed seam, where an ordinary shot can leave an unusually deep mark."
+    },
+    {
+      "Id": "ability:timestop",
+      "Ru": "На записи такого события враги выглядят частью неподвижного обломочного поля. Свет ядра продолжает меняться, но всё, что было готово ударить по нему, задерживается в одном мгновении.",
+      "En": "In records of the event, enemies look like part of a motionless debris field. The core's light keeps changing while everything poised to strike it is held inside a single moment."
+    },
+    {
+      "Id": "ability:magnet",
+      "Ru": "Мелкие остатки боя описывают длинные дуги и сходятся к ядру. Их движение кажется самостоятельным, пока в темноте не проступают тонкие нити собирающего поля.",
+      "En": "Small remnants of battle trace long arcs toward the core. They appear to move on their own until fine threads of the gathering field become visible."
+    },
+    {
+      "Id": "ability:sphereboost",
+      "Ru": "Сеть сохраняет отзвук завершённого боя. После каждого уничтоженного противника в её привычном сигнале остаётся ещё один короткий, устойчивый тон.",
+      "En": "The network retains an echo of battles completed. Each defeated enemy leaves another brief, steady tone inside its familiar signal."
+    },
+    {
+      "Id": "ability:darkritual",
+      "Ru": "При перегрузке часть ядра заметно тускнеет. Вынутый из неё свет не исчезает: он проходит по сети и на короткое время делает каждый отклик резче.",
+      "En": "Part of the core visibly dims during overload. The light drawn from it is not lost; it passes through the network and briefly sharpens every response."
+    },
+    {
+      "Id": "ability:armor",
+      "Ru": "Тонкие слои оболочки отвечают на удар не одновременно. Чужая энергия расходится по ним, оставляя короткий светящийся шрам вместо глубокого раскола.",
+      "En": "The shell's thin layers do not answer an impact all at once. Incoming energy spreads through them, leaving a brief luminous scar instead of a deep fracture."
+    },
+    {
+      "Id": "ability:regen",
+      "Ru": "Там, где по оболочке ещё проходит трещина, постепенно сходятся тонкие световые линии. Ядро словно вспоминает собственную форму и возвращает её по одному участку.",
+      "En": "Fine luminous lines slowly meet along a crack in the shell. The core seems to remember its shape, restoring it one section at a time."
+    },
+    {
+      "Id": "ability:resonance",
+      "Ru": "Сначала отдельные сигналы спорят друг с другом. После настройки их вершины совпадают, и общий отклик становится ясным даже среди помех.",
+      "En": "At first the separate signals compete. Once tuned, their peaks align, making the shared response clear even through interference."
+    },
+    {
+      "Id": "ability:cooldown",
+      "Ru": "Внутри управляющего контура остаётся слишком много затихающих колебаний. Хроно-ядро укладывает их в короткую спираль, освобождая место для следующей команды.",
+      "En": "Too many fading oscillations linger in the control circuit. The Chrono Core folds them into a short spiral, clearing space for the next command."
+    },
+    {
+      "Id": "ability:critpower",
+      "Ru": "Первый разлом в броне бывает почти незаметен. Сосредоточенный в нём свет разворачивает повреждение изнутри, и целая пластина теряет опору.",
+      "En": "The first fracture in the armor can be almost invisible. Light concentrated inside it opens the damage from within, leaving an entire plate without support."
+    },
+    {
+      "Id": "ability:range",
+      "Ru": "У далёкого противника едва различим контур. Направляющие собирают расходящийся свет обратно в тонкую линию, сохраняя его до самой цели.",
+      "En": "Only the distant enemy's outline can be made out. The guides gather spreading light back into a fine line, holding it together all the way to the target."
+    },
+    {
+      "Id": "ability:proj_speed",
+      "Ru": "Вслед за выстрелом остаётся длинная узкая нить. Вспышка попадания появляется прежде, чем взгляд успевает отделить снаряд от орудия.",
+      "En": "A long narrow thread remains behind the shot. Its impact flashes before the eye can separate the projectile from the weapon."
+    },
+    {
+      "Id": "ability:momentum",
+      "Ru": "Законченный рывок ещё не означает покоя. Вытянутый след продолжает подталкивать ядро, пока накопленное движение не растворится в новом курсе.",
+      "En": "A finished dash does not yet mean rest. Its elongated wake keeps urging the core onward until the gathered motion fades into a new course."
+    },
+    {
+      "Id": "ability:fortune",
+      "Ru": "В потоке бесполезных обломков иногда остаётся вещь, пережившая всё остальное. Эта настройка обращена к таким редким совпадениям — к свету, который легко было бы не заметить.",
+      "En": "Among useless wreckage, something occasionally survives everything else. This tuning attends to those rare coincidences: a gleam that might otherwise pass unseen."
+    },
+    {
+      "Id": "ability:stability",
+      "Ru": "Погасший узел ещё помнит своё место в сети. Слабая линия находит прежний контур, проходит по нему снова и возвращает оборванный сигнал.",
+      "En": "A darkened node still remembers its place in the network. A faint line finds the old circuit, traces it once more and restores the broken signal."
+    },
+    {
+      "Id": "sphere-branch:standard_resonator",
+      "Ru": "Внутренние пластины сохраняют отзвук удара. Когда он возвращается к направляющим, на их краях уже собирается новый свет.",
+      "En": "The inner plates retain an echo of impact. As it returns to the guides, new light is already gathering along their edges."
+    },
+    {
+      "Id": "sphere-final:standard:standard_resonator:0",
+      "Ru": "Внутренние пластины сохраняют отзвук удара. Когда он возвращается к направляющим, на их краях уже собирается новый свет.\n\nНа месте попадания раскрывается второе кольцо; его янтарный край на миг соединяет трещины панциря.",
+      "En": "The inner plates retain an echo of impact. As it returns to the guides, new light is already gathering along their edges.\n\nA second ring unfolds at the impact, briefly joining the shell's cracks with its amber edge."
+    },
+    {
+      "Id": "sphere-final:standard:standard_resonator:1",
+      "Ru": "Внутренние пластины сохраняют отзвук удара. Когда он возвращается к направляющим, на их краях уже собирается новый свет.\n\nПередние пластины расходятся, и удар выталкивает врагов из собственной вспышки.",
+      "En": "The inner plates retain an echo of impact. As it returns to the guides, new light is already gathering along their edges.\n\nThe front plates open, and the blow drives enemies out of its own flash."
+    },
+    {
+      "Id": "sphere-final:standard:standard_resonator:2",
+      "Ru": "Внутренние пластины сохраняют отзвук удара. Когда он возвращается к направляющим, на их краях уже собирается новый свет.\n\nДолгое послесвечение остаётся в разломах. Движение рядом с ними теряет прежнюю резкость.",
+      "En": "The inner plates retain an echo of impact. As it returns to the guides, new light is already gathering along their edges.\n\nA long afterglow lingers in the fractures. Motion nearby loses its former sharpness."
+    },
+    {
+      "Id": "sphere-branch:standard_singularity",
+      "Ru": "Короткие направляющие выгнуты внутрь. После попадания кажется, что след выстрела натянут между целью и чем-то, чего нельзя увидеть.",
+      "En": "The short guides curve inward. After a hit, the shot's trace seems stretched between its target and something unseen."
+    },
+    {
+      "Id": "sphere-final:standard:standard_singularity:0",
+      "Ru": "Короткие направляющие выгнуты внутрь. После попадания кажется, что след выстрела натянут между целью и чем-то, чего нельзя увидеть.\n\nЧужие траектории сходятся теснее. По краям орудия остаётся холодный свет.",
+      "En": "The short guides curve inward. After a hit, the shot's trace seems stretched between its target and something unseen.\n\nHostile trajectories converge more tightly. Cold light remains along the weapon's edges."
+    },
+    {
+      "Id": "sphere-final:standard:standard_singularity:1",
+      "Ru": "Короткие направляющие выгнуты внутрь. После попадания кажется, что след выстрела натянут между целью и чем-то, чего нельзя увидеть.\n\nВокруг повреждённой цели подолгу держится ровный бледный отблеск.",
+      "En": "The short guides curve inward. After a hit, the shot's trace seems stretched between its target and something unseen.\n\nAn even pale gleam lingers around the damaged target."
+    },
+    {
+      "Id": "sphere-final:standard:standard_singularity:2",
+      "Ru": "Короткие направляющие выгнуты внутрь. После попадания кажется, что след выстрела натянут между целью и чем-то, чего нельзя увидеть.\n\nКрая воронки смыкаются над уже треснувшей бронёй; внутри исчезает свободное пространство.",
+      "En": "The short guides curve inward. After a hit, the shot's trace seems stretched between its target and something unseen.\n\nThe funnel's edges close over already fractured armor, leaving less open space within."
+    },
+    {
+      "Id": "sphere-branch:standard_swarm",
+      "Ru": "В боковых частях орудия оставлены узкие отдельные каналы. Они продолжают работу уже после первого попадания, когда основной след начинает гаснуть.",
+      "En": "Separate narrow channels occupy the weapon's sides. They keep working after the first impact, as the main trace begins to fade."
+    },
+    {
+      "Id": "sphere-final:standard:standard_swarm:0",
+      "Ru": "В боковых частях орудия оставлены узкие отдельные каналы. Они продолжают работу уже после первого попадания, когда основной след начинает гаснуть.\n\nОт треснувшей пластины отделяется один светящийся осколок и выбирает иной путь.",
+      "En": "Separate narrow channels occupy the weapon's sides. They keep working after the first impact, as the main trace begins to fade.\n\nOne luminous shard leaves the fractured plate and chooses another path."
+    },
+    {
+      "Id": "sphere-final:standard:standard_swarm:1",
+      "Ru": "В боковых частях орудия оставлены узкие отдельные каналы. Они продолжают работу уже после первого попадания, когда основной след начинает гаснуть.\n\nДва боковых следа расходятся от места удара, оставляя между собой тёмный клин.",
+      "En": "Separate narrow channels occupy the weapon's sides. They keep working after the first impact, as the main trace begins to fade.\n\nTwo side traces diverge from the impact, leaving a dark wedge between them."
+    },
+    {
+      "Id": "sphere-final:standard:standard_swarm:2",
+      "Ru": "В боковых частях орудия оставлены узкие отдельные каналы. Они продолжают работу уже после первого попадания, когда основной след начинает гаснуть.\n\nТри тонкие нити раскрываются веером; зелёный отсвет задерживается на их концах.",
+      "En": "Separate narrow channels occupy the weapon's sides. They keep working after the first impact, as the main trace begins to fade.\n\nThree fine threads open into a fan; green light lingers at their ends."
+    },
+    {
+      "Id": "sphere-branch:sniper_oracle",
+      "Ru": "Вокруг линзы собраны тонкие оптические лепестки. Их отражения сходятся на одной далёкой точке, пока сама сфера остаётся неподвижной.",
+      "En": "Fine optical petals surround the lens. Their reflections converge on one distant point while the sphere remains still."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_oracle:0",
+      "Ru": "Вокруг линзы собраны тонкие оптические лепестки. Их отражения сходятся на одной далёкой точке, пока сама сфера остаётся неподвижной.\n\nВложенные друг в друга линзы вырезают в броне узкий ослепительный шов.",
+      "En": "Fine optical petals surround the lens. Their reflections converge on one distant point while the sphere remains still.\n\nNested lenses cut a narrow, dazzling seam into the armor."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_oracle:1",
+      "Ru": "Вокруг линзы собраны тонкие оптические лепестки. Их отражения сходятся на одной далёкой точке, пока сама сфера остаётся неподвижной.\n\nБоковые приёмники отвечают на попадание зелёным отблеском, который возвращается к ядру.",
+      "En": "Fine optical petals surround the lens. Their reflections converge on one distant point while the sphere remains still.\n\nSide pickups answer the impact with a green gleam returning toward the core."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_oracle:2",
+      "Ru": "Вокруг линзы собраны тонкие оптические лепестки. Их отражения сходятся на одной далёкой точке, пока сама сфера остаётся неподвижной.\n\nЗа точным отверстием в панцире проступает более широкий внутренний разлом.",
+      "En": "Fine optical petals surround the lens. Their reflections converge on one distant point while the sphere remains still.\n\nA wider internal fracture opens behind the precise hole in the shell."
+    },
+    {
+      "Id": "sphere-branch:sniper_assassin",
+      "Ru": "На передних направляющих почти нет лишних поверхностей. Свет задерживается лишь на острых концах, обращённых к уже повреждённой цели.",
+      "En": "The front guides carry few unnecessary surfaces. Light clings only to sharp tips facing an already damaged target."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_assassin:0",
+      "Ru": "На передних направляющих почти нет лишних поверхностей. Свет задерживается лишь на острых концах, обращённых к уже повреждённой цели.\n\nПарные крюки сходятся вокруг оптики, словно последнее движение затвора.",
+      "En": "The front guides carry few unnecessary surfaces. Light clings only to sharp tips facing an already damaged target.\n\nPaired hooks close around the optic like the last movement of a shutter."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_assassin:1",
+      "Ru": "На передних направляющих почти нет лишних поверхностей. Свет задерживается лишь на острых концах, обращённых к уже повреждённой цели.\n\nПараллельные лезвия удерживают направление до самого короткого завершающего всполоха.",
+      "En": "The front guides carry few unnecessary surfaces. Light clings only to sharp tips facing an already damaged target.\n\nParallel blades hold their direction through the brief finishing flare."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_assassin:2",
+      "Ru": "На передних направляющих почти нет лишних поверхностей. Свет задерживается лишь на острых концах, обращённых к уже повреждённой цели.\n\nПосле исчезнувшей цели остаётся тонкая нить, уже натянутая в другую сторону.",
+      "En": "The front guides carry few unnecessary surfaces. Light clings only to sharp tips facing an already damaged target.\n\nA fine thread remains where the target vanished, already drawn toward another direction."
+    },
+    {
+      "Id": "sphere-branch:sniper_beacon",
+      "Ru": "Разомкнутые отражатели орудия похожи на детали далёкого сигнального узла. Их свет остаётся на цели дольше самого выстрела.",
+      "En": "The weapon's open reflectors resemble parts of a distant signal node. Their light stays on the target longer than the shot."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_beacon:0",
+      "Ru": "Разомкнутые отражатели орудия похожи на детали далёкого сигнального узла. Их свет остаётся на цели дольше самого выстрела.\n\nЗацепы передней части удерживают ровный холодный след в одной области.",
+      "En": "The weapon's open reflectors resemble parts of a distant signal node. Their light stays on the target longer than the shot.\n\nFront catches hold an even cold trace within one area."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_beacon:1",
+      "Ru": "Разомкнутые отражатели орудия похожи на детали далёкого сигнального узла. Их свет остаётся на цели дольше самого выстрела.\n\nОтражающие грани раскрыты шире; отмеченная поверхность становится отчётливой среди обломков.",
+      "En": "The weapon's open reflectors resemble parts of a distant signal node. Their light stays on the target longer than the shot.\n\nThe reflecting facets open wider, making the marked surface distinct among the debris."
+    },
+    {
+      "Id": "sphere-final:sniper:sniper_beacon:2",
+      "Ru": "Разомкнутые отражатели орудия похожи на детали далёкого сигнального узла. Их свет остаётся на цели дольше самого выстрела.\n\nТреугольные проводящие элементы собирают вокруг цели единый тихий контур.",
+      "En": "The weapon's open reflectors resemble parts of a distant signal node. Their light stays on the target longer than the shot.\n\nTriangular conductors gather one quiet circuit around the target."
+    },
+    {
+      "Id": "sphere-branch:shotgun_burst",
+      "Ru": "Широкая передняя часть собрана так тесно, что отдельные каналы кажутся одной расколотой щелью. Вспышка начинается сразу у её края.",
+      "En": "The broad front is packed so tightly that its separate channels resemble one fractured slot. The flash begins at its edge."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_burst:0",
+      "Ru": "Широкая передняя часть собрана так тесно, что отдельные каналы кажутся одной расколотой щелью. Вспышка начинается сразу у её края.\n\nНа близкой броне отдельные следы почти касаются друг друга.",
+      "En": "The broad front is packed so tightly that its separate channels resemble one fractured slot. The flash begins at its edge.\n\nSeparate marks almost touch across nearby armor."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_burst:1",
+      "Ru": "Широкая передняя часть собрана так тесно, что отдельные каналы кажутся одной расколотой щелью. Вспышка начинается сразу у её края.\n\nУсиленные боковые скобы принимают отдачу, пока свет в широком канале не гаснет.",
+      "En": "The broad front is packed so tightly that its separate channels resemble one fractured slot. The flash begins at its edge.\n\nReinforced side braces take the recoil while light remains inside the broad channel."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_burst:2",
+      "Ru": "Широкая передняя часть собрана так тесно, что отдельные каналы кажутся одной расколотой щелью. Вспышка начинается сразу у её края.\n\nПередние пластины расходятся резко, оставляя в пространстве короткую янтарную дугу.",
+      "En": "The broad front is packed so tightly that its separate channels resemble one fractured slot. The flash begins at its edge.\n\nThe front plates open sharply, leaving a brief amber arc in the void."
+    },
+    {
+      "Id": "sphere-branch:shotgun_cataclysm",
+      "Ru": "Тяжёлые части орудия удерживаются парными креплениями. Их швы светятся тускло-зелёным ещё до того, как в передних каналах появляется заряд.",
+      "En": "Paired mounts hold the weapon's heavy sections. Their seams glow a dim green before a charge appears in the forward channels."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_cataclysm:0",
+      "Ru": "Тяжёлые части орудия удерживаются парными креплениями. Их швы светятся тускло-зелёным ещё до того, как в передних каналах появляется заряд.\n\nВ месте пробития остаются несколько расходящихся сколов.",
+      "En": "Paired mounts hold the weapon's heavy sections. Their seams glow a dim green before a charge appears in the forward channels.\n\nSeveral diverging chips remain around the breach."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_cataclysm:1",
+      "Ru": "Тяжёлые части орудия удерживаются парными креплениями. Их швы светятся тускло-зелёным ещё до того, как в передних каналах появляется заряд.\n\nПод ударом броня прогибается целой тяжёлой пластиной.",
+      "En": "Paired mounts hold the weapon's heavy sections. Their seams glow a dim green before a charge appears in the forward channels.\n\nAn entire heavy plate buckles beneath the strike."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_cataclysm:2",
+      "Ru": "Тяжёлые части орудия удерживаются парными креплениями. Их швы светятся тускло-зелёным ещё до того, как в передних каналах появляется заряд.\n\nПосле вспышки повреждённый участок остаётся внутри медленно гаснущего следа.",
+      "En": "Paired mounts hold the weapon's heavy sections. Their seams glow a dim green before a charge appears in the forward channels.\n\nAfter the flash, the damaged section stays within a slowly fading trace."
+    },
+    {
+      "Id": "sphere-branch:shotgun_hail",
+      "Ru": "Холодные направляющие разделены тонкими просветами. Каждый канал оставляет собственный след, и вместе они заполняют короткий участок перед сферой.",
+      "En": "Thin gaps separate the cold guides. Each channel leaves its own trace, together filling the short space in front of the sphere."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_hail:0",
+      "Ru": "Холодные направляющие разделены тонкими просветами. Каждый канал оставляет собственный след, и вместе они заполняют короткий участок перед сферой.\n\nЛёд на разбитой поверхности дробится вместе с бронёй.",
+      "En": "Thin gaps separate the cold guides. Each channel leaves its own trace, together filling the short space in front of the sphere.\n\nIce on the struck surface breaks along with the armor."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_hail:1",
+      "Ru": "Холодные направляющие разделены тонкими просветами. Каждый канал оставляет собственный след, и вместе они заполняют короткий участок перед сферой.\n\nУзкие каналы сходятся плотнее, собирая частые холодные вспышки.",
+      "En": "Thin gaps separate the cold guides. Each channel leaves its own trace, together filling the short space in front of the sphere.\n\nNarrow channels gather more tightly, concentrating frequent cold flashes."
+    },
+    {
+      "Id": "sphere-final:shotgun:shotgun_hail:2",
+      "Ru": "Холодные направляющие разделены тонкими просветами. Каждый канал оставляет собственный след, и вместе они заполняют короткий участок перед сферой.\n\nКрайние направляющие чуть развёрнуты, будто прислушиваются к движению цели.",
+      "En": "Thin gaps separate the cold guides. Each channel leaves its own trace, together filling the short space in front of the sphere.\n\nThe outer guides turn slightly, as if attending to the target's movement."
+    },
+    {
+      "Id": "sphere-branch:chain_web",
+      "Ru": "Изломы электродов удерживают тонкие разветвления разряда. Его след похож на натянутые нити, но между ними нет вещества — только свет.",
+      "En": "Bends in the electrodes hold fine branches of the discharge. Its trace resembles taut threads, with nothing between them but light."
+    },
+    {
+      "Id": "sphere-final:chain:chain_web:0",
+      "Ru": "Изломы электродов удерживают тонкие разветвления разряда. Его след похож на натянутые нити, но между ними нет вещества — только свет.\n\nНа изгибах проводящих пластин подолгу остаются неподвижные белые точки.",
+      "En": "Bends in the electrodes hold fine branches of the discharge. Its trace resembles taut threads, with nothing between them but light.\n\nStill white points linger along the conducting plates' bends."
+    },
+    {
+      "Id": "sphere-final:chain:chain_web:1",
+      "Ru": "Изломы электродов удерживают тонкие разветвления разряда. Его след похож на натянутые нити, но между ними нет вещества — только свет.\n\nКороткие вспышки повторяют прежние развилки, не теряя рисунка.",
+      "En": "Bends in the electrodes hold fine branches of the discharge. Its trace resembles taut threads, with nothing between them but light.\n\nShort flashes repeat the same forks without losing their pattern."
+    },
+    {
+      "Id": "sphere-final:chain:chain_web:2",
+      "Ru": "Изломы электродов удерживают тонкие разветвления разряда. Его след похож на натянутые нити, но между ними нет вещества — только свет.\n\nПоследний холодный отблеск держится на поражённых телах, когда основной разряд уже исчез.",
+      "En": "Bends in the electrodes hold fine branches of the discharge. Its trace resembles taut threads, with nothing between them but light.\n\nThe last cold gleam remains on the struck bodies after the main discharge is gone."
+    },
+    {
+      "Id": "sphere-branch:chain_storm",
+      "Ru": "Широкие электроды отведены друг от друга. Между ними разряд не успевает затихнуть полностью: в темноте постоянно проступает новый излом.",
+      "En": "The broad electrodes stand apart. Between them the discharge never quite fades; another bend keeps appearing in the darkness."
+    },
+    {
+      "Id": "sphere-final:chain:chain_storm:0",
+      "Ru": "Широкие электроды отведены друг от друга. Между ними разряд не успевает затихнуть полностью: в темноте постоянно проступает новый излом.\n\nПередние дуги принимают свет сразу по всей кромке.",
+      "En": "The broad electrodes stand apart. Between them the discharge never quite fades; another bend keeps appearing in the darkness.\n\nThe forward arcs receive light along their entire edge."
+    },
+    {
+      "Id": "sphere-final:chain:chain_storm:1",
+      "Ru": "Широкие электроды отведены друг от друга. Между ними разряд не успевает затихнуть полностью: в темноте постоянно проступает новый излом.\n\nБоковые приёмники вспыхивают в ответ на каждый отдалённый контакт.",
+      "En": "The broad electrodes stand apart. Between them the discharge never quite fades; another bend keeps appearing in the darkness.\n\nSide pickups flare in answer to each distant contact."
+    },
+    {
+      "Id": "sphere-final:chain:chain_storm:2",
+      "Ru": "Широкие электроды отведены друг от друга. Между ними разряд не успевает затихнуть полностью: в темноте постоянно проступает новый излом.\n\nЗа последней вспышкой уже проступает начало следующего замкнутого прохода.",
+      "En": "The broad electrodes stand apart. Between them the discharge never quite fades; another bend keeps appearing in the darkness.\n\nBehind the final flash, the beginning of another circuit is already visible."
+    },
+    {
+      "Id": "sphere-branch:chain_leech",
+      "Ru": "В зелёных каналах различимы встречные отблески. Один уходит к цели, другой возвращается по ещё не погасшему пути.",
+      "En": "Opposing gleams can be seen inside the green channels. One travels toward the target; the other returns along a path not yet dark."
+    },
+    {
+      "Id": "sphere-final:chain:chain_leech:0",
+      "Ru": "В зелёных каналах различимы встречные отблески. Один уходит к цели, другой возвращается по ещё не погасшему пути.\n\nВозвратная нить тянется узко, не касаясь внешних электродов.",
+      "En": "Opposing gleams can be seen inside the green channels. One travels toward the target; the other returns along a path not yet dark.\n\nThe returning thread stays narrow, clear of the outer electrodes."
+    },
+    {
+      "Id": "sphere-final:chain:chain_leech:1",
+      "Ru": "В зелёных каналах различимы встречные отблески. Один уходит к цели, другой возвращается по ещё не погасшему пути.\n\nВ боковых накопителях сходятся несколько коротких отзвуков боя.",
+      "En": "Opposing gleams can be seen inside the green channels. One travels toward the target; the other returns along a path not yet dark.\n\nSeveral brief echoes of battle converge in the side reservoirs."
+    },
+    {
+      "Id": "sphere-final:chain:chain_leech:2",
+      "Ru": "В зелёных каналах различимы встречные отблески. Один уходит к цели, другой возвращается по ещё не погасшему пути.\n\nСвет успевает обойти проводящие скобы прежде, чем следующий разряд покидает их.",
+      "En": "Opposing gleams can be seen inside the green channels. One travels toward the target; the other returns along a path not yet dark.\n\nLight circles the conducting braces before the next discharge leaves them."
+    },
+    {
+      "Id": "sphere-branch:aura_sanctum",
+      "Ru": "Тонкие лепестки удерживают холодный, почти прозрачный контур. В его пределах движение врага становится заметно по медленно расходящимся световым следам.",
+      "En": "Slender petals hold a cold, nearly transparent boundary. Within it, an enemy's movement is revealed by slowly spreading luminous wakes."
+    },
+    {
+      "Id": "sphere-final:aura:aura_sanctum:0",
+      "Ru": "Тонкие лепестки удерживают холодный, почти прозрачный контур. В его пределах движение врага становится заметно по медленно расходящимся световым следам.\n\nНа концах лепестков собирается ровная белая кромка.",
+      "En": "Slender petals hold a cold, nearly transparent boundary. Within it, an enemy's movement is revealed by slowly spreading luminous wakes.\n\nAn even white edge gathers at the petals' tips."
+    },
+    {
+      "Id": "sphere-final:aura:aura_sanctum:1",
+      "Ru": "Тонкие лепестки удерживают холодный, почти прозрачный контур. В его пределах движение врага становится заметно по медленно расходящимся световым следам.\n\nПарные направляющие будто охватывают пространство, не смыкаясь.",
+      "En": "Slender petals hold a cold, nearly transparent boundary. Within it, an enemy's movement is revealed by slowly spreading luminous wakes.\n\nPaired guides seem to embrace the space without closing."
+    },
+    {
+      "Id": "sphere-final:aura:aura_sanctum:2",
+      "Ru": "Тонкие лепестки удерживают холодный, почти прозрачный контур. В его пределах движение врага становится заметно по медленно расходящимся световым следам.\n\nВнешние изгибы оставляют после себя длинное спокойное послесвечение.",
+      "En": "Slender petals hold a cold, nearly transparent boundary. Within it, an enemy's movement is revealed by slowly spreading luminous wakes.\n\nThe outer curves leave a long, quiet afterglow."
+    },
+    {
+      "Id": "sphere-branch:aura_gravity",
+      "Ru": "Окружение узла остаётся прозрачным. Лишь отклоняющиеся обломки выдают работу изогнутых элементов: всё рядом постепенно теряет прежнее направление.",
+      "En": "The space around the node stays transparent. Only bending debris reveals the curved elements at work, as nearby motion gradually loses its former course."
+    },
+    {
+      "Id": "sphere-final:aura:aura_gravity:0",
+      "Ru": "Окружение узла остаётся прозрачным. Лишь отклоняющиеся обломки выдают работу изогнутых элементов: всё рядом постепенно теряет прежнее направление.\n\nПередние изгибы обращены к центру и собирают туда же тонкие линии поля.",
+      "En": "The space around the node stays transparent. Only bending debris reveals the curved elements at work, as nearby motion gradually loses its former course.\n\nThe forward curves face the center, gathering the field's fine lines inward."
+    },
+    {
+      "Id": "sphere-final:aura:aura_gravity:1",
+      "Ru": "Окружение узла остаётся прозрачным. Лишь отклоняющиеся обломки выдают работу изогнутых элементов: всё рядом постепенно теряет прежнее направление.\n\nВдоль парных пластин удерживается плотный янтарный отблеск.",
+      "En": "The space around the node stays transparent. Only bending debris reveals the curved elements at work, as nearby motion gradually loses its former course.\n\nA dense amber gleam holds along the paired plates."
+    },
+    {
+      "Id": "sphere-final:aura:aura_gravity:2",
+      "Ru": "Окружение узла остаётся прозрачным. Лишь отклоняющиеся обломки выдают работу изогнутых элементов: всё рядом постепенно теряет прежнее направление.\n\nКрайние лепестки на миг раскрываются, и сходящиеся следы вздрагивают вместе.",
+      "En": "The space around the node stays transparent. Only bending debris reveals the curved elements at work, as nearby motion gradually loses its former course.\n\nThe outer petals briefly open, and the converging traces shudder together."
+    },
+    {
+      "Id": "sphere-branch:aura_overgrowth",
+      "Ru": "Зелёные каналы проходят сквозь каждый тонкий элемент. В их рисунке нет ствола или прицела — только непрерывный обмен между соседними частями поля.",
+      "En": "Green channels run through every slender element. Their pattern contains no barrel or sight, only a continuous exchange across neighboring parts of the field."
+    },
+    {
+      "Id": "sphere-final:aura:aura_overgrowth:0",
+      "Ru": "Зелёные каналы проходят сквозь каждый тонкий элемент. В их рисунке нет ствола или прицела — только непрерывный обмен между соседними частями поля.\n\nВдоль узких кромок пробегают короткие частые вспышки.",
+      "En": "Green channels run through every slender element. Their pattern contains no barrel or sight, only a continuous exchange across neighboring parts of the field.\n\nBrief, frequent flashes run along the narrow edges."
+    },
+    {
+      "Id": "sphere-final:aura:aura_overgrowth:1",
+      "Ru": "Зелёные каналы проходят сквозь каждый тонкий элемент. В их рисунке нет ствола или прицела — только непрерывный обмен между соседними частями поля.\n\nСвет переходит с одной изогнутой пластины на другую, не обрывая общей линии.",
+      "En": "Green channels run through every slender element. Their pattern contains no barrel or sight, only a continuous exchange across neighboring parts of the field.\n\nLight passes from one curved plate to another without breaking the shared line."
+    },
+    {
+      "Id": "sphere-final:aura:aura_overgrowth:2",
+      "Ru": "Зелёные каналы проходят сквозь каждый тонкий элемент. В их рисунке нет ствола или прицела — только непрерывный обмен между соседними частями поля.\n\nВсе лепестки на мгновение светятся одинаково, и граница поля становится ровной.",
+      "En": "Green channels run through every slender element. Their pattern contains no barrel or sight, only a continuous exchange across neighboring parts of the field.\n\nAll petals briefly shine alike, making the field's boundary even."
+    },
+    {
+      "Id": "sphere-branch:orbital_dance",
+      "Ru": "За каждым лезвием остаётся вытянутый след. Две орбиты идут навстречу друг другу, и их рисунок непрерывно меняется, не приближаясь к ядру.",
+      "En": "An elongated wake follows every blade. The two orbits run in opposite directions, their pattern constantly changing without closing upon the core."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_dance:0",
+      "Ru": "За каждым лезвием остаётся вытянутый след. Две орбиты идут навстречу друг другу, и их рисунок непрерывно меняется, не приближаясь к ядру.\n\nТам, где лезвие уже прошло, ещё различим его бледный отзвук.",
+      "En": "An elongated wake follows every blade. The two orbits run in opposite directions, their pattern constantly changing without closing upon the core.\n\nA pale echo of the blade remains where it has already passed."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_dance:1",
+      "Ru": "За каждым лезвием остаётся вытянутый след. Две орбиты идут навстречу друг другу, и их рисунок непрерывно меняется, не приближаясь к ядру.\n\nСледы на двух орбитах вытягиваются в длинные встречные дуги.",
+      "En": "An elongated wake follows every blade. The two orbits run in opposite directions, their pattern constantly changing without closing upon the core.\n\nWakes on the two orbits stretch into long opposing arcs."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_dance:2",
+      "Ru": "За каждым лезвием остаётся вытянутый след. Две орбиты идут навстречу друг другу, и их рисунок непрерывно меняется, не приближаясь к ядру.\n\nНесколько отдельных кромок на миг оказываются рядом у одной поражённой поверхности.",
+      "En": "An elongated wake follows every blade. The two orbits run in opposite directions, their pattern constantly changing without closing upon the core.\n\nSeveral separate edges briefly meet beside one struck surface."
+    },
+    {
+      "Id": "sphere-branch:orbital_halo",
+      "Ru": "Светящиеся дорожки широко расходятся вокруг ядра. Каждое боевое ребро остаётся отдельной деталью, а не узлом на сплошном металлическом кольце.",
+      "En": "Luminous paths spread widely around the core. Every combat edge remains a separate part, never a node on a solid metal ring."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_halo:0",
+      "Ru": "Светящиеся дорожки широко расходятся вокруг ядра. Каждое боевое ребро остаётся отдельной деталью, а не узлом на сплошном металлическом кольце.\n\nУспешный проход отмечает короткий холодный отблеск по всей орбите.",
+      "En": "Luminous paths spread widely around the core. Every combat edge remains a separate part, never a node on a solid metal ring.\n\nA successful pass sends a brief cold gleam along the orbit."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_halo:1",
+      "Ru": "Светящиеся дорожки широко расходятся вокруг ядра. Каждое боевое ребро остаётся отдельной деталью, а не узлом на сплошном металлическом кольце.\n\nНа дальней траектории между ядром и кромкой остаётся широкий тёмный промежуток.",
+      "En": "Luminous paths spread widely around the core. Every combat edge remains a separate part, never a node on a solid metal ring.\n\nA broad dark gap separates the core from the outer cutting path."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_halo:2",
+      "Ru": "Светящиеся дорожки широко расходятся вокруг ядра. Каждое боевое ребро остаётся отдельной деталью, а не узлом на сплошном металлическом кольце.\n\nЛезвия проходят встречными рядами, оставляя вокруг центра чистое пространство.",
+      "En": "Luminous paths spread widely around the core. Every combat edge remains a separate part, never a node on a solid metal ring.\n\nThe blades pass in opposing ranks, leaving clear space around the center."
+    },
+    {
+      "Id": "sphere-branch:orbital_blade",
+      "Ru": "На этих элементах легко различить рабочую сторону. Режущая кромка обращена в движение, а короткий световой хвост остаётся позади разреза.",
+      "En": "The working side of these elements is easy to recognize. The cutting edge faces its motion, leaving a short luminous tail behind the cut."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_blade:0",
+      "Ru": "На этих элементах легко различить рабочую сторону. Режущая кромка обращена в движение, а короткий световой хвост остаётся позади разреза.\n\nУдар принимает усиленное переднее ребро, и на панцире остаётся яркая косая борозда.",
+      "En": "The working side of these elements is easy to recognize. The cutting edge faces its motion, leaving a short luminous tail behind the cut.\n\nA reinforced leading edge takes the impact, leaving a bright diagonal groove in the shell."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_blade:1",
+      "Ru": "На этих элементах легко различить рабочую сторону. Режущая кромка обращена в движение, а короткий световой хвост остаётся позади разреза.\n\nЗа действительной кромкой тянется тонкое, уже угасающее отражение.",
+      "En": "The working side of these elements is easy to recognize. The cutting edge faces its motion, leaving a short luminous tail behind the cut.\n\nA fine, fading reflection follows behind the real edge."
+    },
+    {
+      "Id": "sphere-final:orbital:orbital_blade:2",
+      "Ru": "На этих элементах легко различить рабочую сторону. Режущая кромка обращена в движение, а короткий световой хвост остаётся позади разреза.\n\nРазрез проходит вдоль целого участка внешней траектории и исчезает в янтарном следе.",
+      "En": "The working side of these elements is easy to recognize. The cutting edge faces its motion, leaving a short luminous tail behind the cut.\n\nThe cut follows a full stretch of the outer path before fading into an amber wake."
+    },
+    {
+      "Id": "sphere-branch:prism_split",
+      "Ru": "Раздельные грани держат один общий фокус. До попадания свет идёт вместе; за повреждённой поверхностью его линии получают разные направления.",
+      "En": "Separate facets hold a shared focus. Light travels together until impact, then its lines take different directions beyond the damaged surface."
+    },
+    {
+      "Id": "sphere-final:prism:prism_split:0",
+      "Ru": "Раздельные грани держат один общий фокус. До попадания свет идёт вместе; за повреждённой поверхностью его линии получают разные направления.\n\nБоковые отражатели развёрнуты широким веером.",
+      "En": "Separate facets hold a shared focus. Light travels together until impact, then its lines take different directions beyond the damaged surface.\n\nThe side reflectors open into a broad fan."
+    },
+    {
+      "Id": "sphere-final:prism:prism_split:1",
+      "Ru": "Раздельные грани держат один общий фокус. До попадания свет идёт вместе; за повреждённой поверхностью его линии получают разные направления.\n\nЦентральные грани собраны плотнее, оставляя свету узкий прямой проход.",
+      "En": "Separate facets hold a shared focus. Light travels together until impact, then its lines take different directions beyond the damaged surface.\n\nThe central facets sit closer together, leaving a narrow straight passage for the light."
+    },
+    {
+      "Id": "sphere-final:prism:prism_split:2",
+      "Ru": "Раздельные грани держат один общий фокус. До попадания свет идёт вместе; за повреждённой поверхностью его линии получают разные направления.\n\nПосле первого контакта на зеркальных краях возникает короткий обратный отблеск.",
+      "En": "Separate facets hold a shared focus. Light travels together until impact, then its lines take different directions beyond the damaged surface.\n\nA brief returning gleam appears on the mirrored edges after first contact."
+    },
+    {
+      "Id": "sphere-branch:prism_spectrum",
+      "Ru": "Розовое ядро не меняется вместе с настройкой. Иной оттенок появляется лишь на гранях и орбите, где свет проходит через выбранный контур.",
+      "En": "The pink core does not change with the tuning. Another hue appears only on the facets and orbit where light enters the chosen circuit."
+    },
+    {
+      "Id": "sphere-final:prism:prism_spectrum:0",
+      "Ru": "Розовое ядро не меняется вместе с настройкой. Иной оттенок появляется лишь на гранях и орбите, где свет проходит через выбранный контур.\n\nЯнтарные прожилки сходятся в отражателях и продолжаются в горячем следе удара.",
+      "En": "The pink core does not change with the tuning. Another hue appears only on the facets and orbit where light enters the chosen circuit.\n\nAmber veins converge inside the reflectors and continue into the strike's hot trace."
+    },
+    {
+      "Id": "sphere-final:prism:prism_spectrum:1",
+      "Ru": "Розовое ядро не меняется вместе с настройкой. Иной оттенок появляется лишь на гранях и орбите, где свет проходит через выбранный контур.\n\nХолодная кромка делит свет на почти белые нити.",
+      "En": "The pink core does not change with the tuning. Another hue appears only on the facets and orbit where light enters the chosen circuit.\n\nA cold edge divides the light into almost white threads."
+    },
+    {
+      "Id": "sphere-final:prism:prism_spectrum:2",
+      "Ru": "Розовое ядро не меняется вместе с настройкой. Иной оттенок появляется лишь на гранях и орбите, где свет проходит через выбранный контур.\n\nНа внутренних гранях задерживается зелёный отсвет, заметный и в расколотой цели.",
+      "En": "The pink core does not change with the tuning. Another hue appears only on the facets and orbit where light enters the chosen circuit.\n\nGreen light lingers on the inner facets, visible again inside the fractured target."
+    },
+    {
+      "Id": "sphere-branch:prism_mirror",
+      "Ru": "Наклонные отражатели оставляют открытой середину орудия. В ней сходятся не детали, а пути света, каждый со своим коротким отражением.",
+      "En": "Angled reflectors leave the weapon's middle open. What meets there is not machinery but paths of light, each carrying a brief reflection."
+    },
+    {
+      "Id": "sphere-final:prism:prism_mirror:0",
+      "Ru": "Наклонные отражатели оставляют открытой середину орудия. В ней сходятся не детали, а пути света, каждый со своим коротким отражением.\n\nНа одной дальней поверхности загорается следующий отражённый след.",
+      "En": "Angled reflectors leave the weapon's middle open. What meets there is not machinery but paths of light, each carrying a brief reflection.\n\nAnother reflected trace lights a distant surface."
+    },
+    {
+      "Id": "sphere-final:prism:prism_mirror:1",
+      "Ru": "Наклонные отражатели оставляют открытой середину орудия. В ней сходятся не детали, а пути света, каждый со своим коротким отражением.\n\nДва встречных отблеска успевают сменить друг друга на зеркальной кромке.",
+      "En": "Angled reflectors leave the weapon's middle open. What meets there is not machinery but paths of light, each carrying a brief reflection.\n\nTwo opposing gleams exchange places along the mirrored edge."
+    },
+    {
+      "Id": "sphere-final:prism:prism_mirror:2",
+      "Ru": "Наклонные отражатели оставляют открытой середину орудия. В ней сходятся не детали, а пути света, каждый со своим коротким отражением.\n\nВ боковых пластинах проступает общий рисунок соседних направлений.",
+      "En": "Angled reflectors leave the weapon's middle open. What meets there is not machinery but paths of light, each carrying a brief reflection.\n\nA shared pattern of neighboring directions appears within the side plates."
+    },
+    {
+      "Id": "sphere-branch:gravity_well",
+      "Ru": "Пластины колодца загнуты к невидимому центру. Рядом с ними невозможно долго сохранять прямой курс: даже редкие обломки собираются в общий рисунок.",
+      "En": "The well's plates curve toward an unseen center. Nearby, no straight course lasts for long; even scattered debris joins the shared pattern."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_well:0",
+      "Ru": "Пластины колодца загнуты к невидимому центру. Рядом с ними невозможно долго сохранять прямой курс: даже редкие обломки собираются в общий рисунок.\n\nЧетыре удерживающих изгиба оставляют между собой неподвижные промежутки света.",
+      "En": "The well's plates curve toward an unseen center. Nearby, no straight course lasts for long; even scattered debris joins the shared pattern.\n\nFour retaining curves leave still gaps of light between them."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_well:1",
+      "Ru": "Пластины колодца загнуты к невидимому центру. Рядом с ними невозможно долго сохранять прямой курс: даже редкие обломки собираются в общий рисунок.\n\nВнутренние кромки собраны ближе, и сходящиеся линии становятся плотнее.",
+      "En": "The well's plates curve toward an unseen center. Nearby, no straight course lasts for long; even scattered debris joins the shared pattern.\n\nThe inner edges draw closer, making converging lines denser."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_well:2",
+      "Ru": "Пластины колодца загнуты к невидимому центру. Рядом с ними невозможно долго сохранять прямой курс: даже редкие обломки собираются в общий рисунок.\n\nПоле выглядит спокойным лишь вдали; у самого ядра его тонкие следы почти сливаются.",
+      "En": "The well's plates curve toward an unseen center. Nearby, no straight course lasts for long; even scattered debris joins the shared pattern.\n\nThe field looks calm only from afar; close to the core its fine traces nearly merge."
+    },
+    {
+      "Id": "sphere-branch:gravity_tide",
+      "Ru": "На изогнутых деталях свет нарастает неравномерно. Поле то собирает чужие следы, то позволяет им разойтись, сохраняя собственный медленный ритм.",
+      "En": "Light rises unevenly across the curved parts. The field gathers other traces, then lets them spread, keeping its own slow rhythm."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_tide:0",
+      "Ru": "На изогнутых деталях свет нарастает неравномерно. Поле то собирает чужие следы, то позволяет им разойтись, сохраняя собственный медленный ритм.\n\nВнешние кромки раскрываются навстречу обратному ходу поля.",
+      "En": "Light rises unevenly across the curved parts. The field gathers other traces, then lets them spread, keeping its own slow rhythm.\n\nThe outer edges open to meet the field's returning motion."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_tide:1",
+      "Ru": "На изогнутых деталях свет нарастает неравномерно. Поле то собирает чужие следы, то позволяет им разойтись, сохраняя собственный медленный ритм.\n\nСходящиеся нити удерживаются возле парных пластин.",
+      "En": "Light rises unevenly across the curved parts. The field gathers other traces, then lets them spread, keeping its own slow rhythm.\n\nConverging threads hold beside the paired plates."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_tide:2",
+      "Ru": "На изогнутых деталях свет нарастает неравномерно. Поле то собирает чужие следы, то позволяет им разойтись, сохраняя собственный медленный ритм.\n\nНа противоположных сторонах ядра свет меняется поочерёдно.",
+      "En": "Light rises unevenly across the curved parts. The field gathers other traces, then lets them spread, keeping its own slow rhythm.\n\nLight changes alternately on opposite sides of the core."
+    },
+    {
+      "Id": "sphere-branch:gravity_collapse",
+      "Ru": "Чем теснее сходятся тела, тем меньше остаётся ровного пространства между линиями поля. Последний просвет выглядит как шов, готовый закрыться.",
+      "En": "As bodies gather, less even space remains between the field's lines. The last opening resembles a seam about to close."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_collapse:0",
+      "Ru": "Чем теснее сходятся тела, тем меньше остаётся ровного пространства между линиями поля. Последний просвет выглядит как шов, готовый закрыться.\n\nНа уже повреждённой поверхности сходятся несколько тёмных изломов.",
+      "En": "As bodies gather, less even space remains between the field's lines. The last opening resembles a seam about to close.\n\nSeveral dark bends meet upon an already damaged surface."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_collapse:1",
+      "Ru": "Чем теснее сходятся тела, тем меньше остаётся ровного пространства между линиями поля. Последний просвет выглядит как шов, готовый закрыться.\n\nВнутренние держатели собраны тесно, словно сжимают сам промежуток между ними.",
+      "En": "As bodies gather, less even space remains between the field's lines. The last opening resembles a seam about to close.\n\nThe inner retainers sit tightly, as if compressing the gap between them."
+    },
+    {
+      "Id": "sphere-final:gravity:gravity_collapse:2",
+      "Ru": "Чем теснее сходятся тела, тем меньше остаётся ровного пространства между линиями поля. Последний просвет выглядит как шов, готовый закрыться.\n\nВ конце прохода свет на мгновение собирается в одну предельно короткую вспышку.",
+      "En": "As bodies gather, less even space remains between the field's lines. The last opening resembles a seam about to close.\n\nAt the passage's end, light gathers into one exceptionally brief flash."
+    },
+    {
+      "Id": "sphere-branch:pulse_wave",
+      "Ru": "Разнесённые направляющие оставляют между собой много открытого пространства. Волна начинается не в стволе, а сразу по всему этому тонкому контуру.",
+      "En": "Spaced guides leave much open space between them. The wave begins not inside a barrel but across that entire fine boundary."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_wave:0",
+      "Ru": "Разнесённые направляющие оставляют между собой много открытого пространства. Волна начинается не в стволе, а сразу по всему этому тонкому контуру.\n\nКольцо идёт наружу, оставляя за собой отклонённые тела и обломки.",
+      "En": "Spaced guides leave much open space between them. The wave begins not inside a barrel but across that entire fine boundary.\n\nThe ring travels outward, leaving bodies and fragments deflected in its wake."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_wave:1",
+      "Ru": "Разнесённые направляющие оставляют между собой много открытого пространства. Волна начинается не в стволе, а сразу по всему этому тонкому контуру.\n\nБелые края волны долго видны на поражённых поверхностях.",
+      "En": "Spaced guides leave much open space between them. The wave begins not inside a barrel but across that entire fine boundary.\n\nThe wave's white edges linger on the struck surfaces."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_wave:2",
+      "Ru": "Разнесённые направляющие оставляют между собой много открытого пространства. Волна начинается не в стволе, а сразу по всему этому тонкому контуру.\n\nПластины раскрываются шире, и передний край кольца остаётся чётким даже вдали.",
+      "En": "Spaced guides leave much open space between them. The wave begins not inside a barrel but across that entire fine boundary.\n\nThe plates open wider, keeping the ring's leading edge distinct even at a distance."
+    },
+    {
+      "Id": "sphere-branch:pulse_resonator",
+      "Ru": "Вокруг ядра расходятся тонкие равномерные дуги. Между волнами направляющие не темнеют полностью — в них остаётся приготовленный следующий отклик.",
+      "En": "Fine, even arcs spread around the core. Between waves the guides never go fully dark; another response waits inside them."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_resonator:0",
+      "Ru": "Вокруг ядра расходятся тонкие равномерные дуги. Между волнами направляющие не темнеют полностью — в них остаётся приготовленный следующий отклик.\n\nНа боковых проводниках сходится короткий янтарный сигнал.",
+      "En": "Fine, even arcs spread around the core. Between waves the guides never go fully dark; another response waits inside them.\n\nA brief amber signal converges upon the side conductors."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_resonator:1",
+      "Ru": "Вокруг ядра расходятся тонкие равномерные дуги. Между волнами направляющие не темнеют полностью — в них остаётся приготовленный следующий отклик.\n\nПередний край очередной волны выделяется резкой светлой кромкой.",
+      "En": "Fine, even arcs spread around the core. Between waves the guides never go fully dark; another response waits inside them.\n\nThe next wave's leading edge stands out as a sharp bright rim."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_resonator:2",
+      "Ru": "Вокруг ядра расходятся тонкие равномерные дуги. Между волнами направляющие не темнеют полностью — в них остаётся приготовленный следующий отклик.\n\nОт основного кольца отделяется неровная короткая рябь.",
+      "En": "Fine, even arcs spread around the core. Between waves the guides never go fully dark; another response waits inside them.\n\nA short, uneven ripple separates from the main ring."
+    },
+    {
+      "Id": "sphere-branch:pulse_burst",
+      "Ru": "Между тонкими пластинами есть ещё один внутренний ряд. Его вспышка запаздывает по отношению к первой волне и догоняет ещё светящийся след.",
+      "En": "Another inner row lies between the slender plates. Its flash follows the first wave, catching a trace that still glows."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_burst:0",
+      "Ru": "Между тонкими пластинами есть ещё один внутренний ряд. Его вспышка запаздывает по отношению к первой волне и догоняет ещё светящийся след.\n\nВнутри расходящегося кольца проступает отдельный разлом света.",
+      "En": "Another inner row lies between the slender plates. Its flash follows the first wave, catching a trace that still glows.\n\nA separate fracture of light appears inside the expanding ring."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_burst:1",
+      "Ru": "Между тонкими пластинами есть ещё один внутренний ряд. Его вспышка запаздывает по отношению к первой волне и догоняет ещё светящийся след.\n\nВнутренние элементы отвечают на волну коротким встречным движением.",
+      "En": "Another inner row lies between the slender plates. Its flash follows the first wave, catching a trace that still glows.\n\nThe inner elements answer the wave with a brief opposing motion."
+    },
+    {
+      "Id": "sphere-final:pulse:pulse_burst:2",
+      "Ru": "Между тонкими пластинами есть ещё один внутренний ряд. Его вспышка запаздывает по отношению к первой волне и догоняет ещё светящийся след.\n\nПосле первого отблеска второй ещё на миг возвращает рисунок удара.",
+      "En": "Another inner row lies between the slender plates. Its flash follows the first wave, catching a trace that still glows.\n\nAfter the first gleam, a second briefly restores the pattern of impact."
+    },
+    {
+      "Id": "sphere-branch:void_hunger",
+      "Ru": "Разомкнутые части орудия обращены к повреждённой поверхности. В их тёмных промежутках различим обратный свет — слабый след того, что уже потеряла цель.",
+      "En": "The open parts of the weapon face a damaged surface. Returning light is visible in their dark gaps, a faint trace of what the target has already lost."
+    },
+    {
+      "Id": "sphere-final:void:void_hunger:0",
+      "Ru": "Разомкнутые части орудия обращены к повреждённой поверхности. В их тёмных промежутках различим обратный свет — слабый след того, что уже потеряла цель.\n\nНа краях старого повреждения проступают новые фиолетовые прожилки.",
+      "En": "The open parts of the weapon face a damaged surface. Returning light is visible in their dark gaps, a faint trace of what the target has already lost.\n\nNew violet veins appear along the edges of old damage."
+    },
+    {
+      "Id": "sphere-final:void:void_hunger:1",
+      "Ru": "Разомкнутые части орудия обращены к повреждённой поверхности. В их тёмных промежутках различим обратный свет — слабый след того, что уже потеряла цель.\n\nОт попадания к ядру проходит тонкий согласованный отклик.",
+      "En": "The open parts of the weapon face a damaged surface. Returning light is visible in their dark gaps, a faint trace of what the target has already lost.\n\nA fine, coherent response travels from the impact toward the core."
+    },
+    {
+      "Id": "sphere-final:void:void_hunger:2",
+      "Ru": "Разомкнутые части орудия обращены к повреждённой поверхности. В их тёмных промежутках различим обратный свет — слабый след того, что уже потеряла цель.\n\nТёмный просвет в боевой части на миг заполняется светом поражённой цели.",
+      "En": "The open parts of the weapon face a damaged surface. Returning light is visible in their dark gaps, a faint trace of what the target has already lost.\n\nLight from the struck target briefly fills the combat head's dark opening."
+    },
+    {
+      "Id": "sphere-branch:void_reaper",
+      "Ru": "Парные лезвия оставляют середину орудия пустой. Когда цель распадается, через этот просвет ещё проходит её короткий исчезающий отзвук.",
+      "En": "Paired blades leave the weapon's center empty. As a target falls apart, its brief vanishing echo still passes through that opening."
+    },
+    {
+      "Id": "sphere-final:void:void_reaper:0",
+      "Ru": "Парные лезвия оставляют середину орудия пустой. Когда цель распадается, через этот просвет ещё проходит её короткий исчезающий отзвук.\n\nТонкая обратная нить гаснет в повреждённой оболочке ядра.",
+      "En": "Paired blades leave the weapon's center empty. As a target falls apart, its brief vanishing echo still passes through that opening.\n\nA fine returning thread fades inside the core's damaged shell."
+    },
+    {
+      "Id": "sphere-final:void:void_reaper:1",
+      "Ru": "Парные лезвия оставляют середину орудия пустой. Когда цель распадается, через этот просвет ещё проходит её короткий исчезающий отзвук.\n\nПосле распада цели по боковым кромкам проходит несколько встречных отблесков.",
+      "En": "Paired blades leave the weapon's center empty. As a target falls apart, its brief vanishing echo still passes through that opening.\n\nSeveral opposing gleams cross the side edges after the target breaks apart."
+    },
+    {
+      "Id": "sphere-final:void:void_reaper:2",
+      "Ru": "Парные лезвия оставляют середину орудия пустой. Когда цель распадается, через этот просвет ещё проходит её короткий исчезающий отзвук.\n\nВ переднем просвете ненадолго сходятся остатки только что оборванного следа.",
+      "En": "Paired blades leave the weapon's center empty. As a target falls apart, its brief vanishing echo still passes through that opening.\n\nRemnants of the severed trace briefly converge inside the front opening."
+    },
+    {
+      "Id": "sphere-branch:void_execution",
+      "Ru": "Внутренние грани орудия почти не отражают свет. Видимым остаётся лишь узкий проход, обращённый к самому слабому месту чужого тела.",
+      "En": "The weapon's inner facets reflect almost no light. Only a narrow passage remains visible, facing the weakest place in a hostile body."
+    },
+    {
+      "Id": "sphere-final:void:void_execution:0",
+      "Ru": "Внутренние грани орудия почти не отражают свет. Видимым остаётся лишь узкий проход, обращённый к самому слабому месту чужого тела.\n\nПередние скобы сходятся вокруг короткой линии прицеливания.",
+      "En": "The weapon's inner facets reflect almost no light. Only a narrow passage remains visible, facing the weakest place in a hostile body.\n\nThe front braces close around a short aiming line."
+    },
+    {
+      "Id": "sphere-final:void:void_execution:1",
+      "Ru": "Внутренние грани орудия почти не отражают свет. Видимым остаётся лишь узкий проход, обращённый к самому слабому месту чужого тела.\n\nСвет проходит сквозь разомкнутые грани, почти не задерживаясь на их поверхности.",
+      "En": "The weapon's inner facets reflect almost no light. Only a narrow passage remains visible, facing the weakest place in a hostile body.\n\nLight passes through the open facets, scarcely touching their surface."
+    },
+    {
+      "Id": "sphere-final:void:void_execution:2",
+      "Ru": "Внутренние грани орудия почти не отражают свет. Видимым остаётся лишь узкий проход, обращённый к самому слабому месту чужого тела.\n\nВ момент попадания все острые края выделяются одной холодной вспышкой.",
+      "En": "The weapon's inner facets reflect almost no light. Only a narrow passage remains visible, facing the weakest place in a hostile body.\n\nAt impact, a single cold flash outlines every sharp edge."
+    },
+    {
+      "Id": "artifact:crystal_speed",
+      "Ru": "Внутри вытянутого кристалла застыл след стремительного прохода. Его грани дрожат даже тогда, когда всё вокруг неподвижно.",
+      "En": "A swift passage left its trace inside this slender crystal. Its facets tremble even when everything around it is still."
+    },
+    {
+      "Id": "artifact:amulet_hp",
+      "Ru": "Сколотая оправа бережёт плотный узел свечения. После каждого удара свет медленно возвращается к середине.",
+      "En": "A chipped frame shelters a dense knot of light. After every impact, the glow slowly gathers at its center again."
+    },
+    {
+      "Id": "artifact:ring_xp",
+      "Ru": "На внутренней стороне кольца нет начала узора. След одного столкновения незаметно переходит в память о следующем.",
+      "En": "The pattern inside the ring has no beginning. The trace of one encounter passes seamlessly into the memory of the next."
+    },
+    {
+      "Id": "artifact:regen_stone",
+      "Ru": "По трещинам камня ползут тонкие светлые жилы. Они сходятся над выбоинами, словно помнят прежнюю форму.",
+      "En": "Pale veins creep through the stone's cracks. They meet over its scars as though remembering its former shape."
+    },
+    {
+      "Id": "artifact:radius_shard",
+      "Ru": "Край осколка невозможно разглядеть вблизи: он кажется отдалённым. Лишь отражение на соседнем ядре выдаёт его истинный размер.",
+      "En": "The shard's edge seems distant even at close range. Only its reflection on a neighboring core reveals its true size."
+    },
+    {
+      "Id": "artifact:vampire_ring",
+      "Ru": "Тёмный обод хранит красный отблеск последнего попадания. Тот гаснет не сразу, будто не желает отдавать добытое.",
+      "En": "The dark band retains a red glimmer from the last impact. It fades reluctantly, as if unwilling to surrender what it claimed."
+    },
+    {
+      "Id": "artifact:swift_boots",
+      "Ru": "Название осталось от старой маркировки, а не от формы. Парные дуги реликта похожи на два незавершённых следа рывка.",
+      "En": "The name survives from an old designation, not its shape. The relic's paired arcs resemble two unfinished trails of a dash."
+    },
+    {
+      "Id": "artifact:luck_talisman",
+      "Ru": "Сколы на талисмане выглядят случайными, пока не совместить их с отметинами на цели. Совпадение каждый раз получается новым.",
+      "En": "The talisman's chips look accidental until matched against a target's scars. Each alignment is different."
+    },
+    {
+      "Id": "artifact:mage_pendant",
+      "Ru": "В оправе зажата спираль, оборванная перед последним витком. Её незавершённость ощущается как короткая пауза перед новым импульсом.",
+      "En": "The setting holds a spiral broken before its final turn. Its incompleteness feels like a brief pause before another pulse."
+    },
+    {
+      "Id": "artifact:long_lens",
+      "Ru": "В глубине линзы видны крошечные царапины на далёких обломках. То, что ближе, она почти не отражает.",
+      "En": "Tiny scratches on distant wreckage are visible within the lens. It scarcely reflects anything nearby."
+    },
+    {
+      "Id": "artifact:stasis_core",
+      "Ru": "Мелкие частицы застыли внутри оболочки на разных стадиях разлёта. Иногда кажется, что неподвижность распространяется за её край.",
+      "En": "Small fragments hang inside the shell at different stages of an explosion. At times their stillness seems to extend beyond its edge."
+    },
+    {
+      "Id": "artifact:dragon_heart",
+      "Ru": "Обугленная оболочка слишком мала для столь тяжёлого ядра. Красное свечение проступает изнутри неравными толчками.",
+      "En": "The charred shell is too small for so heavy a core. Red light pushes through it in uneven beats."
+    },
+    {
+      "Id": "artifact:mirror",
+      "Ru": "Отражение удара появляется на обратной стороне пластины. Ни одна из её поверхностей не выглядит лицевой.",
+      "En": "The reflection of an impact appears on the plate's reverse. Neither surface seems to be its front."
+    },
+    {
+      "Id": "artifact:predator_claw",
+      "Ru": "Изогнутый обломок сохранил режущую кромку и следы крепления к чему-то живому. У основания до сих пор мерцает чужой заряд.",
+      "En": "The curved fragment retains a cutting edge and marks where it joined something living. An alien charge still flickers at its base."
+    },
+    {
+      "Id": "artifact:foresight_eye",
+      "Ru": "За полупрозрачной створкой движется узкая светлая щель. Она останавливается чуть раньше, чем перед ней возникает цель.",
+      "En": "A narrow slit of light moves behind a translucent shutter. It comes to rest just before a target crosses its view."
+    },
+    {
+      "Id": "artifact:echo_conductor",
+      "Ru": "Две разомкнутые дуги не соприкасаются. И всё же между ними постоянно пробегает тонкая искра.",
+      "En": "Two open arcs never touch. Yet a fine spark continually travels between them."
+    },
+    {
+      "Id": "artifact:heavy_core",
+      "Ru": "На оболочке нет украшений — только глубокие следы нагрузки. От каждого всплеска света её крепления едва заметно расходятся.",
+      "En": "The shell bears no ornament, only deep stress marks. Each flare of light makes its fastenings spread almost imperceptibly."
+    },
+    {
+      "Id": "artifact:scattering_matrix",
+      "Ru": "У матрицы много выходных граней и ни одной одинаковой. Осколки света расходятся веером, сохраняя общий ритм.",
+      "En": "The matrix has many exit facets, none alike. Splinters of light fan outward in a shared rhythm."
+    },
+    {
+      "Id": "artifact:aura_lens",
+      "Ru": "Матовая середина линзы почти не светится. Весь её свет собирается у края мягким непрерывным ободом.",
+      "En": "The lens's frosted center barely shines. Its light gathers along the edge in a soft, unbroken rim."
+    },
+    {
+      "Id": "artifact:network_relay",
+      "Ru": "Старая контактная пластина иссечена повторяющимися дорожками. Каждая обрывается там, где должна начинаться следующая.",
+      "En": "Repeating tracks score the old contact plate. Each ends exactly where the next should begin."
+    },
+    {
+      "Id": "artifact:chaos_orb",
+      "Ru": "Внутренние пластины постоянно меняют положение. Наружное кольцо при этом остаётся безупречно неподвижным.",
+      "En": "The inner plates continually shift. The outer ring remains perfectly still."
+    },
+    {
+      "Id": "artifact:resonance_core",
+      "Ru": "Трещины на двух половинах ядра совпадают до мельчайшего изгиба. Между ними нет вещества, только согласованный свет.",
+      "En": "The cracks in the core's two halves match in every curve. Nothing lies between them but light moving in unison."
+    },
+    {
+      "Id": "artifact:lone_bastion",
+      "Ru": "На одном ребре остались следы множества попаданий. Противоположная сторона гладкая: реликт долго прикрывал что-то единственное.",
+      "En": "One edge bears countless impact scars. The other is smooth; the relic once sheltered something that stood alone."
+    },
+    {
+      "Id": "artifact:fivefold_resonance",
+      "Ru": "Пять пазов сходятся у пустого центра. Стоит одному потускнеть, и остальные меняют оттенок вслед за ним.",
+      "En": "Five grooves converge on an empty center. When one dims, the others change shade with it."
+    },
+    {
+      "Id": "artifact:relay_matrix",
+      "Ru": "За каждой прорезью видна ещё одна пластина. Ни один сигнал не проходит через реликт по прямой.",
+      "En": "Another plate lies behind every slit. No signal passes straight through the relic."
+    },
+    {
+      "Id": "artifact:triangle_circuit",
+      "Ru": "Три излома держат замкнутый контур без единого шва. На поворотах свет задерживается, а затем устремляется дальше.",
+      "En": "Three bends hold a closed circuit without a seam. Light lingers at each corner before moving on."
+    },
+    {
+      "Id": "artifact:overclock",
+      "Ru": "Оболочка потемнела вокруг креплений. Из-под неё вырываются частые короткие вспышки, которым давно тесно внутри.",
+      "En": "The shell has darkened around its fastenings. Rapid flashes escape from beneath it, long since outgrowing their enclosure."
+    },
+    {
+      "Id": "artifact:soul_engine",
+      "Ru": "Внутри двигателя пересекаются бледные остаточные следы. Ни один не сохраняет форму достаточно долго, чтобы узнать его источник.",
+      "En": "Pale residual traces cross inside the engine. None holds its shape long enough to reveal its origin."
+    },
+    {
+      "Id": "artifact:time_anchor",
+      "Ru": "Между двумя зубцами висит сорванная искра. Она не падает и не гаснет, сколько бы ни длился бой.",
+      "En": "A torn spark hangs between two prongs. It neither falls nor fades, however long the battle lasts."
+    },
+    {
+      "Id": "artifact:void_contract",
+      "Ru": "На чёрной пластине нет букв. Под разными углами её надрезы складываются в разные незаконченные фигуры.",
+      "En": "The black plate bears no letters. From different angles, its cuts form different unfinished shapes."
+    },
+    {
+      "Id": "artifact:mirror_network",
+      "Ru": "Малые отражающие грани направлены друг на друга. Свет теряется среди них раньше, чем успевает вернуться к источнику.",
+      "En": "Small reflective facets face one another. Light loses itself among them before finding its source again."
+    },
+    {
+      "Id": "artifact:singularity_engine",
+      "Ru": "Вокруг тёмного отверстия оболочка втянута внутрь. Даже царапины на металле изгибаются к одному центру.",
+      "En": "The shell buckles inward around a dark opening. Even scratches in the metal curve toward a single center."
+    },
+    {
+      "Id": "artifact:quantum_core",
+      "Ru": "Две тени ядра расходятся под невозможным углом. Само оно остаётся точно посередине.",
+      "En": "Two shadows extend from the core at an impossible angle. The core itself stays exactly between them."
+    },
+    {
+      "Id": "artifact:zero_sphere",
+      "Ru": "В архивных схемах на этом месте оставлен пробел. Реликт повторяет его форму слишком точно, чтобы считать это случайностью.",
+      "En": "Old diagrams leave a blank at this position. The relic follows that blank too precisely for coincidence."
+    },
+    {
+      "Id": "artifact:unified_mind",
+      "Ru": "Раздельные сегменты отвечают на один и тот же импульс без задержки. Ни ведущего, ни ведомого среди них не найти.",
+      "En": "Separate segments answer the same pulse without delay. None can be identified as leader or follower."
+    },
+    {
+      "Id": "artifact:network_anchor",
+      "Ru": "Три тяжёлых зацепа удерживают тонкое светящееся сплетение. На их концах видны следы прежних разрывов.",
+      "En": "Three heavy hooks hold a fine weave of light. Their tips bear traces of earlier breaks."
+    },
+    {
+      "Id": "artifact:pulse_lens",
+      "Ru": "Круговые борозды становятся мельче к центру. Вспышка проходит по ним, как рябь по натянутой плёнке.",
+      "En": "Circular grooves grow finer toward the center. A flash travels across them like ripples on a taut membrane."
+    },
+    {
+      "Id": "artifact:orbit_charm",
+      "Ru": "Острый полумесяц свободно проходит сквозь прорезь в оправе. Замкнутая траектория пережила само устройство.",
+      "En": "A sharp crescent passes freely through a slit in its setting. The closed path outlasted the device that made it."
+    },
+    {
+      "Id": "artifact:prism_shard",
+      "Ru": "Скол разделяет свет на тонкие разноцветные пластины. На изломе они снова сходятся в первоначальный оттенок.",
+      "En": "A chip splits light into thin colored planes. Along the fracture, they meet again in their original hue."
+    },
+    {
+      "Id": "artifact:gravity_bead",
+      "Ru": "Маленький реликт оставляет в пыли непропорционально глубокую воронку. Поднять его легче, чем сдвинуть окружающие частицы.",
+      "En": "The tiny relic leaves a disproportionate hollow in dust. Lifting it is easier than moving the particles around it."
+    },
+    {
+      "Id": "artifact:void_ink",
+      "Ru": "Чёрная нить держится между прозрачными стенками сосуда. Там, где она касается стекла, исчезает отражение.",
+      "En": "A black thread hangs between transparent walls. Reflections vanish wherever it touches the glass."
+    },
+    {
+      "Id": "artifact:echo_thread",
+      "Ru": "Световая нить пережила разрушение обоих креплений. Её концы всё ещё тянутся навстречу друг другу.",
+      "En": "The luminous thread outlasted both its broken anchors. Its ends still reach toward each other."
+    },
+    {
+      "Id": "artifact:folded_core",
+      "Ru": "Слои оболочки уходят в щель, которая слишком узка для них. С обратной стороны они выходят в другом порядке.",
+      "En": "Layers of shell enter a slit too narrow to contain them. They emerge on the other side in a different order."
+    },
+    {
+      "Id": "artifact:paper_ward",
+      "Ru": "Тонкая пластина сложена вокруг пустоты. Её смятые края помнят удар, который не добрался до середины.",
+      "En": "A thin plate folds around an empty space. Its creased edges remember an impact that never reached the center."
+    },
+    {
+      "Id": "artifact:mirror_dust",
+      "Ru": "Среди тёмных крупиц то и дело вспыхивают целые отражения. Каждое живёт ровно до следующего поворота.",
+      "En": "Complete reflections flash among dark grains. Each lasts only until the next turn."
+    },
+    {
+      "Id": "artifact:resonant_leaf",
+      "Ru": "Жилки на тонком листе не сходятся у основания. Они замыкаются друг на друга, образуя тихо мерцающий узор.",
+      "En": "The thin leaf's veins do not meet at its base. They close upon one another in a softly flickering pattern."
+    },
+    {
+      "Id": "artifact:signal_knot",
+      "Ru": "Переплетённые проводники сплавились в один узел. Слабый сигнал находит путь сквозь него без единого целого провода.",
+      "En": "Interwoven conductors have fused into a knot. A faint signal finds its way through without a single intact wire."
+    },
+    {
+      "Id": "artifact:lattice_chip",
+      "Ru": "От большой решётки остался лишь один угол. По обрывающимся дорожкам всё ещё можно угадать продолжение.",
+      "En": "Only one corner of a larger lattice remains. Its broken tracks still suggest the missing pattern."
+    },
+    {
+      "Id": "artifact:fractal_seed",
+      "Ru": "Под увеличением каждая выемка повторяет внешний контур. На самой глубокой грани снова виден тот же излом.",
+      "En": "Under magnification, each recess repeats the outer shape. The same bend appears on the deepest facet."
+    },
+    {
+      "Id": "artifact:sniper_scope",
+      "Ru": "Узкая прорезь смотрит сквозь несколько смещённых линз. На дальней цели они сходятся в одну ясную точку.",
+      "En": "A narrow slit looks through several offset lenses. On a distant target, they resolve into one clear point."
+    },
+    {
+      "Id": "artifact:chain_battery",
+      "Ru": "Контакты аккумулятора покрыты ветвящимися ожогами. Последняя искра перескакивает между ними, не находя покоя.",
+      "En": "Branching burns cover the battery's contacts. Its last spark leaps between them without settling."
+    },
+    {
+      "Id": "artifact:shotgun_shell",
+      "Ru": "Разделённая на секции оболочка раскрывается веером. В каждой ячейке остался след отдельного выброса.",
+      "En": "The segmented casing opens like a fan. Each cell retains the trace of a separate discharge."
+    },
+    {
+      "Id": "artifact:aura_mist",
+      "Ru": "В прозрачном кольце висит светящаяся взвесь. Она медленно обтекает невидимую границу, не касаясь стенок.",
+      "En": "Luminous suspension hangs inside a clear ring. It flows around an unseen boundary without touching the walls."
+    },
+    {
+      "Id": "artifact:orbital_blade",
+      "Ru": "На внешней кромке нет зазубрин. Следы столкновений тянутся вдоль неё, отмечая одно направление движения.",
+      "En": "The outer edge has no serrations. Collision marks run along it, recording a single direction of travel."
+    },
+    {
+      "Id": "artifact:prism_filter",
+      "Ru": "Тонкие створки фильтра окрашены только по торцам. В сложенном виде они кажутся одной прозрачной пластиной.",
+      "En": "The filter's thin shutters carry color only along their edges. Closed, they resemble a single clear plate."
+    },
+    {
+      "Id": "artifact:gravity_hook",
+      "Ru": "Обломки рядом с крюком зависают под странными углами. Сам зацеп почти ничего не удерживает физически.",
+      "En": "Fragments near the hook hang at odd angles. The hook itself physically grips almost nothing."
+    },
+    {
+      "Id": "artifact:pulse_driver",
+      "Ru": "Внутренний диск дрожит, не задевая оправы. На его поверхности расходятся одинаковые концентрические следы.",
+      "En": "The inner disc trembles without touching its frame. Matching concentric traces spread across its surface."
+    },
+    {
+      "Id": "artifact:void_mark",
+      "Ru": "Тёмное клеймо лежит глубже поверхности, на которой нанесено. Сколько ни поворачивай пластину, его дна не видно.",
+      "En": "The dark mark lies deeper than the surface bearing it. No angle reveals its bottom."
+    },
+    {
+      "Id": "artifact:formation_compass",
+      "Ru": "У прибора нет стрелки. Подвижные рёбра складываются в фигуру, будто ищут потерянные соседние узлы.",
+      "En": "The instrument has no needle. Moving ribs form a shape as though searching for missing neighboring nodes."
+    },
+    {
+      "Id": "artifact:geometry_die",
+      "Ru": "Грани многогранника неравны, но их рёбра сходятся без зазоров. Каждая сторона хранит незавершённый контур.",
+      "En": "The polyhedron's faces are unequal, yet its edges meet without gaps. Every side bears an unfinished outline."
+    },
+    {
+      "Id": "artifact:network_coil",
+      "Ru": "Витки катушки разделены пустыми промежутками. Свет пересекает их короткими перескоками, а не непрерывной линией.",
+      "En": "Empty gaps separate the coil's turns. Light crosses them in short leaps rather than a continuous line."
+    },
+    {
+      "Id": "artifact:crit_sigil",
+      "Ru": "Один надрез пересекает все остальные. В точке пересечения поверхность выщерблена до самого ядра.",
+      "En": "One cut crosses every other. At their intersection, the surface is chipped down to the core."
+    },
+    {
+      "Id": "artifact:tempo_ring",
+      "Ru": "Насечки на ободе расположены неравномерно. Проходящий по ним свет всё же возвращается с неизменным ритмом.",
+      "En": "Notches around the rim are unevenly spaced. Light passing over them still returns in a steady rhythm."
+    },
+    {
+      "Id": "artifact:triangle_engine",
+      "Ru": "Три рабочие пластины обращены к общей полости. На каждой остался отпечаток двух остальных.",
+      "En": "Three working plates face a shared cavity. Each retains an impression of the other two."
+    },
+    {
+      "Id": "artifact:ring_engine",
+      "Ru": "Разрыв внешней оболочки не нарушил внутренний круг. По нему по-прежнему бежит один замкнутый отблеск.",
+      "En": "A break in the outer shell left the inner circle intact. A single glimmer still follows its closed path."
+    },
+    {
+      "Id": "artifact:lattice_engine",
+      "Ru": "Параллельные рёбра реликта соединены тонкими перемычками. Их тени образуют более сложную решётку, чем сама вещь.",
+      "En": "Thin bridges connect the relic's parallel ribs. Their shadows form a lattice more complex than the object itself."
+    },
+    {
+      "Id": "artifact:fractal_engine",
+      "Ru": "В крупной раме закреплена её уменьшенная копия. Между ними видны ещё несколько промежуточных контуров.",
+      "En": "A smaller copy of the frame sits within it. Several intermediate outlines are visible between the two."
+    },
+    {
+      "Id": "artifact:resonance_lattice",
+      "Ru": "Узлы решётки светятся не одновременно, но каждый всплеск находит ответ. Повреждённый край отвечает слабее остальных.",
+      "En": "The lattice nodes do not shine together, yet every flare receives an answer. Its damaged edge answers more faintly."
+    },
+    {
+      "Id": "artifact:echo_weaver",
+      "Ru": "Между зубцами ткача натянута почти невидимая сеть. Её рисунок меняется после каждого прошедшего импульса.",
+      "En": "A nearly invisible web spans the weaver's prongs. Its pattern changes after every passing pulse."
+    },
+    {
+      "Id": "artifact:gravity_crown",
+      "Ru": "Тяжёлые зубцы наклонены внутрь. Между ними пыль складывается в неподвижный тёмный венец.",
+      "En": "Heavy prongs lean inward. Dust between them forms a motionless dark circlet."
+    },
+    {
+      "Id": "artifact:void_lantern",
+      "Ru": "Внутри фонаря темнее, чем снаружи. Свет выдаёт лишь тонкий шов, за которым теряются очертания обломков.",
+      "En": "The lantern is darker inside than out. A thin seam of light marks where the outlines of wreckage disappear."
+    },
+    {
+      "Id": "artifact:prism_crown",
+      "Ru": "Прозрачные зубцы венца повёрнуты под разными углами. Их отражения встречаются над пустой серединой.",
+      "En": "The circlet's clear prongs turn at different angles. Their reflections meet above its empty center."
+    },
+    {
+      "Id": "artifact:orbital_crown",
+      "Ru": "Изогнутые лезвия удерживаются на раздельных направляющих. Потёртости на креплениях выдают встречный ход.",
+      "En": "Curved blades sit on separate guides. Wear on their mounts reveals opposing paths."
+    },
+    {
+      "Id": "artifact:pulse_crown",
+      "Ru": "Между сегментами венца оставлены узкие разрывы. Свет проходит через них последовательными толчками.",
+      "En": "Narrow breaks separate the circlet's segments. Light passes through them in successive beats."
+    },
+    {
+      "Id": "artifact:chain_crown",
+      "Ru": "Зубцы соединяются разрядами там, где давно исчезли перемычки. Обугленные концы всё ещё направлены друг к другу.",
+      "En": "Discharges join the prongs where bridges vanished long ago. Their scorched ends still face each other."
+    },
+    {
+      "Id": "artifact:sniper_crown",
+      "Ru": "Длинные щели венца сведены к одному дальнему направлению. Вблизи их перекрёстие невозможно различить.",
+      "En": "The circlet's long slits align toward one distant bearing. Their intersection cannot be resolved at close range."
+    },
+    {
+      "Id": "artifact:time_splitter",
+      "Ru": "Два лезвия разделены застывшим светлым швом. По одну сторону царапина свежая, по другую — давно потемневшая.",
+      "En": "A frozen seam of light separates two blades. On one side a scratch is fresh; on the other it has long darkened."
+    },
+    {
+      "Id": "artifact:stasis_mandala",
+      "Ru": "Вложенные кольца остановились в разных положениях. Застрявшая между ними пылинка кажется старше оправы.",
+      "En": "Nested rings have stopped at different angles. A speck caught between them seems older than the frame."
+    },
+    {
+      "Id": "artifact:quantum_fold",
+      "Ru": "Край пластины исчезает за собственным отражением. С обратной стороны тот же край уже отломан.",
+      "En": "The plate's edge disappears behind its own reflection. On the reverse, that same edge is already broken."
+    },
+    {
+      "Id": "artifact:void_star",
+      "Ru": "Тёмные лучи не отбрасывают тени. Их концы можно различить лишь по тому, как вокруг изгибается далёкое свечение.",
+      "En": "Dark rays cast no shadows. Their tips are visible only where distant light bends around them."
+    },
+    {
+      "Id": "artifact:axiom_core",
+      "Ru": "На гладкой оболочке проведена единственная линия. Любой её излом неизменно возвращает взгляд к исходной точке.",
+      "En": "A single line crosses the smooth shell. Every turn leads the eye back to its starting point."
+    },
+    {
+      "Id": "artifact:universal_fold",
+      "Ru": "Слои металла, стекла и тёмного вещества входят в один сгиб. На его краю уже не различить, какой материал был первым.",
+      "En": "Layers of metal, glass and dark matter enter one fold. At its edge, their original order is lost."
+    },
+    {
+      "Id": "artifact:glass_capacitor",
+      "Ru": "Прозрачная стенка покрыта изнутри сетью тонких ожогов. Каждый обрывается перед наружной поверхностью.",
+      "En": "A web of fine burns covers the transparent wall from within. Every mark stops short of the outer surface."
+    },
+    {
+      "Id": "artifact:kinetic_brace",
+      "Ru": "Две скобы сошлись после сильного удара. Между ними сохранился сжатый серп света.",
+      "En": "Two braces closed together under a heavy impact. A compressed crescent of light remains between them."
+    },
+    {
+      "Id": "artifact:dense_lens",
+      "Ru": "Толстая линза искажает даже собственную оправу. В её середине отражение кажется вырезанным из твёрдого света.",
+      "En": "The thick lens distorts even its own frame. At its center, the reflection looks carved from solid light."
+    },
+    {
+      "Id": "artifact:rapid_coil",
+      "Ru": "Частые витки оплавились вдоль одной стороны. Малые искры находят этот короткий путь снова и снова.",
+      "En": "Closely spaced turns have melted along one side. Small sparks find this short path again and again."
+    },
+    {
+      "Id": "artifact:living_alloy",
+      "Ru": "Изломы сплава затянуты тонкой подвижной плёнкой. Под ней угадываются старые швы, которые не исчезают окончательно.",
+      "En": "A thin moving film seals the alloy's fractures. Old seams remain visible beneath it, never quite disappearing."
+    },
+    {
+      "Id": "artifact:ritual_clock",
+      "Ru": "В часах нет цифр и привычного хода. Раз в оборот два разорванных контура ненадолго становятся одним.",
+      "En": "The clock has neither numerals nor a familiar movement. Once per turn, two broken outlines briefly become one."
+    },
+    {
+      "Id": "artifact:blood_crystal",
+      "Ru": "Тёмно-красные включения лежат вдоль старых трещин. На сколах они выглядят свежими, хотя сам кристалл давно истёрт.",
+      "En": "Dark red inclusions follow old cracks. They look fresh on the chipped edges, though the crystal itself is worn."
+    },
+    {
+      "Id": "artifact:unstable_sigil",
+      "Ru": "Линии печати не удерживают постоянной формы. Один угол медленно распадается, пока противоположный собирается заново.",
+      "En": "The sigil's lines cannot hold a fixed shape. One corner slowly unravels while the opposite forms anew."
+    },
+    {
+      "Id": "artifact-build:set:resonance_grid",
+      "Ru": "Разрозненные реликты отвечают друг другу одним негромким тоном. В промежутках между ними угадывается решётка, которой нет на поверхности.",
+      "En": "Separate relics answer one another in a low shared tone. A lattice appears between them, absent from any surface."
+    },
+    {
+      "Id": "artifact-build:set:echo_architecture",
+      "Ru": "У каждого предмета свой излом, но вместе они складываются в очертания давно разрушенного узла. Уцелевшие части снова узнают соседей.",
+      "En": "Every piece has its own fracture, yet together they outline a node destroyed long ago. The surviving parts recognize their neighbors."
+    },
+    {
+      "Id": "artifact-build:set:singularity_path",
+      "Ru": "Тяжёлые оправы обращены к одной пустой точке. Чем ближе к ней проходит свет, тем труднее различить отдельные реликты.",
+      "En": "Heavy frames face a single empty point. The closer light passes to it, the harder it is to distinguish the individual relics."
+    },
+    {
+      "Id": "artifact-build:set:geometry_craft",
+      "Ru": "По отдельности эти фрагменты кажутся незавершёнными. Собранные рядом, они продолжают линии друг друга за пределами собственных граней.",
+      "En": "Alone, the fragments seem unfinished. Together, they continue one another's lines beyond their own edges."
+    },
+    {
+      "Id": "artifact-build:set:void_horizon",
+      "Ru": "Последнее отражение исчезает ещё до тёмной границы. Реликты по её краям выглядят частями одной вещи, расколотой изнутри.",
+      "En": "The last reflection vanishes before reaching the dark boundary. The relics along its edge resemble one object split from within."
+    },
+    {
+      "Id": "artifact-build:set:temporal_fold",
+      "Ru": "Между пластинами сохраняются несовпадающие следы одной вспышки. Сгиб удерживает их рядом, не позволяя слиться.",
+      "En": "Different traces of the same flash remain between the plates. The fold holds them together without letting them merge."
+    },
+    {
+      "Id": "artifact-build:set:status_circuit",
+      "Ru": "На соседних гранях встречаются иней, ожоги и тусклый осадок. Следы не стирают друг друга: каждый занимает свою дорожку.",
+      "En": "Frost, burns and dull residue meet on neighboring facets. Their traces do not erase one another; each follows its own track."
+    },
+    {
+      "Id": "artifact-build:set:hunter_doctrine",
+      "Ru": "Все прорези смотрят в одну сторону. Среди множества далёких отблесков оправа оставляет видимым только один.",
+      "En": "Every slit faces the same way. Among many distant glimmers, the frame leaves only one in view."
+    },
+    {
+      "Id": "artifact-build:set:pulse_engineering",
+      "Ru": "Кольца собраны с небольшими промежутками. Свет пересекает их поочерёдно, и весь набор кажется одним разомкнутым двигателем.",
+      "En": "The rings are assembled with narrow gaps. Light crosses them in sequence, making the collection resemble one open engine."
+    },
+    {
+      "Id": "artifact-build:set:core_forge",
+      "Ru": "На креплениях сохранился одинаковый след нагрева. Разные материалы сошлись вокруг светлого центра, не утратив собственной формы.",
+      "En": "Matching heat marks remain on the mounts. Different materials meet around a bright center without losing their shapes."
+    },
+    {
+      "Id": "artifact-build:set:prism_dominion",
+      "Ru": "Разделённые оттенки проходят через несколько граней и снова встречаются. Внутри этого венца нет случайных отражений.",
+      "En": "Separated colors pass through several facets before meeting again. No reflection within the circlet is accidental."
+    },
+    {
+      "Id": "artifact-build:set:network_legacy",
+      "Ru": "Повреждённые проводники подходят друг к другу, хотя давно утратили общую оболочку. Соединение пережило устройство.",
+      "En": "Damaged conductors fit together despite losing their common shell long ago. The connection outlasted the device."
+    },
+    {
+      "Id": "artifact-build:combination:fortress_network",
+      "Ru": "Сколотые защитные пластины обращены наружу. Между ними остаются светлые проходы, связывающие внутренние узлы.",
+      "En": "Chipped defensive plates face outward. Bright passages remain between them, joining the inner nodes."
+    },
+    {
+      "Id": "artifact-build:combination:echo_relay",
+      "Ru": "Одна короткая вспышка отражается в нескольких оправах. По задержке её возвращения можно различить весь путь.",
+      "En": "One brief flash reflects through several frames. The delay of its return reveals the whole path."
+    },
+    {
+      "Id": "artifact-build:combination:glass_cannon",
+      "Ru": "Тонкие стенки держат заряд, оставивший глубокие ожоги на соседнем металле. Трещины делают внутренний свет особенно ясным.",
+      "En": "Thin walls contain a charge that deeply scorched nearby metal. Their cracks make the inner light unusually clear."
+    },
+    {
+      "Id": "artifact-build:combination:singularity",
+      "Ru": "Края реликтов наклонены к общей тёмной полости. Даже повреждения на них кажутся частями одного нисходящего узора.",
+      "En": "The relics' edges lean toward a shared dark hollow. Even their scars seem part of one descending pattern."
+    },
+    {
+      "Id": "artifact-build:combination:perfect_network",
+      "Ru": "У каждого оборванного конца находится продолжение. Свет проходит через стыки, не выдавая, где заканчивается одна вещь и начинается другая.",
+      "En": "Every broken end finds its continuation. Light crosses the joins without revealing where one object ends and another begins."
+    },
+    {
+      "Id": "artifact-build:combination:unified_core",
+      "Ru": "Несовпадающие оболочки окружают один устойчивый отблеск. Он не принадлежит ни одному из реликтов по отдельности.",
+      "En": "Mismatched shells surround one steady glimmer. It belongs to none of the relics alone."
+    },
+    {
+      "Id": "artifact-build:combination:geometry_loop",
+      "Ru": "Линия уходит с последней пластины на первую. Замкнутый след можно проследить взглядом, но его начало найти нельзя.",
+      "En": "A line passes from the last plate to the first. Its closed trace is easy to follow, but its beginning cannot be found."
+    },
+    {
+      "Id": "artifact-build:combination:lattice_memory",
+      "Ru": "Недостающие звенья видны только в отражении. Уцелевшие фрагменты хранят очертания целого.",
+      "En": "Missing links appear only in reflection. The surviving fragments retain the outline of the whole."
+    },
+    {
+      "Id": "artifact-build:combination:void_horizon",
+      "Ru": "Последнее отражение исчезает ещё до тёмной границы. Реликты по её краям выглядят частями одной вещи, расколотой изнутри.",
+      "En": "The last reflection vanishes before reaching the dark boundary. The relics along its edge resemble one object split from within."
+    },
+    {
+      "Id": "artifact-build:combination:orbital_prism",
+      "Ru": "Изогнутые лезвия пересекают разложенный на цвета свет. На каждом повороте возникает новая грань прежнего узора.",
+      "En": "Curved blades cross light split into colors. Every turn reveals another facet of the same pattern."
+    },
+    {
+      "Id": "artifact-build:combination:gravity_pulse",
+      "Ru": "Круговой отблеск сжимается у тяжёлой середины. На внешнем краю реликтов остаётся его тонкий расходящийся след.",
+      "En": "A circular glimmer contracts around a heavy center. Its fine outward trace remains along the relics' outer edges."
+    },
+    {
+      "Id": "artifact-build:combination:network_memory",
+      "Ru": "Старые контактные отметины совпадают с новыми вспышками. Сеть словно повторяет путь, пройденный задолго до этого боя.",
+      "En": "Old contact marks align with fresh flashes. The network seems to retrace a path followed long before this battle."
+    },
+    {
+      "Id": "artifact-build:combination:temporal_echo",
+      "Ru": "За ярким контуром остаётся второй, едва заметный. Он повторяет прежнее положение реликта, прежде чем исчезнуть.",
+      "En": "A second, faint outline remains behind the bright one. It repeats the relic's former position before fading."
+    },
+    {
+      "Id": "artifact-build:combination:axiom_fold",
+      "Ru": "Несколько сложных изгибов сходятся в простую прямую. С обратной стороны она снова распадается на прежние линии.",
+      "En": "Several complex bends resolve into one straight line. On the reverse, it divides into the original lines again."
+    },
+    {
+      "Id": "artifact-build:combination:status_circuit",
+      "Ru": "На соседних гранях встречаются иней, ожоги и тусклый осадок. Следы не стирают друг друга: каждый занимает свою дорожку.",
+      "En": "Frost, burns and dull residue meet on neighboring facets. Their traces do not erase one another; each follows its own track."
+    },
+    {
+      "Id": "artifact-build:combination:hunter_doctrine",
+      "Ru": "Все прорези смотрят в одну сторону. Среди множества далёких отблесков оправа оставляет видимым только один.",
+      "En": "Every slit faces the same way. Among many distant glimmers, the frame leaves only one in view."
+    },
+    {
+      "Id": "artifact-build:combination:pulse_engineering",
+      "Ru": "Кольца собраны с небольшими промежутками. Свет пересекает их поочерёдно, и весь набор кажется одним разомкнутым двигателем.",
+      "En": "The rings are assembled with narrow gaps. Light crosses them in sequence, making the collection resemble one open engine."
+    },
+    {
+      "Id": "artifact-build:combination:core_forge",
+      "Ru": "На креплениях сохранился одинаковый след нагрева. Разные материалы сошлись вокруг светлого центра, не утратив собственной формы.",
+      "En": "Matching heat marks remain on the mounts. Different materials meet around a bright center without losing their shapes."
+    },
+    {
+      "Id": "artifact-build:combination:status_loop",
+      "Ru": "По замкнутой дорожке тянутся разноцветные следы. Каждый успевает потускнеть прежде, чем к нему вернётся свет.",
+      "En": "Colored traces follow a closed track. Each has time to dim before the light returns."
+    },
+    {
+      "Id": "artifact-build:combination:hunter_focus",
+      "Ru": "Смещённые линзы оставляют вокруг цели тёмное поле. В самом центре сохраняется крошечная неподвижная искра.",
+      "En": "Offset lenses leave a dark field around the target. A tiny, motionless spark remains at its center."
+    },
+    {
+      "Id": "artifact-build:combination:pulse_overload",
+      "Ru": "Свет уже не помещается между ободами. Он выходит наружу короткими волнами, обнажая старые швы.",
+      "En": "Light no longer fits between the rims. It escapes in short waves, exposing old seams."
+    },
+    {
+      "Id": "artifact-build:combination:core_relay",
+      "Ru": "Грубые силовые пластины соединены тонкими проводниками. На стыках тяжёлый красный свет становится бледным и быстрым.",
+      "En": "Rough power plates meet fine conductors. At their joins, heavy red light becomes pale and swift."
+    },
+    {
+      "Id": "artifact-build:campaign:glass_bastion",
+      "Ru": "Прозрачные сегменты пережили удары, расколовшие их крепления. Их трещины сходятся в замкнутую защитную дугу.",
+      "En": "Transparent segments survived impacts that shattered their mounts. Their cracks meet in a closed defensive arc."
+    },
+    {
+      "Id": "artifact-build:campaign:kinetic_relay",
+      "Ru": "Две скобы удерживают след незавершённого столкновения. В катушке рядом он продолжается частыми искрами.",
+      "En": "Two braces hold the trace of an unfinished collision. In the nearby coil, it continues as rapid sparks."
+    },
+    {
+      "Id": "artifact-build:campaign:frozen_optics",
+      "Ru": "Иней лежит только между линзами. Их внешние грани остаются прозрачными и смотрят в одну дальнюю точку.",
+      "En": "Frost lies only between the lenses. Their outer facets remain clear, facing one distant point."
+    },
+    {
+      "Id": "artifact-build:campaign:wave_rotor",
+      "Ru": "Смещённые обода оставляют вокруг себя пересекающиеся дуги. В месте пересечения свет становится ровным.",
+      "En": "Offset rims leave crossing arcs around them. Where the arcs meet, the light becomes steady."
+    },
+    {
+      "Id": "artifact-build:campaign:living_fortress",
+      "Ru": "Тонкая плёнка сплава затягивает промежутки между защитными пластинами. Старые трещины проступают под ней, как швы.",
+      "En": "A thin alloy film seals the spaces between defensive plates. Old cracks show beneath it like seams."
+    },
+    {
+      "Id": "artifact-build:campaign:chronicle",
+      "Ru": "Вращающиеся контуры отражаются в неподвижной линзе. Каждое положение оставляет короткий след рядом с предыдущим.",
+      "En": "Turning outlines reflect in a motionless lens. Each position leaves a brief trace beside the last."
+    },
+    {
+      "Id": "artifact-build:campaign:blood_cycle",
+      "Ru": "Красные жилы возвращаются к началу, не размыкая кольца. По их краям видны тёмные отметины прежних вспышек.",
+      "En": "Red veins return to their beginning without breaking the ring. Dark marks of earlier flares remain along their edges."
+    },
+    {
+      "Id": "artifact-build:campaign:unstable_echo",
+      "Ru": "Два узора никак не могут совпасть окончательно. Когда один становится ясным, другой уже начинает меняться.",
+      "En": "Two patterns can never quite align. By the time one becomes clear, the other is already changing."
+    },
+    {
+      "Id": "ability-evolution:blast_resonance",
+      "Ru": "Светлая волна касается корпуса и расходится новым кругом. На мгновение трудно понять, какая из вспышек была первой.",
+      "En": "A pale wave touches the hull and spreads into another ring. For a moment, it is hard to tell which flash came first."
+    },
+    {
+      "Id": "ability-evolution:blast_resonance_f1",
+      "Ru": "Светлая волна касается корпуса и расходится новым кругом. На мгновение трудно понять, какая из вспышек была первой. Из малой искры раскрываются вложенные лепестки света.",
+      "En": "A pale wave touches the hull and spreads into another ring. For a moment, it is hard to tell which flash came first. Nested petals of light unfold from a small spark."
+    },
+    {
+      "Id": "ability-evolution:blast_resonance_f2",
+      "Ru": "Светлая волна касается корпуса и расходится новым кругом. На мгновение трудно понять, какая из вспышек была первой. Гладкий фронт несёт на краю отпечаток каждого встреченного узла.",
+      "En": "A pale wave touches the hull and spreads into another ring. For a moment, it is hard to tell which flash came first. The smooth front carries the trace of every node along its edge."
+    },
+    {
+      "Id": "ability-evolution:blast_resonance_f3",
+      "Ru": "Светлая волна касается корпуса и расходится новым кругом. На мгновение трудно понять, какая из вспышек была первой. Уходящий отблеск возвращается к месту первого соприкосновения.",
+      "En": "A pale wave touches the hull and spreads into another ring. For a moment, it is hard to tell which flash came first. The departing glimmer returns to the first point of contact."
+    },
+    {
+      "Id": "ability-evolution:blast_network",
+      "Ru": "Волна теряется за одной сферой и появляется у следующей. Связи выдают её путь короткими последовательными вспышками.",
+      "En": "The wave vanishes behind one Sphere and appears beside the next. Brief successive flashes reveal its route along the links."
+    },
+    {
+      "Id": "ability-evolution:blast_network_f1",
+      "Ru": "Волна теряется за одной сферой и появляется у следующей. Связи выдают её путь короткими последовательными вспышками. Каждый узел принимает свет от предыдущего.",
+      "En": "The wave vanishes behind one Sphere and appears beside the next. Brief successive flashes reveal its route along the links. Each node receives light from the one before it."
+    },
+    {
+      "Id": "ability-evolution:blast_network_f2",
+      "Ru": "Волна теряется за одной сферой и появляется у следующей. Связи выдают её путь короткими последовательными вспышками. В месте излома след расходится неровной светлой кромкой.",
+      "En": "The wave vanishes behind one Sphere and appears beside the next. Brief successive flashes reveal its route along the links. At the break, the trace spreads along an uneven bright edge."
+    },
+    {
+      "Id": "ability-evolution:blast_network_f3",
+      "Ru": "Волна теряется за одной сферой и появляется у следующей. Связи выдают её путь короткими последовательными вспышками. Последний отблеск замыкает пройденный путь.",
+      "En": "The wave vanishes behind one Sphere and appears beside the next. Brief successive flashes reveal its route along the links. The final glimmer closes the path behind it."
+    },
+    {
+      "Id": "ability-evolution:blast_core",
+      "Ru": "Плотное свечение собирается у середины сети. Внешние контуры на мгновение становятся темнее перед выходом волны.",
+      "En": "Dense light gathers at the network's center. The outer outlines briefly darken before the wave escapes."
+    },
+    {
+      "Id": "ability-evolution:blast_core_f1",
+      "Ru": "Плотное свечение собирается у середины сети. Внешние контуры на мгновение становятся темнее перед выходом волны. Внутренний свет раскалывает свою тесную оболочку.",
+      "En": "Dense light gathers at the network's center. The outer outlines briefly darken before the wave escapes. The inner light splits its tight enclosure."
+    },
+    {
+      "Id": "ability-evolution:blast_core_f2",
+      "Ru": "Плотное свечение собирается у середины сети. Внешние контуры на мгновение становятся темнее перед выходом волны. Край волны обращён внутрь, к одной яркой точке.",
+      "En": "Dense light gathers at the network's center. The outer outlines briefly darken before the wave escapes. The wave's edge turns inward toward one bright point."
+    },
+    {
+      "Id": "ability-evolution:blast_core_f3",
+      "Ru": "Плотное свечение собирается у середины сети. Внешние контуры на мгновение становятся темнее перед выходом волны. Старые швы проступают в ослепительном свечении.",
+      "En": "Dense light gathers at the network's center. The outer outlines briefly darken before the wave escapes. Old seams show through the dazzling light."
+    },
+    {
+      "Id": "ability-evolution:shield_echo_guard",
+      "Ru": "За первой прозрачной дугой проступает вторая. Между ними остаются короткие следы остановленных ударов.",
+      "En": "A second transparent arc appears behind the first. Brief traces of stopped impacts linger between them."
+    },
+    {
+      "Id": "ability-evolution:shield_echo_guard_f1",
+      "Ru": "За первой прозрачной дугой проступает вторая. Между ними остаются короткие следы остановленных ударов. За повреждённой пластиной виден ещё один целый слой.",
+      "En": "A second transparent arc appears behind the first. Brief traces of stopped impacts linger between them. Another intact layer lies behind the damaged plate."
+    },
+    {
+      "Id": "ability-evolution:shield_echo_guard_f2",
+      "Ru": "За первой прозрачной дугой проступает вторая. Между ними остаются короткие следы остановленных ударов. Свет переходит с одной защитной грани на другую.",
+      "En": "A second transparent arc appears behind the first. Brief traces of stopped impacts linger between them. Light passes from one defensive facet to another."
+    },
+    {
+      "Id": "ability-evolution:shield_echo_guard_f3",
+      "Ru": "За первой прозрачной дугой проступает вторая. Между ними остаются короткие следы остановленных ударов. Ударный отблеск возвращается вдоль края барьера.",
+      "En": "A second transparent arc appears behind the first. Brief traces of stopped impacts linger between them. The impact's glimmer returns along the barrier's edge."
+    },
+    {
+      "Id": "ability-evolution:shield_reflector",
+      "Ru": "На наружной стороне щита удар оставляет вмятину света. Её отражение появляется с противоположным наклоном.",
+      "En": "An impact leaves a dent of light on the shield's outer face. Its reflection appears with the opposite slant."
+    },
+    {
+      "Id": "ability-evolution:shield_reflector_f1",
+      "Ru": "На наружной стороне щита удар оставляет вмятину света. Её отражение появляется с противоположным наклоном. Острая светлая складка смотрит навстречу удару.",
+      "En": "An impact leaves a dent of light on the shield's outer face. Its reflection appears with the opposite slant. A sharp fold of light faces the incoming strike."
+    },
+    {
+      "Id": "ability-evolution:shield_reflector_f2",
+      "Ru": "На наружной стороне щита удар оставляет вмятину света. Её отражение появляется с противоположным наклоном. Отражённая полоса меняет направление у соседней грани.",
+      "En": "An impact leaves a dent of light on the shield's outer face. Its reflection appears with the opposite slant. The reflected band changes direction at the next facet."
+    },
+    {
+      "Id": "ability-evolution:shield_reflector_f3",
+      "Ru": "На наружной стороне щита удар оставляет вмятину света. Её отражение появляется с противоположным наклоном. По соединённым оправам пробегает белая искра.",
+      "En": "An impact leaves a dent of light on the shield's outer face. Its reflection appears with the opposite slant. A white spark runs along the joined frames."
+    },
+    {
+      "Id": "ability-evolution:shield_bastion",
+      "Ru": "Отдельные щитовые сегменты складываются в общую дугу. Сквозь неё видно поле боя, но не путь входящего удара.",
+      "En": "Separate shield segments form one arc. The battlefield is visible through it, but the incoming strike's path is not."
+    },
+    {
+      "Id": "ability-evolution:shield_bastion_f1",
+      "Ru": "Отдельные щитовые сегменты складываются в общую дугу. Сквозь неё видно поле боя, но не путь входящего удара. Крупные прозрачные пластины стоят плотно, край к краю.",
+      "En": "Separate shield segments form one arc. The battlefield is visible through it, but the incoming strike's path is not. Broad clear plates stand closely, edge to edge."
+    },
+    {
+      "Id": "ability-evolution:shield_bastion_f2",
+      "Ru": "Отдельные щитовые сегменты складываются в общую дугу. Сквозь неё видно поле боя, но не путь входящего удара. Светлый шов соединяет раздельные части защиты.",
+      "En": "Separate shield segments form one arc. The battlefield is visible through it, but the incoming strike's path is not. A bright seam joins the separate pieces of defense."
+    },
+    {
+      "Id": "ability-evolution:shield_bastion_f3",
+      "Ru": "Отдельные щитовые сегменты складываются в общую дугу. Сквозь неё видно поле боя, но не путь входящего удара. Далёкие края дуги продолжают общий рисунок.",
+      "En": "Separate shield segments form one arc. The battlefield is visible through it, but the incoming strike's path is not. The distant ends of the arc continue the shared pattern."
+    },
+    {
+      "Id": "ability-evolution:teleport_echo_jump",
+      "Ru": "Позади остаётся бледный отпечаток ядра. Он ещё не успевает исчезнуть, когда новое свечение уже возникает впереди.",
+      "En": "A pale imprint of the core remains behind. It has not yet faded when fresh light appears ahead."
+    },
+    {
+      "Id": "ability-evolution:teleport_echo_jump_f1",
+      "Ru": "Позади остаётся бледный отпечаток ядра. Он ещё не успевает исчезнуть, когда новое свечение уже возникает впереди. Длинная световая дуга связывает два разнесённых отпечатка.",
+      "En": "A pale imprint of the core remains behind. It has not yet faded when fresh light appears ahead. A long arc of light joins two distant imprints."
+    },
+    {
+      "Id": "ability-evolution:teleport_echo_jump_f2",
+      "Ru": "Позади остаётся бледный отпечаток ядра. Он ещё не успевает исчезнуть, когда новое свечение уже возникает впереди. Несколько коротких следов складываются в прерывистую цепь.",
+      "En": "A pale imprint of the core remains behind. It has not yet faded when fresh light appears ahead. Several short traces form a broken chain."
+    },
+    {
+      "Id": "ability-evolution:teleport_echo_jump_f3",
+      "Ru": "Позади остаётся бледный отпечаток ядра. Он ещё не успевает исчезнуть, когда новое свечение уже возникает впереди. Замыкающий изгиб обращён к оставленной точке.",
+      "En": "A pale imprint of the core remains behind. It has not yet faded when fresh light appears ahead. The closing curve faces the point left behind."
+    },
+    {
+      "Id": "ability-evolution:teleport_beacon",
+      "Ru": "В пустом месте удерживается тонкая отметка. Даже после смещения ядра её края ещё направлены к прежней позиции.",
+      "En": "A fine mark holds in empty space. After the core shifts, its edges still point toward the former position."
+    },
+    {
+      "Id": "ability-evolution:teleport_beacon_f1",
+      "Ru": "В пустом месте удерживается тонкая отметка. Даже после смещения ядра её края ещё направлены к прежней позиции. Середина отметки становится яснее окружающего света.",
+      "En": "A fine mark holds in empty space. After the core shifts, its edges still point toward the former position. The mark's center becomes clearer than the surrounding light."
+    },
+    {
+      "Id": "ability-evolution:teleport_beacon_f2",
+      "Ru": "В пустом месте удерживается тонкая отметка. Даже после смещения ядра её края ещё направлены к прежней позиции. Кольцевой след расходится от края маяка.",
+      "En": "A fine mark holds in empty space. After the core shifts, its edges still point toward the former position. A circular trace spreads from the beacon's edge."
+    },
+    {
+      "Id": "ability-evolution:teleport_beacon_f3",
+      "Ru": "В пустом месте удерживается тонкая отметка. Даже после смещения ядра её края ещё направлены к прежней позиции. Из одного следа расходятся несколько тонких направлений.",
+      "En": "A fine mark holds in empty space. After the core shifts, its edges still point toward the former position. Several fine bearings diverge from one trace."
+    },
+    {
+      "Id": "ability-evolution:teleport_phase",
+      "Ru": "На короткий миг контур ядра не совпадает с его оболочкой. Между ними видны линии далёких сфер.",
+      "En": "For a moment, the core's outline fails to match its shell. Lines from distant Spheres show between them."
+    },
+    {
+      "Id": "ability-evolution:teleport_phase_f1",
+      "Ru": "На короткий миг контур ядра не совпадает с его оболочкой. Между ними видны линии далёких сфер. Прозрачный след пересекает знакомый рисунок узлов.",
+      "En": "For a moment, the core's outline fails to match its shell. Lines from distant Spheres show between them. A transparent trace crosses the familiar pattern of nodes."
+    },
+    {
+      "Id": "ability-evolution:teleport_phase_f2",
+      "Ru": "На короткий миг контур ядра не совпадает с его оболочкой. Между ними видны линии далёких сфер. На месте исчезнувшего контура остаётся рваный светлый шов.",
+      "En": "For a moment, the core's outline fails to match its shell. Lines from distant Spheres show between them. A ragged bright seam remains where the outline vanished."
+    },
+    {
+      "Id": "ability-evolution:teleport_phase_f3",
+      "Ru": "На короткий миг контур ядра не совпадает с его оболочкой. Между ними видны линии далёких сфер. За смещённым ядром складывается тихая прозрачная дуга.",
+      "En": "For a moment, the core's outline fails to match its shell. Lines from distant Spheres show between them. A quiet transparent arc forms behind the shifted core."
+    },
+    {
+      "Id": "ability-evolution:firetrail_overdrive",
+      "Ru": "Свет в стыках становится белым, а след за ядром — раскалённым. На тёмных краях ещё виден прежний цвет оболочки.",
+      "En": "Light in the joints turns white and the core's trail grows incandescent. The shell's old color remains along the dark edges."
+    },
+    {
+      "Id": "ability-evolution:firetrail_overdrive_f1",
+      "Ru": "Свет в стыках становится белым, а след за ядром — раскалённым. На тёмных краях ещё виден прежний цвет оболочки. Короткая вспышка обнажает все слои горячего следа.",
+      "En": "Light in the joints turns white and the core's trail grows incandescent. The shell's old color remains along the dark edges. A brief flash exposes every layer of the hot trail."
+    },
+    {
+      "Id": "ability-evolution:firetrail_overdrive_f2",
+      "Ru": "Свет в стыках становится белым, а след за ядром — раскалённым. На тёмных краях ещё виден прежний цвет оболочки. Светлые языки изгибаются вдоль оставленного пути.",
+      "En": "Light in the joints turns white and the core's trail grows incandescent. The shell's old color remains along the dark edges. Bright tongues curve along the path left behind."
+    },
+    {
+      "Id": "ability-evolution:firetrail_overdrive_f3",
+      "Ru": "Свет в стыках становится белым, а след за ядром — раскалённым. На тёмных краях ещё виден прежний цвет оболочки. С края вырывается широкий неровный росчерк.",
+      "En": "Light in the joints turns white and the core's trail grows incandescent. The shell's old color remains along the dark edges. A broad, uneven stroke bursts from the edge."
+    },
+    {
+      "Id": "ability-evolution:firetrail_ignition",
+      "Ru": "Один раскалённый след пересекает другой. В месте встречи остаётся яркое пятно с тонкими расходящимися краями.",
+      "En": "One incandescent trace crosses another. A bright patch remains at their meeting, fringed by fine spreading edges."
+    },
+    {
+      "Id": "ability-evolution:firetrail_ignition_f1",
+      "Ru": "Один раскалённый след пересекает другой. В месте встречи остаётся яркое пятно с тонкими расходящимися краями. Малая искра находит продолжение среди старых ожогов.",
+      "En": "One incandescent trace crosses another. A bright patch remains at their meeting, fringed by fine spreading edges. A small spark finds a continuation among old scorch marks."
+    },
+    {
+      "Id": "ability-evolution:firetrail_ignition_f2",
+      "Ru": "Один раскалённый след пересекает другой. В месте встречи остаётся яркое пятно с тонкими расходящимися краями. Яркие точки соединяются неровной горящей линией.",
+      "En": "One incandescent trace crosses another. A bright patch remains at their meeting, fringed by fine spreading edges. Bright points join into an uneven burning line."
+    },
+    {
+      "Id": "ability-evolution:firetrail_ignition_f3",
+      "Ru": "Один раскалённый след пересекает другой. В месте встречи остаётся яркое пятно с тонкими расходящимися краями. В глубине следа проступает плотный оранжевый разлом.",
+      "En": "One incandescent trace crosses another. A bright patch remains at their meeting, fringed by fine spreading edges. A dense orange fissure appears within the trail."
+    },
+    {
+      "Id": "ability-evolution:firetrail_sanctum",
+      "Ru": "Около ядра держится ровный тёплый свет. За его краем остаются более резкие и беспокойные следы.",
+      "En": "Steady warm light surrounds the core. Sharper, restless traces remain beyond its edge."
+    },
+    {
+      "Id": "ability-evolution:firetrail_sanctum_f1",
+      "Ru": "Около ядра держится ровный тёплый свет. За его краем остаются более резкие и беспокойные следы. По внешней дуге пробегает первая красная искра.",
+      "En": "Steady warm light surrounds the core. Sharper, restless traces remain beyond its edge. The first red spark travels along the outer arc."
+    },
+    {
+      "Id": "ability-evolution:firetrail_sanctum_f2",
+      "Ru": "Около ядра держится ровный тёплый свет. За его краем остаются более резкие и беспокойные следы. Внутри обода тлеет глубокое ровное свечение.",
+      "En": "Steady warm light surrounds the core. Sharper, restless traces remain beyond its edge. A deep, steady glow smolders within the rim."
+    },
+    {
+      "Id": "ability-evolution:firetrail_sanctum_f3",
+      "Ru": "Около ядра держится ровный тёплый свет. За его краем остаются более резкие и беспокойные следы. Угасший край снова отвечает светлой полосой.",
+      "En": "Steady warm light surrounds the core. Sharper, restless traces remain beyond its edge. The dimmed edge answers with a fresh band of light."
+    },
+    {
+      "Id": "ability-evolution:minion_echo_drone",
+      "Ru": "Угловатый малый аппарат повторяет цвет своего узла. В его раскрытых сегментах видны следы чужих попаданий.",
+      "En": "The small angular craft carries its node's color. Marks of incoming hits remain on its open segments."
+    },
+    {
+      "Id": "ability-evolution:minion_echo_drone_f1",
+      "Ru": "Угловатый малый аппарат повторяет цвет своего узла. В его раскрытых сегментах видны следы чужих попаданий. Раздельные пластины держат общий острый силуэт.",
+      "En": "The small angular craft carries its node's color. Marks of incoming hits remain on its open segments. Separate plates hold one sharp silhouette."
+    },
+    {
+      "Id": "ability-evolution:minion_echo_drone_f2",
+      "Ru": "Угловатый малый аппарат повторяет цвет своего узла. В его раскрытых сегментах видны следы чужих попаданий. Тонкие световые метки связывают аппарат с опорным узлом.",
+      "En": "The small angular craft carries its node's color. Marks of incoming hits remain on its open segments. Fine light marks link the craft to its anchor node."
+    },
+    {
+      "Id": "ability-evolution:minion_echo_drone_f3",
+      "Ru": "Угловатый малый аппарат повторяет цвет своего узла. В его раскрытых сегментах видны следы чужих попаданий. Малые аппараты расходятся по разным следам вокруг опоры.",
+      "En": "The small angular craft carries its node's color. Marks of incoming hits remain on its open segments. Small craft follow separate traces around their anchor."
+    },
+    {
+      "Id": "ability-evolution:minion_relay_drone",
+      "Ru": "На корпусе малого реле вспыхивают раздельные контакты. Отблеск проходит по ним в том же порядке, что по соседним сферам.",
+      "En": "Separate contacts flare on the small relay's hull. Their glimmer follows the same order as the neighboring Spheres."
+    },
+    {
+      "Id": "ability-evolution:minion_relay_drone_f1",
+      "Ru": "На корпусе малого реле вспыхивают раздельные контакты. Отблеск проходит по ним в том же порядке, что по соседним сферам. Световой след выходит с противоположной стороны корпуса.",
+      "En": "Separate contacts flare on the small relay's hull. Their glimmer follows the same order as the neighboring Spheres. A light trace leaves the opposite side of the hull."
+    },
+    {
+      "Id": "ability-evolution:minion_relay_drone_f2",
+      "Ru": "На корпусе малого реле вспыхивают раздельные контакты. Отблеск проходит по ним в том же порядке, что по соседним сферам. Центральная грань делит отблеск на два узких луча.",
+      "En": "Separate contacts flare on the small relay's hull. Their glimmer follows the same order as the neighboring Spheres. The central facet divides the glimmer into two narrow rays."
+    },
+    {
+      "Id": "ability-evolution:minion_relay_drone_f3",
+      "Ru": "На корпусе малого реле вспыхивают раздельные контакты. Отблеск проходит по ним в том же порядке, что по соседним сферам. Потемневшие контакты снова становятся различимыми.",
+      "En": "Separate contacts flare on the small relay's hull. Their glimmer follows the same order as the neighboring Spheres. The darkened contacts become visible again."
+    },
+    {
+      "Id": "ability-evolution:minion_guardian",
+      "Ru": "Короткие защитные створки охватывают тёмную середину аппарата. Перед ними скапливаются бледные следы столкновений.",
+      "En": "Short defensive shutters enclose the craft's dark center. Pale collision traces gather before them."
+    },
+    {
+      "Id": "ability-evolution:minion_guardian_f1",
+      "Ru": "Короткие защитные створки охватывают тёмную середину аппарата. Перед ними скапливаются бледные следы столкновений. Раскрытые створки складываются в малую защитную дугу.",
+      "En": "Short defensive shutters enclose the craft's dark center. Pale collision traces gather before them. The open shutters form a small defensive arc."
+    },
+    {
+      "Id": "ability-evolution:minion_guardian_f2",
+      "Ru": "Короткие защитные створки охватывают тёмную середину аппарата. Перед ними скапливаются бледные следы столкновений. На передней кромке остаётся свежий косой ожог.",
+      "En": "Short defensive shutters enclose the craft's dark center. Pale collision traces gather before them. A fresh slanted burn remains on the leading edge."
+    },
+    {
+      "Id": "ability-evolution:minion_guardian_f3",
+      "Ru": "Короткие защитные створки охватывают тёмную середину аппарата. Перед ними скапливаются бледные следы столкновений. Внутренние детали сходятся вдоль направления вспышки.",
+      "En": "Short defensive shutters enclose the craft's dark center. Pale collision traces gather before them. The inner parts align with the flash's direction."
+    },
+    {
+      "Id": "ability-evolution:lightning_echo_storm",
+      "Ru": "Ветвящийся разряд оставляет несколько наложенных следов. Они гаснут с разной скоростью, открывая путь последней искры.",
+      "En": "A branching discharge leaves several overlapping traces. They fade at different rates, revealing the final spark's path."
+    },
+    {
+      "Id": "ability-evolution:lightning_echo_storm_f1",
+      "Ru": "Ветвящийся разряд оставляет несколько наложенных следов. Они гаснут с разной скоростью, открывая путь последней искры. Светлая ветвь продолжается через ряд тёмных силуэтов.",
+      "En": "A branching discharge leaves several overlapping traces. They fade at different rates, revealing the final spark's path. A bright branch continues through a row of dark silhouettes."
+    },
+    {
+      "Id": "ability-evolution:lightning_echo_storm_f2",
+      "Ru": "Ветвящийся разряд оставляет несколько наложенных следов. Они гаснут с разной скоростью, открывая путь последней искры. В месте схода дуг образуется плотный белый узел.",
+      "En": "A branching discharge leaves several overlapping traces. They fade at different rates, revealing the final spark's path. A dense white knot forms where the arcs meet."
+    },
+    {
+      "Id": "ability-evolution:lightning_echo_storm_f3",
+      "Ru": "Ветвящийся разряд оставляет несколько наложенных следов. Они гаснут с разной скоростью, открывая путь последней искры. Последняя ветвь изгибается обратно к началу.",
+      "En": "A branching discharge leaves several overlapping traces. They fade at different rates, revealing the final spark's path. The last branch curves back toward the beginning."
+    },
+    {
+      "Id": "ability-evolution:lightning_relay",
+      "Ru": "Два контакта разделяет тёмный промежуток. Разряд обходит его ломаной дугой и находит следующий узел.",
+      "En": "A dark gap separates two contacts. The discharge bends around it to find the next node."
+    },
+    {
+      "Id": "ability-evolution:lightning_relay_f1",
+      "Ru": "Два контакта разделяет тёмный промежуток. Разряд обходит его ломаной дугой и находит следующий узел. Между раздельными следами остаётся тонкая искра.",
+      "En": "A dark gap separates two contacts. The discharge bends around it to find the next node. A fine spark remains between the separate traces."
+    },
+    {
+      "Id": "ability-evolution:lightning_relay_f2",
+      "Ru": "Два контакта разделяет тёмный промежуток. Разряд обходит его ломаной дугой и находит следующий узел. Парные дуги расходятся по разным сторонам контура.",
+      "En": "A dark gap separates two contacts. The discharge bends around it to find the next node. Paired arcs pass around opposite sides of the outline."
+    },
+    {
+      "Id": "ability-evolution:lightning_relay_f3",
+      "Ru": "Два контакта разделяет тёмный промежуток. Разряд обходит его ломаной дугой и находит следующий узел. Вспышка на последней грани повторяет первую.",
+      "En": "A dark gap separates two contacts. The discharge bends around it to find the next node. The flash on the last facet repeats the first."
+    },
+    {
+      "Id": "ability-evolution:lightning_overload",
+      "Ru": "Тонкие разряды сходятся в слишком яркой точке. На мгновение отдельные ветви перестают различаться.",
+      "En": "Fine discharges converge on a point too bright to resolve. For a moment, the individual branches disappear."
+    },
+    {
+      "Id": "ability-evolution:lightning_overload_f1",
+      "Ru": "Тонкие разряды сходятся в слишком яркой точке. На мгновение отдельные ветви перестают различаться. Плотный светлый шрам отмечает конец разряда.",
+      "En": "Fine discharges converge on a point too bright to resolve. For a moment, the individual branches disappear. A dense bright scar marks the discharge's end."
+    },
+    {
+      "Id": "ability-evolution:lightning_overload_f2",
+      "Ru": "Тонкие разряды сходятся в слишком яркой точке. На мгновение отдельные ветви перестают различаться. От центра расходятся короткие ослепительные изломы.",
+      "En": "Fine discharges converge on a point too bright to resolve. For a moment, the individual branches disappear. Short dazzling forks spread from the center."
+    },
+    {
+      "Id": "ability-evolution:lightning_overload_f3",
+      "Ru": "Тонкие разряды сходятся в слишком яркой точке. На мгновение отдельные ветви перестают различаться. Между контактами держится беспокойный белый свет.",
+      "En": "Fine discharges converge on a point too bright to resolve. For a moment, the individual branches disappear. Restless white light hangs between the contacts."
+    },
+    {
+      "Id": "ability-evolution:timestop_echo_phase",
+      "Ru": "Летящие осколки сохраняют резкие очертания. Между ними проходит свет, которому неподвижность будто не касается.",
+      "En": "Flying fragments retain sharp outlines. Light passes between them, seemingly untouched by their stillness."
+    },
+    {
+      "Id": "ability-evolution:timestop_echo_phase_f1",
+      "Ru": "Летящие осколки сохраняют резкие очертания. Между ними проходит свет, которому неподвижность будто не касается. Параллельные световые полосы пересекают застывшее поле.",
+      "En": "Flying fragments retain sharp outlines. Light passes between them, seemingly untouched by their stillness. Parallel bands of light cross the frozen field."
+    },
+    {
+      "Id": "ability-evolution:timestop_echo_phase_f2",
+      "Ru": "Летящие осколки сохраняют резкие очертания. Между ними проходит свет, которому неподвижность будто не касается. Прозрачный разрыв открывает узкую полосу движения.",
+      "En": "Flying fragments retain sharp outlines. Light passes between them, seemingly untouched by their stillness. A transparent break reveals a narrow band of motion."
+    },
+    {
+      "Id": "ability-evolution:timestop_echo_phase_f3",
+      "Ru": "Летящие осколки сохраняют резкие очертания. Между ними проходит свет, которому неподвижность будто не касается. После исчезновения контура остаётся тонкий светлый надрез.",
+      "En": "Flying fragments retain sharp outlines. Light passes between them, seemingly untouched by their stillness. A fine bright cut remains after the outline fades."
+    },
+    {
+      "Id": "ability-evolution:timestop_closed_time",
+      "Ru": "Среди остановленных частиц замыкается прозрачный контур. Его края выглядят разными мгновениями одной и той же линии.",
+      "En": "A transparent outline closes among stopped particles. Its edges look like different moments of the same line."
+    },
+    {
+      "Id": "ability-evolution:timestop_closed_time_f1",
+      "Ru": "Среди остановленных частиц замыкается прозрачный контур. Его края выглядят разными мгновениями одной и той же линии. Закруглённый край возвращается к самому себе.",
+      "En": "A transparent outline closes among stopped particles. Its edges look like different moments of the same line. The rounded edge returns to itself."
+    },
+    {
+      "Id": "ability-evolution:timestop_closed_time_f2",
+      "Ru": "Среди остановленных частиц замыкается прозрачный контур. Его края выглядят разными мгновениями одной и той же линии. Две параллельные грани уходят между неподвижными обломками.",
+      "En": "A transparent outline closes among stopped particles. Its edges look like different moments of the same line. Two parallel facets extend between motionless fragments."
+    },
+    {
+      "Id": "ability-evolution:timestop_closed_time_f3",
+      "Ru": "Среди остановленных частиц замыкается прозрачный контур. Его края выглядят разными мгновениями одной и той же линии. Пересекающиеся линии ограничивают тихую пустую середину.",
+      "En": "A transparent outline closes among stopped particles. Its edges look like different moments of the same line. Crossing lines enclose a quiet, empty center."
+    },
+    {
+      "Id": "ability-evolution:timestop_time_anchor",
+      "Ru": "Рядом с неподвижным якорем висит сорванная искра. Остальное поле кажется смещённым относительно неё.",
+      "En": "A torn spark hangs beside the motionless anchor. The rest of the field seems shifted around it."
+    },
+    {
+      "Id": "ability-evolution:timestop_time_anchor_f1",
+      "Ru": "Рядом с неподвижным якорем висит сорванная искра. Остальное поле кажется смещённым относительно неё. Контактная точка остаётся резкой среди смазанных следов.",
+      "En": "A torn spark hangs beside the motionless anchor. The rest of the field seems shifted around it. The point of contact stays sharp among blurred traces."
+    },
+    {
+      "Id": "ability-evolution:timestop_time_anchor_f2",
+      "Ru": "Рядом с неподвижным якорем висит сорванная искра. Остальное поле кажется смещённым относительно неё. За светлой меткой тянется короткий незамкнутый путь.",
+      "En": "A torn spark hangs beside the motionless anchor. The rest of the field seems shifted around it. A short open path follows the bright mark."
+    },
+    {
+      "Id": "ability-evolution:timestop_time_anchor_f3",
+      "Ru": "Рядом с неподвижным якорем висит сорванная искра. Остальное поле кажется смещённым относительно неё. Застывшая линия расходится двумя несовпадающими краями.",
+      "En": "A torn spark hangs beside the motionless anchor. The rest of the field seems shifted around it. The frozen line separates into two misaligned edges."
+    },
+    {
+      "Id": "ability-evolution:darkritual_blood_link",
+      "Ru": "Красная нить соединяет треснувшие оболочки. В её середине движется тёмный отблеск, не похожий на обычный заряд.",
+      "En": "A red thread joins cracked shells. A dark glimmer, unlike an ordinary charge, moves at its center."
+    },
+    {
+      "Id": "ability-evolution:darkritual_blood_link_f1",
+      "Ru": "Красная нить соединяет треснувшие оболочки. В её середине движется тёмный отблеск, не похожий на обычный заряд. У самого стыка свет меняет оттенок.",
+      "En": "A red thread joins cracked shells. A dark glimmer, unlike an ordinary charge, moves at its center. The light changes shade at the join."
+    },
+    {
+      "Id": "ability-evolution:darkritual_blood_link_f2",
+      "Ru": "Красная нить соединяет треснувшие оболочки. В её середине движется тёмный отблеск, не похожий на обычный заряд. Красный след проходит через несколько раздельных оправ.",
+      "En": "A red thread joins cracked shells. A dark glimmer, unlike an ordinary charge, moves at its center. The red trace passes through several separate frames."
+    },
+    {
+      "Id": "ability-evolution:darkritual_blood_link_f3",
+      "Ru": "Красная нить соединяет треснувшие оболочки. В её середине движется тёмный отблеск, не похожий на обычный заряд. Обратный отблеск повторяет форму оставленного повреждения.",
+      "En": "A red thread joins cracked shells. A dark glimmer, unlike an ordinary charge, moves at its center. The returning glimmer follows the shape of the scar left behind."
+    },
+    {
+      "Id": "ability-evolution:darkritual_sacrifice",
+      "Ru": "Внутренняя трещина открыта навстречу тёмному контуру. Свет выходит из неё неровно, обнажая край ядра.",
+      "En": "An inner crack opens toward a dark outline. Uneven light escapes, exposing the core's edge."
+    },
+    {
+      "Id": "ability-evolution:darkritual_sacrifice_f1",
+      "Ru": "Внутренняя трещина открыта навстречу тёмному контуру. Свет выходит из неё неровно, обнажая край ядра. По внешней дуге проходит резкий красный толчок.",
+      "En": "An inner crack opens toward a dark outline. Uneven light escapes, exposing the core's edge. A sharp red beat crosses the outer arc."
+    },
+    {
+      "Id": "ability-evolution:darkritual_sacrifice_f2",
+      "Ru": "Внутренняя трещина открыта навстречу тёмному контуру. Свет выходит из неё неровно, обнажая край ядра. Из светлого шва выступают острые короткие грани.",
+      "En": "An inner crack opens toward a dark outline. Uneven light escapes, exposing the core's edge. Short sharp facets emerge from the bright seam."
+    },
+    {
+      "Id": "ability-evolution:darkritual_sacrifice_f3",
+      "Ru": "Внутренняя трещина открыта навстречу тёмному контуру. Свет выходит из неё неровно, обнажая край ядра. По краю трещины снова сходятся тонкие нити свечения.",
+      "En": "An inner crack opens toward a dark outline. Uneven light escapes, exposing the core's edge. Fine threads of light meet again along the crack's edge."
+    },
+    {
+      "Id": "ability-evolution:darkritual_void_pact",
+      "Ru": "На границе свечения лежит неподвижная тёмная полоса. Оболочка рядом с ней видна только по истончённому краю.",
+      "En": "A motionless dark band lies at the glow's boundary. The nearby shell is visible only along its thinning edge."
+    },
+    {
+      "Id": "ability-evolution:darkritual_void_pact_f1",
+      "Ru": "На границе свечения лежит неподвижная тёмная полоса. Оболочка рядом с ней видна только по истончённому краю. В глубине разлома остаётся последняя тонкая искра.",
+      "En": "A motionless dark band lies at the glow's boundary. The nearby shell is visible only along its thinning edge. One last fine spark remains deep in the fissure."
+    },
+    {
+      "Id": "ability-evolution:darkritual_void_pact_f2",
+      "Ru": "На границе свечения лежит неподвижная тёмная полоса. Оболочка рядом с ней видна только по истончённому краю. У тёмной границы сохраняется узкий незакрытый просвет.",
+      "En": "A motionless dark band lies at the glow's boundary. The nearby shell is visible only along its thinning edge. A narrow opening remains at the dark boundary."
+    },
+    {
+      "Id": "ability-evolution:darkritual_void_pact_f3",
+      "Ru": "На границе свечения лежит неподвижная тёмная полоса. Оболочка рядом с ней видна только по истончённому краю. Яркий край обрывается у самой глубокой точки.",
+      "En": "A motionless dark band lies at the glow's boundary. The nearby shell is visible only along its thinning edge. The bright edge ends at the deepest point."
+    },
+    {
+      "Id": "synergy:std_res_blast",
+      "Ru": "Орудие выпускает короткую вспышку, и корпус отвечает ей расходящимся ободом. Выстрел и волна оставляют на цели общий след.",
+      "En": "The weapon releases a short flash, answered by a spreading rim around the hull. Shot and wave leave one shared mark on the target."
+    },
+    {
+      "Id": "synergy:std_singularity_timestop",
+      "Ru": "У дульных пластин зависает неподвижная искра. За ней пространство кажется втянутым в тёмную складку.",
+      "En": "A motionless spark hangs beside the muzzle plates. Behind it, space seems drawn into a dark fold."
+    },
+    {
+      "Id": "synergy:std_swarm_minion",
+      "Ru": "Из боковых направляющих выходит угловатый малый аппарат. На его корпусе остаётся тот же цвет, что в прорезях материнского орудия.",
+      "En": "A small angular craft leaves the side guides. Its hull carries the same color as the parent weapon's slits."
+    },
+    {
+      "Id": "synergy:sniper_oracle_teleport",
+      "Ru": "Узкие направляющие смотрят на далёкую светлую отметку. Между ними и целью остаётся тонкий прерывистый след.",
+      "En": "Narrow guides face a distant bright mark. A fine broken trace remains between them and the target."
+    },
+    {
+      "Id": "synergy:sniper_assassin_darkritual",
+      "Ru": "По тёмному оружейному стыку проходит красная нить. Вдоль прицельной оси она становится почти бесцветной.",
+      "En": "A red thread crosses the dark weapon joint. Along the aiming axis, it becomes almost colorless."
+    },
+    {
+      "Id": "synergy:sniper_beacon_firetrail",
+      "Ru": "На дальней цели держится маленькая раскалённая точка. Отражение её света видно на длинных боковых пластинах орудия.",
+      "En": "A small incandescent point holds on the distant target. Its reflection shows on the weapon's long side plates."
+    },
+    {
+      "Id": "synergy:shotgun_burst_shield",
+      "Ru": "Широкие створки раскрываются за прозрачной защитной дугой. На её внутреннем краю остаются веерные отметины.",
+      "En": "Broad shutters open behind a transparent defensive arc. Fan-shaped marks remain along its inner edge."
+    },
+    {
+      "Id": "synergy:shotgun_cataclysm_blast",
+      "Ru": "Несколько следов расходятся из широкой оружейной рамы. Между ними раскрывается светлый фронт волны.",
+      "En": "Several traces diverge from the broad weapon frame. A bright wave front unfolds between them."
+    },
+    {
+      "Id": "synergy:shotgun_hail_lightning",
+      "Ru": "На раздельных направляющих перескакивают белые искры. Они ещё различимы среди широкого веера попаданий.",
+      "En": "White sparks leap across separate guides. They remain visible within the broad fan of impacts."
+    },
+    {
+      "Id": "synergy:chain_web_timestop",
+      "Ru": "Изогнутые электроды держат разветвлённую световую сеть. На её дальних концах осколки застыли под разными углами.",
+      "En": "Curved electrodes hold a branching web of light. Fragments at its far ends hang at different angles."
+    },
+    {
+      "Id": "synergy:chain_storm_lightning",
+      "Ru": "Тонкий разряд встречает более широкий и раздваивается. На электродах остаются неровные белые швы.",
+      "En": "A fine discharge meets a broader one and divides. Uneven white seams remain along the electrodes."
+    },
+    {
+      "Id": "synergy:chain_leech_darkritual",
+      "Ru": "Между контактами тянется тёмно-красная жила. В каждом её изломе на мгновение виден цвет электрической дуги.",
+      "En": "A dark red vein spans the contacts. The color of an electric arc briefly shows at every bend."
+    },
+    {
+      "Id": "synergy:aura_sanctum_shield",
+      "Ru": "Тонкие боевые пластины охватывают ядро без тяжёлой оружейной рамы. За их краем держится спокойный прозрачный обод.",
+      "En": "Fine combat plates surround the core without a heavy weapon frame. A quiet transparent rim holds beyond their edge."
+    },
+    {
+      "Id": "synergy:aura_gravity_teleport",
+      "Ru": "Мягкий свет ауры изгибается к смещённому контуру. Тонкие пластины вокруг ядра сохраняют общий круг.",
+      "En": "The aura's soft light bends toward a displaced outline. Fine plates around the core retain their shared circle."
+    },
+    {
+      "Id": "synergy:aura_overgrowth_firetrail",
+      "Ru": "У изящных наружных сегментов проступает тёплая светлая кромка. За ней остаются короткие следы жара.",
+      "En": "A warm bright edge appears on the slender outer segments. Brief heat traces remain beyond it."
+    },
+    {
+      "Id": "synergy:orbital_dance_minion",
+      "Ru": "Малые аппараты держатся между широкими орбитами клинков. Их угловатые корпуса не повторяют круглое ядро.",
+      "En": "Small craft hold between the blades' wide orbits. Their angular hulls do not mimic the round core."
+    },
+    {
+      "Id": "synergy:orbital_halo_shield",
+      "Ru": "Встречные лезвия проходят по внешней стороне прозрачного ореола. Их острия обращены вдоль движения, от центра наружу.",
+      "En": "Counter-moving blades pass outside a transparent halo. Their points face along their paths, away from the center."
+    },
+    {
+      "Id": "synergy:orbital_blade_darkritual",
+      "Ru": "На внешних кромках лезвий вспыхивают красные следы контакта. Встречные траектории на мгновение кажутся одним разорванным кольцом.",
+      "En": "Red contact marks flare along the blades' outer edges. Their opposing paths briefly resemble one broken ring."
+    },
+    {
+      "Id": "synergy:prism_split_blast",
+      "Ru": "Свет проходит через раскрытые оружейные грани и делится. На цели отдельные оттенки сходятся у расширяющегося края.",
+      "En": "Light passes through the open weapon facets and divides. On the target, its colors meet along a widening edge."
+    },
+    {
+      "Id": "synergy:prism_spectrum_firetrail",
+      "Ru": "Основной цвет ядра остаётся прежним. Тёплые переливы возникают только в выходных гранях и следах попаданий.",
+      "En": "The core retains its original color. Warm iridescence appears only in the exit facets and impact traces."
+    },
+    {
+      "Id": "synergy:prism_mirror_teleport",
+      "Ru": "В парных гранях видны два несовпадающих положения одной цели. Тонкий световой шов соединяет отражения.",
+      "En": "Paired facets show two misaligned positions of one target. A fine seam of light joins their reflections."
+    },
+    {
+      "Id": "synergy:gravity_well_firetrail",
+      "Ru": "Раздельные дуги вокруг ядра охватывают тёмную середину. По её краю тянется искривлённый раскалённый след.",
+      "En": "Separate arcs around the core enclose a dark center. A curved incandescent trace follows its edge."
+    },
+    {
+      "Id": "synergy:gravity_tide_timestop",
+      "Ru": "Внешние пластины обращены к изгибающемуся кольцу света. Неподвижные обломки делают его движение особенно заметным.",
+      "En": "Outer plates face a bending ring of light. Motionless debris makes its movement stand out."
+    },
+    {
+      "Id": "synergy:gravity_collapse_blast",
+      "Ru": "Яркий круг стягивается между раздельными сегментами. Его край исчезает у тёмной центральной точки.",
+      "En": "A bright circle contracts between separate segments. Its edge vanishes at a dark central point."
+    },
+    {
+      "Id": "synergy:pulse_wave_blast",
+      "Ru": "Боевые сегменты вокруг ядра раскрыты навстречу общей волне. В её гладком фронте остаются узкие разрывы напротив пластин.",
+      "En": "Combat segments around the core open toward a shared wave. Narrow breaks in its smooth front align with the plates."
+    },
+    {
+      "Id": "synergy:pulse_resonator_lightning",
+      "Ru": "По краям импульсных пластин пробегают короткие дуги. Расходящийся круг уносит их бледные отражения.",
+      "En": "Short arcs travel along the pulse plates' edges. A spreading circle carries their pale reflections."
+    },
+    {
+      "Id": "synergy:pulse_burst_shield",
+      "Ru": "Прозрачные защитные грани расходятся вместе со световым толчком. Внутри кольца снова видна тёмная оболочка ядра.",
+      "En": "Clear defensive facets spread with the beat of light. The core's dark shell becomes visible inside the ring again."
+    },
+    {
+      "Id": "synergy:void_hunger_darkritual",
+      "Ru": "У разомкнутого орудийного контура красный свет становится тоньше. Его последняя нить исчезает в тёмной прорези.",
+      "En": "Red light thins along the open weapon outline. Its last thread disappears into a dark slit."
+    },
+    {
+      "Id": "synergy:void_reaper_minion",
+      "Ru": "Угловатый аппарат выходит из тени оружейной рамы. На острых гранях держится лишь узкая полоса цвета ядра.",
+      "En": "An angular craft leaves the weapon frame's shadow. Only a narrow band of the core's color clings to its sharp facets."
+    },
+    {
+      "Id": "synergy:void_execution_teleport",
+      "Ru": "Две разнесённые тёмные отметины соединены резким светлым надрезом. Оружейные сегменты смотрят точно вдоль него.",
+      "En": "A sharp bright cut joins two separated dark marks. The weapon segments face directly along it."
+    }
+  ]
+}

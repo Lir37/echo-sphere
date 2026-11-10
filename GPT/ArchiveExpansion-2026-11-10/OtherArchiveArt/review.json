@@ -1,0 +1,11 @@
+{
+  "reviewed": 58,
+  "accepted": 57,
+  "rejected": [
+    {
+      "id": "ability-evolution:minion_echo_drone",
+      "reason": "Round character copies used as drones; actual drones must be angular machines."
+    }
+  ],
+  "generation": "deferred by user; do not resume automatically"
+}

@@ -1,0 +1,561 @@
+{
+  "status": "paused by user",
+  "count": 111,
+  "jobs": [
+    {
+      "id": "ability-evolution:minion_echo_drone",
+      "title": "Эхо-дрон",
+      "reason": "rejected anatomy; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_echo_drone_f2",
+      "title": "Дрон • Узлы",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_relay_drone",
+      "title": "Релейный дрон",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_relay_drone_f1",
+      "title": "Реле • Передача",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_relay_drone_f2",
+      "title": "Реле • Расщепление",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_relay_drone_f3",
+      "title": "Реле • Перезапуск",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_guardian",
+      "title": "Дрон-страж",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_guardian_f1",
+      "title": "Страж • Щит",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_guardian_f2",
+      "title": "Страж • Перехват",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:minion_guardian_f3",
+      "title": "Страж • Атака",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_echo_storm",
+      "title": "Эхо-шторм",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_echo_storm_f1",
+      "title": "Шторм • Прогон",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_echo_storm_f2",
+      "title": "Шторм • Гром",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_echo_storm_f3",
+      "title": "Шторм • Возврат",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_relay",
+      "title": "Релейный разряд",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_relay_f1",
+      "title": "Реле • Перескок",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_relay_f2",
+      "title": "Реле • Двойная дуга",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_relay_f3",
+      "title": "Реле • Перенос заряда",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_overload",
+      "title": "Перегрузка",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_overload_f1",
+      "title": "Перегрузка • Финал",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_overload_f2",
+      "title": "Перегрузка • Разрядка",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:lightning_overload_f3",
+      "title": "Перегрузка • Перенапряжение",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_echo_phase",
+      "title": "Фазовый залп",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_echo_phase_f1",
+      "title": "Фаза • Залп",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_echo_phase_f2",
+      "title": "Фаза • Окно",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_echo_phase_f3",
+      "title": "Фаза • Шрам",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_closed_time",
+      "title": "Замкнутое время",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_closed_time_f1",
+      "title": "Замкнутое время • Кольцо",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_closed_time_f2",
+      "title": "Замкнутое время • Коридор",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_closed_time_f3",
+      "title": "Замкнутое время • Клетка",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_time_anchor",
+      "title": "Якорь времени",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_time_anchor_f1",
+      "title": "Якорь • Фиксация",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_time_anchor_f2",
+      "title": "Якорь • Перенос",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:timestop_time_anchor_f3",
+      "title": "Якорь • Разрыв",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_blood_link",
+      "title": "Кровавая связь",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_blood_link_f1",
+      "title": "Кровь • Передача",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_blood_link_f2",
+      "title": "Кровь • Цепь",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_blood_link_f3",
+      "title": "Кровь • Возмездие",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_sacrifice",
+      "title": "Жертвенный круг",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_sacrifice_f1",
+      "title": "Жертва • Импульс",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_sacrifice_f2",
+      "title": "Жертва • Шипы",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_sacrifice_f3",
+      "title": "Жертва • Регенерация",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_void_pact",
+      "title": "Договор пустоты",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_void_pact_f1",
+      "title": "Пустота • Низший предел",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_void_pact_f2",
+      "title": "Пустота • Последний шанс",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "ability-evolution:darkritual_void_pact_f3",
+      "title": "Пустота • Экстремум",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:set:geometry_craft",
+      "title": "Мастерская геометрии",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:set:void_horizon",
+      "title": "Горизонт пустоты",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:set:core_forge",
+      "title": "Кузница ядра",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:set:prism_dominion",
+      "title": "Власть призмы",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:set:network_legacy",
+      "title": "Наследие сети",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:fortress_network",
+      "title": "Крепостная сеть",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:echo_relay",
+      "title": "Эхо-реле",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:glass_cannon",
+      "title": "Стеклянная пушка",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:singularity",
+      "title": "Сингулярность",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:perfect_network",
+      "title": "Идеальная сеть",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:unified_core",
+      "title": "Единое ядро",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:geometry_loop",
+      "title": "Контур петли",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:lattice_memory",
+      "title": "Память решётки",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:void_horizon",
+      "title": "Горизонт пустоты",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:orbital_prism",
+      "title": "Орбитальная призма",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:gravity_pulse",
+      "title": "Гравитационный импульс",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:network_memory",
+      "title": "Память сети",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:temporal_echo",
+      "title": "Временное эхо",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:axiom_fold",
+      "title": "Аксиоматический сгиб",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:status_circuit",
+      "title": "Контур статусов",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:hunter_doctrine",
+      "title": "Доктрина охотника",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:pulse_engineering",
+      "title": "Импульсная инженерия",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:core_forge",
+      "title": "Кузница ядра",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:status_loop",
+      "title": "Петля статусов",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:hunter_focus",
+      "title": "Фокус охотника",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:pulse_overload",
+      "title": "Импульсная перегрузка",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:combination:core_relay",
+      "title": "Релейная кузница",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:campaign:glass_bastion",
+      "title": "Стеклянный бастион",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:campaign:kinetic_relay",
+      "title": "Кинетическое реле",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:campaign:frozen_optics",
+      "title": "Холодная оптика",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:campaign:wave_rotor",
+      "title": "Волновой ротор",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:campaign:living_fortress",
+      "title": "Живая крепость",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:campaign:chronicle",
+      "title": "Хроника",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:campaign:blood_cycle",
+      "title": "Кровавый цикл",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "artifact-build:campaign:unstable_echo",
+      "title": "Нестабильное эхо",
+      "reason": "generation deferred; native emblem retained"
+    },
+    {
+      "id": "synergy:std_res_blast",
+      "title": "Резонансное ядро",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:std_singularity_timestop",
+      "title": "Сингулярный стазис",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:std_swarm_minion",
+      "title": "Роевой запуск",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:sniper_oracle_teleport",
+      "title": "Прицел прыжка",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:sniper_assassin_darkritual",
+      "title": "Кровавый приговор",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:sniper_beacon_firetrail",
+      "title": "Горящий маяк",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:shotgun_burst_shield",
+      "title": "Ударный контур",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:shotgun_cataclysm_blast",
+      "title": "Катастрофический импульс",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:shotgun_hail_lightning",
+      "title": "Электрический град",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:chain_web_timestop",
+      "title": "Стазисная паутина",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:chain_storm_lightning",
+      "title": "Грозовой резонанс",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:chain_leech_darkritual",
+      "title": "Паразитический обмен",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:aura_sanctum_shield",
+      "title": "Щит святилища",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:aura_gravity_teleport",
+      "title": "Прыжок в гравитацию",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:aura_overgrowth_firetrail",
+      "title": "Перегрев сети",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:orbital_dance_minion",
+      "title": "Орбитальное реле",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:orbital_halo_shield",
+      "title": "Защитный ореол",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:orbital_blade_darkritual",
+      "title": "Клинок жертвы",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:prism_split_blast",
+      "title": "Призматический раскол",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:prism_spectrum_firetrail",
+      "title": "Спектральный катализ",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:prism_mirror_teleport",
+      "title": "Зеркальный прыжок",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:gravity_well_firetrail",
+      "title": "Огненный колодец",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:gravity_tide_timestop",
+      "title": "Обратная волна",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:gravity_collapse_blast",
+      "title": "Имплозия",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:pulse_wave_blast",
+      "title": "Ударная волна",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:pulse_resonator_lightning",
+      "title": "Заряженный резонатор",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:pulse_burst_shield",
+      "title": "Щитовой импульс",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:void_hunger_darkritual",
+      "title": "Голод ритуала",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:void_reaper_minion",
+      "title": "Жнец душ",
+      "reason": "generation deferred; native fusion emblem retained"
+    },
+    {
+      "id": "synergy:void_execution_teleport",
+      "title": "Разрыв казни",
+      "reason": "generation deferred; native fusion emblem retained"
+    }
+  ]
+}

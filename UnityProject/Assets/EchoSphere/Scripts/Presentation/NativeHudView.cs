@@ -39,6 +39,7 @@ namespace EchoSphere.Presentation
         private bool _lastRunCurrencyRussian;
         private const string Family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif";
         private readonly VisualElement _parent,_root,_left,_right,_rightClip,_region,_formationRow,_tooltip,_tooltipLines,_tooltipHeading;
+        private readonly VisualElement _runCurrencyHost;
         private readonly Label _runCurrency,_level,_hp,_resonanceTitle,_resonance,_spheres,_wave,_linksTitle,_links,_noFormation,_timer,_regionTitle,_phase,_pocket,_boss,_plus,_tooltipTitle,_tooltipEffect;
         private readonly VisualElement _xpFill,_hpFill,_resonanceFill;
         private readonly VisualElement _merchantIndicator;
@@ -148,7 +149,8 @@ namespace EchoSphere.Presentation
             _tooltip.RegisterCallback<PointerDownEvent>(evt=>HideTooltip());_tooltip.RegisterCallback<KeyDownEvent>(evt=>{if(evt.keyCode==KeyCode.Return||evt.keyCode==KeyCode.KeypadEnter||evt.keyCode==KeyCode.Space)HideTooltip();});HideTooltip();
             var radarRow=Box(_rightClip,"hud-radar-row",true);radarRow.style.justifyContent=Justify.FlexEnd;radarRow.style.alignItems=Align.FlexStart;
             var economyColumn=Box(radarRow,"hud-economy");economyColumn.style.flexGrow=1;economyColumn.style.flexShrink=1;economyColumn.style.minWidth=0;
-            _runCurrency=Text(economyColumn,"hud-run-currency",8,"#8edce9","600");_runCurrency.pickingMode=PickingMode.Ignore;
+            _runCurrencyHost=Box(economyColumn,"hud-run-currency-row",true);_runCurrencyHost.style.alignItems=Align.Center;_runCurrencyHost.Add(new NativeContentIcon("currency:Echo",C("#8edce9"),13));
+            _runCurrency=Text(_runCurrencyHost,"hud-run-currency",8,"#8edce9","600");_runCurrency.pickingMode=PickingMode.Ignore;
             _runCurrency.style.flexGrow=1;_runCurrency.style.flexShrink=1;_runCurrency.style.minWidth=0;_runCurrency.style.marginRight=6;
             _runCurrency.style.whiteSpace=WhiteSpace.Normal;_runCurrency.style.unityTextAlign=TextAnchor.UpperLeft;_runCurrency.style.display=DisplayStyle.None;
             _merchantIndicator=Box(economyColumn,"hud-merchant",true);_merchantIndicator.style.alignItems=Align.Center;_merchantIndicator.style.marginTop=5;_merchantIndicator.style.display=DisplayStyle.None;
@@ -169,8 +171,9 @@ namespace EchoSphere.Presentation
         private void Layout(float width)
         {
             Ready=false;_root.style.opacity=0;_geometryFrame=Time.frameCount;if(width<=0)return;
-            var small=width<=700;var panelWidth=small?Mathf.Min(width*.5f-18,255):Mathf.Clamp(width*.31f,164,300);panelWidth=Mathf.Min(panelWidth,width*.5f-(width<=380?12:14));
-            _left.style.left=Mathf.Max(8,_safeLeft);_right.style.right=Mathf.Max(8,_safeRight);
+            var small=width<=700;float left=Mathf.Max(0,_safeLeft),right=Mathf.Max(0,_safeRight);
+            float panelWidth=Mathf.Max(0,(width-left-right)*.5f);
+            _left.style.left=left;_right.style.right=right;
             foreach(var panel in new[]{_left,_right}){panel.style.top=Mathf.Max(8,_safeTop);panel.style.width=panelWidth;panel.style.height=small?136:140;}
             _left.style.paddingTop=_left.style.paddingBottom=width<=380?5:8;_left.style.paddingLeft=_left.style.paddingRight=width<=380?5:10;
             _right.style.paddingTop=_right.style.paddingBottom=7;_right.style.paddingLeft=_right.style.paddingRight=9;
@@ -181,7 +184,8 @@ namespace EchoSphere.Presentation
         }
         public void SetInterfaceScale(float scale)
         {
-            scale=Mathf.Clamp(scale,.75f,1.25f);
+            // Compatibility entry point for Editor fixtures. Only the mobile dock scales.
+            scale=1f;
             _left.style.transformOrigin=new TransformOrigin(Length.Percent(0),Length.Percent(0));
             _right.style.transformOrigin=new TransformOrigin(Length.Percent(100),Length.Percent(0));
             _left.style.scale=_right.style.scale=new Scale(new Vector3(scale,scale,1));
@@ -194,8 +198,8 @@ namespace EchoSphere.Presentation
         {
             if(_lastRunCurrency==amount&&_lastRunCurrencyRussian==russian)return;
             _lastRunCurrency=amount;_lastRunCurrencyRussian=russian;
-            Set(_runCurrency,amount.HasValue?(russian?"Эхо: ":"Echo: ")+amount.Value.ToString(System.Globalization.CultureInfo.InvariantCulture):"");
-            _runCurrency.style.display=amount.HasValue?DisplayStyle.Flex:DisplayStyle.None;
+            Set(_runCurrency,amount.HasValue?amount.Value.ToString(System.Globalization.CultureInfo.InvariantCulture):"");
+            _runCurrency.style.display=amount.HasValue?DisplayStyle.Flex:DisplayStyle.None;_runCurrencyHost.style.display=_runCurrency.style.display;
         }
         public void Bind(State state)
         {

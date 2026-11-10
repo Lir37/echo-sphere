@@ -108,6 +108,35 @@ namespace EchoSphere.Core
             float worldWidth = WorldWidth,
             float worldHeight = WorldHeight)
         {
+            return CanPlaceCore(candidate,player,spherePositions,sphereAlive,enemyPositions,enemyRadii,ignoreSphereIndex,worldWidth,worldHeight,false);
+        }
+
+        public static bool CanPlaceForEditing(
+            Vec2 candidate,
+            Vec2 player,
+            IReadOnlyList<Vec2> spherePositions,
+            IReadOnlyList<bool> sphereAlive,
+            IReadOnlyList<Vec2> enemyPositions,
+            IReadOnlyList<float> enemyRadii,
+            int ignoreSphereIndex = -1,
+            float worldWidth = WorldWidth,
+            float worldHeight = WorldHeight)
+        {
+            return CanPlaceCore(candidate,player,spherePositions,sphereAlive,enemyPositions,enemyRadii,ignoreSphereIndex,worldWidth,worldHeight,true);
+        }
+
+        private static bool CanPlaceCore(
+            Vec2 candidate,
+            Vec2 player,
+            IReadOnlyList<Vec2> spherePositions,
+            IReadOnlyList<bool> sphereAlive,
+            IReadOnlyList<Vec2> enemyPositions,
+            IReadOnlyList<float> enemyRadii,
+            int ignoreSphereIndex,
+            float worldWidth,
+            float worldHeight,
+            bool compactPlayerClearance)
+        {
             if (spherePositions == null || sphereAlive == null || enemyPositions == null || enemyRadii == null) return false;
             if (spherePositions.Count != sphereAlive.Count || enemyPositions.Count != enemyRadii.Count) return false;
             if (worldWidth <= 0f || worldHeight <= 0f || NavigationCellSize <= 0f) return false;
@@ -116,7 +145,8 @@ namespace EchoSphere.Core
             // Its route search clamps grid coordinates; repositionSphere clamps
             // the committed move. Keep those source semantics rather than adding
             // a new placement prohibition here.
-            if (Vec2.Distance(candidate, player) < TowerBodyRadius + PlayerBuildGap) return false;
+            // Editing uses physical body clearance; source callers retain the historical build gap.
+            if (Vec2.Distance(candidate, player) < TowerBodyRadius + (compactPlayerClearance ? PlayerRadius : PlayerBuildGap)) return false;
 
             for (var i = 0; i < spherePositions.Count; i++)
             {
@@ -130,7 +160,7 @@ namespace EchoSphere.Core
                 if (Vec2.Distance(candidate, enemyPositions[i]) < TowerBodyRadius + radius + EnemyPlacementGap) return false;
             }
 
-            return HasRouteToOutside(candidate, player, spherePositions, sphereAlive, ignoreSphereIndex, worldWidth, worldHeight);
+            return HasRouteToOutside(candidate, player, spherePositions, sphereAlive, ignoreSphereIndex, worldWidth, worldHeight, compactPlayerClearance);
         }
 
         private static bool HasRouteToOutside(
@@ -140,7 +170,8 @@ namespace EchoSphere.Core
             IReadOnlyList<bool> sphereAlive,
             int ignoreSphereIndex,
             float worldWidth,
-            float worldHeight)
+            float worldHeight,
+            bool allowBlockedStart)
         {
             var minX = -worldWidth * 0.5f;
             var minY = -worldHeight * 0.5f;
@@ -171,7 +202,9 @@ namespace EchoSphere.Core
 
             var startX = CellX(player.X);
             var startY = CellY(player.Y);
-            if (IsBlocked(startX, startY)) return false;
+            // A close single sphere can cover the coarse start cell without enclosing the player.
+            // Seed that cell only in editing mode; every outgoing step still needs a clear route.
+            if (!allowBlockedStart && IsBlocked(startX, startY)) return false;
 
             var visited = new bool[columns * rows];
             var queue = new int[columns * rows];

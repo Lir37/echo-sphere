@@ -54,6 +54,7 @@ namespace EchoSphere.Runtime
             transform.position += (Vector3)(_velocity * dt);
             if (Vector2.Distance(transform.position, _player.position) < _hitRadius)
             {
+                if(_bossType=="regional_web") _runtime.ApplyPlayerWebRoot();
                 _runtime.TryDamagePlayer(_damage);
                 _removed = true;
                 NativeSimulationLifetime.Destroy(gameObject);

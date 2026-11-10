@@ -2710,6 +2710,7 @@ namespace EchoSphere.Runtime
         public void ActivateRunePickup(string runeType, Vector2 position)
         {
             if (_gameOver || _playerCore == null) return;
+            EnsureKnowledgeLoaded();RecordNaturalKnowledge("rune:"+runeType);
             if(_runEconomy!=null){ActivateCampaignRune(runeType,position);return;}
             var scale = SpherePlacementRules.SourcePixelsToWorld;
             switch (runeType)
@@ -3151,6 +3152,7 @@ namespace EchoSphere.Runtime
         {
             _levelUpChoices.Clear();
             var pool = new List<RunUpgradeChoice>();
+            AddGuaranteedFusionChoices();
 
             foreach (var definition in GameCatalog.Spheres)
                 if (SphereProgressionRules.CanUpgrade(_sphereLevels, definition.Id))
@@ -3169,7 +3171,7 @@ namespace EchoSphere.Runtime
                         pool.Add(LevelUpAbilityRules.CreateChoice(kind, current, IsRussianUi));
             }
 
-            if (pool.Count == 0)
+            if (pool.Count == 0 && _levelUpChoices.Count == 0)
             {
                 _levelUpLockChoiceKey = null;
                 _oracleForecastKeys.Clear();
@@ -3242,7 +3244,7 @@ namespace EchoSphere.Runtime
         }
 
         private string GetUpgradeChoiceKey(RunUpgradeChoice choice) =>
-            choice.Kind == RunUpgradeKind.Sphere
+            choice.Kind == RunUpgradeKind.Fusion ? "fusion:"+choice.Title : choice.Kind == RunUpgradeKind.Sphere
                 ? "sphere:" + choice.Sphere + ":" + choice.CurrentLevel + ":" + choice.NextLevel
                 : "ability:" + choice.Kind + ":" + choice.CurrentLevel + ":" + choice.NextLevel;
 
@@ -3343,6 +3345,7 @@ namespace EchoSphere.Runtime
                     _levelUpChoices.Count, _levelUpLocksRemaining, !string.IsNullOrEmpty(_levelUpLockChoiceKey)))
                 return false;
 
+            if(_levelUpChoices[choiceIndex].Kind==RunUpgradeKind.Fusion)return false;
             _levelUpLockChoiceKey = GetUpgradeChoiceKey(_levelUpChoices[choiceIndex]);
             _levelUpLocksRemaining--;
             _oracleSourceFlashTimer = 0f;
@@ -3353,6 +3356,7 @@ namespace EchoSphere.Runtime
 
         private bool RerollLevelUpChoices()
         {
+            foreach(var choice in _levelUpChoices)if(choice.Kind==RunUpgradeKind.Fusion)return false;
             if (!_levelUp || _choosingEvolution ||
                 !LevelUpChoiceRules.CanRerollChoices(_levelUpChoices.Count, _levelUpRerollsRemaining))
                 return false;
@@ -4275,9 +4279,11 @@ namespace EchoSphere.Runtime
 
         private void ActivateActiveAbility(RunUpgradeKind kind)
         {
+            if(AbilityIsFused(kind))return;
             if(IsSphereArrangementPaused)return;
             if (_mainMenu || _paused || _levelUp || _choosingEvolution || _gameOver || _stellaRewardPending)
                 return;
+            float beforeCooldown=GetActiveAbilityCooldown(kind);
             switch (kind)
             {
                 case RunUpgradeKind.TimeStop: ActivateTimeStop(); break;
@@ -4289,6 +4295,7 @@ namespace EchoSphere.Runtime
                 case RunUpgradeKind.Lightning: ActivateLightning(); break;
                 case RunUpgradeKind.DarkRitual: ActivateDarkRitual(); break;
             }
+            if(GetActiveAbilityCooldown(kind)>beforeCooldown){EnsureKnowledgeLoaded();RecordNaturalKnowledge("ability:"+SourceAbilityId(kind));}
         }
 
         private bool HasActiveAbilitySynergy(SphereId sphere, string sphereBranch, RunUpgradeKind ability, string abilityFinal)
@@ -4299,6 +4306,14 @@ namespace EchoSphere.Runtime
         }
 
         private bool IsActiveAbilitySynergyRaw(SphereId sphere, string sphereBranch, RunUpgradeKind ability, string abilityFinal)
+        {
+            foreach(var link in ActiveAbilitySynergyLinks)
+                if(link.Sphere==sphere&&link.SphereBranch==sphereBranch&&link.Ability==ability&&link.AbilityFinal==abilityFinal)
+                    return _fusedAbilityLinks.Contains(link.Id)&&MatchesAbilitySynergy(sphere,sphereBranch,ability,abilityFinal);
+            return false;
+        }
+
+        private bool MatchesAbilitySynergy(SphereId sphere, string sphereBranch, RunUpgradeKind ability, string abilityFinal)
         {
             if (GetAbilityLevel(ability) < 7 ||
                 !_sphereLevels.TryGetValue(sphere, out var sphereLevel) || sphereLevel < 7 ||
@@ -5842,6 +5857,9 @@ namespace EchoSphere.Runtime
             RecordLevelUpChoice(choice);
             switch (choice.Kind)
             {
+                case RunUpgradeKind.Fusion:
+                    if(!ChooseAbilityFusion(choice.Title))return;
+                    break;
                 case RunUpgradeKind.Sphere:
                     _pendingEvolutionIsAbility = false;
                     _sphereLevels[choice.Sphere] = choice.NextLevel;
@@ -7476,7 +7494,7 @@ namespace EchoSphere.Runtime
             }
 
             var playerPosition = (Vector2)_player.position;
-            return SpherePlacementRules.CanPlace(
+            return SpherePlacementRules.CanPlaceForEditing(
                 new Vec2(world.x, world.y),
                 new Vec2(playerPosition.x, playerPosition.y),
                 spherePositions, sphereAlive, enemyPositions, enemyRadii,

@@ -230,9 +230,9 @@ const networkRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/Sph
 assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal') && networkRules.includes('GetFormationBonusMultiplier'), 'Network/Geometry analysis contract is missing');
 assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('DrawNativeNetwork') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
 const activeNetworkArt=readFileSync(join(root,'Assets/EchoSphere/Scripts/Presentation/NativeWorldNetwork.cs'),'utf8');
-assert.ok(activeNetworkArt.includes('active?.34:.27') && activeNetworkArt.includes('active?.075:.06') &&
-  activeNetworkArt.includes('active?5.8:3.6') && activeNetworkArt.includes('packet/3.0'),
-  'active native network must retain source packet speed, trails and widths');
+assert.ok(activeNetworkArt.includes('if(!active){Ribbon(points,.85') && activeNetworkArt.includes('packet<2') &&
+  activeNetworkArt.includes('direction=packet==0?1:-1') && activeNetworkArt.includes('DrawComet(head'),
+  'accepted network redesign: quiet plain links and direction-correct geometry comets');
 
 assert.ok(runtime.includes('DrawSourcePausePlanner()') && runtime.includes('BuildPauseStats') && runtime.includes('BuildPauseAbilities') && runtime.includes('BuildPauseArtifacts') && runtime.includes('BuildPauseSynergies') && runtime.includes('SaveCurrentRun(); SceneManager.LoadScene'), 'source four-tab pause planner, resume and save/return controls are missing');
 const pausePlannerUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSpherePausePlanner.cs'), 'utf8').replaceAll('\\r\\n', '\\n');
@@ -850,7 +850,7 @@ assert.ok(sphereAttack.includes('EngineerRelayRules.ConsumesOnAttack(_type)') &&
   sphereAttack.includes('_runtime.ConsumeEngineerRelayBonus(this)') &&
   sphereAttack.includes('_runtime.TriggerEngineerRelay(this)') &&
   sphereAttack.includes('private bool DamageSourceArea') &&
-  sphereAttack.includes('if (hitSomething) _runtime.TriggerEngineerRelay(this)'),
+  /if \(hitSomething\)\s*\{?\s*_runtime\.TriggerEngineerRelay\(this\)/.test(sphereAttack),
   'Engineer relay must be applied once to eligible attacks and trigger from actual field/orbital activity');
 assert.ok(menuRuntime.includes('SpawnEngineerRelayLightning(from, to, 0.28f)') &&
   engineerRelayVfxSource.includes('Vector2[17]') && engineerRelayVfxSource.includes('Vector2[13]') &&

@@ -14,9 +14,9 @@ namespace EchoSphere.Runtime
         private bool _knowledgeLoaded;
         private string _knowledgeSection = "basics", _knowledgeQuery = "";
         private float _knowledgeTick;
-        private static readonly string[] KnowledgeSections = { "basics", "spheres", "monsters", "bosses", "abilities", "artifacts", "evolutions", "regions", "runes", "characters" };
-        private static readonly string[] KnowledgeLabelsRu = { "Ядро игры", "Сферы", "Монстры", "Боссы", "Способности", "Артефакты", "Эволюции", "Регионы", "Руны", "Персонажи" };
-        private static readonly string[] KnowledgeLabelsEn = { "Core", "Spheres", "Monsters", "Bosses", "Abilities", "Artifacts", "Evolutions", "Regions", "Runes", "Characters" };
+        private static readonly string[] KnowledgeSections = { "basics", "spheres", "monsters", "bosses", "abilities", "artifacts", "evolutions", "synergies", "regions", "runes", "characters" };
+        private static readonly string[] KnowledgeLabelsRu = { "Ядро игры", "Сферы", "Монстры", "Боссы", "Способности", "Артефакты", "Эволюции", "Синергии", "Регионы", "Руны", "Персонажи" };
+        private static readonly string[] KnowledgeLabelsEn = { "Core", "Spheres", "Monsters", "Bosses", "Abilities", "Artifacts", "Evolutions", "Synergies", "Regions", "Runes", "Characters" };
         private void EnsureKnowledgeLoaded()
         {
             if (_knowledgeLoaded) return;
@@ -77,7 +77,7 @@ namespace EchoSphere.Runtime
             foreach (var sphere in _spheres) if (sphere != null) RecordNaturalKnowledge("sphere:" + sphere.Type.ToString().ToLowerInvariant());
             foreach (var pair in _sphereLevels) if (pair.Value > 0) RecordNaturalKnowledge("sphere:" + pair.Key.ToString().ToLowerInvariant());
 
-            foreach (var pair in _abilityLevels) if (pair.Value > 0) RecordNaturalKnowledge("ability:" + SourceAbilityId(pair.Key));
+            foreach (var pair in _abilityLevels) if (pair.Value > 0){string id=SourceAbilityId(pair.Key);if(EchoSphere.Presentation.NativeRunCatalog.Instance.GetAbility(id)?.Category!="active")RecordNaturalKnowledge("ability:"+id);}
             foreach (var artifact in _ownedArtifacts) RecordNaturalKnowledge("artifact:" + artifact);
             foreach (var pair in _sphereBranches) RecordNaturalKnowledge("sphere-branch:" + pair.Value);
             foreach (var pair in _sphereFinals)
@@ -88,6 +88,9 @@ namespace EchoSphere.Runtime
             }
             foreach (var pair in _abilityBranches) RecordNaturalKnowledge("ability-evolution:" + pair.Value);
             foreach (var pair in _abilityFinals) RecordNaturalKnowledge("ability-evolution:" + pair.Value);
+            foreach(var id in _fusedAbilityLinks)RecordNaturalKnowledge("synergy:"+id);
+            foreach(var set in EchoSphere.Presentation.NativeArtifactBuilds.All){bool complete=true;foreach(var id in set.Requires)if(!_ownedArtifacts.Contains(id)){complete=false;break;}if(complete)RecordNaturalKnowledge(set.Id);}
+
         }
 
         private void DrawSourceKnowledgeBaseScreen()

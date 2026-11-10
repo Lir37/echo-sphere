@@ -25,9 +25,9 @@ namespace EchoSphere.Presentation {
     case 5:Stroke(V(-14,-2),V(-10,-8),V(-6,-11));Stroke(V(4,13),V(11,10),V(14,4));break;
     default:Stroke(V(-13,8),V(-13,-8),V(-9,-12));Stroke(V(0,13),V(10,13),V(13,9),V(13,-1));break;
    }
-   Glyph(p,d.Main,origin+new Vector2(-1.8f,-1.8f)*scale,.82f*scale,primary);
+   Glyph(p,d.Main,origin,.90f*scale,primary);Glyph(p,d.Detail,origin,.30f*scale,secondary);
    // The secondary object is part of the silhouette, not a microscopic ID stamp.
-   Glyph(p,d.Detail,origin+new Vector2(7.6f,7.3f)*scale,.40f*scale,secondary);
+   var builds=NativeArtifactBuilds.ForArtifact(id);for(int i=Math.Min(2,builds.Count-1);i>=0;i--)NativeArtifactBuilds.Draw(p,builds[i].Id,origin+new Vector2(8-i*2,8-i*2)*scale,.37f*scale);
    return true;
   }
   private static void Glyph(Painter2D p,string kind,Vector2 o,float s,Color color){

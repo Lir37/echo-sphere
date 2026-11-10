@@ -67,7 +67,7 @@ namespace EchoSphere.Presentation
             Paint(_page,new NativeMenuBrush.Paint {Linear=true,Colors=new[]{A(2,7,14,.98f),A(3,8,15,.98f)},Stops=new[]{0f,1f}});
             var top=Box(_heading,"character-top",true);top.style.justifyContent=Justify.SpaceBetween;top.style.alignItems=Align.Center;top.style.marginBottom=16;
             var back=Button(top,"character-back",()=>_back?.Invoke());back.style.flexDirection=FlexDirection.Row;back.style.alignItems=Align.Center;back.style.paddingLeft=back.style.paddingRight=12;back.style.paddingTop=back.style.paddingBottom=8;Border(back,6);Paint(back,new NativeMenuBrush.Paint {Radius=6,Border=1,Fill=C("#0d1726"),BorderColor=C("#243b55")});Icon(back,"ArrowLeft",18,C("#dcecff")).style.marginRight=8;Text(back,"back",L("Назад","Back"),16,"#dcecff");
-            var balance=Text(top,"character-gold",_state.Gold,12,"#dcecff","700",true);balance.style.minWidth=0;balance.style.flexShrink=1;balance.style.maxWidth=Length.Percent(65);balance.style.unityTextAlign=TextAnchor.MiddleRight;
+            var wallet=Box(top,"character-wallet",true);wallet.style.alignItems=Align.Center;wallet.Add(new NativeContentIcon("currency:ResonanceShards",C("#c7a4ff"),22));var balance=Text(wallet,"character-gold",_state.Gold,12,"#dcecff","700",true);balance.style.minWidth=0;balance.style.flexShrink=1;balance.style.maxWidth=Length.Percent(65);balance.style.unityTextAlign=TextAnchor.MiddleRight;
             var title=Text(_heading,"character-title",L("ПЕРСОНАЖИ","CHARACTERS"),24,"#e9f8ff","500");title.style.letterSpacing=18;
             Text(_heading,"character-subtitle",L("Каждый герой открывает свой стиль игры.","Every hero offers a different way to play."),12,"#648198","400",true).style.marginTop=4;
             _message.style.display=string.IsNullOrEmpty(_state.Message)?DisplayStyle.None:DisplayStyle.Flex;
@@ -106,7 +106,7 @@ namespace EchoSphere.Presentation
             var fill=Box(track,"mastery-fill");fill.style.width=Length.Percent(character.MasteryPercent);fill.style.height=Length.Percent(100);fill.style.backgroundColor=C("#39d8ff");
             {var toggle=Button(card,"expand-"+character.Id,()=>_expand?.Invoke(character.Id));toggle.style.display=character.Unlocked?DisplayStyle.Flex:DisplayStyle.None;toggle.style.marginTop=12;toggle.style.alignItems=Align.FlexStart;Text(toggle,"mastery-toggle",character.Toggle.ToUpperInvariant(),10,"#63e6ff","700");}
             if(character.Unlocked&&character.Expanded)Masteries(card,character);
-            var action=Text(card,"character-action",character.Action, _narrow?10:12,character.Unlocked?"#63e6ff":"#ffb84d","700");action.style.marginTop=12;action.style.unityTextAlign=TextAnchor.MiddleRight;
+            var actionRow=Box(card,"character-action-row",true);actionRow.style.alignItems=Align.Center;actionRow.style.justifyContent=Justify.FlexEnd;var actionCurrency=new NativeContentIcon("currency:ResonanceShards",C("#c7a4ff"),18){name="character-action-currency"};actionCurrency.style.display=character.Unlocked?DisplayStyle.None:DisplayStyle.Flex;actionRow.Add(actionCurrency);var action=Text(actionRow,"character-action",character.Action, _narrow?10:12,character.Unlocked?"#63e6ff":"#ffb84d","700");action.style.marginTop=12;action.style.unityTextAlign=TextAnchor.MiddleRight;
         }
         private void Masteries(VisualElement parent,Character character)
         {
@@ -146,7 +146,7 @@ namespace EchoSphere.Presentation
             for(int i=0;i<_state.Characters.Count;i++){
                 var character=_state.Characters[i];var old=previous.Characters[i];
                 if(NativeMenuRetainedState.Same(old,character))continue;
-                var card=_cards[i];
+                var card=_cards[i];card.Q("character-action-currency").style.display=character.Unlocked?DisplayStyle.None:DisplayStyle.Flex;
                 card.Q("character-glyph").Q("icon-Lock").style.display=character.Unlocked?DisplayStyle.None:DisplayStyle.Flex;
                 card.Q("character-name-row").Q("icon-Check").style.display=character.Selected?DisplayStyle.Flex:DisplayStyle.None;
                 card.Q<Image>("character-portrait").style.opacity=character.Unlocked?1:.35f;
@@ -162,7 +162,7 @@ namespace EchoSphere.Presentation
                     for(int j=_surfaces.Count-1;j>=0;j--)if(_surfaces[j].Host==details||details.Contains(_surfaces[j].Host)){_surfaces[j].Dispose();_surfaces.RemoveAt(j);}
                     details.RemoveFromHierarchy();details=null;
                 }
-                if(details==null&&character.Unlocked&&character.Expanded){Masteries(card,character);details=card.Q("mastery-details");details.PlaceBehind(action);}
+                if(details==null&&character.Unlocked&&character.Expanded){Masteries(card,character);details=card.Q("mastery-details");details.PlaceBehind(action.parent);}
                 if(details!=null)details.style.display=character.Unlocked&&character.Expanded?DisplayStyle.Flex:DisplayStyle.None;
             }
         }

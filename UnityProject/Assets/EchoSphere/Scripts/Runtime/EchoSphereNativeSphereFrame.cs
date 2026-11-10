@@ -46,6 +46,7 @@ namespace EchoSphere.Runtime
   private void DrawNativeSphereFrame(SphereAttackAgent component,double time)
   {
    var sphere=ProjectNativeSphereVisual(component);double r=Math.Max(15,Math.Min(25,sphere.Radius*.19+sphere.Tier*.8)),scale=r/24;
+   if(HasSphereFusion(sphere.Type))_nativeWorldMinions.DrawFusionCrown(_worldSurface,(float)sphere.X,(float)sphere.Y,(float)r,NativeMutationColor(NativeRunCatalog.Instance.GetSphere(sphere.Family).Color),time);
    if(sphere.Type==SphereId.Standard){
     if(!DrawNativeStandardAssembly(sphere,r,time)){DrawNativeViewGroundShadow(r*1.05,r*.24,4);_worldSurface.Save();NativeWorldTranslate(sphere.X,sphere.Y);_nativeWorldFeedback.StandardFallback(r);_worldSurface.Restore();}
     DrawRetainedSphereWeapon(sphere,time,r);DrawNativeSphereElements(sphere,time,scale);DrawNativeSphereModifiers(sphere,time,scale);DrawNativeSphereDisabled(sphere,time);return;

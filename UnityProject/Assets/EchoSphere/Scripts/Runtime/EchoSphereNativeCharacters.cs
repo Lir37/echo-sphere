@@ -70,7 +70,7 @@ namespace EchoSphere.Runtime
                     Unlocked=profile.unlocked,Selected=_sphereCharacterId==definition.Id,Expanded=_expandedCharacterId==id,Complete=string.IsNullOrEmpty(nextTitle),Affinities=affinities,Masteries=mastery,
                     MasteryLabel=L("Мастерство ","Mastery ")+profile.masteryLevel+"/10"+(currentTitle.Length>0?" · "+currentTitle:""),MasteryXp=next<0?L("МАКС","MAX"):profile.masteryXp+"/"+next+L(" опыта"," XP"),
                     MasteryPercent=next<0?100:Mathf.Clamp01((profile.masteryXp-previous)/(float)Math.Max(1,next-previous))*100,
-                    Action=profile.unlocked?(_sphereCharacterId==definition.Id?L("Выбран","Selected"):L("Выбрать","Select")):MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost)+(ru?" ОР":" RS"),
+                    Action=profile.unlocked?(_sphereCharacterId==definition.Id?L("Выбран","Selected"):L("Выбрать","Select")):MetaCurrencyRules.CharacterUnlockShards(definition.UnlockCost).ToString(),
                     Toggle=_expandedCharacterId==id?L("Скрыть мастерство","Hide mastery"):L("Показать мастерство","Show mastery"),
                     NextLabel=string.IsNullOrEmpty(nextTitle)?L("Мастерство полностью развито.","Mastery fully developed."):L("Следующий уровень · ещё ","Next level · ")+Math.Max(0,next-profile.masteryXp)+L(" опыта"," XP remaining"),NextTitle=nextTitle,NextDescription=nextDescription});
             }

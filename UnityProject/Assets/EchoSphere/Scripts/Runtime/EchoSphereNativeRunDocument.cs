@@ -20,7 +20,7 @@ namespace EchoSphere.Runtime
                 else if(_nativeMobileHandedness!=IsLeftHanded){ResetNativeMobileGestures(false);_nativeMobileHandedness=IsLeftHanded;}
                 if(update)ReadNativeMobileState();
             }else{if(_nativeMobileMounted)ResetNativeMobileGestures(true);_nativeMobileDockState=null;_nativeJoystickState=_nativePlacementState=null;_nativeGhostNetworkState=_nativeFormationMemoryState=null;}
-            _nativeRunDocument.SetComboHudScale((float)NativeInterfaceScale);
+            _nativeRunDocument.SetComboHudScale(1f);
             _nativeRunDocument.Begin(_worldSurface.UiTexture,SourceDevicePixelRatio,update,active,
                 NativePauseChromeRequested,!string.IsNullOrEmpty(_pauseArtifactSetId),upgrade,reward,NativeTutorialRequested,
                 _combo,_comboTimer,NativeText("combo",IsRussianUi)+" x"+NativePresentationMath.NumberText(_combo),

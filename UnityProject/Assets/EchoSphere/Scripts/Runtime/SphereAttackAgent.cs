@@ -293,6 +293,7 @@ namespace EchoSphere.Runtime
             _presentationAttackActive = target != null || _type == SphereId.Aura || _type == SphereId.Gravity || _type == SphereId.Pulse;
             if (_presentationAttackActive) { unchecked { _presentationShotSerial++; } _presentationShotTime = _runtime.CurrentRunTime; }
             if (triggeredEngineerRelay) _runtime.TriggerEngineerRelay(this);
+            if(target!=null||runeAreaHit)_runtime.TriggerSphereFusion(this);
             if (target != null && (_type == SphereId.Standard || _type == SphereId.Sniper || _type == SphereId.Shotgun || _type == SphereId.Chain || _type == SphereId.Void)) SourceAudio2D.Play("shoot");
             _attackTimer = GetSourceCadenceInterval();
         }
@@ -566,7 +567,7 @@ namespace EchoSphere.Runtime
                 if (newContactHit) hitSomething = true;
             }
 
-            if (hitSomething) _runtime.TriggerEngineerRelay(this);
+            if (hitSomething) { _runtime.TriggerEngineerRelay(this);_runtime.TriggerSphereFusion(this); }
 
             // The source stores the end angle only after collision processing.
             _orbitalLastSweepAngle = _orbitAngle;
@@ -865,7 +866,7 @@ namespace EchoSphere.Runtime
             return new Vector2(direction.x * cos - direction.y * sin, direction.x * sin + direction.y * cos).normalized;
         }
 
-        private static Color ColorFor(SphereId type)
+        internal static Color ColorFor(SphereId type)
         {
             switch (type)
             {

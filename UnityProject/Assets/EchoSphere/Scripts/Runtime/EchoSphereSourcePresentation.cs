@@ -194,7 +194,7 @@ namespace EchoSphere.Runtime
                 // every frame and also covers newly spawned legacy objects.
                 _camera.cullingMask=0;
             }
-            var dpr=SourceDevicePixelRatio;var width=Mathf.Max(1f,Mathf.Floor(Mathf.Min(1280f,Screen.width/dpr)+.5f));var height=Mathf.Max(1f,Mathf.Floor(Mathf.Min(800f,Screen.height/dpr)+.5f));
+            var dpr=SourceDevicePixelRatio;var width=Mathf.Max(1f,Mathf.Floor(Screen.width/dpr+.5f));var height=Mathf.Max(1f,Mathf.Floor(Screen.height/dpr+.5f));
             _camera.orthographicSize=Screen.height/dpr*SpherePlacementRules.SourcePixelsToWorld*.5f;
             RefreshNativePresentedState();
             // Retained menu screens own their rendering; only a run needs

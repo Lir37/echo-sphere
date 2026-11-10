@@ -43,8 +43,8 @@ namespace EchoSphere.Presentation
             _dock.style.alignItems = leftHanded ? Align.FlexEnd : Align.FlexStart;
             _dock.style.transformOrigin = new TransformOrigin(Length.Percent(leftHanded ? 100 : 0), Length.Percent(100));
             _dock.style.scale = new Scale(new Vector3(interfaceScale, interfaceScale, 1));
-            Feedback(_joystick, joystick, 116, interfaceScale);
-            Feedback(_placement, placement, 52, interfaceScale);
+            Feedback(_joystick, joystick, 116, .75f);
+            Feedback(_placement, placement, 52, .75f);
             _ghost.style.display = ghost ? DisplayStyle.Flex : DisplayStyle.None;
             _memory.style.display = memory ? DisplayStyle.Flex : DisplayStyle.None;
             _movement.style.display = movement ? DisplayStyle.Flex : DisplayStyle.None;

@@ -2,13 +2,14 @@ using EchoSphere.Core;using System;using System.Collections.Generic;using UnityE
 namespace EchoSphere.Presentation {
  // Semantic vector emblems: distinct base silhouettes; mutations retain their parent plus branch/final anatomy.
  internal static class NativeArchiveIllustrations {
-  internal sealed class Spec {internal string Family,Key,Color,Mutation;internal int Branch=-1,Final=-1,Chapter=-1;}
+  internal sealed class Spec {internal string Family,Key,Color,Mutation;internal int Branch=-1,Final=-1,Chapter=-1;internal bool Fusion;}
   static readonly Dictionary<string,Spec> Cache=new Dictionary<string,Spec>(StringComparer.Ordinal);
   internal static Spec Resolve(string id){if(Cache.TryGetValue(id,out var saved))return saved;Spec s=null;var run=NativeRunCatalog.Instance;
    if(id.StartsWith("sphere:")){var row=run.GetSphere(id.Substring(7));if(row!=null)s=new Spec{Family="sphere",Key=row.Id,Color=row.Color};}
    else if(id.StartsWith("ability:")){var row=run.GetAbility(id.Substring(8));if(row!=null)s=new Spec{Family="ability",Key=row.Id,Color="#8bcfff"};}
    else if(id.StartsWith("sphere-branch:")||id.StartsWith("sphere-final:")){foreach(var sphere in run.Spheres)for(int b=0;b<sphere.Branches.Count;b++){var branch=sphere.Branches[b];string prefix="sphere-final:"+sphere.Id+":"+branch.Id+":";if(id=="sphere-branch:"+branch.Id||id.StartsWith(prefix,StringComparison.Ordinal)){int final=-1;if(id.StartsWith(prefix,StringComparison.Ordinal))int.TryParse(id.Substring(prefix.Length),out final);s=new Spec{Family="sphere",Key=sphere.Id,Color=sphere.Color,Mutation=branch.Id,Branch=b,Final=final};}}}
    else if(id.StartsWith("ability-evolution:")){string key=id.Substring(18);foreach(var ability in run.Abilities)for(int b=0;b<ability.Branches.Count;b++){var branch=ability.Branches[b];if(key==branch.Id)s=new Spec{Family="ability",Key=ability.Id,Color="#bfa3ff",Mutation=branch.Id,Branch=b};var finals=branch.HasFinalPool?branch.Finals:ability.FallbackFinals;for(int f=0;f<finals.Count;f++)if(key==finals[f].Id)s=new Spec{Family="ability",Key=ability.Id,Color="#bfa3ff",Mutation=branch.Id,Branch=b,Final=f};}}
+   else if(id.StartsWith("synergy:")){foreach(var link in run.SphereAbilityLinks)if(id=="synergy:"+link.Id){var parent=Resolve("sphere-branch:"+link.Branch);if(parent!=null)s=new Spec{Family=parent.Family,Key=parent.Key,Color=parent.Color,Mutation=parent.Mutation,Branch=parent.Branch,Fusion=true};break;}}
    else if(id.StartsWith("rune:")){string key=id.Substring(5);s=new Spec{Family="rune",Key=key,Color=run.GetRune(key).Color};}
    else if(id.StartsWith("region-lore:")){var parts=id.Split(':');if(parts.Length==3){int.TryParse(parts[2],out int chapter);string[] names={"basin","rift","bastion","folds","storm","archive"};string regionKey=CampaignRegions.TryParse(parts[1],out var region)?names[(int)region]:parts[1];s=new Spec{Family="region",Key=regionKey,Chapter=chapter,Color=RegionColor(regionKey)};}}
    else if(id.StartsWith("basic:")||id.StartsWith("currency:")){int split=id.IndexOf(':');s=new Spec{Family=id.Substring(0,split),Key=id.Substring(split+1),Color=id.EndsWith("Credits")?"#ffcf6c":id.EndsWith("ResonanceShards")?"#c7a4ff":id.EndsWith("ArchiveData")?"#6ae8d4":"#67ddf2"};}
@@ -119,6 +120,7 @@ namespace EchoSphere.Presentation {
     if(spec.Branch==0){Line(-14,-5,-12,-10,-9,-12);Line(14,-5,12,-10,9,-12);}else if(spec.Branch==1){Poly(-14,-7,-10,-5,-13,1);Poly(14,-7,10,-5,13,1);}else{Line(-14,4,-14,10,-9,13);Line(14,4,14,10,9,13);Ring(-14,0,1.4f);Ring(14,0,1.4f);}
     if(spec.Final==0){Line(-11,13,-5,13,-2,10);Line(11,13,5,13,2,10);}else if(spec.Final==1){Gem(-11,11,3);Gem(11,11,3);Line(-7,14,7,14);}else if(spec.Final==2){Poly(-14,9,-10,6,-6,14);Poly(14,9,10,6,6,14);Ring(0,13,2);}
    }
+   if(spec.Fusion){p.strokeColor=new Color(.75f,1,.91f);p.lineWidth=1.3f*scale;Arc(15,18,118);Arc(15,198,298);Line(-13,-10,-10,-13,-8,-11);Line(13,10,10,13,8,11);}
    return true;
   }
  }

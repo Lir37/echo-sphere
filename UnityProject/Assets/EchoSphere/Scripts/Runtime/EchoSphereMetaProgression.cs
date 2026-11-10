@@ -6,7 +6,10 @@ namespace EchoSphere.Runtime
 {
  public sealed partial class EchoSphereRuntime
  {
-  private int _runShardsEarned,_runArchiveDataEarned;
+  private int _runShardsEarned;
+#pragma warning disable CS0414 // Retained and read by the backwards-compatible reflection snapshot codec.
+  private int _runArchiveDataEarned;
+#pragma warning restore CS0414
   private readonly List<string> _pendingKnowledgeRewards=new List<string>();
   private void GrantCompletedRunCurrencies()
   {
@@ -26,7 +29,7 @@ namespace EchoSphere.Runtime
    var wallet=ReadMetaWallet();const string migration="migration:meta-progression-v1";
    if(MetaCurrencyRules.HasReceipt(wallet,migration))return;
    EnsureKnowledgeLoaded();
-   foreach(string id in _knownKnowledgeIds)if(!MetaCurrencyRules.HasReceipt(wallet,"purchase:lore:"+id))MetaCurrencyRules.TryGrantOnce(wallet,"discovery:"+id,0,0,MetaCurrencyRules.NaturalDiscoveryData);
+   // Legacy ArchiveData stays readable in old wallets, but discoveries no longer mint a currency.
    for(int i=0;i<6;i++){var region=(EchoRegionId)i;if(IsRegionStabilized(region))MetaCurrencyRules.TryGrantOnce(wallet,"legacy-clear:"+RegionSourceId(region),0,MetaCurrencyRules.RunShards(3,true),0);}
    MetaCurrencyRules.TryGrantOnce(wallet,migration,0,0,0);WriteMetaWallet(wallet);
   }
@@ -34,28 +37,15 @@ namespace EchoSphere.Runtime
   {if(!_knownKnowledgeIds.Add(id))return false;_pendingKnowledgeRewards.Add(id);return true;}
   private void PersistKnowledgeProgress()
   {
-   var wallet=ReadMetaWallet();foreach(string id in _pendingKnowledgeRewards){
-    if(MetaCurrencyRules.HasReceipt(wallet,"purchase:lore:"+id))continue;
-    if(MetaCurrencyRules.TryGrantOnce(wallet,"discovery:"+id,0,0,MetaCurrencyRules.NaturalDiscoveryData)&&!_mainMenu&&_runArchiveDataEarned<int.MaxValue)_runArchiveDataEarned+=MetaCurrencyRules.NaturalDiscoveryData;
-   }
    _pendingKnowledgeRewards.Clear();
-   // One existing knowledge save, including batched currency receipts. No Save per ID.
-   PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new List<string>(_knownKnowledgeIds),appearances=new List<BestiaryAppearance>(_bestiaryAppearances.Values)}));WriteMetaWallet(wallet);
+   // One existing knowledge save for batched discoveries. No currency award or Save per ID.
+   PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new List<string>(_knownKnowledgeIds),appearances=new List<BestiaryAppearance>(_bestiaryAppearances.Values)}));PlayerPrefs.Save();
   }
   private void RestoreLegacyPurchasedMastery(CharacterProfileData profile,int level)
   {
    profile.masteryXp=Mathf.Max(profile.masteryXp,CharacterRules.GetMasteryThreshold(level));
    profile.masteryLevel=Mathf.Max(profile.masteryLevel,CharacterRules.GetMasteryLevelForXp(profile.masteryXp));
    if(profile.id==CharacterRules.ToSourceId(_sphereCharacterId))_characterMasteryLevel=profile.masteryLevel;
-  }
-  private void ResearchNativeLore(string id)
-  {
-   if(!_mainMenu||_mainMenuPage!=MainMenuPage.Knowledge||_knowledgeSection!="regions")return;
-   EnsureKnowledgeLoaded();if(_knownKnowledgeIds.Contains(id))return;
-   foreach(var lore in CampaignRegionLore.All)if(lore.Id==id){
-    if(!IsRegionAvailable(lore.Region)||!TryBuyMeta("purchase:lore:"+id,CurrencyId.ArchiveData,MetaCurrencyRules.LoreResearchCost))return;
-    _knownKnowledgeIds.Add(id);PersistKnowledgeProgress();_nativeArchiveState=ReadNativeArchiveState();return;
-   }
   }
  }
 }

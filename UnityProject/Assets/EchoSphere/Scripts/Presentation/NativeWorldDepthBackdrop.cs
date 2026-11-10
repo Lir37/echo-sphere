@@ -8,7 +8,7 @@ namespace EchoSphere.Presentation
     // The camera/gameplay transforms are only READ; their coordinates stay unchanged.
     internal sealed class NativeWorldDepthBackdrop : IDisposable
     {
-        internal const float Parallax=.035f, Shear=.16f, VerticalProjection=.94f;
+        internal const float Parallax=.035f, Shear=.025f, VerticalProjection=.94f;
         private readonly Mesh _mesh=new Mesh{name="Regional depth background"};
         private readonly Material _material;
         private readonly MaterialPropertyBlock _properties=new MaterialPropertyBlock();
@@ -36,14 +36,16 @@ namespace EchoSphere.Presentation
         // Fixed for a viewport/aspect: camera motion must never change the zoom.
         internal static Vector2 ImageSpan(float width,float height,float aspect)
         {
-            float imageHeight=Mathf.Max(height*VerticalProjection+160,(width+Shear*height+160)/Mathf.Max(.1f,aspect));
-            return new Vector2(imageHeight*aspect,imageHeight);
+            // This is an environment illustration, not a world-sized map. Fit its
+            // composition to the viewport so the authored edge landmarks remain visible.
+            return new Vector2(width+Shear*height+32,height*VerticalProjection+32);
         }
         internal static Vector2 DistantUv(Vector2 point,Vector2 viewport,Vector2 camera,Vector2 imageSpan)
         {
-            var p=point-viewport*.5f+camera*Parallax;
+            var p=point-viewport*.5f+DepthCamera(camera)*Parallax;
             return new Vector2(.5f+(p.x+Shear*p.y)/imageSpan.x,.5f-p.y*VerticalProjection/imageSpan.y);
         }
+        internal static Vector2 DepthCamera(Vector2 camera)=>new Vector2(Mathf.Clamp(camera.x,-320,320),Mathf.Clamp(camera.y,-320,320));
         internal void Draw(NativeWorldSurface surface,float width,float height,int region,Vector2 camera,string trial,double runTime)
         {
             region=Mathf.Clamp(region,0,5);
@@ -73,7 +75,9 @@ namespace EchoSphere.Presentation
             _properties.SetTexture("_Backdrop",texture!=null?texture:Texture2D.blackTexture);
             _properties.SetTexture("_PreviousBackdrop",previous!=null?previous:Texture2D.blackTexture);
             _properties.SetVector("_FrameSize",new Vector4(width,height,span.x,span.y));
-            _properties.SetVector("_DepthCamera",new Vector4(camera.x,camera.y,Parallax,Shear));
+            var depthCamera=DepthCamera(camera);
+            _properties.SetVector("_DepthCamera",new Vector4(depthCamera.x,depthCamera.y,Parallax,Shear));
+            _properties.SetVector("_ArenaCamera",new Vector4(camera.x,camera.y,0,0));
             _properties.SetVector("_DepthStyle",new Vector4(_active?.Region??region,_trial,(float)runTime,blend));
             _properties.SetVector("_DepthReady",new Vector4(texture!=null?1:0,previous!=null?1:0,VerticalProjection,0));
             surface.DrawNativeMesh(_mesh,_material,_properties);

@@ -40,7 +40,6 @@ namespace EchoSphere.Runtime
             if(_nativeHudBoundVersion!=anchors.Version){_nativeHudIsland.Bind(ReadNativeHudState());_nativeHudBoundVersion=anchors.Version;}
             _nativeHudIsland.SetRunCurrency(_runEconomy!=null&&_tutorialStep<0?(int?)_runEconomy.Echo:null,IsRussianUi);
             string merchantTime=null;if(_runEconomy!=null&&_tutorialStep<0){int left=_runEconomy.Pending?0:(int)Math.Max(0,Math.Ceiling(RunEconomyRules.MerchantAt(_runEconomy.NextMerchant)-_runTime));merchantTime=(left/60).ToString("00")+":"+(left%60).ToString("00");}_nativeHudIsland.SetMerchantStatus(merchantTime,_runEconomy?.Pending==true);
-            _nativeHudIsland.SetInterfaceScale((float)NativeInterfaceScale);
             var dpr=SourceDevicePixelRatio;var safe=Screen.safeArea;
             _nativeHudIsland.SetSafeArea(safe.xMin/dpr,(Screen.width-safe.xMax)/dpr,(Screen.height-safe.yMax)/dpr);
             var ready=_nativeHudIsland.Ready;_nativeHudIsland.Prepare(dpr);

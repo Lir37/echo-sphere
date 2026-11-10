@@ -58,7 +58,7 @@ namespace EchoSphere.Runtime
                 if(mastery)for(int level=2;level<=10;level++)if(level>profile.masteryLevel&&MetaCurrencyRules.HasReceipt(wallet,"purchase:mastery:"+profile.id+":"+level)){profile.unlocked=true;RestoreLegacyPurchasedMastery(profile,level);changed=true;}
             }if(changed)SaveCharacterProfiles();}
             if(lore){EnsureKnowledgeLoaded();bool changed=false;foreach(var entry in CampaignRegionLore.All)if(MetaCurrencyRules.HasReceipt(wallet,"purchase:lore:"+entry.Id))changed|=_knownKnowledgeIds.Add(entry.Id);
-                if(changed){PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new System.Collections.Generic.List<string>(_knownKnowledgeIds)}));PlayerPrefs.Save();}}
+                if(changed){PlayerPrefs.SetString("echosphere_knowledge_v1",JsonUtility.ToJson(new KnowledgeSave{ids=new System.Collections.Generic.List<string>(_knownKnowledgeIds),appearances=new System.Collections.Generic.List<BestiaryAppearance>(_bestiaryAppearances.Values)}));PlayerPrefs.Save();}}
         }
         private bool TryBuyMeta(string receipt,CurrencyId id,int amount)
         {var wallet=ReadMetaWallet();if(!MetaCurrencyRules.TryPurchaseOnce(wallet,receipt,id,amount))return false;WriteMetaWallet(wallet);return true;}
@@ -66,6 +66,6 @@ namespace EchoSphere.Runtime
         {var wallet=ReadMetaWallet();if(!MetaCurrencyRules.TryGrantOnce(wallet,receipt,credits,shards,data))return false;WriteMetaWallet(wallet);return true;}
         private void ClearMetaWallet()
         {PlayerPrefs.DeleteKey(MetaWalletPreferenceKey);PlayerPrefs.DeleteKey(MetaWalletBackupPreferenceKey);PlayerPrefs.DeleteKey("echosphere_meta_wallet_recovery");_metaWallet=null;_metaWalletRaw=null;_metaEntitlementsRaw=null;}
-        private string MetaBalanceLabel(CurrencyId id)=>MetaCurrencyRules.Name(id,IsRussianUi)+": "+GetMetaBalance(id);
+        private string MetaBalanceLabel(CurrencyId id)=>GetMetaBalance(id).ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 }

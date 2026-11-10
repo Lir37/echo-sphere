@@ -11,8 +11,8 @@ namespace EchoSphere.Presentation
     {
         public readonly struct Row
         {
-            public readonly string Label,Value,ColorHex;
-            public Row(string label,string value,string colorHex="#dcecff"){Label=label;Value=value;ColorHex=colorHex;}
+            public readonly string Label,Value,ColorHex,IconId;
+            public Row(string label,string value,string colorHex="#dcecff",string iconId=null){Label=label;Value=value;ColorHex=colorHex;IconId=iconId;}
         }
         public sealed class State { public bool Russian;public string Title,Record,Return;public bool Clear,NewRecord;public IReadOnlyList<Row> Rows; }
         public VisualElement Root {get;}
@@ -39,6 +39,7 @@ namespace EchoSphere.Presentation
             var card=NativePauseStatsView.Box(_panel,"result-summary");card.style.paddingLeft=card.style.paddingRight=card.style.paddingTop=card.style.paddingBottom=16;card.style.marginBottom=16;ReserveBorder(card);
             Paint(card,new NativeMenuBrush.Paint {Radius=12,Border=1,Fill=C("#0d1726"),BorderColor=C("#243b55")});
             for(int i=0;i<state.Rows.Count;i++){var row=NativePauseStatsView.Box(card,"result-row-"+i,true);row.style.justifyContent=Justify.SpaceBetween;if(i>0)row.style.marginTop=8;
+                if(state.Rows[i].IconId!=null){var currencyIcon=new NativeContentIcon(state.Rows[i].IconId,C(state.Rows[i].ColorHex),24);currencyIcon.style.marginRight=8;row.Add(currencyIcon);}
                 var label=Text(row,"result-label",state.Rows[i].Label,12,"#7f9bb8",wrap:true);label.style.flexGrow=1;label.style.flexShrink=1;label.style.minWidth=0;var value=Text(row,"result-value",state.Rows[i].Value,17,state.Rows[i].ColorHex??"#dcecff","700");value.style.flexShrink=0;value.style.marginLeft=12;}
             var doubleReward=new Button{name="result-double-rewards",text=state.Russian?"▶ Удвоить награды":"▶ Double rewards"};doubleReward.style.minHeight=44;doubleReward.style.whiteSpace=WhiteSpace.Normal;doubleReward.style.fontSize=14;doubleReward.style.color=C("#ffd27c");doubleReward.style.backgroundColor=C("#241d13");doubleReward.SetEnabled(false);_panel.Add(doubleReward);
             var adHint=Text(_panel,"result-ad-hint",state.Russian?"Скоро · за просмотр рекламы":"Coming soon · watch an ad",10,"#8499ad",wrap:true);adHint.style.unityTextAlign=TextAnchor.MiddleCenter;adHint.style.marginTop=5;adHint.style.marginBottom=14;
