@@ -121,7 +121,7 @@ namespace EchoSphere.Runtime
                 cards.Add(new NativeArchiveScreen.Card{Id=id,Group="",Title=name,Description=NativePlayerCopy.Text(ru?item.DescriptionRussian:item.DescriptionEnglish,ru),Details="",Open=_knownKnowledgeIds.Contains(id),BasicIndex=-1});
             }
             if(_knowledgeSection=="monsters"||_knowledgeSection=="bosses")foreach(var entry in BestiaryCatalog.All){
-                if(_knowledgeSection=="bosses"&&!entry.Boss)continue;
+                if(entry.Boss!=(_knowledgeSection=="bosses"))continue;
                 string name=entry.Name(ru);if(query.Length>0&&!name.ToLowerInvariant().Contains(query)&&!CampaignRegions.SourceId(entry.Region).Contains(query))continue;
                 _bestiaryAppearances.TryGetValue(entry.Id,out var appearance);appearance??=entry.DefaultAppearance();
                 string behavior=entry.Boss?BestiaryCatalog.BossBehavior(entry.Variant,ru):BestiaryCatalog.Behavior((int)entry.Region,appearance.Role,ru)+(entry.Elite?" "+BestiaryCatalog.EliteBehavior(entry.Type,ru):"");

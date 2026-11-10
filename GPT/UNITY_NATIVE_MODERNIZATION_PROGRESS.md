@@ -2749,3 +2749,6 @@ Sphere/ability archive follow-up: click opens selected IV/VII progression and re
 
 ## 2026-11-08 — Narrative archive illustrations
 [UNITY_ARCHIVE_ILLUSTRATIONS_2026-11-08.md](UNITY_ARCHIVE_ILLUSTRATIONS_2026-11-08.md):188 separate realistic lore illustrations (178 bestiary +10 characters), asynchronous detail-only ownership, responsive3:2 view, Android ASTC6x6. Editor asset1128 checks and RU/EN rapid-switch UI checks PASS. Delivery/CI recorded separately; Android art acceptance remains open.
+
+## 2026-11-10 — Bestiary partition and regional concept previews
+[UNITY_REGIONAL_CONCEPTS_AND_BESTIARY_2026-11-10.md](UNITY_REGIONAL_CONCEPTS_AND_BESTIARY_2026-11-10.md): monsters exclude bosses; actual native archive projection 1430 checks PASS. Preview-only articulated designs for all 88 entries in regions 4–6, recorded in Unity; production enemy views unchanged. No APK. Earlier HUD/fusion/background changes remain local and unfinished. CI recorded separately after push.
