@@ -25,12 +25,14 @@ namespace EchoSphere.Presentation {
    double progress=e.Signal.Campaign?1-e.Signal.Remaining/Math.Max(.01,e.Signal.Window):.65;
    return (float)Clamp(preparing?progress:Math.Max(0,(facing.AttackUntil-time)/.28));
   }
-  private static bool ApprovedQuadruped(EnemyView e)=>!e.Boss&&(
-   e.RegionStyle==3&&(e.Role=="corruptor"||e.Role=="tank_guard")||
-   e.RegionStyle==4&&(e.Role=="healer"||e.BestiaryType=="phantom_hunter")||
-   e.RegionStyle==5&&(e.Role=="grunt"||e.Role=="corruptor"));
+  private static bool ApprovedQuadruped(EnemyView e){
+   if(e.Boss)return false;
+   string type=e.BestiaryType??e.Role;
+   return e.RegionStyle==3&&(type=="corruptor"||type=="tank_guard"||type=="mirror_warden")||
+          e.RegionStyle==5&&(type=="corruptor"||type=="anchor"||type=="scavenger");
+  }
   private void DrawRegionalCreature(EnemyView e,double time,Matrix4x4 root){
-   int id=ApprovedIndex(e);bool quadruped=ApprovedQuadruped(e);int localQuad=e.RegionStyle==3?(e.Role=="tank_guard"?1:0):e.RegionStyle==4?(e.BestiaryType=="phantom_hunter"?1:0):e.Role=="corruptor"?1:0;
+   int id=ApprovedIndex(e);bool quadruped=ApprovedQuadruped(e);int localQuad=e.RegionStyle==3?(e.Role=="tank_guard"?1:0):e.Role=="corruptor"?1:0;
    ConceptParts parts;
    if(quadruped){var key=(e.RegionStyle,100+localQuad);if(!_approvedParts.TryGetValue(key,out parts)){parts=new ConceptParts(localQuad,false,false);_approvedParts.Add(key,parts);}}
    else parts=ApprovedParts(e.RegionStyle,id,e.Boss);
@@ -200,7 +202,7 @@ namespace EchoSphere.Presentation {
    }else{
     var darkC=Col(.10f,.055f,.15f);var mid=Col(.26f,.16f,.35f);var pale=Col(.50f,.35f,.59f);var vein=Col(.70f,.44f,.83f);
     // Hollow interlocking armour, long jointed limbs and a split predatory head.
-    int limbs=heavy?4:serpent?2:3;
+    int limbs=!e.Boss&&e.BestiaryType=="grunt"?1:heavy?4:serpent?2:3;
     for(int side=-1;side<=1;side+=2)for(int j=0;j<limbs;j++){
      var joint=root*M(-.65f+j*.48f,side*.27f,side*(55+j*22+Mathf.Sin(t*4+j)*12));
      DrawPart(a.Horn,joint*M(0,0,0,1.1f,side*.85f),mid);
@@ -231,13 +233,13 @@ namespace EchoSphere.Presentation {
    }
  }
  private void DrawApprovedQuadruped(EnemyView e,double time,Matrix4x4 root,ConceptParts a,float attack){
-   void DrawPart(Mesh mesh,Matrix4x4 matrix,Color color)=>PaintConcept(mesh,matrix,color,e);   int Region=e.RegionStyle;int id=Region==3?(e.Role=="tank_guard"?1:0):Region==4?(e.BestiaryType=="phantom_hunter"?1:0):e.Role=="corruptor"?1:0;
+   void DrawPart(Mesh mesh,Matrix4x4 matrix,Color color)=>PaintConcept(mesh,matrix,color,e);   int Region=e.RegionStyle;int id=Region==3?(e.Role=="tank_guard"?1:0):e.Role=="corruptor"?1:0;
    float t=(float)time;float gait=(float)(_gaitTravel*3.1+id);bool heavy=id==1&&Region==3;
    float r=(float)e.Radius;root=root*M(0,0,0,r,r);
-   Color low=Region==3?Col(.06f,.21f,.24f):Region==4?Col(.26f,.14f,.05f):Col(.13f,.08f,.18f);
-   Color mid=Region==3?Col(.14f,.43f,.46f):Region==4?Col(.61f,.35f,.11f):Col(.32f,.21f,.41f);
-   Color edge=Region==3?Col(.41f,.70f,.70f):Region==4?Col(.93f,.66f,.26f):Col(.56f,.40f,.66f);
-   Color accent=Region==3?Col(.70f,.94f,.85f):Region==4?Col(1,.90f,.56f):Col(.79f,.52f,.92f);
+   Color low=Region==3?Col(.06f,.21f,.24f):Col(.13f,.08f,.18f);
+   Color mid=Region==3?Col(.14f,.43f,.46f):Col(.32f,.21f,.41f);
+   Color edge=Region==3?Col(.41f,.70f,.70f):Col(.56f,.40f,.66f);
+   Color accent=Region==3?Col(.70f,.94f,.85f):Col(.79f,.52f,.92f);
    float width=heavy?.54f:id==0?.36f:.30f;
    // Exactly four legs, with a shoulder/hip, knee/elbow, wrist/hock and three toes.
    for(int side=-1;side<=1;side+=2)for(int front=0;front<2;front++){

@@ -656,7 +656,7 @@ internal static class Program
         True(SphereEvolutionCombatRules.ShouldPulseBurstDoubleWave(7, "pulse_burst_final_3"), "Double Pulse emits second wave");
         True(SphereEvolutionCombatRules.GetVoidHungerDamageMultiplier(7, "void_hunger_final_3", 0.20f) > SphereEvolutionCombatRules.GetVoidHungerDamageMultiplier(7, "void_hunger_final_1", 0.20f), "Void Devour low-HP bonus");
         Equal(SphereEvolutionCombatRules.GetVoidReaperShardCount(6, null), 3, "Void Reaper level VI shard count");
-        Near(SphereEvolutionCombatRules.GetVoidReaperKillHeal(7, "void_reaper_final_3"), 6f, 0f, "Devouring Reaper kill heal");
+        Near(SphereEvolutionCombatRules.GetVoidReaperKillHeal(7, "void_reaper_final_3"), 2f, 0f, "Devouring Reaper kill heal");
         Near(SphereEvolutionCombatRules.GetVoidExecutionThreshold(7, "void_execution_final_3"), 0.30f, 0f, "Absolute execution threshold");
         Near(SphereEvolutionCombatRules.GetVoidExecutionChance(7, "void_execution_final_3"), 0.18f, 0f, "Absolute execution chance");
         Equal(SphereEvolutionCombatRules.GetVoidExecutionPierce(0, "void_execution_final_2"), 1, "Phase adds projectile pierce");

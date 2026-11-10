@@ -1076,7 +1076,8 @@ namespace EchoSphere.Runtime
             TickHunterCharacterState(dt);
             TickEngineerRelay(dt);
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
-            _playerCore.Heal(LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen)) * dt);
+            var passiveHealingRemaining = Mathf.Min(4f, _playerCore.MaxHp * .03f) * dt;
+            _playerCore.HealPassive(LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen)) * dt, ref passiveHealingRemaining);
             if (_comboTimer > 0f)
             {
                 _comboTimer = ComboRules.TickTimer(_comboTimer, dt);
@@ -1138,8 +1139,8 @@ namespace EchoSphere.Runtime
                 GetCharacterMoveSpeedMultiplier() * PlayerLoopRules.MutationSpeed(_mutationStage) *
                 (_sphereCharacterId == SphereCharacterId.Berserker && _characterMasteryLevel >= 5 && _buffTimer > 0f ? 1.05f : 1f), followMultiplier) * dt);
             if (_follow) foreach (var sphere in _spheres) if (sphere != null) sphere.SyncFollowPosition();
-            _playerCore.Heal(Mathf.Max(0f, GetRunArtifactEffectTotal("regen")) * dt);
-            TickSourceLatePlayerState(dt);
+            _playerCore.HealPassive(Mathf.Max(0f, GetRunArtifactEffectTotal("regen")) * dt, ref passiveHealingRemaining);
+            TickSourceLatePlayerState(dt, ref passiveHealingRemaining);
             RefreshNetworkState();
             TickResonanceRing(dt);
             TickSimulationPhase<SphereAttackAgent>(dt);
@@ -1876,7 +1877,7 @@ namespace EchoSphere.Runtime
 
         public void HealPlayer(float amount)
         {
-            if (_playerCore != null) _playerCore.Heal(Mathf.Max(0f, amount));
+            _playerCore?.HealFromCombat(amount);
         }
 
         public float ResolveAuthoredSphereHitDamage(SphereId source, EnemyAgent2D target, float damage)
@@ -1937,7 +1938,7 @@ namespace EchoSphere.Runtime
                     SphereAuthoredModifierRules.GetAnchorSlowMultiplier(anchor));
 
             var vampiric = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Vampiric);
-            if (vampiric > 0) HealPlayer(damage * GetSourceSphereModifiers(source).healOnHit);
+            if (vampiric > 0) HealPlayer(Mathf.Min(damage, target.CurrentHp) * GetSourceSphereModifiers(source).healOnHit);
 
             var resonant = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Resonant);
             if (resonant > 0 && branch != "pulse_resonator")
@@ -3004,7 +3005,7 @@ namespace EchoSphere.Runtime
         {
             var vampire = Mathf.Max(0f, GetRunArtifactEffectTotal("vampire") + GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f);
             if (_playerCore != null && !_playerCore.IsDead && vampire > 0f)
-                _playerCore.Heal(Mathf.Max(0f, damage) * vampire);
+                HealPlayer(Mathf.Max(0f, damage) * vampire);
         }
 
         private float GetArtifactMoveSpeedMultiplier()
@@ -4638,7 +4639,7 @@ namespace EchoSphere.Runtime
                                     enemy.ReceiveDamage((10f + level * 2f) * 0.55f);
                                     if (!enemy.IsAlive) kills++;
                                 }
-                            if (kills > 0) _playerCore?.Heal(kills * 2f);
+                            if (kills > 0) HealPlayer(kills * 2f);
                         }
             }
             else if (ability == RunUpgradeKind.Lightning)
@@ -5036,7 +5037,7 @@ namespace EchoSphere.Runtime
                             else if (variant == 1)
                             {
                                 if (missing > 0.45f && _playerCore != null)
-                                    _playerCore.Heal(_playerCore.MaxHp * 0.025f * power);
+                                    HealPlayer(_playerCore.MaxHp * 0.025f * power);
                             }
                             else sphere.AccelerateNextAttack((0.5f + missing * 0.8f) * power);
                         }
@@ -5052,7 +5053,7 @@ namespace EchoSphere.Runtime
                         else if (variant == 1)
                         {
                             var missing = 1f - (_playerCore != null ? _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) : 0f);
-                            if (_playerCore != null) _playerCore.Heal(missing * _playerCore.MaxHp * 0.04f * power);
+                            if (_playerCore != null) HealPlayer(missing * _playerCore.MaxHp * 0.04f * power);
                         }
                         else sphere.AccelerateNextAttack(0.75f * power);
                     }

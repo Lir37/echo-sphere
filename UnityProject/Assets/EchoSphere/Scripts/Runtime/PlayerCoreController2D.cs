@@ -18,6 +18,8 @@ namespace EchoSphere.Runtime
         public int DashCount { get; private set; }
         public Vector2 LastMoveDirection { get; private set; } = Vector2.up;
         public Vector2 DashDirection { get; private set; } = Vector2.up;
+        private float _combatHealingCredit = -1f;
+        private float CombatHealingRate => Mathf.Min(5f, MaxHp * .04f);
         public bool IsDead => CurrentHp <= 0f;
         public bool CanReceiveDamageNow => !IsDead && CombatRules.CanReceivePlayerDamage(InvulnerableTimer, ContactGraceTimer);
         // Source Dash has a fixed cooldown; generic active-ability cooldown bonuses do not affect it.
@@ -34,6 +36,7 @@ namespace EchoSphere.Runtime
         {
             MaxHp = Mathf.Max(1f, maxHp);
             CurrentHp = MaxHp;
+            _combatHealingCredit = -1f;
         }
 
         public void IncreaseMaxHp(float amount)
@@ -45,6 +48,11 @@ namespace EchoSphere.Runtime
 
         public void Tick(float deltaTime)
         {
+            var rate = CombatHealingRate;
+            var capacity = rate * .5f;
+            _combatHealingCredit = _combatHealingCredit < 0f
+                ? capacity
+                : Mathf.Min(capacity, _combatHealingCredit + rate * Mathf.Max(0f, deltaTime));
             WebRootTimer = Mathf.Max(0f, WebRootTimer - deltaTime);
             InvulnerableTimer = Mathf.Max(0f, InvulnerableTimer - deltaTime);
             ContactGraceTimer = Mathf.Max(0f, ContactGraceTimer - deltaTime);
@@ -115,6 +123,22 @@ namespace EchoSphere.Runtime
             return true;
         }
 
+        internal void HealPassive(float amount, ref float remaining)
+        {
+            if (IsDead || amount <= 0f) return;
+            var restored = Mathf.Min(Mathf.Min(amount, MaxHp - CurrentHp), remaining);
+            CurrentHp += restored;
+            remaining -= restored;
+        }
+        internal void HealFromCombat(float amount)
+        {
+            if (IsDead || amount <= 0f) return;
+            var capacity = CombatHealingRate * .5f;
+            var credit = _combatHealingCredit < 0f ? capacity : Mathf.Min(capacity, _combatHealingCredit);
+            var restored = Mathf.Min(Mathf.Min(amount, MaxHp - CurrentHp), credit);
+            CurrentHp += restored;
+            _combatHealingCredit = credit - restored;
+        }
         public void Heal(float amount)
         {
             CurrentHp = Mathf.Min(MaxHp, CurrentHp + Mathf.Max(0f, amount));

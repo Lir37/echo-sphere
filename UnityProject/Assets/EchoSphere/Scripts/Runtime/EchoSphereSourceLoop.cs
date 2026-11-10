@@ -59,9 +59,9 @@ namespace EchoSphere.Runtime
                 RefreshAllSphereProgression();
             }
         }
-        private void TickSourceLatePlayerState(float dt)
+        private void TickSourceLatePlayerState(float dt, ref float passiveHealingRemaining)
         {
-            _playerCore.Heal(PlayerLoopRules.MutationRegen(_mutationStage) * dt);
+            _playerCore.HealPassive(PlayerLoopRules.MutationRegen(_mutationStage) * dt, ref passiveHealingRemaining);
             if (_ownedArtifacts.Contains("chaos_orb"))
             {
                 _chaosOrbTimer += dt;

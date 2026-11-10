@@ -9,7 +9,36 @@ namespace EchoSphere.Presentation
     {
         [Serializable] public class Text {public string NameRu,NameEn,DescriptionRu,DescriptionEn;public virtual string Name(bool ru)=>NativePlayerCopy.Text(ru?NameRu:NameEn,ru);public virtual string Description(bool ru)=>NativePlayerCopy.Text(ru?DescriptionRu:DescriptionEn,ru);}
         [Serializable] public class Definition : Text {public string Id;}
-        [Serializable] public sealed class Choice : Definition {public string Element;public Text BranchCard=new Text();public List<Text> FinalCards=new List<Text>();public bool HasFinalPool;public List<Definition> Finals=new List<Definition>();}
+        [Serializable] public sealed class Choice : Definition
+        {
+            public string Element;
+            public Text BranchCard=new Text();
+            public List<Text> FinalCards=new List<Text>();
+            public bool HasFinalPool;
+            public List<Definition> Finals=new List<Definition>();
+
+            public Text SphereCard(int final = -1)
+            {
+                var source = final < 0 ? BranchCard : FinalCards[final];
+                var copy = (Id, final) switch
+                {
+                    ("void_reaper", 1) => ("Убийства восстанавливают здоровье и выпускают более сильные осколки Пустоты.", "Kills restore health and release stronger Void shards."),
+                    ("void_reaper", 2) => ("Убийства восстанавливают больше здоровья и выпускают три осколка Пустоты.", "Kills restore more health and release three Void shards."),
+                    ("void_reaper", _) => ("Убийства восстанавливают здоровье и выпускают осколки Пустоты.", "Kills restore health and release Void shards."),
+                    ("chain_leech", 1) => ("Попадания восстанавливают больше здоровья.", "Hits restore more health."),
+                    ("chain_leech", 2) => ("Попадания восстанавливают здоровье, а цели с запасом здоровья ниже 40% получают дополнительный урон.", "Hits restore health and deal extra damage to targets below 40% health."),
+                    ("chain_leech", _) => ("Попадания восстанавливают часть здоровья.", "Hits restore a portion of your health."),
+                    _ => (null, null)
+                };
+                if (copy.Item1 == null) return source;
+                return new Text
+                {
+                    NameRu = source.NameRu, NameEn = source.NameEn,
+                    DescriptionRu = copy.Item1 + " У восстановления в бою есть предел.",
+                    DescriptionEn = copy.Item2 + " Combat healing has a limit."
+                };
+            }
+        }
         [Serializable] public sealed class Sphere : Definition {public string Color;public double RangeMultiplier,DelayMultiplier,Pellets;public bool Projectile,Aura;public List<Choice> Branches=new List<Choice>();}
         [Serializable] public sealed class Ability : Definition {public override string Name(bool ru)=>Id=="crit"?(ru?"Шанс критического удара":"Critical Chance"):base.Name(ru);public override string Description(bool ru)=>NativePlayerCopy.AbilityDescription(Id,ru,base.Description(ru));public string Category;public bool HasProgression;public List<Text> Levels=new List<Text>(),BaseLevels=new List<Text>();public List<Choice> Branches=new List<Choice>();public List<Definition> FallbackFinals=new List<Definition>();}
         [Serializable] public sealed class Pocket : Definition {public double X,Y,Radius;public string Accent;}

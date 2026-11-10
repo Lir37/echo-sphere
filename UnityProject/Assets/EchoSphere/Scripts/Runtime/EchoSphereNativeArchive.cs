@@ -62,11 +62,11 @@ namespace EchoSphere.Runtime
             foreach(var branch in branches.Take(3)){
                 string branchKey=(sphere?"sphere-branch:":"ability-evolution:")+branch.Id;
                 bool opened=_knownKnowledgeIds.Contains(branchKey);
-                var row=new NativeArchiveScreen.ProgressionBranch{IconId=branchKey,Open=opened,Title=opened?branch.Name(ru):null,Description=opened?(sphere?branch.BranchCard.Description(ru):branch.Description(ru)):null};
+                var row=new NativeArchiveScreen.ProgressionBranch{IconId=branchKey,Open=opened,Title=opened?branch.Name(ru):null,Description=opened?(sphere?branch.SphereCard().Description(ru):branch.Description(ru)):null};
                 if(opened){
                     if(sphere)for(int i=0;i<Math.Min(3,branch.FinalCards.Count);i++){
                         bool known=_knownKnowledgeIds.Contains("sphere-final:"+id+":"+branch.Id+":"+i);
-                        row.Finals.Add(new NativeArchiveScreen.ProgressionChoice{IconId="sphere-final:"+id+":"+branch.Id+":"+i,Open=known,Title=known?branch.FinalCards[i].Name(ru):null,Description=known?branch.FinalCards[i].Description(ru):null});
+                        row.Finals.Add(new NativeArchiveScreen.ProgressionChoice{IconId="sphere-final:"+id+":"+branch.Id+":"+i,Open=known,Title=known?branch.SphereCard(i).Name(ru):null,Description=known?branch.SphereCard(i).Description(ru):null});
                     }
                     else foreach(var final in (branch.HasFinalPool?branch.Finals:abilityDefinition.FallbackFinals).Take(3)){
                         bool known=_knownKnowledgeIds.Contains("ability-evolution:"+final.Id);

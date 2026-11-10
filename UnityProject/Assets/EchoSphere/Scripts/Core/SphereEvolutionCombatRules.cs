@@ -70,7 +70,7 @@ namespace EchoSphere.Core
         }
 
         public static float GetVoidReaperKillHeal(int level, string finalId) =>
-            (finalId == "void_reaper_final_3" ? 6f : 3f) * (string.IsNullOrEmpty(finalId) ? GetChainBranchPower(level) : 1f);
+            (finalId == "void_reaper_final_3" ? 2f : 1f) * (string.IsNullOrEmpty(finalId) ? GetChainBranchPower(level) : 1f);
 
         public static int GetVoidReaperShardCount(int level, string finalId) =>
             finalId == "void_reaper_final_3" || (string.IsNullOrEmpty(finalId) && level >= 6) ? 3 : 2;

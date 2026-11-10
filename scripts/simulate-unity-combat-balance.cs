@@ -273,7 +273,7 @@ public static class CombatBalanceSimulation
                 Get<List<string>>(a.Runtime,"_ownedArtifacts").AddRange(sets[index]);var sphere=a.Sphere(s);
                 for(int i=0;i<8;i++)a.Enemy(new Vector2(Mathf.Cos(i*Mathf.PI/4),Mathf.Sin(i*Mathf.PI/4))*60*SpherePlacementRules.SourcePixelsToWorld,region);
                 for(int i=0;i<1200;i++) {
-                    a.Tick(1f/60);Call(a.Runtime,"TickSourceLatePlayerState",1f/60);
+                    a.Tick(1f/60);Call(a.Runtime,"TickSourceLatePlayerState",1f/60,Mathf.Min(4f,a.Core.MaxHp*.03f)/60);
                     Call(a.Runtime,"TickSourceDamageNumbers",1f/60);
                 }
                 var damage=a.Enemies.Sum(e=>1000000d-e.CurrentHp);
@@ -296,7 +296,7 @@ public static class CombatBalanceSimulation
                 var b=SphereEvolutionCatalog.GetBranches(family)[0];var f=SphereEvolutionCatalog.GetFinals(b.Id)[0];
                 var s=a.Sphere(new State{Family=family,Level=7,Branch=b.Id,Final=f.Id});
                 for(int i=0;i<8;i++)a.Enemy(new Vector2(Mathf.Cos(i*Mathf.PI/4),Mathf.Sin(i*Mathf.PI/4))*60*SpherePlacementRules.SourcePixelsToWorld,0);
-                for(int i=0;i<300;i++){a.Tick(1f/60);Call(a.Runtime,"TickSourceLatePlayerState",1f/60);}
+                for(int i=0;i<300;i++){a.Tick(1f/60);Call(a.Runtime,"TickSourceLatePlayerState",1f/60,Mathf.Min(4f,a.Core.MaxHp*.03f)/60);}
                 string state=JsonConvert.SerializeObject(new{hp=a.Enemies.Select(e=>e.CurrentHp).ToArray(),
                     positions=a.Enemies.Select(e=>new[]{e.transform.position.x,e.transform.position.y}).ToArray(),
                     rng=Get<SeededRng>(a.Runtime,"_rng").State,timer=s.AttackTimer,player=a.Core.CurrentHp});
@@ -454,7 +454,7 @@ public static class CombatBalanceSimulation
                 for(int i=0;i<600;i++){
                     a.TracePhases=i==0;
                     if(i%60==0)Write(output+"/active-ensemble.json",new{build,seed,phase="simulation",tick=i,spheres=chosen.Select(s=>s.ToString()).ToArray(),artifacts});
-                    a.Tick(1f/60);Call(a.Runtime,"TickSourceLatePlayerState",1f/60);
+                    a.Tick(1f/60);Call(a.Runtime,"TickSourceLatePlayerState",1f/60,Mathf.Min(4f,a.Core.MaxHp*.03f)/60);
                 }
                 if(a.Enemies.Any(e=>!e.IsAlive))throw new Exception("Target died in ensemble");
                 double damage=a.Enemies.Sum(e=>1000000d-e.CurrentHp);
@@ -490,7 +490,7 @@ public static class CombatBalanceSimulation
             a.FastParticles=true;if(equipped)Get<List<string>>(a.Runtime,"_ownedArtifacts").AddRange(c.Item4);
             var s=a.Sphere(new State{Family=c.Item1,Level=7,Branch=c.Item2,Final=c.Item3});
             for(int i=0;i<8;i++)a.Enemy(new Vector2(Mathf.Cos(i*Mathf.PI/4),Mathf.Sin(i*Mathf.PI/4))*60*SpherePlacementRules.SourcePixelsToWorld,0);
-            for(int i=0;i<1200;i++){a.Tick(1f/60);Call(a.Runtime,"TickSourceLatePlayerState",1f/60);}
+            for(int i=0;i<1200;i++){a.Tick(1f/60);Call(a.Runtime,"TickSourceLatePlayerState",1f/60,Mathf.Min(4f,a.Core.MaxHp*.03f)/60);}
             double damage=a.Enemies.Sum(e=>1000000d-e.CurrentHp);
             rows.Add(new{state=c.Item3,artifacts=c.Item4,seed,equipped,seconds=20,damage,dps=damage/20,
                 damageTakenMultiplier=(float)Call(a.Runtime,"GetArtifactOnlyDamageTakenMultiplier"),

@@ -61,7 +61,7 @@ namespace EchoSphere.Runtime
                 if (mode < 0) { if (hp < .35f) actual *= power; }
                 else if (mode == 0 && hp < .45f) { actual *= 1.35f; _runtime.SetSourceMark(enemy, .9f); }
                 else if (mode == 1 && hp < .20f) { actual *= 2f; _runtime.SetSourceMark(enemy, 1f); }
-                else if (mode == 2 && hp < .35f) { actual *= 1.5f; _runtime.HealPlayer(actual * .012f); }
+                else if (mode == 2 && hp < .35f) { actual *= 1.5f; _runtime.HealPlayer(Mathf.Min(actual, enemy.CurrentHp) * .012f); }
             }
             else if (branch == "sniper_beacon")
             {
@@ -133,7 +133,7 @@ namespace EchoSphere.Runtime
                 }
             }
             else if (branch == "chain_leech")
-            { _runtime.HealPlayer(actual * (mode == 0 ? .025f : mode == 1 ? .045f : .018f) * power); if (mode == 2 && enemy.HpFraction < .4f) actual *= 1.2f; }
+            { _runtime.HealPlayer(Mathf.Min(actual, enemy.CurrentHp) * (mode == 0 ? .025f : mode == 1 ? .045f : .018f) * power); if (mode == 2 && enemy.HpFraction < .4f) actual *= 1.2f; }
             else if (branch == "aura_sanctum")
             { enemy.ApplySlow(mode == 0 ? 1.4f : mode == 1 ? 2f : .9f, mode == 0 ? .5f : mode == 1 ? .42f : .62f); if (mode == 2) actual *= 1.12f; }
             else if (branch == "aura_gravity")
