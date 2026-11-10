@@ -20,9 +20,35 @@ namespace EchoSphere.Presentation {
    _structural.Clear();foreach(var node in Nodes)_structural.Add(new SphereNetworkNode(node.Position,node.Alive));
    var next=SphereNetworkRules.Analyze(_structural,SphereNetworkRules.DefaultLinkDistance,previous);
    SphereNetworkShape Retain(SphereNetworkShape shape){if(shape==null)return null;var indexes=new List<int>();foreach(int old in shape.NodeIndexes){int id=_ids.Count==0?old:old<_ids.Count?_ids[old]:int.MinValue;int at=_ids.Count==0?old:identified?Identities.IndexOf(id):id;if(at<0||at>=Nodes.Count||!Nodes[at].Alive)return null;indexes.Add(at);}return new SphereNetworkShape(shape.Type,shape.Strength,indexes){DominanceScore=shape.DominanceScore};}
-   var main=(!moved||PreserveDisplacedSelection)&&!_refreshMain?Retain(current?.DominantFormation):null;var extra=(!moved||PreserveDisplacedSelection)&&!_refreshSecondary?Retain(current?.SecondaryFormation):null;_refreshMain=_refreshSecondary=false;
-   bool Matches(SphereNetworkShape shape){if(shape==null)return true;var subset=new List<SphereNetworkNode>(Nodes.Count);for(int i=0;i<Nodes.Count;i++)subset.Add(new SphereNetworkNode(Nodes[i].Position,shape.Contains(i)&&Nodes[i].Alive));var analysis=SphereNetworkRules.Analyze(subset);return analysis.FormationCandidates.Exists(candidate=>candidate.Type==shape.Type&&candidate.NodeIndexes.Count==shape.NodeIndexes.Count&&candidate.NodeIndexes.TrueForAll(shape.Contains));}
-   bool mainValid=true,extraValid=true;if(PreserveDisplacedSelection){mainValid=Matches(main);extraValid=Matches(extra);if(main!=null)main.Active=mainValid;if(extra!=null)extra.Active=extraValid;}
+   var selectedMain=_refreshMain?null:current?.DominantFormation;
+   var selectedExtra=_refreshSecondary?null:current?.SecondaryFormation;
+   var main=!moved||PreserveDisplacedSelection?Retain(selectedMain):null;
+   var extra=!moved||PreserveDisplacedSelection?Retain(selectedExtra):null;
+   _refreshMain=_refreshSecondary=false;
+   bool Matches(SphereNetworkShape shape){var subset=new List<SphereNetworkNode>(Nodes.Count);for(int i=0;i<Nodes.Count;i++)subset.Add(new SphereNetworkNode(Nodes[i].Position,shape.Contains(i)&&Nodes[i].Alive));var analysis=SphereNetworkRules.Analyze(subset);return analysis.FormationCandidates.Exists(candidate=>candidate.Type==shape.Type&&candidate.NodeIndexes.Count==shape.NodeIndexes.Count&&candidate.NodeIndexes.TrueForAll(shape.Contains));}
+   SphereNetworkState activeNetwork=null;
+   SphereNetworkShape Recover(SphereNetworkShape selected,SphereNetworkShape retained,out bool valid){
+    valid=true;
+    if(selected==null)return null;
+    if(retained!=null&&retained.NodeIndexes.Count>0&&Matches(retained))return retained;
+    // A disrupted slot keeps its type. Only usable nodes can rebuild it.
+    var candidates=next.FormationCandidates;
+    if(Nodes.Exists(node=>node.Alive&&!node.IsActive)){
+     activeNetwork??=SphereNetworkRules.Analyze(Nodes,next.LinkDistance,previous);
+     candidates=activeNetwork.FormationCandidates;
+    }
+    var replacement=candidates.Find(candidate=>candidate.Type==selected.Type);
+    if(replacement!=null)return replacement;
+    valid=false;
+    var pending=retained??new SphereNetworkShape(selected.Type,selected.Strength,new List<int>()){DominanceScore=selected.DominanceScore};
+    pending.Active=false;
+    return pending;
+   }
+   bool mainValid=true,extraValid=true;
+   if(PreserveDisplacedSelection){
+    main=Recover(selectedMain,main,out mainValid);
+    extra=Recover(selectedExtra,extra,out extraValid);
+   }
    // Replace candidate of the same type, retaining the exact existing members when a new node makes a stronger copy.
    void Candidate(SphereNetworkShape shape){if(shape==null)return;int at=next.FormationCandidates.FindIndex(s=>s.Type==shape.Type);if(at<0)next.FormationCandidates.Add(shape);else next.FormationCandidates[at]=shape;}
    Candidate(main);Candidate(extra);if(main!=null){next.DominantFormation=main;if(extra==null){next.SecondaryFormation=null;SphereNetworkRules.TrySetDominantFormation(next,main.Type);}}if(extra!=null&&extra.Type!=next.DominantFormation?.Type)next.SecondaryFormation=extra;

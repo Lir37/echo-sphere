@@ -89,7 +89,9 @@ namespace EchoSphere.Runtime
                 _worldSurface.SetOpacity(.46*fade);_nativeWorldFeedback.Boundary(radius,progress,color);_worldSurface.SetOpacity(.20*fade);_nativeWorldFeedback.BoundaryOuter(radius,progress,color);_worldSurface.SetOpacity(.50*fade);_nativeWorldFeedback.BoundaryShards(radius,progress,color);_worldSurface.Restore();
             }
             _worldSurface.Save();double fontSize=Math.Max(10,Math.Min(12,w*.032));PrepareNativeFrameBanner(frame.Message,w,fontSize);var lines=_nativeBannerLines;
-            double gap=fontSize+2,boxHeight=_nativeBannerBoxHeight,boxWidth=_nativeBannerBoxWidth,bannerY=Math.Max(142,Math.Min(h*.205,178)),top=bannerY-boxHeight+3;
+            double gap=fontSize+2,boxHeight=_nativeBannerBoxHeight,boxWidth=_nativeBannerBoxWidth;
+            double top=156;
+            if(_nativeHudIsland?.Ready==true&&_nativeRunField!=null){var field=_nativeRunField.worldBound;double hudBottom=_nativeHudIsland.TopPanelsBottom-field.yMin;if(field.height>0&&hudBottom>0&&hudBottom<field.height)top=(hudBottom+10)*h/field.height;}
             _worldSurface.SetOpacity(Math.Min(1,Math.Max(0,frame.MessageLife/.82)));_nativeWorldFeedback.Rectangle(w/2-boxWidth/2,top,boxWidth,boxHeight,0,NativeMutationColor("rgba(2,7,13,.92)"));_nativeWorldFeedback.Rectangle(w/2-boxWidth/2,top,boxWidth,boxHeight,1,NativeMutationColor(frame.Color));
             for(int i=0;i<lines.Count;i++)_nativeWorldFeedback.Text(lines[i],w/2,top+12+i*gap,NativeMutationColor(frame.Color),(float)fontSize);_worldSurface.Restore();
         }

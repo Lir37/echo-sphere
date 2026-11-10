@@ -60,7 +60,7 @@ namespace EchoSphere.Presentation
         private void Wavy(Node from,Node to,Color color,double alpha,double time,double seed,bool active)
         {
             double dx=to.X-from.X,dy=to.Y-from.Y,len=Math.Sqrt(dx*dx+dy*dy);if(len==0)len=1;
-            double nx=-dy/len,ny=dx/len,amp=active?Math.Min(2.2,.7+len*.003):0,phase=time*(active?1.9:1.35)+seed;
+            double nx=-dy/len,ny=dx/len,amp=active?Math.Min(2.2,.7+len*.003):Math.Min(1.0,len*.007),phase=time*(active?1.9:1.35)+seed;
             Node At(double p){double q=Math.Max(0,Math.Min(1,p)),wave=Math.Sin(phase+q*Math.PI*4.2)*amp*Math.Sin(Math.PI*q);return new Node {X=from.X+dx*q+nx*wave,Y=from.Y+dy*q+ny*wave};}
             var points=_wavePoints;for(int i=0;i<=24;i++){var n=At(i/24.0);points[i]=P(n.X,n.Y);}
             if(!active){Ribbon(points,.85,color,alpha*.70);return;}
