@@ -22,12 +22,13 @@ namespace EchoSphere.Presentation
                 var source = final < 0 ? BranchCard : FinalCards[final];
                 var copy = (Id, final) switch
                 {
-                    ("void_reaper", 1) => ("Убийства восстанавливают здоровье и выпускают более сильные осколки Пустоты.", "Kills restore health and release stronger Void shards."),
-                    ("void_reaper", 2) => ("Убийства восстанавливают больше здоровья и выпускают три осколка Пустоты.", "Kills restore more health and release three Void shards."),
-                    ("void_reaper", _) => ("Убийства восстанавливают здоровье и выпускают осколки Пустоты.", "Kills restore health and release Void shards."),
-                    ("chain_leech", 1) => ("Попадания восстанавливают больше здоровья.", "Hits restore more health."),
-                    ("chain_leech", 2) => ("Попадания восстанавливают здоровье, а цели с запасом здоровья ниже 40% получают дополнительный урон.", "Hits restore health and deal extra damage to targets below 40% health."),
-                    ("chain_leech", _) => ("Попадания восстанавливают часть здоровья.", "Hits restore a portion of your health."),
+                    ("void_reaper", 0) => ("Попадания лечат сильнее. Убийства восстанавливают здоровье и выпускают осколки Пустоты.", "Hits heal more. Kills restore health and release Void shards."),
+                    ("void_reaper", 1) => ("Попадания лечат. Убийства восстанавливают больше здоровья и выпускают усиленные осколки Пустоты.", "Hits heal. Kills restore more health and release stronger Void shards."),
+                    ("void_reaper", 2) => ("Попадания и убийства лечат сильнее. Убийства выпускают три осколка Пустоты.", "Hits and kills heal more. Kills release three Void shards."),
+                    ("void_reaper", _) => ("Попадания и убийства восстанавливают здоровье. Убийства выпускают осколки Пустоты.", "Hits and kills restore health. Kills release Void shards."),
+                    ("chain_leech", 1) => ("Попадания лечат сильнее. Убийства тоже восстанавливают здоровье.", "Hits heal more. Kills restore health as well."),
+                    ("chain_leech", 2) => ("Попадания и убийства лечат. Цели с запасом здоровья ниже 40% получают дополнительный урон.", "Hits and kills heal. Targets below 40% health take extra damage."),
+                    ("chain_leech", _) => ("Попадания восстанавливают здоровье.", "Hits restore health."),
                     _ => (null, null)
                 };
                 if (copy.Item1 == null) return source;
