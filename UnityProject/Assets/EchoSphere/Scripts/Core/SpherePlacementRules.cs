@@ -29,6 +29,7 @@ namespace EchoSphere.Core
         public const float WorldHeight = 2400f * SourcePixelsToWorld;
         public const float TowerBodyRadius = 20f * SourcePixelsToWorld;
         public const float TowerPlacementGap = 8f * SourcePixelsToWorld;
+        public const float EditingMinimumSphereDistance = 56f * SourcePixelsToWorld;
         public const float PlayerBuildGap = 48f * SourcePixelsToWorld;
         public const float EnemyPlacementGap = 10f * SourcePixelsToWorld;
         public const float EnemyNavigationRadius = 22f * SourcePixelsToWorld;
@@ -151,7 +152,8 @@ namespace EchoSphere.Core
             for (var i = 0; i < spherePositions.Count; i++)
             {
                 if (!sphereAlive[i] || i == ignoreSphereIndex) continue;
-                if (Vec2.Distance(candidate, spherePositions[i]) < TowerBodyRadius * 2f + TowerPlacementGap) return false;
+                var minimum = compactPlayerClearance ? EditingMinimumSphereDistance : TowerBodyRadius * 2f + TowerPlacementGap;
+                if (Vec2.Distance(candidate, spherePositions[i]) < minimum) return false;
             }
 
             for (var i = 0; i < enemyPositions.Count; i++)

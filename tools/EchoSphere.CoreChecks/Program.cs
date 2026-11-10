@@ -752,6 +752,15 @@ internal static class Program
 
         var oneSphere = new[] { new Vec2(0f, -2f) };
         var oneAlive = new[] { true };
+        var spacingScale = SpherePlacementRules.SourcePixelsToWorld;
+        var distantPlayer = new Vec2(-300f * spacingScale, 0f);
+        var spacingAnchor = new[] { Vec2.Zero };
+        True(!SpherePlacementRules.CanPlaceForEditing(new Vec2(55f * spacingScale, 0f), distantPlayer, spacingAnchor, oneAlive, noEnemies, noEnemyRadii),
+            "approved editing spacing rejects centers closer than 56 pixels");
+        True(SpherePlacementRules.CanPlaceForEditing(new Vec2(56f * spacingScale, 0f), distantPlayer, spacingAnchor, oneAlive, noEnemies, noEnemyRadii),
+            "approved editing spacing accepts 56 pixels between centers");
+        True(SpherePlacementRules.CanPlaceForEditing(new Vec2(56f * spacingScale, 0f), distantPlayer, new[] { new Vec2(55f * spacingScale, 0f) }, oneAlive, noEnemies, noEnemyRadii, 0),
+            "moving a sphere ignores its own previous position");
         True(!SpherePlacementRules.CanPlace(new Vec2(0f, -2.5f), Vec2.Zero, oneSphere, oneAlive, noEnemies, noEnemyRadii),
             "overlapping Sphere placement is blocked");
         True(SpherePlacementRules.CanPlace(new Vec2(0f, -4f), Vec2.Zero, oneSphere, oneAlive, noEnemies, noEnemyRadii),

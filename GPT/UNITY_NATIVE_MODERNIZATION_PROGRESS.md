@@ -2757,5 +2757,8 @@ Sphere/ability archive follow-up: click opens selected IV/VII progression and re
 [UNITY_APPROVED_REGIONAL_ENEMIES_2026-11-10.md](UNITY_APPROVED_REGIONAL_ENEMIES_2026-11-10.md): approved region 3–6 anatomy and quadrupeds active in production DrawEnemy for all 119 identities. Retained meshes, actual attack/locomotion poses, freeze stability; previous regional body path removed. Unity compile, 45988 anatomy checks and 73 actual attack checks PASS. APK/Android acceptance pending; earlier local HUD/fusion/background work remains separate.
 
 
+## 2026-11-11 — Approved sphere spacing
+[UNITY_SPHERE_SPACING_AND_BOSS_PASSAGE_2026-11-11.md](UNITY_SPHERE_SPACING_AND_BOSS_PASSAGE_2026-11-11.md): interactive placement/drag center spacing56px, existing saved positions retained. Core281435 and Editor1856 checks PASS. Boss blockage confirmed in sphere collision resolution; boss-only pass-through proposed, not implemented. No APK or image generation.
+
 ## 2026-11-10 — Archive integration and gameplay follow-up
 [UNITY_ARCHIVE_SPHERE_ART_2026-11-10.md](UNITY_ARCHIVE_SPHERE_ART_2026-11-10.md):307 new production paintings,418 bilingual lore entries, nested discovered mutation pages,42 shared build emblems, natural archive unlocks and retired Archive Data usage. Web0.6s root, readable unfilled formation links and directional comets, near-player editing, fixed half-width HUD, viewport-relative distant background and30 automatic authored fusion riders. Editor/Core/API checks recorded in report; Android acceptance open. Generation paused by user;111 paintings deferred; no APK.
