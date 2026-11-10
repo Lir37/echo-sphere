@@ -28,7 +28,13 @@ test('Settings uses native UI Toolkit controls and existing runtime callbacks', 
   assert.match(commands, /NativeSubmenuScale=>SourceDevicePixelRatio\s*\*\s*\.86f/);
   assert.doesNotMatch(owner, /SourceDevicePixelRatio\s*\*\s*scale/);
   const hud = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeHud.cs');
-  assert.match(hud, /SetInterfaceScale\(\(float\)NativeInterfaceScale\)/);
+  assert.doesNotMatch(hud, /SetInterfaceScale\(\(float\)NativeInterfaceScale\)/);
+  const run = read('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeRunDocument.cs');
+  const mobile = read('UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMobileLayout.cs');
+  const hudView = read('UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeHudView.cs');
+  assert.match(run, /_nativeMobileLayout\.Bind\(anchors,IsLeftHanded,\(float\)NativeInterfaceScale,/);
+  assert.match(mobile, /_dock\.style\.scale = new Scale\(new Vector3\(interfaceScale, interfaceScale, 1\)\)/);
+  assert.match(hudView, /panelWidth=Mathf\.Max\(0,\(width-left-right\)\*\.5f\)/);
 
   assert.match(layout, /name="settings-confirmation"[\s\S]*name="cancel"[\s\S]*name="ok"/);
   assert.match(layout, /class="settings-pair"><ui:Button name="ru"[^\n]+name="en"/);
