@@ -26,13 +26,13 @@ namespace EchoSphere.Presentation {
    return (float)Clamp(preparing?progress:Math.Max(0,(facing.AttackUntil-time)/.28));
   }
   private static bool ApprovedQuadruped(EnemyView e){
-   if(e.Boss)return false;
+   if(e.Boss)return e.RegionStyle==3&&e.Variant=="charger";
    string type=e.BestiaryType??e.Role;
    return e.RegionStyle==3&&(type=="corruptor"||type=="tank_guard"||type=="mirror_warden")||
           e.RegionStyle==5&&(type=="corruptor"||type=="anchor"||type=="scavenger");
   }
   private void DrawRegionalCreature(EnemyView e,double time,Matrix4x4 root){
-   int id=ApprovedIndex(e);bool quadruped=ApprovedQuadruped(e);int localQuad=e.RegionStyle==3?(e.Role=="tank_guard"?1:0):e.Role=="corruptor"?1:0;
+   int id=ApprovedIndex(e);bool quadruped=ApprovedQuadruped(e);int localQuad=e.RegionStyle==3?(e.Boss?2:e.Role=="tank_guard"?1:0):e.Role=="corruptor"?1:0;
    ConceptParts parts;
    if(quadruped){var key=(e.RegionStyle,100+localQuad);if(!_approvedParts.TryGetValue(key,out parts)){parts=new ConceptParts(localQuad,false,false);_approvedParts.Add(key,parts);}}
    else parts=ApprovedParts(e.RegionStyle,id,e.Boss);
@@ -233,20 +233,20 @@ namespace EchoSphere.Presentation {
    }
  }
  private void DrawApprovedQuadruped(EnemyView e,double time,Matrix4x4 root,ConceptParts a,float attack){
-   void DrawPart(Mesh mesh,Matrix4x4 matrix,Color color)=>PaintConcept(mesh,matrix,color,e);   int Region=e.RegionStyle;int id=Region==3?(e.Role=="tank_guard"?1:0):e.Role=="corruptor"?1:0;
-   float t=(float)time;float gait=(float)(_gaitTravel*3.1+id);bool heavy=id==1&&Region==3;
+   void DrawPart(Mesh mesh,Matrix4x4 matrix,Color color)=>PaintConcept(mesh,matrix,color,e);   int Region=e.RegionStyle;int id=Region==3?(e.Boss?2:e.Role=="tank_guard"?1:0):e.Role=="corruptor"?1:0;
+   float t=(float)time;float gait=(float)(_gaitTravel*3.1+id);bool heavy=id>=1&&Region==3;
    float r=(float)e.Radius;root=root*M(0,0,0,r,r);
    Color low=Region==3?Col(.06f,.21f,.24f):Col(.13f,.08f,.18f);
    Color mid=Region==3?Col(.14f,.43f,.46f):Col(.32f,.21f,.41f);
    Color edge=Region==3?Col(.41f,.70f,.70f):Col(.56f,.40f,.66f);
    Color accent=Region==3?Col(.70f,.94f,.85f):Col(.79f,.52f,.92f);
-   float width=heavy?.54f:id==0?.36f:.30f;
+   float width=e.Boss?.64f:heavy?.54f:id==0?.36f:.30f;
    // Exactly four legs, with a shoulder/hip, knee/elbow, wrist/hock and three toes.
    for(int side=-1;side<=1;side+=2)for(int front=0;front<2;front++){
     float phase=gait+(front==0?0:Mathf.PI)+(side==1?Mathf.PI:0);
     float swing=Mathf.Sin(phase)*18*(float)_gaitBlend,lift=Mathf.Max(0,Mathf.Cos(phase))*(float)_gaitBlend;
     float anchor=front==1?.57f:-.63f;
-    var shoulder=root*M(anchor,side*width,side*(front==1?60:120)+swing);
+    var shoulder=root*M(anchor,side*width,side*(front==1?60:120)+swing+(e.Boss?side*attack*(front==1?-14:8):0));
     DrawPart(a.Sac,shoulder*M(0,0,0,.57f,.65f),low);
     DrawPart(a.Body,shoulder*M(.28f,0,0,.44f,.18f),mid);
     DrawPart(a.Plate,shoulder*M(.10f,0,0,.50f,side*.33f),edge);
