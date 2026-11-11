@@ -145,7 +145,8 @@ namespace EchoSphere.Presentation {
    // The same retained components are transformed; no per-frame tessellation.
    if(Region==3){
     var baseC=Col(.055f,.19f,.23f);var mid=Col(.12f,.43f,.48f);var light=Col(.37f,.69f,.68f);var bright=Col(.65f,.91f,.83f);
-    int segments=serpent?7:heavy?5:3;
+    bool crystalManta=e.Boss&&role=="aura";
+    int segments=crystalManta?3:serpent?7:heavy?5:3;
     for(int j=0;j<segments;j++){
      float px=serpent?-.95f+j*.35f:-.45f+j*.32f;
      float sway=serpent?Mathf.Sin(t*4-j*.7f)*.12f:0;
@@ -158,10 +159,12 @@ namespace EchoSphere.Presentation {
       DrawPart(a.Shard,seg*M(.05f,side*.12f,side*15,.9f,side*.16f),bright);
      }
     }
-    int fins=heavy?4:fork?3:2;
+    int fins=crystalManta?2:heavy?4:fork?3:2;
     for(int side=-1;side<=1;side+=2)for(int j=0;j<fins;j++){
      float px=-.65f+j*.48f,ang=side*(65+j*17+Mathf.Sin(t*3+j)*5+shot*12);
-     var fin=root*M(px,side*(heavy?.52f:.37f),ang,heavy?.95f:.78f,side);
+     var fin=crystalManta
+      ?root*M(-.20f+j*.29f,side*(.65f+j*.20f),side*(78+j*22+shot*14),1.75f,side*1.85f)
+      :root*M(px,side*(heavy?.52f:.37f),ang,heavy?.95f:.78f,side);
      DrawPart(a.Shard,fin,baseC);DrawPart(a.Shard,fin*M(.05f,0,0,.90f,.70f),mid);DrawPart(a.Shard,fin*M(.08f,-.02f,0,.78f,.23f),light);
      DrawPart(a.Shard,fin*M(-.30f,-.25f,-12,.45f,.3f),bright);
     }
@@ -177,18 +180,19 @@ namespace EchoSphere.Presentation {
    }else if(Region==4){
     var darkC=Col(.24f,.13f,.045f);var bronze=Col(.58f,.31f,.07f);var gold=Col(.93f,.62f,.18f);var hot=Col(1,.88f,.46f);
     // Curved, branching streamers with a dark structural skin and narrow luminous fissures.
-    int arms=heavy?6:fork?5:mode==4?4:3;
+    bool energyStreak=role=="phase"||role=="leech"||role=="sniper"||role=="null";
+    int arms=energyStreak?2:heavy?6:fork?5:mode==4?4:3;
     for(int side=-1;side<=1;side+=2)for(int arm=0;arm<arms;arm++){
-     var branch=root*M(-.15f,side*.08f,side*(18+arm*17));
+     var branch=root*M(-.15f,side*.08f,side*(energyStreak?6+arm*12:18+arm*17));
      for(int j=0;j<5;j++){
       float bend=Mathf.Sin(t*4-j*.65f+arm)*8;float scale=1-j*.13f;
-      branch=branch*M(-.27f,side*.035f,side*(-5+bend));
+      branch=branch*M(energyStreak?-.36f:-.27f,side*.035f,side*(-5+bend));
       DrawPart(a.Horn,branch*M(0,0,0,scale,side*scale*.65f),bronze);
       DrawPart(a.Horn,branch*M(.015f,-side*.025f,0,scale*.91f,side*scale*.28f),gold);
       if(j<3)DrawPart(a.Horn,branch*M(.02f,-side*.035f,0,scale*.82f,side*scale*.08f),hot);
      }
     }
-    var body=root*M(.05f,0,0,heavy?1.1f:.85f,heavy?.9f:.65f);
+    var body=root*M(.05f,0,0,energyStreak?1.15f:heavy?1.1f:.85f,energyStreak?.39f:heavy?.9f:.65f);
     DrawPart(a.Head,body*M(-.55f,0),darkC);DrawPart(a.Plate,body,bronze);
     for(int side=-1;side<=1;side+=2){
      var cheek=body*M(.25f,side*.13f,side*(18+shot*18),.8f,side*.62f);
@@ -202,7 +206,8 @@ namespace EchoSphere.Presentation {
    }else{
     var darkC=Col(.10f,.055f,.15f);var mid=Col(.26f,.16f,.35f);var pale=Col(.50f,.35f,.59f);var vein=Col(.70f,.44f,.83f);
     // Hollow interlocking armour, long jointed limbs and a split predatory head.
-    int limbs=!e.Boss&&e.BestiaryType=="grunt"?1:heavy?4:serpent?2:3;
+    bool segmented=role=="leech"||e.BestiaryType=="phantom_hunter";
+    int limbs=segmented?1:!e.Boss&&e.BestiaryType=="grunt"?1:heavy?4:serpent?2:3;
     for(int side=-1;side<=1;side+=2)for(int j=0;j<limbs;j++){
      var joint=root*M(-.65f+j*.48f,side*.27f,side*(55+j*22+Mathf.Sin(t*4+j)*12));
      DrawPart(a.Horn,joint*M(0,0,0,1.1f,side*.85f),mid);
@@ -210,14 +215,14 @@ namespace EchoSphere.Presentation {
      DrawPart(a.Sac,elbow*M(0,0,0,.20f,.20f),darkC);DrawPart(a.Horn,elbow*M(0,0,0,.95f,side*.65f),pale);
      DrawPart(a.Claw,elbow*M(.50f,-side*.12f,side*40,.45f,side*.38f),mid);
     }
-    int segs=serpent?7:heavy?5:4;
+    int segs=segmented?8:serpent?7:heavy?5:4;
     for(int j=0;j<segs;j++){
-     float flex=Mathf.Sin(t*3-j*.65f)*.07f;var plate=root*M(-1.0f+j*.35f,flex,0,.60f,(heavy?.9f:.62f)*(1-j*.035f));
+     float flex=Mathf.Sin(t*3-j*.65f)*.07f;var plate=root*M(segmented?-1.85f+j*.35f:-1.0f+j*.35f,flex,0,.60f,(segmented?.36f:heavy?.9f:.62f)*(1-j*.035f));
      DrawPart(a.Plate,plate*M(-.18f,0,0,.85f,.8f),mid);DrawPart(a.Shard,plate*M(.10f,0,0,.34f,.22f),darkC);
      for(int side=-1;side<=1;side+=2){var shellP=plate*M(.10f,side*.15f,side*(22+shot*7),.75f,side*.80f);DrawPart(a.Horn,shellP,mid);DrawPart(a.Horn,shellP*M(.03f,0,0,.85f,.50f),pale);DrawPart(a.Horn,shellP*M(.06f,-.025f,0,.73f,.13f),vein);}
     }
     for(int side=-1;side<=1;side+=2){
-     var mantle=root*M(-.35f,side*.28f,side*(80+Mathf.Sin(t*2)*5),heavy?1.25f:.9f,side*.7f);
+     var mantle=root*M(-.35f,side*.28f,side*(80+Mathf.Sin(t*2)*5),segmented?.56f:heavy?1.25f:.9f,side*(segmented?.42f:.7f));
      DrawPart(a.Wing,mantle,mid);DrawPart(a.Wing,mantle*M(0,0,0,.87f,.65f),pale);
      DrawPart(a.Horn,mantle*M(-.25f,-.1f,180,1.2f,.35f),vein);
     }

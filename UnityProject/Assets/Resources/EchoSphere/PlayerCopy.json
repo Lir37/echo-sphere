@@ -1850,8 +1850,8 @@
     },
     {
       "Id": "vampire",
-      "Ru": "Восстанавливает здоровье при нанесении урона.",
-      "En": "Restores health when you deal damage."
+      "Ru": "Атаки сфер восстанавливают здоровье в пределах общего лимита боевого лечения.",
+      "En": "Sphere attacks restore health within the shared combat healing limit."
     },
     {
       "Id": "lightning",
@@ -1895,8 +1895,8 @@
     },
     {
       "Id": "regen",
-      "Ru": "Постепенно восстанавливает здоровье.",
-      "En": "Restores health over time."
+      "Ru": "Постепенно восстанавливает здоровье в пределах общего лимита регенерации.",
+      "En": "Restores health over time within the shared regeneration limit."
     },
     {
       "Id": "resonance",

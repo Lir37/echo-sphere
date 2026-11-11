@@ -24,6 +24,8 @@ namespace EchoSphere.Core
                 case "axiom_core":return ru?"+5% урона и радиуса сфер. −5% задержки атак сфер и перезарядки способностей.":"+5% Sphere damage and radius. −5% Sphere attack delay and ability cooldowns.";
                 case "prism_filter":return ru?"Призма получает +1 сетевое отражение через связанные сферы. Урон отражения — 42% урона атаки.":"Prism gains +1 network reflection through linked Spheres. Reflections deal 42% of attack damage.";
                 case "prism_crown":return ru?"+1 сетевое отражение Призмы при наличии Призматического фильтра или зеркальной ветки. Нужна связанная сфера.":"+1 Prism network reflection with Prism Filter or the mirror branch. Requires a linked Sphere.";
+                case "regen_stone":return ru?"+1 HP/сек в пределах общего лимита регенерации.":"+1 HP/sec within the shared regeneration limit.";
+                case "blood_crystal":return ru?"+2 HP/сек в пределах общего лимита регенерации. −10% получаемого опыта.":"+2 HP/sec within the shared regeneration limit. −10% XP gained.";
                 case "vampire_ring":return ru?"Атаки сфер восстанавливают здоровье в размере 1% нанесённого урона в пределах общего лимита боевого лечения.":"Sphere attacks restore health equal to 1% of damage dealt, subject to the shared combat healing limit.";
                 case "predator_claw":return ru?"+8% урона сфер. Каждое пятое попадание отдельной сферы наносит двойной урон и считается критическим.":"+8% Sphere damage. Every fifth hit by each Sphere deals double damage and counts as a critical hit.";
                 case "foresight_eye":return ru?"+10% шанса крита, +8% урона Снайпера. Указывает направление к боссу.":"+10% critical chance and +8% Sniper damage. Shows the direction to a boss.";
