@@ -25,6 +25,27 @@ public static class SurvivalBalanceCheck {
    durable.ReceiveSphereDamage(SphereId.Standard, 1000, true, false, null, true);
    Near(core.CurrentHp, 54, "additional hits cannot spend exhausted healing credit");
   }
+  core.SetMaxHpForNewRun(100);
+  Health(40);
+  owned.Remove("vampire_ring");
+  var reaper=Make("Void Reaper").AddComponent<SphereAttackAgent>();
+  ((Dictionary<SphereId,int>)Get(runtime,"_sphereLevels"))[SphereId.Void]=7;
+  ((Dictionary<SphereId,string>)Get(runtime,"_sphereBranches"))[SphereId.Void]="void_reaper";
+  ((Dictionary<SphereId,string>)Get(runtime,"_sphereFinals"))[SphereId.Void]="void_reaper_final_3";
+  reaper.Initialize(runtime,player.transform,SphereId.Void,12);
+  reaper.ApplyProgressionLevel(7);
+  var durableReaperTarget=Enemy(10000);
+  durableReaperTarget.ReceiveSphereDamage(reaper,100);
+  Check(core.CurrentHp>40&&core.CurrentHp<42,"Reaper heals on a nonlethal hit");
+  var shardsBefore=agents.OfType<ProjectileAgent>().Count();
+  Enemy(10).ReceiveSphereDamage(reaper,1000);
+  Near(core.CurrentHp,42,"Reaper hit and kill healing share the burst limit");
+  Check(agents.OfType<ProjectileAgent>().Count()==shardsBefore+3,"Devouring Reaper releases three shards");
+  Enemy(10).ReceiveSphereDamage(reaper,1000);
+  Near(core.CurrentHp,42,"a second Reaper kill cannot bypass the limit");
+  core.Tick(.25f);
+  Enemy(10).ReceiveSphereDamage(reaper,1000);
+  Near(core.CurrentHp,43,"a Reaper kill uses the replenished credit");
   var rng=(SeededRng)Get(runtime,"_rng");Set(runtime,"_wave",20);
   foreach(EchoRegionId region in Enum.GetValues(typeof(EchoRegionId))){Set(runtime,"_selectedRegion",region);var snapshots=new List<(float hp,float damage)>();foreach(float time in new[]{0f,1800f}){Set(runtime,"_runTime",time);rng.Reset(20261104);Call(runtime,"SpawnRegionalEnemy",false,null);var enemy=enemies.Last();snapshots.Add((enemy.MaxHp,enemy.ContactDamage));enemy.gameObject.SetActive(false);}Near(snapshots[1].hp/snapshots[0].hp,1.6f,"same wave HP clock "+region);Near(snapshots[1].damage/snapshots[0].damage,1.45f,"same wave damage clock "+region);}
   Set(runtime,"_selectedRegion",EchoRegionId.ResonanceBasin);var bossHp=new List<float>();var bossDamage=new List<float>();var boltDamage=new List<float>();foreach(float time in new[]{0f,1800f}){Set(runtime,"_runTime",time);rng.Reset(20261104);var boss=runtime.SpawnBossForRegionEvent("shooter",20);objects.Add(boss.gameObject);bossHp.Add(boss.MaxHp);var combat=boss.GetComponent<BossCombatAgent2D>();bossDamage.Add((float)Get(combat,"_damage"));Call(combat,"ExecuteCampaignAttack",CampaignBossRules.Pattern("shooter",0,0));boltDamage.Add((float)Get(agents.OfType<BossProjectileAgent2D>().Last(),"_damage"));boss.gameObject.SetActive(false);}Near(bossHp[1]/bossHp[0],1.6f,"boss health clock");Near(bossDamage[1]/bossDamage[0],1.45f,"boss contact clock");Near(boltDamage[1]/boltDamage[0],1.45f,"boss projectile clock");

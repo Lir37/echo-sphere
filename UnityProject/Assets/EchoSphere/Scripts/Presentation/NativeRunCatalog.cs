@@ -32,6 +32,13 @@ namespace EchoSphere.Presentation
                     _ => (null, null)
                 };
                 if (copy.Item1 == null) return source;
+                if (Id == "void_reaper")
+                {
+                    var weakTargetBonus = final == 1 ? 25 : 12;
+                    copy = (
+                        copy.Item1 + $" Дополнительно: +{weakTargetBonus}% урона по целям с 25% здоровья или меньше.",
+                        copy.Item2 + $" Also deals +{weakTargetBonus}% damage to targets at 25% health or lower.");
+                }
                 return new Text
                 {
                     NameRu = source.NameRu, NameEn = source.NameEn,
