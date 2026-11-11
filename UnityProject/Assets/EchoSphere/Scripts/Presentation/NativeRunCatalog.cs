@@ -15,6 +15,30 @@ namespace EchoSphere.Presentation
 
             public override string Description(bool ru) => Id switch
             {
+                "blast_core" => ru
+                    ? "Каждая следующая сфера выпускает более сильную волну. Дополнительный взрыв происходит вокруг вас."
+                    : "Each successive Sphere releases a stronger wave. An extra blast erupts around you.",
+                "blast_echo_network" or "blast_resonance_f1" or "blast_network_f1" or "blast_core_f1" => ru
+                    ? "Волна сначала проходит по связанным сферам и становится сильнее с каждой посещённой сферой."
+                    : "The wave visits linked Spheres first and grows stronger with each Sphere it reaches.",
+                "blast_resonant_core" or "blast_resonance_f2" or "blast_network_f2" or "blast_core_f2" => ru
+                    ? "Каждая Стандартная сфера выпускает дополнительную ударную волну."
+                    : "Each Standard Sphere releases an extra damaging pulse.",
+                "blast_infinite_pulse" or "blast_resonance_f3" or "blast_network_f3" or "blast_core_f3" => ru
+                    ? "После первой волны сферы выпускают ослабленную волну в обратном порядке."
+                    : "After the first wave, the Spheres release a weaker wave in reverse order.",
+                "firetrail_sanctum" => ru
+                    ? "При активации Ауры сразу готовы к следующей атаке."
+                    : "Activating Overheat makes Aura Spheres ready to attack immediately.",
+                "firetrail_network" or "firetrail_overdrive_f1" or "firetrail_ignition_f1" or "firetrail_sanctum_f1" => ru
+                    ? "Связанные огненные сферы быстрее совершают следующую атаку."
+                    : "Linked fire-aligned Spheres make their next attack sooner.",
+                "firetrail_catalyst" or "firetrail_overdrive_f2" or "firetrail_ignition_f2" or "firetrail_sanctum_f2" => ru
+                    ? "Враги с горением, заморозкой или ядом загораются. Огненные сферы получают дополнительный урон на 4 секунды."
+                    : "Burning, frozen, or poisoned enemies are set ablaze. Fire-aligned Spheres gain extra damage for 4 seconds.",
+                "firetrail_inferno" or "firetrail_overdrive_f3" or "firetrail_ignition_f3" or "firetrail_sanctum_f3" => ru
+                    ? "При активации каждая связь между огненными сферами ещё сильнее приближает их следующую атаку."
+                    : "On activation, every link between fire-aligned Spheres brings their next attack forward by a larger amount.",
                 "shield_reflector" => ru
                     ? "Когда щит поглощает удар, ближайший враг получает часть урона."
                     : "When the shield blocks a hit, the nearest enemy takes part of its damage.",
@@ -110,7 +134,46 @@ namespace EchoSphere.Presentation
         [Serializable] public sealed class Character {public string Id;public double MoveSpeed,SphereDamage,SphereRadius,SphereAttackSpeed;}
         [Serializable] public sealed class Effect {public string Id;public double Value;}
         [Serializable] public sealed class Artifact : Definition {public string Rarity,Mechanic;public List<Effect> Effects=new List<Effect>();public double Effect(string id){foreach(var row in Effects)if(row.Id==id)return row.Value;return 0;}}
-        [Serializable] public sealed class Synergy : Definition {public List<string> Requires=new List<string>();}
+        [Serializable]
+        public sealed class Synergy : Definition
+        {
+            public List<string> Requires = new List<string>();
+
+            public override string Description(bool ru) => Id switch
+            {
+                "void_horizon" => ru
+                    ? "Пустотная сфера наносит на 15% больше урона, пока на арене есть живой элитный враг."
+                    : "Void deals 15% more damage while an elite enemy is alive in the arena.",
+                "gravity_pulse" => ru
+                    ? "Импульсная сфера наносит на 15% больше урона, пока рядом с вашими сферами в сумме не меньше трёх врагов."
+                    : "Pulse deals 15% more damage while at least three enemies are near your Spheres.",
+                "perfect_network" => ru
+                    ? "При трёх и более активных типах сфер участники треугольника наносят на 10% больше урона."
+                    : "With at least three active Sphere types, Spheres forming a triangle deal 10% more damage.",
+                "hunter_doctrine" => ru
+                    ? "Снайперская сфера наносит на 12% больше урона, пока на арене есть живой элитный враг или босс."
+                    : "Sniper deals 12% more damage while an elite enemy or boss is alive in the arena.",
+                "pulse_engineering" => ru
+                    ? "Импульсная сфера наносит на 12% больше урона, пока на арене не меньше четырёх врагов."
+                    : "Pulse deals 12% more damage while at least four enemies are alive in the arena.",
+                "temporal_echo" => ru
+                    ? "Сферы наносят на 12% больше урона во время Остановки времени или пока действует бонус к урону от Телепорта."
+                    : "Spheres deal 12% more damage during Time Stop or while the Teleport damage bonus is active.",
+                "axiom_fold" => ru
+                    ? "Сферы наносят на 6% больше урона, если активны хотя бы три разных типа сфер."
+                    : "Spheres deal 6% more damage with at least three active Sphere types.",
+                "geometry_loop" => ru
+                    ? "Сферы наносят на 8% больше урона, пока активно Кольцо, Решётка или Фрактал."
+                    : "Spheres deal 8% more damage while Ring, Lattice or Fractal is active.",
+                "status_circuit" => ru
+                    ? "Призма наносит на 10% больше урона при наличии хотя бы одного общего модификатора сфер."
+                    : "Prism deals 10% more damage with at least one global Sphere modifier.",
+                "status_loop" => ru
+                    ? "Призма наносит на 10% больше урона при наличии хотя бы одного общего модификатора сфер."
+                    : "Prism deals 10% more damage with at least one global Sphere modifier.",
+                _ => base.Description(ru)
+            };
+        }
         [Serializable] public sealed class Set : Definition {public List<string> SynergyIds=new List<string>(),ArtifactIds=new List<string>();}
         [Serializable] public sealed class Element : Definition {public string Icon,Color;}
         [Serializable] public sealed class SphereAbilityLink : Definition {public string Sphere,Branch,Ability,AbilityFinal;}

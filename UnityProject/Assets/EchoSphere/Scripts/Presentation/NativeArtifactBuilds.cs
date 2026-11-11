@@ -15,7 +15,7 @@ namespace EchoSphere.Presentation {
   internal static IReadOnlyList<Build> All {
    get{if(_all!=null)return _all;var rows=new List<Build>();var catalog=NativeRunCatalog.Instance;
     foreach(var s in catalog.Sets)rows.Add(new Build{Id="artifact-build:set:"+s.Id,NameRu=s.NameRu,NameEn=s.NameEn,DescriptionRu=s.DescriptionRu,DescriptionEn=s.DescriptionEn,Requires=s.ArtifactIds.ToArray()});
-    foreach(var s in catalog.Synergies)rows.Add(new Build{Id="artifact-build:combination:"+s.Id,NameRu=s.NameRu,NameEn=s.NameEn,DescriptionRu=s.DescriptionRu,DescriptionEn=s.DescriptionEn,Requires=s.Requires.ToArray(),Combination=true});
+    foreach(var s in catalog.Synergies)rows.Add(new Build{Id="artifact-build:combination:"+s.Id,NameRu=s.NameRu,NameEn=s.NameEn,DescriptionRu=s.Description(true),DescriptionEn=s.Description(false),Requires=s.Requires.ToArray(),Combination=true});
     foreach(var s in CampaignArtifactSets.All)rows.Add(new Build{Id="artifact-build:campaign:"+s.Id,NameRu=s.Ru,NameEn=s.En,DescriptionRu=s.DescriptionRu,DescriptionEn=s.DescriptionEn,Requires=s.Requires});
     _all=rows;foreach(var b in rows)foreach(var artifact in b.Requires){if(!Membership.TryGetValue(artifact,out var list))Membership[artifact]=list=new List<Build>();if(!list.Contains(b))list.Add(b);}return rows;
    }
