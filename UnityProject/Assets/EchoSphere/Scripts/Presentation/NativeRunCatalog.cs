@@ -8,7 +8,55 @@ namespace EchoSphere.Presentation
     public sealed class NativeRunCatalog : ScriptableObject
     {
         [Serializable] public class Text {public string NameRu,NameEn,DescriptionRu,DescriptionEn;public virtual string Name(bool ru)=>NativePlayerCopy.Text(ru?NameRu:NameEn,ru);public virtual string Description(bool ru)=>NativePlayerCopy.Text(ru?DescriptionRu:DescriptionEn,ru);}
-        [Serializable] public class Definition : Text {public string Id;}
+        [Serializable]
+        public class Definition : Text
+        {
+            public string Id;
+
+            public override string Description(bool ru) => Id switch
+            {
+                "shield_reflector" => ru
+                    ? "Когда щит поглощает удар, ближайший враг получает часть урона."
+                    : "When the shield blocks a hit, the nearest enemy takes part of its damage.",
+                "shield_echo_guard_f1" or "shield_reflector_f1" or "shield_bastion_f1" or "shield_network_guard" => ru
+                    ? "Связанные сферы дают дополнительные заряды щита, до 5 зарядов. Активация приближает следующую атаку ближайших сфер."
+                    : "Linked Spheres grant extra shield charges, up to 5 total. Activating the shield brings forward nearby Spheres' next attacks.",
+                "shield_echo_guard_f2" or "shield_reflector_f2" or "shield_bastion_f2" or "shield_iron_dome" => ru
+                    ? "Ближайшие сферы дают до двух дополнительных зарядов при активации. Всего можно получить не больше 5 зарядов."
+                    : "Nearby Spheres grant up to two extra charges on activation, up to 5 charges total.",
+                "shield_echo_guard_f3" or "shield_reflector_f3" or "shield_bastion_f3" or "shield_resonant_guard" => ru
+                    ? "Когда щит поглощает удар, потраченный заряд сразу восстанавливается."
+                    : "When the shield blocks a hit, the spent charge is immediately restored.",
+                "teleport_beacon" => ru
+                    ? "На 4 секунды после телепорта урон сфер удваивается."
+                    : "Sphere damage doubles for 4 seconds after teleporting.",
+                "teleport_spatial_network" or "teleport_echo_jump_f1" or "teleport_beacon_f1" or "teleport_phase_f1" => ru
+                    ? "Прыжок к сфере поражает врагов рядом с ней и со связанными сферами."
+                    : "Jumping to a Sphere damages enemies near it and its linked Spheres.",
+                "teleport_hunter_beacon" or "teleport_echo_jump_f2" or "teleport_beacon_f2" or "teleport_phase_f2" => ru
+                    ? "Прыжок к Снайперской сфере удваивает урон сфер на 5 секунд."
+                    : "Jumping to a Sniper Sphere doubles Sphere damage for 5 seconds.",
+                "teleport_phase_break" or "teleport_echo_jump_f3" or "teleport_beacon_f3" or "teleport_phase_f3" => ru
+                    ? "После прыжка вы ненадолго неуязвимы. Длинный прыжок поражает врагов в нескольких точках на пути."
+                    : "You are briefly invulnerable after jumping. Long jumps damage enemies at intervals along the path.",
+                "lightning_echo_storm" => ru
+                    ? "Разряд поражает врагов рядом с каждой установленной сферой, прежде чем ударить по основным целям."
+                    : "The discharge hits enemies near every deployed Sphere before striking its main targets.",
+                "lightning_thunder_chain" or "lightning_echo_storm_f2" or "lightning_relay_f2" or "lightning_overload_f2" => ru
+                    ? "Каждая установленная сфера добавляет цель. Разряд также наносит ослабленный удар по следующему врагу в цепи."
+                    : "Each deployed Sphere adds a target. The discharge also deals a weaker hit to the next enemy in the chain.",
+                "timestop_time_anchor" => ru
+                    ? "Враги в основной области остановки времени замирают на секунду дольше."
+                    : "Enemies in the main Time Stop area stay frozen for one extra second.",
+                "darkritual_void_pact" => ru
+                    ? "Если после жертвы осталось меньше 35% здоровья, усиление длится ещё 2 секунды."
+                    : "If the sacrifice leaves you below 35% health, the boost lasts 2 extra seconds.",
+                "darkritual_void_engine" or "darkritual_blood_link_f3" or "darkritual_sacrifice_f3" or "darkritual_void_pact_f3" => ru
+                    ? "Если после жертвы осталось меньше 35% здоровья, усиление длится ещё 2 секунды. При здоровье ниже 20% сферы также выпускают ударные волны."
+                    : "If the sacrifice leaves you below 35% health, the boost lasts 2 extra seconds. Below 20% health, Spheres also release damaging pulses.",
+                _ => base.Description(ru)
+            };
+        }
         [Serializable] public sealed class Choice : Definition
         {
             public string Element;
