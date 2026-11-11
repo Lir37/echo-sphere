@@ -43,14 +43,37 @@ namespace EchoSphere.Core {
    all.Add(new BestiaryEntry{Id=Key(r,boss,elite,type),Region=(EchoRegionId)r,Boss=boss,Elite=elite,Type=type,Role=role,Variant=variant,NameRu=text.NameRu,NameEn=text.NameEn,LoreRu=text.Ru,LoreEn=text.En});
   }
   public static string Behavior(int region,string role,bool ru){
-   var p=RegionalEnemyRules.Get(region,role);string movement=p.Motion==RegionalMotion.Hold?(ru?"Удерживает дистанцию.":"Holds its firing distance."):p.Motion==RegionalMotion.Flank?(ru?"Заходит сбоку.":"Approaches from the flank."):p.Motion==RegionalMotion.Orbit?(ru?"Маневрирует вокруг цели.":"Circles its target."):(ru?"Сближается с ядром.":"Closes on the Core.");
-   string attack=p.Shot=="brood"?(ru?"Выпускает выводок.":"Releases a brood."):p.Shot=="shadow"?(ru?"Бьёт по отмеченному месту.":"Strikes a marked position."):p.Shot=="tentacle"?(ru?"Атакует щупальцем вблизи.":"Strikes nearby targets with a tendril."):p.Shot=="web"?(ru?"Выпускает паутину, которая на короткое время останавливает движение ядра.":"Fires webs that briefly stop the Core from moving."):p.Shot=="spore"?(ru?"Выпускает споры.":"Launches spores."):p.Range>0?(ru?"Стреляет после короткой подготовки.":"Fires after a short wind-up."):(ru?"Опасен при соприкосновении.":"Deals damage on contact.");
-   if(region==0)movement=ru?"Сближается с ядром.":"Closes on the Core.";
+   var p=RegionalEnemyRules.Get(region,role);
+   string movement=p.Motion switch{
+    RegionalMotion.Hold=>ru?"Удерживает дистанцию.":"Holds its distance.",
+    RegionalMotion.Flank=>ru?"Заходит сбоку.":"Approaches from the flank.",
+    RegionalMotion.Orbit=>ru?"Маневрирует вокруг цели.":"Circles its target.",
+    RegionalMotion.Skirmish=>ru?"Смещается вбок на дистанции атаки.":"Strafes at attack range.",
+    RegionalMotion.Lunge=>ru?"Сближается короткими бросками.":"Closes in with short lunges.",
+    _ when region==3=>ru?"Приближается диагональными шагами.":"Advances in diagonal steps.",
+    _=>ru?"Сближается с ядром.":"Closes on the Core."
+   };
+   string attack=p.Shot switch{
+    "brood"=>ru?"Выпускает выводок.":"Releases a brood.",
+    "shadow"=>ru?"Бьёт по заранее отмеченному месту.":"Strikes a marked position after a delay.",
+    "tentacle"=>ru?"Атакует щупальцем вблизи.":"Strikes nearby targets with a tendril.",
+    "web"=>ru?"Выпускает паутину. Она остаётся на поле и при касании останавливает ядро на 0,6 с.":"Fires a web that lingers and stops the Core for 0.6 seconds on contact.",
+    "spore"=>ru?"Выпускает споры, которые оседают и наносят урон при касании.":"Fires spores that settle and deal damage on contact.",
+    "fleet"=>ru?"Обстреливает ядро после короткой подготовки.":"Fires on the Core after a brief wind-up.",
+    "crystal"=>ru?"При подготовке залпа получает меньше урона, после выстрела на время становится уязвимее.":"Takes less damage while preparing a volley and more damage briefly after firing.",
+    "arc"=>ru?"Выпускает два энергетических снаряда.":"Fires two energy projectiles.",
+    "void"=>ru?"Выпускает два снаряда Пустоты.":"Fires two Void projectiles.",
+    "organic"=>ru?"Стреляет после короткой подготовки.":"Fires after a short wind-up.",
+    _=>ru?"Опасен при соприкосновении.":"Deals damage on contact."
+   };
+   if(region==1&&role=="disruptor")attack+=ru?" Координирует залп ближайших кораблей.":" Coordinates a volley with nearby ships.";
+   if(region==4&&(role=="ranged"||role=="anchor"||role=="disruptor"))
+    attack+=ru?" Создаёт с союзником разряд, опасный для ядра на линии между ними.":" Links with an ally to discharge energy along the line between them.";
    string support=role=="healer"?(ru?" Восстанавливает здоровье ближайших союзников.":" Heals nearby allies."):role=="disruptor"?(ru?" Прерывает работу ближайшей сферы.":" Disrupts a nearby Sphere."):role=="leech"?(ru?" Восстанавливается рядом с ядром.":" Recovers health near the Core."):role=="scavenger"?(ru?" Ускоряется после тяжёлого ранения.":" Speeds up when badly hurt."):role=="corruptor"?(ru?" При контакте отнимает резонанс.":" Drains Resonance on contact."):"";
    return movement+" "+attack+support;
   }
   public static string BossBehavior(string type,bool ru){var parts=new List<string>();for(int i=0;i<3;i++){var attack=CampaignBossRules.Pattern(type,i,0).Attack;string text;
-   switch(attack){case CampaignBossAttack.Fan:text=ru?"Выпускает веер снарядов.":"Fires a fan of projectiles.";break;case CampaignBossAttack.Radial:text=ru?"Выпускает круговой залп.":"Fires a radial volley.";break;case CampaignBossAttack.Cross:text=ru?"Стреляет перекрёстными залпами.":"Fires crossing volleys.";break;case CampaignBossAttack.Dash:text=ru?"Совершает рывок по выбранному направлению.":"Dashes along a chosen direction.";break;case CampaignBossAttack.Pulse:text=ru?"Поражает область вокруг себя.":"Strikes the surrounding area.";break;case CampaignBossAttack.Summon:text=ru?"Выпускает помощников.":"Releases reinforcements.";break;case CampaignBossAttack.Disable:text=ru?"Временно отключает сферы поблизости.":"Temporarily disables nearby Spheres.";break;case CampaignBossAttack.Shift:text=ru?"Меняет позицию относительно ядра.":"Repositions around the Core.";break;default:text=ru?"Подавляет резонанс и задерживает атаки сфер в своей области.":"Suppresses Resonance and delays Sphere attacks within its field.";break;}if(!parts.Contains(text))parts.Add(text);
+   switch(attack){case CampaignBossAttack.Fan:text=ru?"Выпускает веер снарядов.":"Fires a fan of projectiles.";break;case CampaignBossAttack.Radial:text=ru?"Выпускает круговой залп.":"Fires a radial volley.";break;case CampaignBossAttack.Cross:text=ru?"Стреляет перекрёстными залпами.":"Fires crossing volleys.";break;case CampaignBossAttack.Dash:text=ru?"Совершает рывок по выбранному направлению.":"Dashes along a chosen direction.";break;case CampaignBossAttack.Pulse:text=ru?"Поражает область вокруг себя.":"Strikes the surrounding area.";break;case CampaignBossAttack.Summon:text=ru?"Выпускает помощников.":"Releases reinforcements.";break;case CampaignBossAttack.Disable:text=ru?"Временно отключает сферы поблизости.":"Temporarily disables nearby Spheres.";break;case CampaignBossAttack.Shift:text=ru?"Меняет позицию относительно ядра и отнимает часть резонанса.":"Repositions around the Core and drains some Resonance.";break;default:text=ru?"Подавляет резонанс и задерживает атаки сфер в своей области.":"Suppresses Resonance and delays Sphere attacks within its field.";break;}if(!parts.Contains(text))parts.Add(text);
    }return string.Join(" ",parts)+(ru?" Перед атакой показывает направление или область удара. Раненый босс атакует чаще. При движении босс может раздвигать сферы и нарушать формации.":" Attacks are signalled by aim or ground warnings. A wounded boss attacks more often. A moving boss can push Spheres out of formation.");}
   public static string EliteBehavior(string type,bool ru){switch(type){
    case "linkbreaker":return ru?"Готовит удар, временно отключающий выбранную сферу.":"Prepares a strike that temporarily disables a chosen Sphere.";
