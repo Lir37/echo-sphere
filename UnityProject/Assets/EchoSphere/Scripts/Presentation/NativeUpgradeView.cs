@@ -79,8 +79,14 @@ namespace EchoSphere.Presentation
             var ring=Box(orbit,"synergy-orbit-ring");ring.style.position=Position.Absolute;ring.style.left=ring.style.right=ring.style.top=ring.style.bottom=4;ring.generateVisualContent+=context=>{float radius=Mathf.Min(ring.contentRect.width,ring.contentRect.height)*.5f-.5f;if(radius<=0)return;var p=context.painter2D;p.lineWidth=1;p.strokeColor=C("#39d8ff47");p.SetDashPattern(new[]{3f,3f});p.BeginPath();p.Arc(ring.contentRect.center,radius,0,360);p.ClosePath();p.Stroke();};
             var star=Box(orbit,"synergy-icon");star.style.width=star.style.height=10;star.style.backgroundImage=new StyleBackground(Resources.Load<VectorImage>("EchoSphere/NativeMenuIcons/Sparkles"));star.style.unityBackgroundImageTintColor=C("#39d8ff");
             var dot=Box(orbit,"synergy-orbit-sphere");dot.style.position=Position.Absolute;dot.style.width=dot.style.height=5;dot.style.top=1;dot.style.right=2;Paint(dot,new NativeMenuBrush.Paint {Ellipse=true,Fill=C("#ffcf7a"),OuterA=new NativeMenuBrush.Shadow(6,Vector2.zero,C("#ffcf7a"))});
-            var copy=Box(row,"synergy-copy");copy.style.flexShrink=1;var heading=Text(copy,"synergy-label",L("БУДУЩАЯ СИНЕРГИЯ","FUTURE SYNERGY"),8,"#39d8ff","900");heading.style.letterSpacing=12;
-            foreach(var value in choice.HintNames.Split('\n')){var line=Text(copy,"synergy-name",value,9,"#dcecff","700");line.style.overflow=Overflow.Hidden;line.style.textOverflow=TextOverflow.Ellipsis;}
+            var copy = Box(row, "synergy-copy");
+            copy.style.flexGrow = 1;
+            copy.style.flexShrink = 1;
+            copy.style.flexBasis = 0;
+            var heading = Text(copy, "synergy-label", L("БУДУЩАЯ СИНЕРГИЯ", "FUTURE SYNERGY"), 8, "#39d8ff", "900", true);
+            heading.style.letterSpacing = 12;
+            foreach (var value in choice.HintNames.Split('\n'))
+                Text(copy, "synergy-name", value, 9, "#dcecff", "700", true);
             Text(hint,"synergy-description",choice.HintDescription,8,"#7f9bb8","400",true,1.5).style.marginTop=4;
             var footer=Text(hint,"synergy-activation",L("Активируется: Сфера VII + Способность VII","Activates: Sphere VII + Ability VII").ToUpperInvariant(),7,"#7f9bb8cc","400",true);footer.style.marginTop=4;footer.style.letterSpacing=5;
         }
