@@ -22,6 +22,12 @@ namespace EchoSphere.Presentation
                 var source = final < 0 ? BranchCard : FinalCards[final];
                 var copy = (Id, final) switch
                 {
+                    ("gravity_tide", 0) => ("Огненные импульсы отталкивают врагов от сферы.", "Fiery pulses push enemies away from the Sphere."),
+                    ("gravity_tide", 1) => ("Огненные импульсы сильнее притягивают врагов к сфере.", "Fiery pulses pull enemies toward the Sphere more strongly."),
+                    ("gravity_tide", _) => ("Огненные импульсы то притягивают врагов, то отталкивают их.", "Fiery pulses alternate between pulling enemies in and pushing them away."),
+                    ("gravity_collapse", 2) => ("Импульсы сильнее бьют по раненым врагам. Если в зоне четыре врага или больше, в центре происходит дополнительный взрыв, который замедляет цели.", "Pulses hit wounded enemies harder. With four or more enemies in range, an extra blast at the center slows its targets."),
+                    ("pulse_wave", 1) => ("Широкая волна отталкивает врагов, замедляет их и накладывает заморозку.", "A wider wave pushes enemies back, slows them, and applies Freeze."),
+                    ("pulse_wave", _) => ("Волна отталкивает врагов, замедляет их и накладывает заморозку.", "The wave pushes enemies back, slows them, and applies Freeze."),
                     ("void_reaper", 0) => ("Попадания лечат сильнее. Убийства восстанавливают здоровье и выпускают осколки Пустоты.", "Hits heal more. Kills restore health and release Void shards."),
                     ("void_reaper", 1) => ("Попадания лечат. Убийства восстанавливают больше здоровья и выпускают усиленные осколки Пустоты.", "Hits heal. Kills restore more health and release stronger Void shards."),
                     ("void_reaper", 2) => ("Попадания и убийства лечат сильнее. Убийства выпускают три осколка Пустоты.", "Hits and kills heal more. Kills release three Void shards."),
@@ -39,11 +45,13 @@ namespace EchoSphere.Presentation
                         copy.Item1 + $" Дополнительно: +{weakTargetBonus}% урона по целям с 25% здоровья или меньше.",
                         copy.Item2 + $" Also deals +{weakTargetBonus}% damage to targets at 25% health or lower.");
                 }
+                if (Id == "void_reaper" || Id == "chain_leech")
+                    copy = (copy.Item1 + " У восстановления в бою есть предел.", copy.Item2 + " Combat healing has a limit.");
                 return new Text
                 {
                     NameRu = source.NameRu, NameEn = source.NameEn,
-                    DescriptionRu = copy.Item1 + " У восстановления в бою есть предел.",
-                    DescriptionEn = copy.Item2 + " Combat healing has a limit."
+                    DescriptionRu = copy.Item1,
+                    DescriptionEn = copy.Item2
                 };
             }
         }

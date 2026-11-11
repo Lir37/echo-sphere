@@ -10,7 +10,7 @@
     },
     {
       "Source": "+0% скорости после Dash",
-      "Text": "+0% скорости после рывка"
+      "Text": "+0% скорости во время рывка"
     },
     {
       "Source": "+0.6 HP/с",
@@ -30,7 +30,7 @@
     },
     {
       "Source": "+10% скорости после Dash",
-      "Text": "+10% скорости после рывка"
+      "Text": "+10% скорости во время рывка"
     },
     {
       "Source": "+10% урона Пустотной по целям с 35% HP или меньше.",
@@ -38,7 +38,7 @@
     },
     {
       "Source": "+15% скорости после Dash",
-      "Text": "+15% скорости после рывка"
+      "Text": "+15% скорости во время рывка"
     },
     {
       "Source": "+16% критического множителя",
@@ -58,7 +58,7 @@
     },
     {
       "Source": "+20% скорости после Dash",
-      "Text": "+20% скорости после рывка"
+      "Text": "+20% скорости во время рывка"
     },
     {
       "Source": "+20% урона Пустотной по целям с 35% HP или меньше.",
@@ -70,7 +70,7 @@
     },
     {
       "Source": "+25% скорости после Dash",
-      "Text": "+25% скорости после рывка"
+      "Text": "+25% скорости во время рывка"
     },
     {
       "Source": "+3 HP/с",
@@ -90,7 +90,7 @@
     },
     {
       "Source": "+30% скорости после Dash",
-      "Text": "+30% скорости после рывка"
+      "Text": "+30% скорости во время рывка"
     },
     {
       "Source": "+32% критического множителя",
@@ -98,7 +98,7 @@
     },
     {
       "Source": "+35% скорости после Dash",
-      "Text": "+35% скорости после рывка"
+      "Text": "+35% скорости во время рывка"
     },
     {
       "Source": "+4.2 HP/с",
@@ -122,7 +122,7 @@
     },
     {
       "Source": "+5% скорости после Dash",
-      "Text": "+5% скорости после рывка"
+      "Text": "+5% скорости во время рывка"
     },
     {
       "Source": "+50 HP, -10% скорости",
@@ -1419,6 +1419,38 @@
   ],
   "En": [
     {
+      "Source": "+0% speed after Dash",
+      "Text": "+0% movement speed during a dash"
+    },
+    {
+      "Source": "+5% speed after Dash",
+      "Text": "+5% movement speed during a dash"
+    },
+    {
+      "Source": "+10% speed after Dash",
+      "Text": "+10% movement speed during a dash"
+    },
+    {
+      "Source": "+15% speed after Dash",
+      "Text": "+15% movement speed during a dash"
+    },
+    {
+      "Source": "+20% speed after Dash",
+      "Text": "+20% movement speed during a dash"
+    },
+    {
+      "Source": "+25% speed after Dash",
+      "Text": "+25% movement speed during a dash"
+    },
+    {
+      "Source": "+30% speed after Dash",
+      "Text": "+30% movement speed during a dash"
+    },
+    {
+      "Source": "+35% speed after Dash",
+      "Text": "+35% movement speed during a dash"
+    },
+    {
       "Source": "+0% critical multiplier",
       "Text": "+0% critical damage"
     },
@@ -1810,18 +1842,18 @@
     },
     {
       "Id": "blast",
-      "Ru": "Выпускает боевой импульс через сеть сфер.",
-      "En": "Sends a damaging pulse through your Sphere network."
+      "Ru": "Выпускает ударную волну от каждой установленной сферы. Если сфер нет, волна исходит от вас.",
+      "En": "Releases a damaging pulse from each deployed Sphere. With no Spheres, the pulse starts from you."
     },
     {
       "Id": "shield",
-      "Ru": "Сферы образуют защитный барьер.",
-      "En": "Your Spheres form a protective barrier."
+      "Ru": "Даёт заряды щита. Каждый заряд поглощает одно попадание.",
+      "En": "Grants shield charges. Each charge blocks one hit."
     },
     {
       "Id": "teleport",
-      "Ru": "Мгновенно перемещает к сфере.",
-      "En": "Instantly teleports you to a Sphere."
+      "Ru": "Переносит к ближайшей подходящей сфере, а без сфер — в случайную точку поблизости. Недоступен, пока формация следует за вами.",
+      "En": "Teleports you to the nearest eligible Sphere, or to a random nearby spot if none are deployed. Unavailable while the formation follows you."
     },
     {
       "Id": "movespeed",
@@ -1840,8 +1872,8 @@
     },
     {
       "Id": "firetrail",
-      "Ru": "На короткое время усиливает сеть сфер.",
-      "En": "Temporarily empowers your Sphere network."
+      "Ru": "На короткое время огненные сферы атакуют чаще и наносят больше урона.",
+      "En": "Fire-aligned Spheres briefly attack faster and deal more damage."
     },
     {
       "Id": "minion",
@@ -1855,8 +1887,8 @@
     },
     {
       "Id": "lightning",
-      "Ru": "Выпускает цепной разряд через сеть сфер.",
-      "En": "Unleashes chain lightning through your Sphere network."
+      "Ru": "Разряд проходит через установленные сферы и поражает ближайших к вам врагов. Работает и без сфер.",
+      "En": "Lightning travels through deployed Spheres and strikes enemies nearest to you. It also works with no Spheres."
     },
     {
       "Id": "dodge",
@@ -1885,8 +1917,8 @@
     },
     {
       "Id": "darkritual",
-      "Ru": "Усиливает сеть ценой части здоровья.",
-      "En": "Empowers your network at the cost of some health."
+      "Ru": "Расходует 20% максимального здоровья, чтобы ненадолго повысить урон и скорость атак сфер.",
+      "En": "Spends 20% of your maximum health to briefly boost Sphere damage and attack speed."
     },
     {
       "Id": "armor",
@@ -1925,8 +1957,8 @@
     },
     {
       "Id": "momentum",
-      "Ru": "После рывка временно повышает скорость передвижения.",
-      "En": "Temporarily increases movement speed after a dash."
+      "Ru": "Увеличивает скорость передвижения во время рывка.",
+      "En": "Increases movement speed during a dash."
     },
     {
       "Id": "fortune",

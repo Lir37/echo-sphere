@@ -31,7 +31,9 @@ namespace EchoSphere.Runtime
         private void RerollNativeUpgrades(){if(NativeUpgradeRequested&&!_choosingEvolution){RerollLevelUpChoices();RefreshNativeCommandModels();}if(_sourceUi!=null)_sourceUi.Dirty=true;}
         private sealed class NativeUpgradeInput
         {
-            internal int Index,CurrentLevel,NewLevel;internal string Type,AbilityStage,SphereStage,SphereType,SphereBranch,Key;internal NativeRunCatalog.Text Text;
+            internal int Index,CurrentLevel,NewLevel;
+            internal string SphereFinal;
+            internal string Type,AbilityStage,SphereStage,SphereType,SphereBranch,Key;internal NativeRunCatalog.Text Text;
         }
         private List<NativeUpgradeInput> BuildNativeUpgradeInputs()
         {
@@ -45,7 +47,7 @@ namespace EchoSphere.Runtime
                 }else{
                     string id=_pendingEvolutionSphere.ToString().ToLowerInvariant();var definition=NativeRunCatalog.Instance.GetSphere(id);
                     if(stage==4){foreach(var branch in definition.Branches.Take(3))result.Add(new NativeUpgradeInput {Index=result.Count,Type="sphere",SphereType=id,SphereStage="branch",SphereBranch=branch.Id,CurrentLevel=stage,NewLevel=stage,Text=branch.SphereCard(),Key=string.Join(":","sphere",id,"branch",stage,stage,branch.Id,"")});}
-                    else {var branch=definition.Branches.FirstOrDefault(row=>row.Id==GetSphereBranch(_pendingEvolutionSphere));if(branch!=null)for(int i=0;i<Math.Min(3,branch.FinalCards.Count);i++)result.Add(new NativeUpgradeInput {Index=i,Type="sphere",SphereType=id,SphereStage="final",SphereBranch=branch.Id,CurrentLevel=stage,NewLevel=stage,Text=branch.SphereCard(i),Key=string.Join(":","sphere",id,"final",stage,stage,branch.Id,i)});}
+                    else {var branch=definition.Branches.FirstOrDefault(row=>row.Id==GetSphereBranch(_pendingEvolutionSphere));if(branch!=null)for(int i=0;i<Math.Min(3,branch.FinalCards.Count);i++)result.Add(new NativeUpgradeInput {Index=i,Type="sphere",SphereType=id,SphereStage="final",SphereBranch=branch.Id,SphereFinal=SphereEvolutionCatalog.GetFinals(branch.Id)[i].Id,CurrentLevel=stage,NewLevel=stage,Text=branch.SphereCard(i),Key=string.Join(":","sphere",id,"final",stage,stage,branch.Id,i)});}
                 }
                 if(result.Count!=_evolutionChoices.Count)throw new InvalidOperationException("Evolution cards and native choices differ");
             }else foreach(var choice in _levelUpChoices){
@@ -74,7 +76,13 @@ namespace EchoSphere.Runtime
                 string category=type=="modifier"?L("МОДИФИКАТОР","MODIFIER"):abilityStage=="branch"?L("ВЕТКА СПОСОБНОСТИ","ABILITY BRANCH"):abilityStage=="final"?L("ФИНАЛЬНАЯ ФОРМА СПОСОБНОСТИ","FINAL ABILITY FORM"):sphereStage=="branch"?L("ВЕТКА СФЕРЫ","SPHERE BRANCH"):sphereStage=="final"?L("ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ","FINAL SPECIALIZATION"):type=="ability"?L("АКТИВНАЯ СПОСОБНОСТЬ","ACTIVE ABILITY"):L("УЛУЧШЕНИЕ СФЕРЫ","SPHERE UPGRADE");
                 if(type=="fusion")category=L("ОБЪЕДИНЕНИЕ","FUSION");
                 string level=type=="fusion"?L("Сфера VII + Способность VII","Sphere VII + Ability VII"):type=="modifier"?L("Разблокирует эффект","Unlocks the effect"):sphereStage=="branch"||abilityStage=="branch"?L("Уровень IV • выбор ветки","Level IV • choose a branch"):sphereStage=="final"||abilityStage=="final"?L("Уровень VII • выбор финальной формы","Level VII • choose final form"):T("level")+" "+NativePresentationMath.NumberText(value.CurrentLevel)+" → "+NativePresentationMath.NumberText(value.NewLevel);
-                string element=type=="sphere"?NativeRunCatalog.Instance.GetSphereBranch(value.SphereBranch)?.Element:null;
+                string element = SphereElementalRules.ResolveElement(value.SphereBranch, value.SphereFinal) switch
+                {
+                    SphereElement.Fire => "fire",
+                    SphereElement.Freeze => "freeze",
+                    SphereElement.Poison => "poison",
+                    _ => null
+                };
                 var meta=NativeRunCatalog.Instance.GetElement(element);
                 bool elementCard=meta!=null&&(sphereStage=="branch"||sphereStage=="final");
                 var hintNames=new List<string>();var hintDescriptions=new List<string>();

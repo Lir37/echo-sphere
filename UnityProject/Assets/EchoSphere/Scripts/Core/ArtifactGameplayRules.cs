@@ -18,6 +18,9 @@ namespace EchoSphere.Core
                 case "universal_fold":return ru?"+2% урона сфер за каждую собранную пару синергии артефактов, до +20%.":"+2% Sphere damage per completed artifact synergy pair, up to +20%.";
                 case "resonant_leaf":return ru?"+10% к получаемому заряду Резонанса.":"+10% Resonance charge gained.";
                 case "resonance_lattice":return ru?"+15% к получаемому заряду Резонанса.":"+15% Resonance charge gained.";
+                case "mirror_network":return ru?"+12% урона сфер, если установлены сферы хотя бы двух разных типов.":"+12% Sphere damage when at least two different Sphere types are deployed.";
+                case "fivefold_resonance":return ru?"+4% урона за каждый установленный тип сферы, до +20%.":"+4% damage per deployed Sphere type, up to +20%.";
+                case "stasis_core":return ru?"Когда вы теряете здоровье от попадания, все живые враги замедляются на 2 секунды.":"When a hit costs you health, all living enemies are slowed for 2 seconds.";
                 case "stasis_mandala":return ru?"Каждые 50 потерянных HP дают заряд щита. Не более одного заряда за попадание; максимум 5 зарядов. Смертельный урон не спасает.":"Every 50 HP lost grants a shield charge. At most one charge per hit; maximum 5 charges. Does not prevent lethal damage.";
                 case "time_splitter":return ru?"После окончания Остановки времени: +15% урона сфер на 5 секунд.":"After Time Stop ends: +15% Sphere damage for 5 seconds.";
                 case "echo_weaver":return ru?"+1% урона сфер за каждую активную связь сети, до +10%.":"+1% Sphere damage per active Network link, up to +10%.";
