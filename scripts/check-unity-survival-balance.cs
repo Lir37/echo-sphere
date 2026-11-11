@@ -9,6 +9,22 @@ public static class SurvivalBalanceCheck {
   Health(50);Enemy(10).ReceiveDamage(1000,emitFeedback:false);Near(core.CurrentHp,50,"non-sphere kill no flat ring healing");
   Health(99.95f);Enemy(100).ReceiveSphereDamage(SphereId.Standard,20,true,false,null,true);Near(core.CurrentHp,100,"healing respects max HP");
   var levels=(Dictionary<RunUpgradeKind,int>)Get(runtime,"_abilityLevels");levels[RunUpgradeKind.Vampire]=1;Health(50);Enemy(10).ReceiveSphereDamage(SphereId.Standard,1000,true,false,null,true);Near(core.CurrentHp,50.4f,"ability unchanged rate but no overkill");levels.Clear();
+  foreach (int fps in new[] {30, 60, 120})
+  {
+   core.SetMaxHpForNewRun(100);
+   Health(40);
+   var durable = Enemy(1000000);
+   durable.ReceiveSphereDamage(SphereId.Standard, 1000, true, false, null, true);
+   Near(core.CurrentHp, 42, "initial combat healing burst");
+   for (int frame = 0; frame < 3 * fps; frame++)
+   {
+    core.Tick(1f / fps);
+    durable.ReceiveSphereDamage(SphereId.Standard, 1000, true, false, null, true);
+   }
+   Near(core.CurrentHp, 54, "sustained combat healing at " + fps + " FPS");
+   durable.ReceiveSphereDamage(SphereId.Standard, 1000, true, false, null, true);
+   Near(core.CurrentHp, 54, "additional hits cannot spend exhausted healing credit");
+  }
   var rng=(SeededRng)Get(runtime,"_rng");Set(runtime,"_wave",20);
   foreach(EchoRegionId region in Enum.GetValues(typeof(EchoRegionId))){Set(runtime,"_selectedRegion",region);var snapshots=new List<(float hp,float damage)>();foreach(float time in new[]{0f,1800f}){Set(runtime,"_runTime",time);rng.Reset(20261104);Call(runtime,"SpawnRegionalEnemy",false,null);var enemy=enemies.Last();snapshots.Add((enemy.MaxHp,enemy.ContactDamage));enemy.gameObject.SetActive(false);}Near(snapshots[1].hp/snapshots[0].hp,1.6f,"same wave HP clock "+region);Near(snapshots[1].damage/snapshots[0].damage,1.45f,"same wave damage clock "+region);}
   Set(runtime,"_selectedRegion",EchoRegionId.ResonanceBasin);var bossHp=new List<float>();var bossDamage=new List<float>();var boltDamage=new List<float>();foreach(float time in new[]{0f,1800f}){Set(runtime,"_runTime",time);rng.Reset(20261104);var boss=runtime.SpawnBossForRegionEvent("shooter",20);objects.Add(boss.gameObject);bossHp.Add(boss.MaxHp);var combat=boss.GetComponent<BossCombatAgent2D>();bossDamage.Add((float)Get(combat,"_damage"));Call(combat,"ExecuteCampaignAttack",CampaignBossRules.Pattern("shooter",0,0));boltDamage.Add((float)Get(agents.OfType<BossProjectileAgent2D>().Last(),"_damage"));boss.gameObject.SetActive(false);}Near(bossHp[1]/bossHp[0],1.6f,"boss health clock");Near(bossDamage[1]/bossDamage[0],1.45f,"boss contact clock");Near(boltDamage[1]/boltDamage[0],1.45f,"boss projectile clock");
