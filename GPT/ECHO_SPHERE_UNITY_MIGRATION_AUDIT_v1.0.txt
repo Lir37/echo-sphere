@@ -6526,3 +6526,33 @@ backup/paid-entitlement recovery and one-time legacy compensation implemented.
 All6regional reset keys cleared to prevent reward resurrection. Core186988
 contracts and Editor wallet/progression/UI checks PASS; Android/full meta-game
 balance OPEN. Report:UNITY_META_CURRENCIES_COMPLETION_2026-11-01.md. No APK.
+
+
+======================================================================
+2026-11-12 — STORY CANON APPROVED / COMICS LOCALIZATION DESIGN ONLY
+======================================================================
+
+User approved the ECHO SPHERE fiction canon and 480-comic narrative
+plan (10 existing non-human explorers x 6 Regions x 4 stages x before/
+after). Each comic is 2-3 pages; the pilot is Spherist x Region 1.
+The ancient Network predates known users; its origins and the true
+cause of the catastrophe are deliberately unresolved.
+
+Approved presentation principle: single text-free comic artwork with
+empty speech/thought/caption areas, plus separate localizable UI text.
+Russian/English exist; Chinese is planned but NOT implemented.
+Technical implementation proposal and status:
+  GPT/ECHO_SPHERE_LORE_COMICS_CANON_v1.0.md
+  GPT/ECHO_SPHERE_COMICS_LOCALIZATION_TECH_SPEC_v0.1.md
+  GPT/ECHO_SPHERE_COMICS_STORY_STATUS_2026-11-12.md
+
+Gameplay progression decision approved but NOT implemented consistently:
+Stabilization -> all three existing challenge contracts -> next Region
+and current Region Endless. Region access is global to all 10 characters;
+comic unlocks are per character. Convergence is unchanged pending
+separate approval.
+
+This is DOCS ONLY: Unity runtime, rules, UI, saves, art and translated
+content remain unchanged. CI verifies source/type checks, not real APK
+visual fidelity. No Android build or player acceptance in this cycle.
+======================================================================
