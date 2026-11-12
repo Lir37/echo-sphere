@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "comicId": "comic:spherist:resonance_basin:stabilization:before",
+  "pageId": "p01",
+  "format": "SVG using losslessly embedded original game character PNG and region backdrop JPEG; not a produced PNG",
+  "sourceSha": {
+    "spherist": "206d7c12fb5cfdeb445180509aebae3ff7061b28",
+    "regionBackdrop": "fbc0c4aa30d6089e3b2055f4a3e9e91bcc63ed72"
+  },
+  "slots": [
+    {
+      "id": "caption_01",
+      "key": "comic.spherist.resonance_basin.stabilization.before.p01.panel1",
+      "type": "caption",
+      "rectPx": {
+        "x": 91,
+        "y": 87,
+        "w": 566,
+        "h": 62
+      },
+      "ru": "Котловина. Здесь и заброшенные линии продолжают работать.",
+      "en": "Resonance Basin. Even abandoned lines still work here."
+    },
+    {
+      "id": "thought_02",
+      "key": "comic.spherist.resonance_basin.stabilization.before.p01.panel2",
+      "type": "thought",
+      "rectPx": {
+        "x": 635,
+        "y": 710,
+        "w": 216,
+        "h": 82
+      },
+      "ru": "Крепление незнакомое. А расстояние между контактами… почти то же.",
+      "en": "The fitting is unfamiliar. But the spacing between contacts... almost matches."
+    },
+    {
+      "id": "thought_03",
+      "key": "comic.spherist.resonance_basin.stabilization.before.p01.panel3",
+      "type": "thought",
+      "rectPx": {
+        "x": 647,
+        "y": 1320,
+        "w": 200,
+        "h": 92
+      },
+      "ru": "Не могло же оно ждать именно меня.",
+      "en": "Surely it wasn't waiting for me specifically."
+    }
+  ]
+}
