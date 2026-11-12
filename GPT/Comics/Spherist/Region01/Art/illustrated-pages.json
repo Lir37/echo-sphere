@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "baseline": "808ab4cd8a7719ef699df582b93b21dcee3d3574",
+  "status": "visual-review",
+  "pages": [
+    {
+      "id": "S0_p01",
+      "image": "S0_p01.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.stabilization.before.p01.panel1",
+          "type": "caption",
+          "x": 0.11241,
+          "y": 0.05029,
+          "w": 0.23712,
+          "h": 0.02565,
+          "ru": "Котловина. Здесь и заброшенные линии продолжают работать.",
+          "en": "Resonance Basin. Even abandoned lines still work here."
+        },
+        {
+          "textKey": "comic.spherist.resonance_basin.stabilization.before.p01.panel2",
+          "type": "thought",
+          "x": 0.06983,
+          "y": 0.37991,
+          "w": 0.28235,
+          "h": 0.03187,
+          "ru": "Крепление незнакомое. А расстояние между контактами… почти то же.",
+          "en": "The fitting is unfamiliar. But the spacing between contacts... almost matches."
+        },
+        {
+          "textKey": "comic.spherist.resonance_basin.stabilization.before.p01.panel3",
+          "type": "thought",
+          "x": 0.1504,
+          "y": 0.70434,
+          "w": 0.27595,
+          "h": 0.02508,
+          "ru": "Не могло же оно ждать именно меня.",
+          "en": "Surely it wasn't waiting for me specifically."
+        }
+      ]
+    },
+    {
+      "id": "S0_p02",
+      "image": "S0_p02.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.stabilization.before.p02.panel2",
+          "type": "thought",
+          "x": 0.29454,
+          "y": 0.37631,
+          "w": 0.2288,
+          "h": 0.03259,
+          "ru": "Похоже, проверять придётся на ходу.",
+          "en": "Looks like I'll have to test this on the move."
+        }
+      ]
+    },
+    {
+      "id": "S1_p01",
+      "image": "S1_p01.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.stabilization.after_success.p01.panel2",
+          "type": "thought",
+          "x": 0.1059,
+          "y": 0.3857,
+          "w": 0.3823,
+          "h": 0.03825,
+          "ru": "Они не просили включить их. Они уже работали.",
+          "en": "They weren't asking to be switched on. They were already working."
+        }
+      ]
+    },
+    {
+      "id": "S1_p02",
+      "image": "S1_p02.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.stabilization.after_success.p02.panel2",
+          "type": "thought",
+          "x": 0.10126,
+          "y": 0.38439,
+          "w": 0.349,
+          "h": 0.03694,
+          "ru": "Может, это не наши устройства похожи на древние…",
+          "en": "Maybe it isn't our devices that resemble the ancient ones..."
+        },
+        {
+          "textKey": "comic.spherist.resonance_basin.stabilization.after_success.p02.panel3",
+          "type": "thought",
+          "x": 0.18982,
+          "y": 0.70426,
+          "w": 0.26155,
+          "h": 0.02311,
+          "ru": "…а мы научились подражать тому, что нашли.",
+          "en": "...maybe we learned to imitate what we found."
+        }
+      ]
+    }
+  ]
+}
