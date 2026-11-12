@@ -6580,3 +6580,5 @@ created by this commit. CI success does not establish visual parity.
 ======================================================================
 
 Documentation-only editorial pass: corrected inline Markdown code formatting in the Spherist production brief; no source/gameplay changes.
+
+2026-11-12: Fixed-source comic pilot created: S0_p01.svg and S0_p02.svg under GPT/Comics/Spherist/Region01/Art. Both self-contained SVG with source game/Archive image layers, empty bubbles and separate RU/EN overlay JSON. No gameplay code changes. Visual approval pending; SVG prototypes not PNG-ready Unity assets.

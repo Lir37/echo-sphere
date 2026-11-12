@@ -10,3 +10,6 @@ This is a **visual proof of the approved layered workflow**, not yet a Unity-rea
 - This deliberately validates only the first page (S0-p01) without enemy composites. For S0-p02, official enemy source JPGs will be used without inventing alternative bodies.
 
 **Reference checks:** source branch `unity-migration`, sprite `UnityProject/Assets/Resources/EchoSphere/CharacterArt/spherist.png`, environment `UnityProject/Assets/Resources/EchoSphere/RegionBackdrops/resonance_basin.jpg`, story `GPT/Comics/Spherist/REGION_01_RESONANCE_BASIN_PRODUCTION_BRIEF_v1.0.md`.
+
+- `S0_p02.svg`: second pilot page using original Archive illustrations of `defeat-enemy-0-wisp` and `defeat-enemy-0-beetle` as image layers (with feathered edges), plus original Spherist core PNG and source `sphere-standard` JPG. No AI-redrawn monsters. `S0_p02.slots.json` contains the only thought overlay.
+- **Visual-quality limitation:** cutouts are feathered archive photograph/illustration layers, not yet individually hand-redrawn comic silhouettes. If visual montage seams are obvious or the panels are unclear, this is a compositing test, not production acceptance.

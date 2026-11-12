@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "comicId": "comic:spherist:resonance_basin:stabilization:before",
+  "pageId": "p02",
+  "artType": "SVG compositing fixed original Spherist, archive Standard sphere, archive Wisp and Beetle source images over source region background; overlays separate",
+  "sourceSha": {
+    "spherist": "206d7c12fb5cfdeb445180509aebae3ff7061b28",
+    "basin": "fbc0c4aa30d6089e3b2055f4a3e9e91bcc63ed72",
+    "wisp": "757f9e30f36a56c692a900cdffbf8b1066ceba26",
+    "beetle": "c9ab4c25945212307a218d87058bb065d27db917",
+    "standard": "8ff43edb181a60cbe9981ae3e48ab5aa35a7c86c"
+  },
+  "slots": [
+    {
+      "id": "thought_02",
+      "key": "comic.spherist.resonance_basin.stabilization.before.p02.panel2",
+      "type": "thought",
+      "rectPx": {
+        "x": 678,
+        "y": 734,
+        "w": 184,
+        "h": 87
+      },
+      "ru": "Похоже, проверять придётся на ходу.",
+      "en": "Looks like I'll have to test this on the move."
+    }
+  ]
+}
