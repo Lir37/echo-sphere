@@ -6556,3 +6556,25 @@ This is DOCS ONLY: Unity runtime, rules, UI, saves, art and translated
 content remain unchanged. CI verifies source/type checks, not real APK
 visual fidelity. No Android build or player acceptance in this cycle.
 ======================================================================
+
+
+======================================================================
+2026-11-12 — SPHERIST REGION 1 COMIC PRODUCTION BRIEF
+======================================================================
+
+Prepared detailed Codex art-production specification:
+GPT/Comics/Spherist/REGION_01_RESONANCE_BASIN_PRODUCTION_BRIEF_v1.0.md
+
+Scope: existing APPROVED Spherist/Resonance Basin pilot ONLY:
+8 independent comics / 16 vertical pages / exactly 48 illustrated panels.
+Each of 16 pages has three grounded beats, draft RU/EN overlay slots, an
+individual Codex page prompt, strict art refs, per-page validation.
+Key correction: Spherist is a nonhumanoid floating outlined Core (no
+person, face, limbs, outfit, handheld gun, or invented scanner).
+Artist must match actual game/archive enemies, spheres, Region 1 backdrop
+but paint a nonphotorealistic graphic-novel style. Bubbles empty; text
+provided as separate localized overlays; no embedded lettering.
+
+Documentation only. No page artwork, Unity runtime or gameplay changes
+created by this commit. CI success does not establish visual parity.
+======================================================================
