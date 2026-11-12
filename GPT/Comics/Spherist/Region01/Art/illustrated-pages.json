@@ -104,6 +104,242 @@
           "en": "...maybe we learned to imitate what we found."
         }
       ]
+    },
+    {
+      "id": "F0_p01",
+      "image": "F0_p01.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [
+        "wisp",
+        "beetle"
+      ],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.fractured_network.before.p01.panel1",
+          "type": "thought",
+          "x": 0.14888,
+          "y": 0.05747,
+          "w": 0.23712,
+          "h": 0.02514,
+          "ru": "Обрыв есть. Разлома нет.",
+          "en": "The link is gone. The structure isn't broken."
+        }
+      ]
+    },
+    {
+      "id": "F0_p02",
+      "image": "F0_p02.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [
+        "wisp",
+        "beetle",
+        "standard",
+        "orbital"
+      ],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.fractured_network.before.p02.panel3",
+          "type": "thought",
+          "x": 0.17228,
+          "y": 0.70383,
+          "w": 0.23276,
+          "h": 0.02551,
+          "ru": "Тогда посмотрим, что останется между двумя тактами.",
+          "en": "Then let's see what remains between two beats."
+        }
+      ]
+    },
+    {
+      "id": "F1_p01",
+      "image": "F1_p01.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [],
+      "slots": []
+    },
+    {
+      "id": "F1_p02",
+      "image": "F1_p02.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [
+        "standard",
+        "orbital"
+      ],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.fractured_network.after_success.p02.panel2",
+          "type": "thought",
+          "x": 0.15352,
+          "y": 0.38223,
+          "w": 0.26055,
+          "h": 0.03431,
+          "ru": "Когда-то я искал обрыв провода. Здесь сам провод может быть не главной частью линии.",
+          "en": "I used to look for a broken wire. Here the wire itself may not be the important part."
+        }
+      ]
+    },
+    {
+      "id": "O0_p01",
+      "image": "O0_p01.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [
+        "wisp",
+        "moth"
+      ],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.overload.before.p01.panel3",
+          "type": "thought",
+          "x": 0.16136,
+          "y": 0.70383,
+          "w": 0.24789,
+          "h": 0.02362,
+          "ru": "Тот же сигнал. Но всё вокруг слышит его иначе.",
+          "en": "The same signal. But everything around it responds differently."
+        }
+      ]
+    },
+    {
+      "id": "O0_p02",
+      "image": "O0_p02.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [
+        "wisp",
+        "moth",
+        "standard",
+        "orbital"
+      ],
+      "slots": []
+    },
+    {
+      "id": "O1_p01",
+      "image": "O1_p01.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.overload.after_success.p01.panel3",
+          "type": "thought",
+          "x": 0.15881,
+          "y": 0.70292,
+          "w": 0.26501,
+          "h": 0.02414,
+          "ru": "От большего сигнала они не становятся понятнее.",
+          "en": "A stronger signal doesn't make them easier to understand."
+        }
+      ]
+    },
+    {
+      "id": "O1_p02",
+      "image": "O1_p02.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [
+        "wisp",
+        "moth"
+      ],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.overload.after_success.p02.panel2",
+          "type": "thought",
+          "x": 0.07786,
+          "y": 0.38331,
+          "w": 0.28694,
+          "h": 0.03123,
+          "ru": "Значит, это не команда. Скорее то, на что они вынуждены отвечать.",
+          "en": "So it may not be a command. More like something they cannot help responding to."
+        }
+      ]
+    },
+    {
+      "id": "G0_p01",
+      "image": "G0_p01.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.low_gravity.before.p01.panel3",
+          "type": "thought",
+          "x": 0.14698,
+          "y": 0.71863,
+          "w": 0.24597,
+          "h": 0.02971,
+          "ru": "Здесь расстояние всё ещё измеряется. А вот движение — иначе.",
+          "en": "Distance still makes sense here. Motion is another matter."
+        }
+      ]
+    },
+    {
+      "id": "G0_p02",
+      "image": "G0_p02.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [
+        "wisp",
+        "beetle",
+        "standard",
+        "orbital"
+      ],
+      "slots": []
+    },
+    {
+      "id": "G1_p01",
+      "image": "G1_p01.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.low_gravity.after_success.p01.panel3",
+          "type": "thought",
+          "x": 0.29922,
+          "y": 0.70628,
+          "w": 0.20031,
+          "h": 0.02828,
+          "ru": "Если это одна сеть, она пережила слишком разные места.",
+          "en": "If this is one Network, it survived places that changed in very different ways."
+        }
+      ]
+    },
+    {
+      "id": "G1_p02",
+      "image": "G1_p02.png",
+      "imageWidth": 1080,
+      "imageHeight": 1920,
+      "panelCount": 3,
+      "referenceIds": [
+        "wisp"
+      ],
+      "slots": [
+        {
+          "textKey": "comic.spherist.resonance_basin.low_gravity.after_success.p02.panel2",
+          "type": "thought",
+          "x": 0.11846,
+          "y": 0.37942,
+          "w": 0.26048,
+          "h": 0.03471,
+          "ru": "Совпадение формы ничего не говорит о возрасте.",
+          "en": "Matching shapes tell us nothing about age."
+        }
+      ]
     }
   ]
 }
