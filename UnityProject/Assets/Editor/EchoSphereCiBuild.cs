@@ -21,12 +21,81 @@ public static class EchoSphereCiBuild
     public static void BuildAndroidApk()
         => BuildAndroid(BuildOptions.None, "Builds/Android/ECHO-SPHERE.apk");
 
+    public static void BuildAndroidReleaseApk()
+    {
+        var keystore = Path.GetFullPath(RequireEnvironment("ECHO_ANDROID_KEYSTORE"));
+        if (!File.Exists(keystore))
+            throw new FileNotFoundException("[ECHO SPHERE] Release keystore is missing.");
+
+        var alias = RequireEnvironment("ECHO_ANDROID_KEY_ALIAS");
+        var storePassword = RequireEnvironment("ECHO_ANDROID_KEYSTORE_PASSWORD");
+        var keyPassword = RequireEnvironment("ECHO_ANDROID_KEY_PASSWORD");
+        var version = RequireEnvironment("ECHO_ANDROID_VERSION");
+        if (!int.TryParse(RequireEnvironment("ECHO_ANDROID_VERSION_CODE"), out var versionCode) ||
+            versionCode <= 1)
+            throw new InvalidOperationException("[ECHO SPHERE] Release version code must be greater than the test APK's version code (1).");
+
+        var symbols = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android).Split(';');
+        if (symbols.Any(symbol => symbol.Trim() == "ECHO_SPHERE_TEST_CONTROLS"))
+            throw new InvalidOperationException("[ECHO SPHERE] Remove ECHO_SPHERE_TEST_CONTROLS before building a release.");
+
+        PrepareAndroidBuild();
+        var previousVersion = PlayerSettings.bundleVersion;
+        var previousCode = PlayerSettings.Android.bundleVersionCode;
+        var previousTarget = PlayerSettings.Android.targetSdkVersion;
+        var previousCustom = PlayerSettings.Android.useCustomKeystore;
+        var previousKeystore = PlayerSettings.Android.keystoreName;
+        var previousAlias = PlayerSettings.Android.keyaliasName;
+        var previousStorePassword = PlayerSettings.Android.keystorePass;
+        var previousKeyPassword = PlayerSettings.Android.keyaliasPass;
+        try
+        {
+            PlayerSettings.bundleVersion = version;
+            PlayerSettings.Android.bundleVersionCode = versionCode;
+            PlayerSettings.Android.targetSdkVersion = (AndroidSdkVersions)36;
+            PlayerSettings.Android.useCustomKeystore = true;
+            PlayerSettings.Android.keystoreName = keystore;
+            PlayerSettings.Android.keyaliasName = alias;
+            PlayerSettings.Android.keystorePass = storePassword;
+            PlayerSettings.Android.keyaliasPass = keyPassword;
+            BuildPreparedAndroid(BuildOptions.None, "Builds/Android/ECHO-SPHERE-release.apk");
+        }
+        finally
+        {
+            PlayerSettings.bundleVersion = previousVersion;
+            PlayerSettings.Android.bundleVersionCode = previousCode;
+            PlayerSettings.Android.targetSdkVersion = previousTarget;
+            PlayerSettings.Android.keystoreName = previousKeystore;
+            PlayerSettings.Android.keyaliasName = previousAlias;
+            PlayerSettings.Android.keystorePass = previousStorePassword;
+            PlayerSettings.Android.keyaliasPass = previousKeyPassword;
+            PlayerSettings.Android.useCustomKeystore = previousCustom;
+        }
+    }
+
+    private static string RequireEnvironment(string name)
+    {
+        var value = Environment.GetEnvironmentVariable(name);
+        if (string.IsNullOrWhiteSpace(value))
+            throw new InvalidOperationException("[ECHO SPHERE] Set " + name + " for the signed release build.");
+        return value;
+    }
+
     private static void BuildAndroid(BuildOptions buildOptions, string relativePath)
+    {
+        PrepareAndroidBuild();
+        BuildPreparedAndroid(buildOptions, relativePath);
+    }
+
+    private static void PrepareAndroidBuild()
     {
         EchoSphereProjectBootstrap.EnsureNativeScene();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+    }
 
+    private static void BuildPreparedAndroid(BuildOptions buildOptions, string relativePath)
+    {
         var scenes = EditorBuildSettings.scenes
             .Where(scene => scene.enabled)
             .Select(scene => scene.path)
