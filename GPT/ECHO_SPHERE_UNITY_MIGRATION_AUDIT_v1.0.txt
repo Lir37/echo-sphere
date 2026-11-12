@@ -6578,3 +6578,5 @@ provided as separate localized overlays; no embedded lettering.
 Documentation only. No page artwork, Unity runtime or gameplay changes
 created by this commit. CI success does not establish visual parity.
 ======================================================================
+
+Documentation-only editorial pass: corrected inline Markdown code formatting in the Spherist production brief; no source/gameplay changes.
